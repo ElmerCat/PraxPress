@@ -203,7 +203,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="783935787">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="WebView" id="785024317">
@@ -245,7 +245,6 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{960, 623}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="785024317"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
@@ -286,7 +285,7 @@
 								<reference key="NSSupport" ref="302314555"/>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="1012008128"/>
-								<int key="NSButtonFlags">-2034483200</int>
+								<int key="NSButtonFlags">-2034352128</int>
 								<int key="NSButtonFlags2">129</int>
 								<object class="NSCustomResource" key="NSNormalImage" id="386062825">
 									<string key="NSClassName">NSImage</string>
@@ -388,10 +387,10 @@
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSSearchFieldCell" key="NSCell" id="571299438">
-								<int key="NSCellFlags">342884416</int>
+								<int key="NSCellFlags">343408704</int>
 								<int key="NSCellFlags2">268436544</int>
-								<string key="NSContents"/>
 								<reference key="NSSupport" ref="302314555"/>
+								<string key="NSPlaceholderString">All Items</string>
 								<string key="NSCellIdentifier">_NS:9</string>
 								<reference key="NSControlView" ref="1056931820"/>
 								<bool key="NSDrawsBackground">YES</bool>
@@ -447,6 +446,7 @@
 									<int key="NSPeriodicInterval">75</int>
 								</object>
 								<int key="NSMaximumRecents">255</int>
+								<bytes key="NSSearchFieldFlags">CAAAAA</bytes>
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
@@ -2275,20 +2275,87 @@
 						<string key="label">predicate: filterPredicate</string>
 						<reference key="source" ref="1056931820"/>
 						<reference key="destination" ref="460790686"/>
-						<object class="NSNibBindingConnector" key="connector">
+						<object class="NSNibBindingConnector" key="connector" id="362720451">
 							<reference key="NSSource" ref="1056931820"/>
 							<reference key="NSDestination" ref="460790686"/>
 							<string key="NSLabel">predicate: filterPredicate</string>
 							<string key="NSBinding">predicate</string>
 							<string key="NSKeyPath">filterPredicate</string>
 							<dictionary key="NSOptions">
-								<string key="NSDisplayName">predicate</string>
+								<string key="NSDisplayName">All Items</string>
 								<string key="NSPredicateFormat">title contains[cd] $value</string>
+								<boolean value="YES" key="NSValidatesImmediately"/>
 							</dictionary>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">101900</int>
+					<int key="connectionID">104317</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">predicate2: filterPredicate</string>
+						<reference key="source" ref="1056931820"/>
+						<reference key="destination" ref="460790686"/>
+						<object class="NSNibBindingConnector" key="connector" id="70818770">
+							<reference key="NSSource" ref="1056931820"/>
+							<reference key="NSDestination" ref="460790686"/>
+							<string key="NSLabel">predicate2: filterPredicate</string>
+							<string key="NSBinding">predicate2</string>
+							<string key="NSKeyPath">filterPredicate</string>
+							<dictionary key="NSOptions">
+								<string key="NSDisplayName">Tracks</string>
+								<string key="NSPredicateFormat">title contains[cd] $value AND entity.name == "Track"</string>
+								<boolean value="YES" key="NSValidatesImmediately"/>
+							</dictionary>
+							<reference key="NSPreviousConnector" ref="362720451"/>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">104318</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">predicate3: filterPredicate</string>
+						<reference key="source" ref="1056931820"/>
+						<reference key="destination" ref="460790686"/>
+						<object class="NSNibBindingConnector" key="connector" id="847789087">
+							<reference key="NSSource" ref="1056931820"/>
+							<reference key="NSDestination" ref="460790686"/>
+							<string key="NSLabel">predicate3: filterPredicate</string>
+							<string key="NSBinding">predicate3</string>
+							<string key="NSKeyPath">filterPredicate</string>
+							<dictionary key="NSOptions">
+								<string key="NSDisplayName">Playlists</string>
+								<string key="NSPredicateFormat">title contains[cd] $value AND entity.name == "Playlist"</string>
+								<boolean value="YES" key="NSValidatesImmediately"/>
+							</dictionary>
+							<reference key="NSPreviousConnector" ref="70818770"/>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">104319</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">predicate4: filterPredicate</string>
+						<reference key="source" ref="1056931820"/>
+						<reference key="destination" ref="460790686"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="1056931820"/>
+							<reference key="NSDestination" ref="460790686"/>
+							<string key="NSLabel">predicate4: filterPredicate</string>
+							<string key="NSBinding">predicate4</string>
+							<string key="NSKeyPath">filterPredicate</string>
+							<dictionary key="NSOptions">
+								<string key="NSDisplayName">User Account Profile</string>
+								<string key="NSPredicateFormat">entity.name == "Account"</string>
+								<boolean value="YES" key="NSValidatesImmediately"/>
+							</dictionary>
+							<reference key="NSPreviousConnector" ref="847789087"/>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">104320</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -5454,22 +5521,6 @@
 								<float key="scoringTypeFloat">40</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="949363904">
-								<reference key="firstItem" ref="415343819"/>
-								<int key="firstAttribute">3</int>
-								<int key="relation">0</int>
-								<reference key="secondItem" ref="630213714"/>
-								<int key="secondAttribute">3</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">99</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="630213714"/>
-								<int key="scoringType">9</int>
-								<float key="scoringTypeFloat">40</float>
-								<int key="contentType">3</int>
-							</object>
 							<object class="IBNSLayoutConstraint" id="336050304">
 								<reference key="firstItem" ref="125222832"/>
 								<int key="firstAttribute">6</int>
@@ -5488,6 +5539,22 @@
 							</object>
 							<object class="IBNSLayoutConstraint" id="956854948">
 								<reference key="firstItem" ref="125222832"/>
+								<int key="firstAttribute">3</int>
+								<int key="relation">0</int>
+								<reference key="secondItem" ref="630213714"/>
+								<int key="secondAttribute">3</int>
+								<float key="multiplier">1</float>
+								<object class="IBLayoutConstant" key="constant">
+									<double key="value">99</double>
+								</object>
+								<float key="priority">1000</float>
+								<reference key="containingView" ref="630213714"/>
+								<int key="scoringType">9</int>
+								<float key="scoringTypeFloat">40</float>
+								<int key="contentType">3</int>
+							</object>
+							<object class="IBNSLayoutConstraint" id="949363904">
+								<reference key="firstItem" ref="415343819"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="630213714"/>
@@ -7491,7 +7558,7 @@
 						<string type="base64-UTF8" key="toolTip">ICAgICAgICAgICAgA</string>
 					</object>
 				</object>
-				<array class="NSMutableArray" key="100293.IBNSViewMetadataConstraints">
+				<array key="100293.IBNSViewMetadataConstraints">
 					<reference ref="334868270"/>
 					<reference ref="208535275"/>
 					<reference ref="245470983"/>
@@ -7506,9 +7573,9 @@
 					<reference ref="981648153"/>
 					<reference ref="896065050"/>
 					<reference ref="187548253"/>
+					<reference ref="949363904"/>
 					<reference ref="956854948"/>
 					<reference ref="336050304"/>
-					<reference ref="949363904"/>
 					<reference ref="653302842"/>
 					<reference ref="283513155"/>
 					<reference ref="336705447"/>
@@ -7949,7 +8016,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">104266</int>
+			<int key="maxID">104320</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
