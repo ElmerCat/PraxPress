@@ -1,5 +1,5 @@
 //
-//  Tracks.h
+//  SoundCloudController.h
 //  PraxPress
 //
 //  Created by John Canfield on 7/30/12.
@@ -7,62 +7,43 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <OAuth2Client/NXOAuth2.h>
-#import <SoundCloudAPI/SCAPI.h>
 #import <WebKit/WebKit.h>
 #import "Document.h"
-#import "TrackView.h"
-#import "Track.h"
+#import "UpdateController.h"
+#import "Asset.h"
 @class Document;
+@class UpdateController;
 
 @interface SoundCloudController : NSObject
 
+@property (strong) Asset *userAccount;
+@property (readonly) Asset *account;
+@property (readonly) NSPredicate *batchEditFilterPredicate;
+@property (readonly) NSPredicate *updatedObjectsFilterPredicate;
+
+@property (unsafe_unretained) IBOutlet NSWindow *authorizationWindow;
+@property (weak) IBOutlet WebView *webView;
 @property (weak) IBOutlet Document *document;
-@property (strong) NSManagedObject *account;
-@property BOOL stopFlag;
-//@property BOOL uploadTitleFlag;
-//@property BOOL uploadPurchaseTitleFlag;
-//@property BOOL uploadPurchaseURLFlag;
-@property BOOL batchChangePurchaseTitle;
-@property BOOL batchChangePurchaseURL;
-@property (weak) IBOutlet NSTextField *changePurchaseURL;
-@property (weak) IBOutlet NSTextField *changePurchaseTitle;
-- (IBAction)copyPurchaseTitle:(id)sender;
-- (IBAction)copyPurchaseURL:(id)sender;
+@property (weak) IBOutlet UpdateController *updateController;
 
-@property (weak) IBOutlet NSImageView *progressImageWell;
-@property (weak) IBOutlet NSArrayController *assetController;
+@property (weak) IBOutlet NSArrayController *tracksController;
+@property (weak) IBOutlet NSArrayController *playlistsController;
 @property (weak) IBOutlet NSArrayController *tracksBatchEditController;
-
 @property (weak) IBOutlet NSTableView *tracksTableView;
 @property (weak) IBOutlet NSTabView *batchEditTabView;
 
-@property (weak) IBOutlet NSProgressIndicator *tracksProgress;
-@property (unsafe_unretained) IBOutlet NSWindow *soundCloudAuthorizationWindow;
-@property (weak) IBOutlet WebView *webView;
+- (IBAction)refresh:(id)sender;
+- (IBAction)upload:(id)sender;
+- (IBAction)logout:(id)sender;
 
-@property (readonly) NSPredicate *batchEditFilterPredicate;
-
-@property (weak) IBOutlet NSButton *userDisplayButton;
-@property (weak) IBOutlet NSButton *tracksDisplayButton;
-@property (weak) IBOutlet NSButton *playlistsDisplayButton;
-
-- (IBAction)userButtonClicked:(id)sender;
-- (IBAction)tracksButtonClicked:(id)sender;
-- (IBAction)playlistsButtonClicked:(id)sender;
-- (IBAction)addBatchButtonClicked:(id)sender;
-- (IBAction)removeBatchButtonClicked:(id)sender;
-
-- (IBAction)expandView:(id)sender;
-- (IBAction)download:(id)sender;
-- (IBAction)stopDownload:(id)sender;
-- (void)loadAccountWithData:(NSData *)data;
-- (void)loadTracksWithData:(NSData *)data;
-- (void)loadTrackWithData:(NSData *)data;
-- (void)uploadTrackData:(Track *)track;
-- (void)refreshTrack:(Track *)track;
-- (void)tracksNotification:(NSNotification *)notification;
+- (IBAction)refreshTrack:(id)sender;
+- (IBAction)uploadTrack:(id)sender;
+- (IBAction)refreshPlaylist:(id)sender;
+- (IBAction)uploadPlaylist:(id)sender;
+- (IBAction)addTracksBatchButtonClicked:(id)sender;
+- (IBAction)removeTracksBatchButtonClicked:(id)sender;
+- (IBAction)addPlaylistsBatchButtonClicked:(id)sender;
+- (IBAction)removePlaylistsBatchButtonClicked:(id)sender;
 - (IBAction)editModeButtonClicked:(id)sender;
-- (IBAction)infoModeButtonClicked:(id)sender;
-- (IBAction)tableDoubleClickAction:(id)sender;
+
 @end

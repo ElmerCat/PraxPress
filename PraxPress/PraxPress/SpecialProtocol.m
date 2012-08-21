@@ -154,10 +154,12 @@
      we are using the url text to identify files names in our resources folder
      that we would like to display. */
     
-    
-    BOOL handled = [SCSoundCloud handleRedirectURL:[request URL]];
+    BOOL handled = [[NXOAuth2AccountStore sharedStore] handleRedirectURL:[request URL]];
     if (!handled) {
         NSLog(@"The URL (%@) could not be handled by the SoundCloud API. Maybe you want to do something with it.", [request URL]);
+    }
+    else {
+        NSLog(@"The URL (%@) was handled by the SoundCloud API.", [request URL]);
     }
   
  //   [[NXOAuth2AccountStore sharedStore] handleRedirectURL:[request URL]];

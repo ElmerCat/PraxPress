@@ -10,9 +10,6 @@
 #import "SpecialProtocol.h"
 
 @implementation Document
-@synthesize soundCloudController;
-@synthesize soundCloudAuthorizationWindow;
-@synthesize webView;
 
 - (id)init
 {
@@ -33,20 +30,21 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
+    id transformer = [[PraxNumberIsZeroTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsZeroTransformer"];
+    transformer = [[PraxNumberIsNotZeroTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification
                                                       object:[NXOAuth2AccountStore sharedStore]
                                                        queue:nil
                                                   usingBlock:^(NSNotification *aNotification){
                                                       NSLog(@"PraxDocument NXOAuth2AccountStoreAccountsDidChangeNotification");
-
+                                                      
                                                       // Update your UI
-                                                      if ([SCSoundCloud account]) {
-                                                          [soundCloudAuthorizationWindow close];
-                                                          
-                                                          
-                                                      }
+                                            //          if ([SCSoundCloud account]) {
+                                                          [self.authorizationWindow close];
+                                             //          }
                                                   }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreDidFailToRequestAccessNotification
@@ -63,17 +61,17 @@
                                                   }];
     
     // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
-    
+/*
     [[NXOAuth2AccountStore sharedStore] setClientID:@"493"
                                              secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
                                    authorizationURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/authorize"]
                                            tokenURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/token"]
                                         redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
-                                     forAccountType:@"WordPress"];
-    
-    [SCSoundCloud  setClientID:@"cdb0237a5d0244d2f0528ae9da6ca41f"
-                        secret:@"48d5ef73f4dd1281e5d41100ba58261a"
-                   redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]];
+                                     forAccountType:@"com.wordpress.api"];
+*/    
+//    [WPWordPress  setClientID:@"493"
+//                        secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
+//                   redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]];
     
     
 //    NSLog(@"%@ received %@", self, NSStringFromSelector(_cmd));
@@ -84,22 +82,61 @@
 
 }
 
-- (IBAction)praxAction:(id)sender{
-    NSLog(@"praxAction");
-    for (NXOAuth2Account *account in [[NXOAuth2AccountStore sharedStore] accounts]) {
-        // Do something with the account
-        
-        NSLog(@"praxAction account:%@", account);
-    };
-    
+- (void)removeAccessForAccountType:(NSString *)accountType {
+    NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:accountType];
+    for (NXOAuth2Account *account in accounts) {
+        [[NXOAuth2AccountStore sharedStore] removeAccount:account];
+    }
 }
 
-- (IBAction)wordPressAction:(id)sender {
-    
 
+- (NXOAuth2Account *) scAccount {
+    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:@"com.soundcloud.api"];
+    if ([oauthAccounts count] > 0) {
+        return oauthAccounts[0];
+    } else {
+        
+        [self removeAccessForAccountType:@"com.soundcloud.api"];
+        
+        [[NXOAuth2AccountStore sharedStore] setClientID:@"cdb0237a5d0244d2f0528ae9da6ca41f"
+                                                 secret:@"48d5ef73f4dd1281e5d41100ba58261a"
+                                       authorizationURL:[NSURL URLWithString:@"https://soundcloud.com/connect"]
+                                               tokenURL:[NSURL URLWithString:@"https://api.soundcloud.com/oauth2/token"]
+                                            redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
+                                         forAccountType:@"com.soundcloud.api"];
+        
+        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:@"com.soundcloud.api"
+                                       withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
+                                           [self.authorizationWindow makeKeyAndOrderFront:self];
+                                           [[self.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
+                                       }];
+        return nil;
+    }
+}
 
-    
-    
+- (NXOAuth2Account *) wpAccount {
+    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:@"com.wordpress.api"];
+    if ([oauthAccounts count] > 0) {
+        return oauthAccounts[0];
+    } else {
+        
+        [self removeAccessForAccountType:@"com.wordpress.api"];
+        
+        [[NXOAuth2AccountStore sharedStore] setClientID:@"493"
+                                                 secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
+                                       authorizationURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/authorize"]
+                                               tokenURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/token"]
+                                            redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
+                                         forAccountType:@"com.wordpress.api"];
+        
+        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:@"com.wordpress.api"
+                                       withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
+                                           [self.authorizationWindow makeKeyAndOrderFront:self];
+                                           [[self.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
+                                       }];
+        return nil;
+    }
+}
     
     
 /*
@@ -140,8 +177,10 @@
  
         
     }
-  */  
+   
 }
+*/
+
 
 /* Called just before a webView attempts to load a resource.  Here, we look at the
  request and if it's destined for our special protocol handler we modify the request
@@ -184,7 +223,7 @@
 }
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request
 {
-	NSLog(@"%@ received %@", self, NSStringFromSelector(_cmd));
+	NSLog(@"callbackFromSpecialRequest %@ received %@", self, NSStringFromSelector(_cmd));
 }
 
 + (BOOL)autosavesInPlace

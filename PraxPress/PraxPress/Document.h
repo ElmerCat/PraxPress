@@ -11,8 +11,13 @@
 #import <Foundation/NSError.h>
 
 #import <OAuth2Client/NXOAuth2.h>
-#import <SoundCloudAPI/SCAPI.h>
+//#import <SoundCloudAPI/SCAPI.h>
+//#import <CocoaWordPressAPI/WPAPI.h>
 #import "SoundCloudController.h"
+#import "PraxTransformers.h"
+#import "Asset.h"
+
+
 @class SoundCloudController;
 
 @interface Document : NSPersistentDocument
@@ -20,11 +25,15 @@
 @property (strong) IBOutlet SoundCloudController *soundCloudController;
 @property (strong) NSArray *scTracks;
 
-@property (strong) IBOutlet NSWindow *soundCloudAuthorizationWindow;
+- (NXOAuth2Account *) scAccount;
+- (NXOAuth2Account *) wpAccount;
+
+@property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;
 
-- (IBAction)praxAction:(id)sender;
-- (IBAction)wordPressAction:(id)sender;
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
+- (void)removeAccessForAccountType:(NSString *)accountType;
 @end
+
+
