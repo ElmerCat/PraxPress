@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E655096F15D3F740006705AE /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = E655096E15D3F740006705AE /* Track.m */; };
+		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
+		E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64B323515E2CBB900B6CD97 /* WordPressController.m */; };
+		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
 		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
@@ -16,15 +18,11 @@
 		E6BC79B415C4759800080762 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B215C4759800080762 /* Document.xib */; };
 		E6BC79B715C4759800080762 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B515C4759800080762 /* MainMenu.xib */; };
 		E6BC79BA15C4759800080762 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79B815C4759800080762 /* Document.xcdatamodeld */; };
-		E6BC79C215C4759800080762 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79C115C4759800080762 /* SenTestingKit.framework */; };
-		E6BC79C315C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
-		E6BC79CB15C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79C915C4759800080762 /* InfoPlist.strings */; };
-		E6BC79CE15C4759800080762 /* PraxPressTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79CD15C4759800080762 /* PraxPressTests.m */; };
-		E6BC79E615C47B3C00080762 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79E015C475B900080762 /* OAuth2Client.framework */; };
 		E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79EF15C48A1000080762 /* WebKit.framework */; };
 		E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79F615C48FE300080762 /* SpecialProtocol.m */; };
-		E6BC7A0D15C603CA00080762 /* SoundCloudAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC7A0715C5FB8900080762 /* SoundCloudAPI.framework */; };
-		E6EE3F1215C7037D0025C04B /* TrackView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EE3F1115C7037D0025C04B /* TrackView.m */; };
+		E6D6F61015D976F5005CA87F /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79E015C475B900080762 /* OAuth2Client.framework */; };
+		E6D6F61315D97B78005CA87F /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E6BC79E015C475B900080762 /* OAuth2Client.framework */; };
+		E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */; };
 		E6EE3F2015C71DEA0025C04B /* SoundCloudController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EE3F1F15C71DEA0025C04B /* SoundCloudController.m */; };
 		E6EE3F2615C773D10025C04B /* Connect.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2215C773D10025C04B /* Connect.wav */; };
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
@@ -33,26 +31,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E6BC79C415C4759800080762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6BC799015C4759800080762 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E6BC799815C4759800080762;
-			remoteInfo = PraxPress;
-		};
 		E6BC79DF15C475B900080762 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
 			remoteInfo = OAuth2Client.framework;
-		};
-		E6BC79E115C475B900080762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = OAuth2Client;
 		};
 		E6BC79E315C4760400080762 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -61,26 +45,28 @@
 			remoteGlobalIDString = 942FFCD512315E0A00E6C65E;
 			remoteInfo = OAuth2Client.framework;
 		};
-		E6BC7A0615C5FB8900080762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6BC79FE15C5FB8900080762 /* SoundCloudAPI.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 94535F86123FAFDF00BD668A;
-			remoteInfo = SoundCloudAPI.framework;
-		};
-		E6BC7A0815C5FB8900080762 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6BC79FE15C5FB8900080762 /* SoundCloudAPI.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = SoundCloudAPI;
-		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		E6D6F61215D97B66005CA87F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E6D6F61315D97B78005CA87F /* OAuth2Client.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		E64B16E015CDAA0C007FF4C3 /* PraxPress.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PraxPress.entitlements; sourceTree = "<group>"; };
-		E655096D15D3F740006705AE /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
-		E655096E15D3F740006705AE /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
+		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
+		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
+		E64B323415E2CBB900B6CD97 /* WordPressController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordPressController.h; sourceTree = "<group>"; };
+		E64B323515E2CBB900B6CD97 /* WordPressController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WordPressController.m; sourceTree = "<group>"; };
+		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
+		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC799D15C4759800080762 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E6BC79A015C4759800080762 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -92,23 +78,19 @@
 		E6BC79AB15C4759800080762 /* PraxPress-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PraxPress-Prefix.pch"; sourceTree = "<group>"; };
 		E6BC79AD15C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		E6BC79AF15C4759800080762 /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Document.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E6BC79B015C4759800080762 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		E6BC79B015C4759800080762 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Document.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC79B315C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Document.xib; sourceTree = "<group>"; };
 		E6BC79B615C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E6BC79B915C4759800080762 /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
-		E6BC79C015C4759800080762 /* PraxPressTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PraxPressTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC79C115C4759800080762 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		E6BC79C815C4759800080762 /* PraxPressTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PraxPressTests-Info.plist"; sourceTree = "<group>"; };
-		E6BC79CA15C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		E6BC79CC15C4759800080762 /* PraxPressTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PraxPressTests.h; sourceTree = "<group>"; };
-		E6BC79CD15C4759800080762 /* PraxPressTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PraxPressTests.m; sourceTree = "<group>"; };
 		E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = ../OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E6BC79EF15C48A1000080762 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E6BC79F515C48FE300080762 /* SpecialProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpecialProtocol.h; sourceTree = "<group>"; };
 		E6BC79F615C48FE300080762 /* SpecialProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpecialProtocol.m; sourceTree = "<group>"; };
-		E6BC79FE15C5FB8900080762 /* SoundCloudAPI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SoundCloudAPI.xcodeproj; path = ../CocoaSoundCloudAPI/SoundCloudAPI.xcodeproj; sourceTree = "<group>"; };
-		E6EE3F1015C7037D0025C04B /* TrackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackView.h; sourceTree = "<group>"; };
-		E6EE3F1115C7037D0025C04B /* TrackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackView.m; sourceTree = "<group>"; };
+		E6EDDE2515DC0CF60039BEFD /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Asset.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E6EDDE2615DC0CF60039BEFD /* Asset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Asset.m; sourceTree = "<group>"; };
+		E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTextFieldFormatter.h; sourceTree = "<group>"; };
+		E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTextFieldFormatter.m; sourceTree = "<group>"; };
 		E6EE3F1E15C71DEA0025C04B /* SoundCloudController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SoundCloudController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E6EE3F1F15C71DEA0025C04B /* SoundCloudController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SoundCloudController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6EE3F2215C773D10025C04B /* Connect.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Connect.wav; sourceTree = "<group>"; };
@@ -122,19 +104,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */,
-				E6BC79E615C47B3C00080762 /* OAuth2Client.framework in Frameworks */,
-				E6BC7A0D15C603CA00080762 /* SoundCloudAPI.framework in Frameworks */,
+				E6D6F61015D976F5005CA87F /* OAuth2Client.framework in Frameworks */,
 				E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E6BC79BC15C4759800080762 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E6BC79C215C4759800080762 /* SenTestingKit.framework in Frameworks */,
-				E6BC79C315C4759800080762 /* Cocoa.framework in Frameworks */,
+				E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,11 +118,8 @@
 			children = (
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
-				E6BC79C615C4759800080762 /* PraxPressTests */,
 				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
-				E6BC79FE15C5FB8900080762 /* SoundCloudAPI.xcodeproj */,
-				E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -158,7 +127,6 @@
 			isa = PBXGroup;
 			children = (
 				E6BC799915C4759800080762 /* PraxPress.app */,
-				E6BC79C015C4759800080762 /* PraxPressTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -166,6 +134,7 @@
 		E6BC799C15C4759800080762 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */,
 				E6BC79EF15C48A1000080762 /* WebKit.framework */,
 				E6BC799D15C4759800080762 /* Cocoa.framework */,
 				E6BC79C115C4759800080762 /* SenTestingKit.framework */,
@@ -187,21 +156,25 @@
 		E6BC79A315C4759800080762 /* PraxPress */ = {
 			isa = PBXGroup;
 			children = (
-				E64B16E015CDAA0C007FF4C3 /* PraxPress.entitlements */,
-				E655096D15D3F740006705AE /* Track.h */,
-				E655096E15D3F740006705AE /* Track.m */,
 				E6BC79AF15C4759800080762 /* Document.h */,
 				E6BC79B015C4759800080762 /* Document.m */,
-				E6BC79B215C4759800080762 /* Document.xib */,
-				E6BC79B515C4759800080762 /* MainMenu.xib */,
-				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
-				E6BC79A415C4759800080762 /* Supporting Files */,
-				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
-				E6BC79F615C48FE300080762 /* SpecialProtocol.m */,
-				E6EE3F1015C7037D0025C04B /* TrackView.h */,
-				E6EE3F1115C7037D0025C04B /* TrackView.m */,
 				E6EE3F1E15C71DEA0025C04B /* SoundCloudController.h */,
 				E6EE3F1F15C71DEA0025C04B /* SoundCloudController.m */,
+				E64B323415E2CBB900B6CD97 /* WordPressController.h */,
+				E64B323515E2CBB900B6CD97 /* WordPressController.m */,
+				E6ACA28415D6D41800373A3B /* UpdateController.h */,
+				E6ACA28515D6D41800373A3B /* UpdateController.m */,
+				E6BC79A415C4759800080762 /* Supporting Files */,
+				E6BC79B215C4759800080762 /* Document.xib */,
+				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
+				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
+				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
+				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
+				E6BC79F615C48FE300080762 /* SpecialProtocol.m */,
+				E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */,
+				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
+				E63E87C015E05B5900110570 /* PraxTransformers.h */,
+				E63E87C115E05B5900110570 /* PraxTransformers.m */,
 			);
 			path = PraxPress;
 			sourceTree = "<group>";
@@ -209,6 +182,7 @@
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E6BC79B515C4759800080762 /* MainMenu.xib */,
 				E6BC79A515C4759800080762 /* PraxPress-Info.plist */,
 				E6BC79A615C4759800080762 /* InfoPlist.strings */,
 				E6BC79A915C4759800080762 /* main.m */,
@@ -218,39 +192,10 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		E6BC79C615C4759800080762 /* PraxPressTests */ = {
-			isa = PBXGroup;
-			children = (
-				E6BC79CC15C4759800080762 /* PraxPressTests.h */,
-				E6BC79CD15C4759800080762 /* PraxPressTests.m */,
-				E6BC79C715C4759800080762 /* Supporting Files */,
-			);
-			path = PraxPressTests;
-			sourceTree = "<group>";
-		};
-		E6BC79C715C4759800080762 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				E6BC79C815C4759800080762 /* PraxPressTests-Info.plist */,
-				E6BC79C915C4759800080762 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		E6BC79D815C475B900080762 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				E6BC79E015C475B900080762 /* OAuth2Client.framework */,
-				E6BC79E215C475B900080762 /* libOAuth2Client.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		E6BC79FF15C5FB8900080762 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E6BC7A0715C5FB8900080762 /* SoundCloudAPI.framework */,
-				E6BC7A0915C5FB8900080762 /* libSoundCloudAPI.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -276,6 +221,7 @@
 				E6BC799515C4759800080762 /* Sources */,
 				E6BC799615C4759800080762 /* Frameworks */,
 				E6BC799715C4759800080762 /* Resources */,
+				E6D6F61215D97B66005CA87F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -286,25 +232,6 @@
 			productName = PraxPress;
 			productReference = E6BC799915C4759800080762 /* PraxPress.app */;
 			productType = "com.apple.product-type.application";
-		};
-		E6BC79BF15C4759800080762 /* PraxPressTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E6BC79D415C4759800080762 /* Build configuration list for PBXNativeTarget "PraxPressTests" */;
-			buildPhases = (
-				E6BC79BB15C4759800080762 /* Sources */,
-				E6BC79BC15C4759800080762 /* Frameworks */,
-				E6BC79BD15C4759800080762 /* Resources */,
-				E6BC79BE15C4759800080762 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				E6BC79C515C4759800080762 /* PBXTargetDependency */,
-			);
-			name = PraxPressTests;
-			productName = PraxPressTests;
-			productReference = E6BC79C015C4759800080762 /* PraxPressTests.octest */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -330,15 +257,10 @@
 					ProductGroup = E6BC79D815C475B900080762 /* Products */;
 					ProjectRef = E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */;
 				},
-				{
-					ProductGroup = E6BC79FF15C5FB8900080762 /* Products */;
-					ProjectRef = E6BC79FE15C5FB8900080762 /* SoundCloudAPI.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
 				E6BC799815C4759800080762 /* PraxPress */,
-				E6BC79BF15C4759800080762 /* PraxPressTests */,
 			);
 		};
 /* End PBXProject section */
@@ -349,27 +271,6 @@
 			fileType = wrapper.framework;
 			path = OAuth2Client.framework;
 			remoteRef = E6BC79DF15C475B900080762 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E6BC79E215C475B900080762 /* libOAuth2Client.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libOAuth2Client.a;
-			remoteRef = E6BC79E115C475B900080762 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E6BC7A0715C5FB8900080762 /* SoundCloudAPI.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SoundCloudAPI.framework;
-			remoteRef = E6BC7A0615C5FB8900080762 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E6BC7A0915C5FB8900080762 /* libSoundCloudAPI.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSoundCloudAPI.a;
-			remoteRef = E6BC7A0815C5FB8900080762 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -390,31 +291,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E6BC79BD15C4759800080762 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E6BC79CB15C4759800080762 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		E6BC79BE15C4759800080762 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E6BC799515C4759800080762 /* Sources */ = {
@@ -425,28 +302,17 @@
 				E6BC79B115C4759800080762 /* Document.m in Sources */,
 				E6BC79BA15C4759800080762 /* Document.xcdatamodeld in Sources */,
 				E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */,
-				E6EE3F1215C7037D0025C04B /* TrackView.m in Sources */,
 				E6EE3F2015C71DEA0025C04B /* SoundCloudController.m in Sources */,
-				E655096F15D3F740006705AE /* Track.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E6BC79BB15C4759800080762 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E6BC79CE15C4759800080762 /* PraxPressTests.m in Sources */,
+				E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */,
+				E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */,
+				E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */,
+				E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		E6BC79C515C4759800080762 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E6BC799815C4759800080762 /* PraxPress */;
-			targetProxy = E6BC79C415C4759800080762 /* PBXContainerItemProxy */;
-		};
 		E6BC79E415C4760400080762 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = OAuth2Client.framework;
@@ -487,27 +353,19 @@
 			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
-		E6BC79C915C4759800080762 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				E6BC79CA15C4759800080762 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		E6BC79CF15C4759800080762 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -531,14 +389,14 @@
 		E6BC79D015C4759800080762 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -554,9 +412,12 @@
 		E6BC79D215C4759800080762 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = PraxPress/PraxPress.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../CocoaWordPressAPI\"",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "PraxPress/PraxPress-Info.plist";
@@ -568,44 +429,17 @@
 		E6BC79D315C4759800080762 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = PraxPress/PraxPress.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../CocoaWordPressAPI\"",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "PraxPress/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
-		E6BC79D515C4759800080762 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/PraxPress.app/Contents/MacOS/PraxPress";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
-				INFOPLIST_FILE = "PraxPressTests/PraxPressTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		E6BC79D615C4759800080762 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/PraxPress.app/Contents/MacOS/PraxPress";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
-				INFOPLIST_FILE = "PraxPressTests/PraxPressTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
@@ -626,15 +460,6 @@
 			buildConfigurations = (
 				E6BC79D215C4759800080762 /* Debug */,
 				E6BC79D315C4759800080762 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E6BC79D415C4759800080762 /* Build configuration list for PBXNativeTarget "PraxPressTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E6BC79D515C4759800080762 /* Debug */,
-				E6BC79D615C4759800080762 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
