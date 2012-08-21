@@ -116,7 +116,7 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E6BC79A315C4759800080762 /* PraxPress */,
+				E6BC79A315C4759800080762 /* Source */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
@@ -153,7 +153,7 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		E6BC79A315C4759800080762 /* PraxPress */ = {
+		E6BC79A315C4759800080762 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				E6BC79AF15C4759800080762 /* Document.h */,
@@ -176,7 +176,7 @@
 				E63E87C015E05B5900110570 /* PraxTransformers.h */,
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
 			);
-			path = PraxPress;
+			path = Source;
 			sourceTree = "<group>";
 		};
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
