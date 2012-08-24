@@ -40,7 +40,6 @@
                                                        queue:nil
                                                   usingBlock:^(NSNotification *aNotification){
                                                       NSLog(@"PraxDocument NXOAuth2AccountStoreAccountsDidChangeNotification");
-                                                      
                                                       // Update your UI
                                             //          if ([SCSoundCloud account]) {
                                                           [self.authorizationWindow close];
@@ -56,25 +55,24 @@
                                                       NSLog(@"PraxDocument NXOAuth2AccountStoreDidFailToRequestAccessNotification error:%@", error);
 
                                                       // Do something with the error
-                                                      
-                                                      
                                                   }];
     
     // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
-/*
+    
+    [[NXOAuth2AccountStore sharedStore] setClientID:@"cdb0237a5d0244d2f0528ae9da6ca41f"
+                                             secret:@"48d5ef73f4dd1281e5d41100ba58261a"
+                                   authorizationURL:[NSURL URLWithString:@"https://soundcloud.com/connect"]
+                                           tokenURL:[NSURL URLWithString:@"https://api.soundcloud.com/oauth2/token"]
+                                        redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
+                                     forAccountType:@"com.soundcloud.api"];
+    
     [[NXOAuth2AccountStore sharedStore] setClientID:@"493"
                                              secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
                                    authorizationURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/authorize"]
                                            tokenURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/token"]
                                         redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
                                      forAccountType:@"com.wordpress.api"];
-*/    
-//    [WPWordPress  setClientID:@"493"
-//                        secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
-//                   redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]];
     
-    
-//    NSLog(@"%@ received %@", self, NSStringFromSelector(_cmd));
     
     /* register our special protocol with webkit */
 	[SpecialProtocol registerSpecialProtocol];
@@ -98,13 +96,6 @@
         
         [self removeAccessForAccountType:@"com.soundcloud.api"];
         
-        [[NXOAuth2AccountStore sharedStore] setClientID:@"cdb0237a5d0244d2f0528ae9da6ca41f"
-                                                 secret:@"48d5ef73f4dd1281e5d41100ba58261a"
-                                       authorizationURL:[NSURL URLWithString:@"https://soundcloud.com/connect"]
-                                               tokenURL:[NSURL URLWithString:@"https://api.soundcloud.com/oauth2/token"]
-                                            redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
-                                         forAccountType:@"com.soundcloud.api"];
-        
         [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:@"com.soundcloud.api"
                                        withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
                                            [self.authorizationWindow makeKeyAndOrderFront:self];
@@ -122,13 +113,6 @@
         
         [self removeAccessForAccountType:@"com.wordpress.api"];
         
-        [[NXOAuth2AccountStore sharedStore] setClientID:@"493"
-                                                 secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
-                                       authorizationURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/authorize"]
-                                               tokenURL:[NSURL URLWithString:@"https://public-api.wordpress.com/oauth2/token"]
-                                            redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
-                                         forAccountType:@"com.wordpress.api"];
-        
         [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:@"com.wordpress.api"
                                        withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
                                            [self.authorizationWindow makeKeyAndOrderFront:self];
@@ -138,49 +122,6 @@
     }
 }
     
-    
-/*
-
-    NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:@"WordPress"];
-    if ([accounts count] > 0) {
-        NXOAuth2Account *account = accounts[0];
-        NSLog(@"praxAction account:%@", account);
-        
-        [NXOAuth2Request performMethod:@"GET"
-                            onResource:[NSURL URLWithString:@"https://public-api.wordpress.com/rest/v1/me"]
-                       usingParameters:nil
-                           withAccount:account
-                   sendProgressHandler:^(unsigned long long bytesSend, unsigned long long bytesTotal) {
-                       
-                       NSLog(@"sendProgressHandler bytesSend:%llu bytesTotal:%llu", bytesSend, bytesTotal);
-                       // e.g., update a progress indicator
-                   }
-                   responseHandler:^(NSURLResponse *response, NSData *responseData, NSError *error){
-                       
-                       NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, responseData, error);
-                       NSError *__autoreleasing *jsonError = NULL;
-                       NSDictionary *me = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:jsonError];
-                       
-                       NSLog(@"me: %@", me);
-                       // Process the response
-                       
-                       
-                   }];
-        
-    }
-    else {
-        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:@"WordPress"
-                                       withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
-                                           [soundCloudAuthorizationWindow makeKeyAndOrderFront:sender];
-                                           [[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
-                                       }];
- 
-        
-    }
-   
-}
-*/
-
 
 /* Called just before a webView attempts to load a resource.  Here, we look at the
  request and if it's destined for our special protocol handler we modify the request

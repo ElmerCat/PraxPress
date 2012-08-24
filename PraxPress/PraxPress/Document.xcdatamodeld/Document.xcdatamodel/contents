@@ -23,17 +23,18 @@
         <attribute name="info_mode" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="permalink" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_title" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="purchase_title_x" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_url" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="purchase_url_x" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sync_mode" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="title_x" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="tracks" inverseEntity="Account" syncable="YES"/>
     </entity>
     <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Track" inverseName="playlists" inverseEntity="Track" syncable="YES"/>
+    </entity>
+    <entity name="Post" parentEntity="Asset" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Template" syncable="YES">
         <attribute name="blockFormatText" optional="YES" attributeType="String" syncable="YES"/>
@@ -46,9 +47,10 @@
     </entity>
     <elements>
         <element name="Account" positionX="0" positionY="0" width="128" height="210"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="300"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="255"/>
         <element name="Playlist" positionX="160" positionY="192" width="128" height="60"/>
         <element name="Template" positionX="160" positionY="192" width="128" height="105"/>
         <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Post" positionX="160" positionY="192" width="128" height="75"/>
     </elements>
 </model>

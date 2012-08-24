@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64B323515E2CBB900B6CD97 /* WordPressController.m */; };
+		E65BD6F515E7C63900D9F0A4 /* PraxController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* PraxController.m */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
 		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
@@ -28,6 +29,10 @@
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
+		E6F1562415E585B30098EC32 /* PostEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F1562315E585B30098EC32 /* PostEditor.m */; };
+		E6F1562715E58EA80098EC32 /* WordPress.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562615E58EA80098EC32 /* WordPress.png */; };
+		E6F1562915E590970098EC32 /* WordPressName.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562815E590970098EC32 /* WordPressName.png */; };
+		E6F1562B15E592FA0098EC32 /* SoundCloudName.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562A15E592FA0098EC32 /* SoundCloudName.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +70,8 @@
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E64B323415E2CBB900B6CD97 /* WordPressController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordPressController.h; sourceTree = "<group>"; };
 		E64B323515E2CBB900B6CD97 /* WordPressController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WordPressController.m; sourceTree = "<group>"; };
+		E65BD6F315E7C63900D9F0A4 /* PraxController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxController.h; sourceTree = "<group>"; };
+		E65BD6F415E7C63900D9F0A4 /* PraxController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxController.m; sourceTree = "<group>"; };
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
 		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +104,11 @@
 		E6EE3F2315C773D10025C04B /* Error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Error.wav; sourceTree = "<group>"; };
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
+		E6F1562215E585B30098EC32 /* PostEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostEditor.h; sourceTree = "<group>"; };
+		E6F1562315E585B30098EC32 /* PostEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostEditor.m; sourceTree = "<group>"; };
+		E6F1562615E58EA80098EC32 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
+		E6F1562815E590970098EC32 /* WordPressName.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPressName.png; sourceTree = "<group>"; };
+		E6F1562A15E592FA0098EC32 /* SoundCloudName.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloudName.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,8 +128,9 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E6BC79A315C4759800080762 /* Source */,
+				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
+				E6F1562515E58EA80098EC32 /* Images */,
 				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
 			);
@@ -153,7 +166,7 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		E6BC79A315C4759800080762 /* Source */ = {
+		E6BC79A315C4759800080762 /* PraxPress */ = {
 			isa = PBXGroup;
 			children = (
 				E6BC79AF15C4759800080762 /* Document.h */,
@@ -175,8 +188,12 @@
 				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
 				E63E87C015E05B5900110570 /* PraxTransformers.h */,
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
+				E6F1562215E585B30098EC32 /* PostEditor.h */,
+				E6F1562315E585B30098EC32 /* PostEditor.m */,
+				E65BD6F315E7C63900D9F0A4 /* PraxController.h */,
+				E65BD6F415E7C63900D9F0A4 /* PraxController.m */,
 			);
-			path = Source;
+			path = PraxPress;
 			sourceTree = "<group>";
 		};
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
@@ -209,6 +226,16 @@
 				E6EE3F2515C773D10025C04B /* Stop.wav */,
 			);
 			path = NSSounds;
+			sourceTree = "<group>";
+		};
+		E6F1562515E58EA80098EC32 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				E6F1562A15E592FA0098EC32 /* SoundCloudName.png */,
+				E6F1562815E590970098EC32 /* WordPressName.png */,
+				E6F1562615E58EA80098EC32 /* WordPress.png */,
+			);
+			path = Images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -288,6 +315,9 @@
 				E6EE3F2715C773D10025C04B /* Error.wav in Resources */,
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
+				E6F1562715E58EA80098EC32 /* WordPress.png in Resources */,
+				E6F1562915E590970098EC32 /* WordPressName.png in Resources */,
+				E6F1562B15E592FA0098EC32 /* SoundCloudName.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +337,8 @@
 				E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */,
 				E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */,
 				E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */,
+				E6F1562415E585B30098EC32 /* PostEditor.m in Sources */,
+				E65BD6F515E7C63900D9F0A4 /* PraxController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,7 +447,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../CocoaWordPressAPI\"",
 					"\"$(SRCROOT)\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -432,7 +463,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../CocoaWordPressAPI\"",
 					"\"$(SRCROOT)\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

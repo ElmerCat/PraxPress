@@ -45,6 +45,28 @@
     
 }
 
+- (IBAction)addPostsBatchButtonClicked:(id)sender {
+    NSArray *items = [self.postsController arrangedObjects];
+    Asset *item;
+    for (NSInteger row = 0; row < [items count]; row++) {
+        item = items[row];
+        [item setValue:[NSNumber numberWithBool:TRUE] forKey:@"edit_mode"];
+        //  NSLog(@"item: %@", item);
+    }
+    [self.assetBatchEditController rearrangeObjects];
+}
+
+- (IBAction)removePostsBatchButtonClicked:(id)sender {
+    NSArray *items = [self.postsController arrangedObjects];
+    Asset *item;
+    for (NSInteger row = 0; row < [items count]; row++) {
+        item = items[row];
+        [item setValue:[NSNumber numberWithBool:FALSE] forKey:@"edit_mode"];
+        //  NSLog(@"item: %@", item);
+    }
+    [self.assetBatchEditController rearrangeObjects];
+}
+
 
 
 @end

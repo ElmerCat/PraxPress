@@ -21,12 +21,9 @@
 @property (nonatomic, retain) NSNumber * info_mode;
 @property (nonatomic, retain) NSString * permalink;
 @property (nonatomic, retain) NSString * purchase_title;
-@property (nonatomic, retain) NSString * purchase_title_x;
 @property (nonatomic, retain) NSString * purchase_url;
-@property (nonatomic, retain) NSString * purchase_url_x;
 @property (nonatomic, retain) NSNumber * sync_mode;
 @property (nonatomic, retain) NSString * title;
-@property (nonatomic, retain) NSString * title_x;
 @property (nonatomic, retain) NSString * uri;
 @property (nonatomic, retain) NSNumber * batchPosition;
 

@@ -29,15 +29,20 @@
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet UpdateController *updateController;
 
+@property (weak) IBOutlet NSArrayController *postsController;
 @property (weak) IBOutlet NSArrayController *tracksController;
 @property (weak) IBOutlet NSArrayController *playlistsController;
-@property (weak) IBOutlet NSArrayController *tracksBatchEditController;
-@property (weak) IBOutlet NSTableView *tracksTableView;
+@property (weak) IBOutlet NSArrayController *assetBatchEditController;
+@property (weak) IBOutlet NSTableView *postsTableView;
 @property (weak) IBOutlet NSTabView *batchEditTabView;
 
 - (IBAction)refresh:(id)sender;
 //- (IBAction)upload:(id)sender;
 - (IBAction)logout:(id)sender;
+
+
+- (IBAction)addPostsBatchButtonClicked:(id)sender;
+- (IBAction)removePostsBatchButtonClicked:(id)sender;
 
 //- (IBAction)refreshTrack:(id)sender;
 //- (IBAction)uploadTrack:(id)sender;

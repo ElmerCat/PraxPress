@@ -1,10 +1,12 @@
 //
-//  UpdateController.h
+//  PraxController.h
 //  PraxPress
 //
-//  Created by John Canfield on 8/11/12.
+//  Created by John Canfield on 8/24/12.
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
 
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
@@ -13,41 +15,15 @@
 #import "SoundCloudController.h"
 #import "WordPressController.h"
 #import "Asset.h"
+#import "PostEditor.h"
+#import "UpdateController.h"
 
 @class Document;
+@class PostEditor;
 @class SoundCloudController;
 @class WordPressController;
 
-enum UpdateMode {
-    UpdateModeIdle = 0,
-    UpdateModeDone,
-    UpdateModeSoundCloud,
-    UpdateModeWordPress,
-    UpdateModeAsset,
-    UpdateModeAssets,
-    UpdateModeTrack,
-    UpdateModeUploadTrack,
-    UpdateModeUploadingTrack,
-    UpdateModeTracks,
-    UpdateModePlaylist,
-    UpdateModeUploadPlaylist,
-    UpdateModeUploadingPlaylist,
-    UpdateModePlaylists,
-    UpdateModeError
-};
-typedef enum UpdateMode UpdateMode;
-
-@interface UpdateController : NSObject
-- (IBAction)praxAction:(id)sender;
-
-@property BOOL stopFlag;
-@property BOOL busy;
-@property UpdateMode updateMode;
-@property NSInteger updateCount;
-@property NSInteger targetCount;
-@property (strong) NXOAuth2Account *scAccount;
-
-@property (strong) NXOAuth2Account *wpAccount;
+@interface PraxController : NSObject
 
 @property Asset *lastSelectedAsset;
 
@@ -84,10 +60,15 @@ typedef enum UpdateMode UpdateMode;
 
 @property (weak) IBOutlet SoundCloudController *soundCloudController;
 @property (weak) IBOutlet WordPressController *wordPressController;
+@property (weak) IBOutlet PostEditor *postEditor;
+
+@property (weak) IBOutlet NSArrayController *postsController;
 @property (weak) IBOutlet NSArrayController *tracksController;
 @property (weak) IBOutlet NSArrayController *playlistsController;
 @property (weak) IBOutlet NSTableView *tracksTableView;
 @property (weak) IBOutlet NSTableView *playlistsTableView;
+
+@property (unsafe_unretained) IBOutlet NSPanel *postsWindow;
 @property (unsafe_unretained) IBOutlet NSPanel *tracksWindow;
 @property (unsafe_unretained) IBOutlet NSPanel *playlistsWindow;
 @property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
@@ -99,14 +80,11 @@ typedef enum UpdateMode UpdateMode;
 @property (unsafe_unretained) IBOutlet NSTextView *blockFormatText;
 @property (unsafe_unretained) IBOutlet NSTextView *endingFormatText;
 
+@property (unsafe_unretained) IBOutlet NSPanel *postEditorPanel;
 @property (unsafe_unretained) IBOutlet NSPanel *trackEditorPanel;
 @property (unsafe_unretained) IBOutlet NSPanel *playlistEditorPanel;
 
-@property (weak) IBOutlet NSTextField *statusText;
-@property (weak) IBOutlet NSProgressIndicator *progressBar;
-@property (weak) IBOutlet NSImageView *progressImageWell;
-
 - (NSPredicate *)changedAssetsFilterPredicate;
-- (IBAction)stopDownload:(id)sender;
+
 
 @end
