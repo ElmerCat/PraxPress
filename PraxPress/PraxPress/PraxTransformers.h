@@ -7,9 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Asset.h"
+
+@interface PraxTransformers : NSObject
++(void)load;
+@end
 
 @interface PraxNumberIsZeroTransformer : NSValueTransformer
 @end
 
 @interface PraxNumberIsNotZeroTransformer : NSValueTransformer
+@end
+
+@interface PraxAssetStringTransformer : NSValueTransformer
 @end

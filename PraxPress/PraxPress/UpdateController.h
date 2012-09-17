@@ -15,6 +15,7 @@
 #import "Asset.h"
 #import "PostEditor.h"
 #import "PraxController.h"
+#import "Template.h"
 
 @class Document;
 @class PostEditor;
@@ -48,7 +49,7 @@ typedef enum UpdateMode UpdateMode;
 @interface UpdateController : NSObject
 - (IBAction)praxAction:(id)sender;
 
-@property BOOL stopFlag;
+@property BOOL stop;
 @property BOOL busy;
 @property UpdateMode updateMode;
 @property NSInteger updateCount;
@@ -57,6 +58,8 @@ typedef enum UpdateMode UpdateMode;
 
 @property (strong) NXOAuth2Account *wpAccount;
 
+@property (strong) Asset *targetAsset;
+
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet SoundCloudController *soundCloudController;
@@ -64,11 +67,14 @@ typedef enum UpdateMode UpdateMode;
 @property (weak) IBOutlet NSArrayController *postsController;
 @property (weak) IBOutlet NSArrayController *tracksController;
 @property (weak) IBOutlet NSArrayController *playlistsController;
+@property (weak) IBOutlet NSArrayController *assetsController;
 
 @property (weak) IBOutlet NSTextField *statusText;
 @property (weak) IBOutlet NSProgressIndicator *progressBar;
 @property (weak) IBOutlet NSImageView *progressImageWell;
 
-- (IBAction)stopDownload:(id)sender;
+- (IBAction)stop:(id)sender;
+- (IBAction)reloadFromServer:(id)sender;
+- (IBAction)uploadToServer:(id)sender;
 
 @end

@@ -121,7 +121,7 @@ NSString *tracksNotificationName = @"tracksNotification";
 
 - (IBAction)editModeButtonClicked:(id)sender {
     
-    [self.tracksBatchEditController rearrangeObjects];
+    [self.assetBatchEditController rearrangeObjects];
     
 }
 
@@ -139,7 +139,7 @@ NSString *tracksNotificationName = @"tracksNotification";
         [item setValue:[NSNumber numberWithBool:TRUE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.tracksBatchEditController rearrangeObjects];
+    [self.assetBatchEditController rearrangeObjects];
 }
 
 - (IBAction)removeTracksBatchButtonClicked:(id)sender {
@@ -150,7 +150,7 @@ NSString *tracksNotificationName = @"tracksNotification";
         [item setValue:[NSNumber numberWithBool:FALSE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.tracksBatchEditController rearrangeObjects];
+    [self.assetBatchEditController rearrangeObjects];
 }
 
 - (IBAction)addPlaylistsBatchButtonClicked:(id)sender {
@@ -161,7 +161,7 @@ NSString *tracksNotificationName = @"tracksNotification";
         [item setValue:[NSNumber numberWithBool:TRUE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.tracksBatchEditController rearrangeObjects];
+    [self.assetBatchEditController rearrangeObjects];
 }
 
 - (IBAction)removePlaylistsBatchButtonClicked:(id)sender {
@@ -172,7 +172,7 @@ NSString *tracksNotificationName = @"tracksNotification";
         [item setValue:[NSNumber numberWithBool:FALSE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.tracksBatchEditController rearrangeObjects];
+    [self.assetBatchEditController rearrangeObjects];
 }
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem {

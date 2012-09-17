@@ -9,6 +9,7 @@
 #import "UpdateController.h"
 
 @implementation UpdateController
+@synthesize assetsController;
 
 - (id)init {
     self = [super init];
@@ -34,16 +35,146 @@
 - (IBAction)praxAction:(id)sender {
 }
 
-- (IBAction)stopDownload:(id)sender {
-    self.stopFlag = TRUE;
+- (IBAction)stop:(id)sender {
+    self.stop = TRUE;
+}
+
+
+- (IBAction)reloadFromServer:(id)sender {
+    
+     [self reloadAsset:[self.assetsController selectedObjects][0]];
+    
+}
+
+- (void)reloadAsset:(Asset *)asset {
+    
+    NXOAuth2Account *account;
+    NSURL *resource;
+    NSDictionary *parameters;
+    
+    if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
+        account = [self.document scAccount];
+        resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", asset.uri]];
+        
+        
+    }
+    else if (([asset.type isEqualToString:@"post"]) || ([asset.type isEqualToString:@"page"])) {
+        account = [self.document wpAccount];
+        resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", asset.uri, asset.asset_id]];
+        parameters = @{@"context":@"edit"};
+        
+    }
+    NXOAuth2Request *request = [[NXOAuth2Request alloc] initWithResource:resource method:@"GET" parameters:parameters];
+    request.account = account;
+    
+    
+    if (!request.account) return;
+    self.busy = TRUE;
+    
+    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, resource);
+    
+    [request performRequestWithSendingProgressHandler:nil
+                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error){
+                                          if (error) {
+                                              [[NSSound soundNamed:@"Error"] play];
+                                              NSLog(@"NXOAuth2Request GET error: %@ \nresource: %@ parameters: %@", [error localizedDescription], resource, nil);
+                                          }
+                                          else {
+                                              NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, data, error);
+                                              NSDictionary *item;
+                                              
+                                              if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
+                                                  
+                                                  item = [NSJSONSerialization JSONObjectWithData:data options:0 error:0];
+                                                  
+                                                  NSLog(@"item: %@", item);
+                                                  [asset loadSoundCloudItemData:item];
+                                                  
+                                                  if ([asset.entity.name isEqualToString:@"Playlist"]) {
+                                                      [asset loadPlaylistsAsset:asset data:item];
+                                                  }
+
+                                                  
+                                              }
+                                              else if (([asset.type isEqualToString:@"post"]) || ([asset.type isEqualToString:@"page"])) {
+                                                  item = [NSJSONSerialization JSONObjectWithData:data options:0 error:0];
+                                                  
+                                                  NSLog(@"item: %@", item);
+                                                  
+                                                  [asset loadWordPressPostData:asset data:item];
+    
+                                                   
+                                                  
+                                              }
+                                              
+                                              [self.changedAssetsController rearrangeObjects];
+                                                  
+                                                  
+                                              
+                                          }
+                                          self.busy = FALSE;
+
+                                      }];
+    
+    
+}
+
+- (IBAction)uploadToServer:(id)sender {
+    
+    [self uploadAsset:[self.assetsController selectedObjects][0]];
+}
+
+- (void)uploadAsset:(Asset *)asset {
+    NXOAuth2Account *account;
+    NSURL *resource;
+    NSDictionary *parameters;
+    
+    if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
+        account = [self.document scAccount];
+        resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", asset.uri]];
+        
+        
+    }
+    else if (([asset.type isEqualToString:@"post"]) || ([asset.type isEqualToString:@"page"])) {
+        account = [self.document wpAccount];
+        resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", asset.uri, asset.asset_id]];
+        parameters = @{@"title":asset.title, @"content":asset.contents, @"tags":@""};
+        
+    }
+    NXOAuth2Request *request = [[NXOAuth2Request alloc] initWithResource:resource method:@"POST" parameters:parameters];
+    request.account = account;
+    
+    
+    if (!request.account) return;
+    self.busy = TRUE;
+    
+    NSLog(@"updateMode POST request.account: %@ resource: %@  parameters: %@", request.account, resource, parameters);
+    
+    [request performRequestWithSendingProgressHandler:nil
+                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error){
+                                          if (error) {
+                                              [[NSSound soundNamed:@"Error"] play];
+                                              NSLog(@"NXOAuth2Request POST error: %@ \nresource: %@ parameters: %@", [error localizedDescription], resource, parameters);
+                                          }
+                                          else {
+                                              [[NSSound soundNamed:@"Connect"] play];
+
+                                              [self reloadAsset:asset];
+                                              
+                                          }
+                                          self.busy = FALSE;
+                                          
+                                      }];
+    
+    
 }
 
 
 - (void)updateNotification:(NSNotification *)notification {   // start, continue, finish, or cancel the current running update
     NSLog(@"updateNotification self.updateMode:%u", self.updateMode);
-    if (self.stopFlag) {
+    if (self.stop) {
         self.busy = FALSE;
-        self.stopFlag = FALSE;
+        self.stop = FALSE;
         return;
     }
     else if ((self.updateMode <= UpdateModeDone) || (self.updateMode >= UpdateModeError)) {
@@ -85,6 +216,7 @@
         if (self.updateTypeWordPressPost) {
             [self.statusText setStringValue:@"Updating WordPress Posts"];
             resource = [NSURL URLWithString:@"https://public-api.wordpress.com/rest/v1/sites/elmercat.org/posts/"];
+            parameters[@"context"] = @"edit";
             parameters[@"type"] = @"any";
             parameters[@"status"] = @"any";
             parameters[@"number"] = @"30";
@@ -166,19 +298,25 @@
         self.updateMode = UpdateModeError;
     }
     else if (self.updateMode == UpdateModeSoundCloud) {
-        asset = [self loadSoundCloudAccountData:data];
+        
+        asset = self.soundCloudController.account;
+        [asset loadSoundCloudAccountData:data];
         self.updateMode = UpdateModeTracks;  // now, continue by updating tracks
         self.updateCount = 0;
         self.targetCount = [asset.track_count integerValue];
         asset.sync_mode = [NSNumber numberWithBool:FALSE];
     }
     else if (self.updateMode == UpdateModeWordPress) {
-        asset = [self loadWordPressAccountData:data];
+        asset = self.wordPressController.account;
+        
+        [asset loadWordPressAccountData:data];
         self.updateMode = UpdateModeWordPressSite;  // now, continue with blog information
         asset.sync_mode = [NSNumber numberWithBool:FALSE];
     }
     else if (self.updateMode == UpdateModeWordPressSite) {
-        asset = [self loadWordPressSiteData:data];
+        
+        asset = self.wordPressController.account;
+        [asset loadWordPressSiteData:data];
         self.updateMode = UpdateModeWordPressPosts;  // now, continue by getting the posts
         self.updateCount = 0;
         self.targetCount = [asset.track_count integerValue];
@@ -208,12 +346,13 @@
             else asset = matchingItems[0];
             
             if (self.updateTypeWordPressPost) {
-                [self loadWordPressPostData:asset data:item];
+                [asset loadWordPressPostData:asset data:item];
             }
             else {
-                [self loadCommonAsset:asset data:item];
+                
+                [asset loadSoundCloudItemData:item];
                 if ([asset.entity.name isEqualToString:@"Playlist"]) {
-                    [self loadPlaylistsAsset:asset data:item];
+                    [asset loadPlaylistsAsset:asset data:item];
                 }
             }
             self.updateCount = self.updateCount + 1;
@@ -296,9 +435,10 @@
             return;
         }
         else { // not upload
-            [self loadCommonAsset:asset data:data];
+            
+            [asset loadSoundCloudItemData:data];
             if ([asset.entity.name isEqualToString:@"Playlist"]) {
-                [self loadPlaylistsAsset:asset data:data];
+                [asset loadPlaylistsAsset:asset data:data];
             }
             [self.changedAssetsController rearrangeObjects];
             if (self.updateMode == UpdateModeAsset) {
@@ -313,157 +453,6 @@
          postNotificationName:@"updateNotification" object:nil];
     });
     
-}
-
--(Asset *)loadWordPressSiteData:(NSDictionary *)data {
-    Asset *asset;
-    asset = self.wordPressController.account;
-    NSLog(@"loadWordPressSiteData: %@ asset: %@", data, asset);
-    asset.track_count = data[@"post_count"];
-    asset.title = data[@"description"];
-
-    
-    return asset;
-
-}
-
--(Asset *)loadWordPressAccountData:(NSDictionary *)data {
-    Asset *asset;
-    asset = self.wordPressController.account;
-    NSLog(@"loadWordPressAccountData: %@ asset: %@", data, asset);
-    asset.user_id = data[@"ID"];
-    asset.asset_id = data[@"primary_blog"];
-    asset.title = data[@"description"];
-    asset.username = data[@"display_name"];
-    asset.permalink = data[@"username"];
-    
-    if (data[@"avatar_URL"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_URL"];
-   //     NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-   //     artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        asset.artwork_url = artwork_url;
-        
-   //     artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        asset.image =  [NSArchiver archivedDataWithRootObject:image];
-    }
-    
-    /*
-    asset.title = data[@"full_name"];
-    asset.permalink = data[@"permalink"];
-    asset.playlist_count = data[@"playlist_count"];
-    asset.track_count = data[@"track_count"];
-    asset.followers_count = data[@"followers_count"];
-    asset.followings_count = data[@"followings_count"];
-    asset.contents = data[@"description"];
-    asset.city = data[@"city"];
-    asset.country = data[@"country"];
-    asset.purchase_url = data[@"website"];
-    asset.purchase_title = data[@"website_title"];
-     */
-    
-    return asset;
-}
--(Asset *)loadSoundCloudAccountData:(NSDictionary *)data {
-    Asset *asset;
-    asset = self.soundCloudController.account;
-    asset.title = data[@"full_name"];
-    asset.asset_id = data[@"id"];
-    asset.username = data[@"username"];
-    asset.permalink = data[@"permalink"];
-    asset.playlist_count = data[@"playlist_count"];
-    asset.track_count = data[@"track_count"];
-    asset.followers_count = data[@"followers_count"];
-    asset.followings_count = data[@"followings_count"];
-    asset.contents = data[@"description"];
-    asset.city = data[@"city"];
-    asset.country = data[@"country"];
-    asset.purchase_url = data[@"website"];
-    asset.purchase_title = data[@"website_title"];
-    if (data[@"avatar_url"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_url"];
-        NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        asset.artwork_url = artwork_url;
-        
-        artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        asset.image =  [NSArchiver archivedDataWithRootObject:image];
-        //       });
-    }
-    return asset;
-}
--(void)loadWordPressPostData:(Asset *)asset data:(NSDictionary *)data {
-    
-    asset.title = data[@"title"];
-    asset.purchase_url = data[@"URL"];
-    asset.purchase_title = data[@"type"];
-    asset.permalink = data[@"slug"];
-    asset.contents = data[@"content"];
-
-    asset.uri = data[@"meta"][@"links"][@"site"];
-    
-    asset.sync_mode = [NSNumber numberWithBool:FALSE];
-    
-}
--(void)loadCommonAsset:(Asset *)asset data:(NSDictionary *)data {
-    asset.title = data[@"title"];
-    
-    if (data[@"purchase_url"] != [NSNull null]) {
-        asset.purchase_url = data[@"purchase_url"];
-    }
-    else {
-        asset.purchase_url = nil;
-    }
-    if (data[@"purchase_title"] != [NSNull null]) {
-        asset.purchase_title = data[@"purchase_title"];
-    }
-    else {
-        asset.purchase_title = nil;
-    }
-    if (data[@"artwork_url"] != [NSNull null]) {
-        NSString *artwork_url = data[@"artwork_url"];
-        NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        asset.artwork_url = artwork_url;
-        artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //original
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        asset.image = [NSArchiver archivedDataWithRootObject:image];
-        [self.progressImageWell setImage:image];
-    }
-    asset.permalink = data[@"permalink"];
-    asset.uri = data[@"uri"];
-    asset.sync_mode = [NSNumber numberWithBool:FALSE];
-    
-}
--(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data {
-    Asset *subAsset;
-    NSArray *subItems;
-    NSError *error = nil;
-    NSManagedObjectContext *moc = [self.document managedObjectContext];
-    
-    
-    asset.tracks = nil;
-    subItems = data[@"tracks"];
-    for (NSDictionary *subItem in subItems) {
-        NSLog(@"subItem asset_id: %@", subItem[@"id"]);
-        
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Track"];
-        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", subItem[@"id"]]];
-        NSArray *matchingItems = [moc executeFetchRequest:request error:&error];
-        
-        if ([matchingItems count] < 1) {
-            NSLog(@"Error: - No matching Asset - subItem asset_id: %@", subItem[@"id"]);
-        }
-        else {
-            subAsset = matchingItems[0];
-            [asset addTracksObject:subAsset];
-        }
-    }
 }
 
 -(BOOL)updateModeMultiple {

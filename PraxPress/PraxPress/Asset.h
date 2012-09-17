@@ -16,6 +16,7 @@
 @property (nonatomic, retain) NSString * artwork_url;
 @property (nonatomic, retain) NSNumber * asset_id;
 @property (nonatomic, retain) NSString * contents;
+@property (nonatomic, retain) NSString * date;
 @property (nonatomic, retain) NSNumber * edit_mode;
 @property (nonatomic, retain) id image;
 @property (nonatomic, retain) NSNumber * info_mode;
@@ -24,6 +25,7 @@
 @property (nonatomic, retain) NSString * purchase_url;
 @property (nonatomic, retain) NSNumber * sync_mode;
 @property (nonatomic, retain) NSString * title;
+@property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) NSString * uri;
 @property (nonatomic, retain) NSNumber * batchPosition;
 
@@ -43,6 +45,8 @@
 // Tracks and Playlists
 @property (nonatomic, retain) NSSet *tracks;
 @property (nonatomic, retain) NSSet *playlists;
+
+
 @end
 
 @interface Asset (CoreDataGeneratedAccessors)
@@ -57,4 +61,16 @@
 - (void)addTracks:(NSSet *)values;
 - (void)removeTracks:(NSSet *)values;
 
+-(void)loadWordPressAccountData:(NSDictionary *)data;
+-(void)loadWordPressSiteData:(NSDictionary *)data;
+-(void)loadWordPressPostData:(Asset *)asset data:(NSDictionary *)data;
+-(void)loadSoundCloudAccountData:(NSDictionary *)data;
+-(void)loadSoundCloudItemData:(NSDictionary *)data;
+-(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
++(NSString *)htmlStringForAsset:(Asset *)asset;
+
+
+
 @end
+
+

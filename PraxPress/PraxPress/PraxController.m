@@ -67,8 +67,14 @@ int endViewPosition = -3;
                                                           object:nil
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
-                                                          if ([aNotification object] == self.formatCodeTableView){
-                                                              [self updateGeneratedCode];
+                                                          if ([aNotification object] == self.templateTableView){
+                                                      //        Template *template = [self.templateController selectedObjects][0];
+                              
+                                                              //[self updateGeneratedCode];
+                                                          }
+                                                          else if ([aNotification object] == self.assetTableView){
+                                                              if ([self.assetDetailPanel isVisible])
+                                                              [self.assetDetailPanel makeKeyAndOrderFront:self];
                                                           }
                                                           else NSLog(@"UpdateController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
                                                           
@@ -81,7 +87,13 @@ int endViewPosition = -3;
                                                           //     NSLog(@"UpdateController NSControlTextDidChangeNotification aNotification: %@", aNotification);
                                                           
                                                           Asset *asset;
-                                                          if (([[aNotification object] window] == self.trackEditorPanel)||([aNotification object] == self.tracksTableView)) {
+                                                          if (([[aNotification object] window] == self.assetDetailPanel)||([aNotification object] == self.assetTableView)) {
+                                                                        NSLog(@"controlTextDidChange assetDetailPanel || assetTableView");
+                                                              asset = [self.assetsController selectedObjects][0];
+                                                              asset.sync_mode = [NSNumber numberWithBool:TRUE];
+                                                              [self.changedAssetsController rearrangeObjects];
+                                                          }
+                                                          else if (([[aNotification object] window] == self.trackEditorPanel)||([aNotification object] == self.tracksTableView)) {
                                                               //          NSLog(@"controlTextDidChange trackEditorPanel || tracksTableView");
                                                               asset = [self.tracksController selectedObjects][0];
                                                               asset.sync_mode = [NSNumber numberWithBool:TRUE];
@@ -114,11 +126,48 @@ int endViewPosition = -3;
     
 }
 
+- (IBAction)filterButtonClicked:(id)sender {
+    BOOL orFlag = FALSE;
+    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:20];
+    NSPredicate *predicate;
+    
+    if ([self.postsButton state]) {
+        [string appendString:@"type == \"post\""];
+        orFlag = TRUE;
+    }
+    if ([self.pagesButton state]) {
+        if (orFlag) [string appendString:@" OR "];
+        [string appendString:@"type == \"page\""];
+        orFlag = TRUE;
+    }
+    if ([self.tracksButton state]) {
+        if (orFlag) [string appendString:@" OR "];
+        [string appendString:@"type == \"track\""];
+        orFlag = TRUE;
+    }
+    if ([self.playlistsButton state]) {
+        if (orFlag) [string appendString:@" OR "];
+        [string appendString:@"type == \"playlist\""];
+        orFlag = TRUE;
+    }
+    
+    if (!orFlag) {
+        [self.postsButton setState:TRUE];
+        [self.pagesButton setState:TRUE];
+        [self.tracksButton setState:TRUE];
+        [self.playlistsButton setState:TRUE];
+        [string setString:@"entity.name != \"Account\""];
+    }
+    predicate= [NSPredicate predicateWithFormat:string];
+    [self.assetsController setFetchPredicate:predicate];
+    [self.assetsController rearrangeObjects];
+}
+
 
 - (void)textDidChange:(NSNotification *)aNotification {
     
     if ((([aNotification object] == self.startingFormatText)||([aNotification object] == self.blockFormatText))|| ([aNotification object] == self.endingFormatText)){
-        [self updateGeneratedCode];
+//        [self updateGeneratedCode];
     }
     
 }
@@ -186,118 +235,6 @@ int endViewPosition = -3;
 }
 
 
-- (NSString *)stringWithTemplate:(NSString *)template forAsset:(Asset *)asset {
-    
-    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:1024];
-    NSRange foundRange;
-    NSRange sourceRange;
-    sourceRange.location = 0;
-    sourceRange.length = [template length];
-    BOOL flag = FALSE;
-    while (flag == FALSE) {
-        foundRange = [template rangeOfString:@"$$$" options:0 range:sourceRange];
-        if (foundRange.location == NSNotFound) {
-            flag = TRUE;
-            break;
-        }
-        
-        sourceRange.length = (foundRange.location - sourceRange.location);
-        [string appendString:[template substringWithRange:sourceRange]];
-        
-        sourceRange.location = (foundRange.location + 3);
-        sourceRange.length = ([template length] - sourceRange.location);
-        foundRange = [template rangeOfString:@"$$$" options:0 range:sourceRange];
-        if (foundRange.location == NSNotFound) {
-            flag = TRUE;
-            
-        }
-        else {
-            sourceRange.length = (foundRange.location - sourceRange.location);
-            
-            NSString *key = [template substringWithRange:sourceRange];
-            NSString *value = [self valueOfItem:asset asStringForKey:key];
-            if ([value length] > 0) [string appendString:value];
-            sourceRange.location = (foundRange.location + 3);
-            sourceRange.length = ([template length] - sourceRange.location);
-        }
-    }
-    [string appendString:[template substringWithRange:sourceRange]];
-    return string;
-}
-
-- (NSString *)valueOfItem:(NSManagedObject *)item asStringForKey:(NSString *)key {
-    NSEntityDescription *entity = [item entity];
-    NSDictionary *attributesByName = [entity attributesByName];
-    NSAttributeDescription *attribute = attributesByName[key];
-    if (!attribute) {
-        return @"---No Such Attribute Key---";
-    }
-    else if ([attribute attributeType] == NSUndefinedAttributeType) {
-        return @"---Undefined Attribute Type---";
-    }
-    else if ([attribute attributeType] == NSStringAttributeType) {
-        return [item valueForKey:key];
-    }
-    else if ([attribute attributeType] < NSDateAttributeType) {
-        return [[item valueForKey:key] stringValue];
-    }
-    // add more "else if" code as desired for other types
-    
-    else {
-        return @"---Unacceptable Attribute Type---";
-    }
-}
-
-- (IBAction)preview:(id)sender {
-    
-    NSMutableString *html = [[NSMutableString alloc] initWithCapacity:1024];
-    if ([[self.startingFormatText string] length] > 0) {
-        [html appendString:[self stringWithTemplate:[self.startingFormatText string] forAsset:self.lastSelectedAsset]];
-    }
-    
-    NSArray *assets = [self.assetBatchEditController arrangedObjects];
-    if (([assets count] > 0) &&  ([[self.blockFormatText string] length] > 0)){
-        for (Asset *asset in assets) {
-            [html appendString:[self stringWithTemplate:[self.blockFormatText string] forAsset:asset]];
-        }
-    }
-    
-    if ([[self.endingFormatText string] length] > 0) {
-        [html appendString:[self stringWithTemplate:[self.endingFormatText string] forAsset:self.lastSelectedAsset]];
-    }
-    
-    //   NSLog(@"html: %@", html);
-    
-    //    [self.generatedCodeText setStringValue:html];
-    [[self.previewWebView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
-    [self.previewFrameWindow makeKeyAndOrderFront:self];
-}
-
-- (void)updateGeneratedCode {
-    
-    NSMutableString *html = [[NSMutableString alloc] initWithCapacity:1024];
-    if ([[self.startingFormatText string] length] > 0) {
-        [html appendString:[self stringWithTemplate:[self.startingFormatText string] forAsset:self.lastSelectedAsset]];
-    }
-    
-    NSArray *assets = [self.assetBatchEditController arrangedObjects];
-    if (([assets count] > 0) &&  ([[self.blockFormatText string] length] > 0)){
-        for (Asset *asset in assets) {
-            [html appendString:[self stringWithTemplate:[self.blockFormatText string] forAsset:asset]];
-        }
-    }
-    
-    if ([[self.endingFormatText string] length] > 0) {
-        [html appendString:[self stringWithTemplate:[self.endingFormatText string] forAsset:self.lastSelectedAsset]];
-    }
-    
-    //   NSLog(@"html: %@", html);
-    
-    [self.generatedCodeText setStringValue:html];
-    //    [[self.previewWebView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
-    //    [self.previewFrameWindow makeKeyAndOrderFront:self];
-}
-
 
 - (NSArray *)batchSortDescriptors {
 	if( self._batchSortDescriptors == nil )
@@ -340,7 +277,7 @@ int endViewPosition = -3;
 	NSRange range = NSMakeRange( 0, [rowIndexes lastIndex] + 1 );
 	while([rowIndexes getIndexes:&currentItemIndex maxCount:1 inIndexRange:&range] > 0)
 	{
-		NSManagedObject *thisItem = [allItemsArray objectAtIndex:currentItemIndex];
+		Asset *thisItem = [allItemsArray objectAtIndex:currentItemIndex];
         
 		[draggedItemsArray addObject:thisItem];
 	}
@@ -348,7 +285,7 @@ int endViewPosition = -3;
 	int count;
 	for( count = 0; count < [draggedItemsArray count]; count++ )
 	{
-		NSManagedObject *currentItemToMove = [draggedItemsArray objectAtIndex:count];
+		Asset *currentItemToMove = [draggedItemsArray objectAtIndex:count];
 		[currentItemToMove setValue:temporaryViewPositionNum forKey:@"batchPosition"];
 	}
     
@@ -410,7 +347,7 @@ int endViewPosition = -3;
 	{
 		for( count = 0; count < [array count]; count++ )
 		{
-			NSManagedObject *currentObject = [array objectAtIndex:count];
+			Asset *currentObject = [array objectAtIndex:count];
 			[currentObject setValue:[NSNumber numberWithInt:currentViewPosition] forKey:@"batchPosition"];
 			currentViewPosition++;
 		}
@@ -454,6 +391,139 @@ int endViewPosition = -3;
     
 	return arrayOfItems;
 }
+
+- (void)templateTableDoubleClicked {
+    
+    [self.templatePanel makeKeyAndOrderFront:self];
+    
+//    if (!self.templatePanel.isVisible) {
+  //      [self.templatePopover showRelativeToRect:[self.templateTableView bounds] ofView:self.templateTableView preferredEdge:0];
+  //  }
+    
+    
+}
+
+- (void)assetTableDoubleClicked {
+    
+    [self.assetDetailPanel makeKeyAndOrderFront:self];
+    
+//    if (!self.assetDetailPanel.isVisible) {
+  //      [self.assetDetailPopover showRelativeToRect:[self.assetTableView bounds] ofView:self.assetTableView preferredEdge:0];
+  //  }
+
+}
+- (IBAction)addAssetBatchButtonClicked:(id)sender {
+    NSArray *items = [self.assetsController arrangedObjects];
+    Asset *item;
+    for (NSInteger row = 0; row < [items count]; row++) {
+        item = items[row];
+        [item setValue:[NSNumber numberWithBool:TRUE] forKey:@"edit_mode"];
+        //  NSLog(@"item: %@", item);
+    }
+    [self.assetBatchEditController rearrangeObjects];
+}
+
+- (IBAction)removeAssetBatchButtonClicked:(id)sender {
+    NSArray *items = [self.assetsController arrangedObjects];
+    Asset *item;
+    for (NSInteger row = 0; row < [items count]; row++) {
+        item = items[row];
+        [item setValue:[NSNumber numberWithBool:FALSE] forKey:@"edit_mode"];
+        //  NSLog(@"item: %@", item);
+    }
+    [self.assetBatchEditController rearrangeObjects];
+}
+
+
+
+/*- (void)popoverWillClose:(NSNotification *)notification {
+    NSLog(@"popoverWillShow notification %@", notification);
+    NSLog(@"popoverWillShow notification.object %@", notification.object);
+    NSPopover *popover = notification.object;
+    
+    if (popover == self.templatePopover) {
+        
+    }
+    else if (popover == self.assetDetailPopover) {
+        AssetDetailView *controller = (AssetDetailView *)[notification.object contentViewController];
+
+        [controller clearWebView];
+        
+    }
+
+    
+}
+
+
+
+- (void)popoverWillShow:(NSNotification *)notification {
+    NSLog(@"popoverWillShow notification.object %@", notification.object);
+    
+    NSPopover *popover = notification.object;
+    NSViewController *controller = [notification.object contentViewController];
+    
+    if (popover == self.templatePopover) {
+        Template *template = [self.templateController selectedObjects][0];
+       controller.representedObject = template;
+        
+    }
+    else if (popover == self.assetDetailPopover) {
+        Asset *asset = (([[self.assetController selectedObjects] count] > 0) ? [self.assetController selectedObjects][0] : [self.assetController arrangedObjects][0]);
+        
+        controller.representedObject = asset;
+
+        NSXMLDocument *doc = [NSXMLNode documentWithRootElement:[NSXMLNode elementWithName:@"document"]];
+        [[doc rootElement] addChild:[NSXMLNode elementWithName:@"item" stringValue:@"Item-One"]];
+        [[doc rootElement] addChild:[NSXMLNode elementWithName:@"item" stringValue:@"Item-Two"]];
+        NSData *xmlData = [doc XMLData];
+        NSString *error;
+        if(xmlData) {
+            NSLog(@"No error creating XML data: %@", xmlData);
+            
+            NSString *string = [[NSString alloc]initWithData:xmlData encoding:NSUTF8StringEncoding];
+            
+            NSLog(@"XML Data as string: %@", string);
+ 
+            NSSavePanel* panel = [NSSavePanel savePanel];
+            
+            [panel beginWithCompletionHandler:^(NSInteger result){
+                if (result == NSFileHandlingPanelOKButton)
+                {
+                    NSURL*  theFile = [panel URL];
+                    [xmlData writeToURL:theFile atomically:NO];
+ 
+                    // Write the contents in the new format.
+                }
+            }];
+ 
+        }
+        else {
+            NSLog(@"Error: %@", error);
+        }
+
+    }
+    
+    else controller.representedObject = nil;
+
+    
+    
+    
+}
+
+- (NSWindow *)detachableWindowForPopover:(NSPopover *)popover {
+    
+    
+    
+    if (popover == self.templatePopover) {
+        return self.templatePanel;
+    }
+    else if (popover == self.assetDetailPopover) {
+        return self.assetDetailPanel;
+    }
+    else return nil;
+    
+}
+*/
 
 //tableView:writeRowsWithIndexes:toPasteboard:	[newItem setValue:[NSNumber numberWithInt:-1] forKey:@"viewPosition"];
 

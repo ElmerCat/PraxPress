@@ -28,7 +28,7 @@
 
 @property (weak) IBOutlet NSArrayController *tracksController;
 @property (weak) IBOutlet NSArrayController *playlistsController;
-@property (weak) IBOutlet NSArrayController *tracksBatchEditController;
+@property (weak) IBOutlet NSArrayController *assetBatchEditController;
 @property (weak) IBOutlet NSTableView *tracksTableView;
 @property (weak) IBOutlet NSTabView *batchEditTabView;
 

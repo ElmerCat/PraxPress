@@ -7,10 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
+		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
+		E624D84515EAC5870066D7D7 /* AssetDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = E624D84415EAC5870066D7D7 /* AssetDetailView.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
+		E64774AC16067BA0003BD981 /* TemplateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateController.m */; };
 		E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64B323515E2CBB900B6CD97 /* WordPressController.m */; };
 		E65BD6F515E7C63900D9F0A4 /* PraxController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* PraxController.m */; };
+		E65E47B615EA936600D98ED6 /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E65E47B515EA936600D98ED6 /* Template.m */; };
+		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
+		E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6B137F815E845C40003EB15 /* AssetDetailView.xib */; };
 		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
@@ -66,14 +73,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E606CDBC1606F1C000D34EDE /* AssetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetController.h; sourceTree = "<group>"; };
+		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
+		E624D84315EAC5870066D7D7 /* AssetDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetDetailView.h; sourceTree = "<group>"; };
+		E624D84415EAC5870066D7D7 /* AssetDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetDetailView.m; sourceTree = "<group>"; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
+		E64774AA16067BA0003BD981 /* TemplateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateController.h; sourceTree = "<group>"; };
+		E64774AB16067BA0003BD981 /* TemplateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TemplateController.m; sourceTree = "<group>"; };
 		E64B323415E2CBB900B6CD97 /* WordPressController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordPressController.h; sourceTree = "<group>"; };
 		E64B323515E2CBB900B6CD97 /* WordPressController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WordPressController.m; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* PraxController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* PraxController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxController.m; sourceTree = "<group>"; };
+		E65E47B415EA936600D98ED6 /* Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Template.h; sourceTree = "<group>"; };
+		E65E47B515EA936600D98ED6 /* Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Template.m; sourceTree = "<group>"; };
+		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
 		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		E6B137F815E845C40003EB15 /* AssetDetailView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetDetailView.xib; sourceTree = "<group>"; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC799D15C4759800080762 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E6BC79A015C4759800080762 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -125,6 +142,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E624D84A15EAEC570066D7D7 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
+				E6BC79F615C48FE300080762 /* SpecialProtocol.m */,
+				E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */,
+				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
+				E63E87C015E05B5900110570 /* PraxTransformers.h */,
+				E63E87C115E05B5900110570 /* PraxTransformers.m */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
@@ -178,20 +208,25 @@
 				E6ACA28415D6D41800373A3B /* UpdateController.h */,
 				E6ACA28515D6D41800373A3B /* UpdateController.m */,
 				E6BC79A415C4759800080762 /* Supporting Files */,
+				E624D84A15EAEC570066D7D7 /* Helpers */,
 				E6BC79B215C4759800080762 /* Document.xib */,
+				E665634315E9744400DFC7C9 /* TemplateView.xib */,
+				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
 				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
 				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
-				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
-				E6BC79F615C48FE300080762 /* SpecialProtocol.m */,
-				E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */,
-				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
-				E63E87C015E05B5900110570 /* PraxTransformers.h */,
-				E63E87C115E05B5900110570 /* PraxTransformers.m */,
+				E65E47B415EA936600D98ED6 /* Template.h */,
+				E65E47B515EA936600D98ED6 /* Template.m */,
 				E6F1562215E585B30098EC32 /* PostEditor.h */,
 				E6F1562315E585B30098EC32 /* PostEditor.m */,
 				E65BD6F315E7C63900D9F0A4 /* PraxController.h */,
 				E65BD6F415E7C63900D9F0A4 /* PraxController.m */,
+				E624D84315EAC5870066D7D7 /* AssetDetailView.h */,
+				E624D84415EAC5870066D7D7 /* AssetDetailView.m */,
+				E64774AA16067BA0003BD981 /* TemplateController.h */,
+				E64774AB16067BA0003BD981 /* TemplateController.m */,
+				E606CDBC1606F1C000D34EDE /* AssetController.h */,
+				E606CDBD1606F1C000D34EDE /* AssetController.m */,
 			);
 			path = PraxPress;
 			sourceTree = "<group>";
@@ -318,6 +353,8 @@
 				E6F1562715E58EA80098EC32 /* WordPress.png in Resources */,
 				E6F1562915E590970098EC32 /* WordPressName.png in Resources */,
 				E6F1562B15E592FA0098EC32 /* SoundCloudName.png in Resources */,
+				E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */,
+				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +376,11 @@
 				E64B323615E2CBB900B6CD97 /* WordPressController.m in Sources */,
 				E6F1562415E585B30098EC32 /* PostEditor.m in Sources */,
 				E65BD6F515E7C63900D9F0A4 /* PraxController.m in Sources */,
+				E65E47B615EA936600D98ED6 /* Template.m in Sources */,
+				E624D84215EAB03D0066D7D7 /* Asset.m in Sources */,
+				E624D84515EAC5870066D7D7 /* AssetDetailView.m in Sources */,
+				E64774AC16067BA0003BD981 /* TemplateController.m in Sources */,
+				E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

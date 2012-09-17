@@ -17,6 +17,8 @@
 #import "Asset.h"
 #import "PostEditor.h"
 #import "UpdateController.h"
+#import "AssetDetailView.h"
+#import "Template.h"
 
 @class Document;
 @class PostEditor;
@@ -24,6 +26,10 @@
 @class WordPressController;
 
 @interface PraxController : NSObject
+@property (weak) IBOutlet NSButton *postsButton;
+@property (weak) IBOutlet NSButton *pagesButton;
+@property (weak) IBOutlet NSButton *tracksButton;
+@property (weak) IBOutlet NSButton *playlistsButton;
 
 @property Asset *lastSelectedAsset;
 
@@ -38,6 +44,15 @@
 @property (weak) IBOutlet NSTextField *changeTitleSubstringTo;
 @property (weak) IBOutlet NSTableView *assetBatchEditTable;
 
+@property (weak) IBOutlet NSArrayController *assetsController;
+@property (unsafe_unretained) IBOutlet NSPanel *assetDetailPanel;
+@property (weak) IBOutlet NSTableView *assetTableView;
+//@property (weak) IBOutlet NSPopover *assetDetailPopover;
+
+//@property (weak) IBOutlet NSPopover *templatePopover;
+@property (weak) IBOutlet NSArrayController *templateController;
+@property (unsafe_unretained) IBOutlet NSPanel *templatePanel;
+@property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
 
 - (NSArray *)itemsWithViewPosition:(int)value;
 - (NSArray *)itemsWithNonTemporaryViewPosition;
@@ -47,12 +62,10 @@
 - (void)renumberViewPositions;
 - (NSArray *)itemsUsingFetchPredicate:(NSPredicate *)fetchPredicate;
 
-
 - (IBAction)copyPurchaseTitle:(id)sender;
 - (IBAction)copyPurchaseURL:(id)sender;
 - (IBAction)performBatchChanges:(id)sender;
 - (IBAction)clearBatch:(id)sender;
-- (IBAction)preview:(id)sender;
 
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
@@ -71,10 +84,7 @@
 @property (unsafe_unretained) IBOutlet NSPanel *postsWindow;
 @property (unsafe_unretained) IBOutlet NSPanel *tracksWindow;
 @property (unsafe_unretained) IBOutlet NSPanel *playlistsWindow;
-@property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
-@property (weak) IBOutlet WebView *previewWebView;
-@property (weak) IBOutlet NSTextField *generatedCodeText;
-@property (weak) IBOutlet NSTableView *formatCodeTableView;
+@property (weak) IBOutlet NSTableView *templateTableView;
 
 @property (unsafe_unretained) IBOutlet NSTextView *startingFormatText;
 @property (unsafe_unretained) IBOutlet NSTextView *blockFormatText;
@@ -86,5 +96,8 @@
 
 - (NSPredicate *)changedAssetsFilterPredicate;
 
+- (IBAction)addAssetBatchButtonClicked:(id)sender;
+- (IBAction)removeAssetBatchButtonClicked:(id)sender;
+- (IBAction)filterButtonClicked:(id)sender;
 
 @end

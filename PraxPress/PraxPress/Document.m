@@ -30,10 +30,9 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    id transformer = [[PraxNumberIsZeroTransformer alloc] init];
-    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsZeroTransformer"];
-    transformer = [[PraxNumberIsNotZeroTransformer alloc] init];
-    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
+    
+    [PraxTransformers load];
+    
     
     [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification
                                                       object:[NXOAuth2AccountStore sharedStore]
@@ -78,6 +77,14 @@
 	[SpecialProtocol registerSpecialProtocol];
     
 
+}
+
+- (void)dealloc {
+    NSLog(@"Document dealloc");
+}
+- (void)windowWillClose:(NSNotification *)notification {
+    NSLog(@"Document windowWillClose notification: %@", notification);    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)removeAccessForAccountType:(NSString *)accountType {
