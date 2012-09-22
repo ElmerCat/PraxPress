@@ -9,9 +9,6 @@
 #import "AssetController.h"
 
 @implementation AssetController
-@synthesize assetsController;
-@synthesize assetDetailWebView;
-@synthesize assetDetailView;
 
 
 - (id)init {
@@ -44,12 +41,12 @@
 
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    Asset *asset = (([[self.assetsController selectedObjects] count] > 0) ? [self.assetsController selectedObjects][0] : [self.assetsController arrangedObjects][0]);
-    if (([asset.type isEqualToString:@"post"])||([asset.type isEqualToString:@"page"])) {
-        [self.assetDetailWebView setMainFrameURL:asset.purchase_url];
+    
+    if (([self.praxController.selectedAsset.type isEqualToString:@"post"])||([self.praxController.selectedAsset.type isEqualToString:@"page"])) {
+        [self.assetDetailWebView setMainFrameURL:self.praxController.selectedAsset.purchase_url];
     }
     else {
-        NSString *html = [Asset htmlStringForAsset:asset];
+        NSString *html = [Asset htmlStringForAsset:self.praxController.selectedAsset];
         [[self.assetDetailWebView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
     }
 

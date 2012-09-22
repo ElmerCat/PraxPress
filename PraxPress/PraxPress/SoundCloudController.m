@@ -84,7 +84,7 @@ NSString *tracksNotificationName = @"tracksNotification";
 
 - (IBAction)logout:(id)sender {
     [[NSSound soundNamed:@"Connect"] play];
-    [self.document removeAccessForAccountType:@"com.soundcloud.api"];
+//    [self.removeAccessForAccountType:@"com.soundcloud.api"];
     
 }
 

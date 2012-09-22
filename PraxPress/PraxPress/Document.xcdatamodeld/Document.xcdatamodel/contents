@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1487" systemVersion="12A269" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="Account" representedClassName="Asset" parentEntity="Asset" syncable="YES">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="12C54" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Account" representedClassName="Account" parentEntity="Asset" syncable="YES">
         <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="followers_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="followings_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="oauthAccount" optional="YES" transient="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="playlist_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="track_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="update_offset" optional="YES" transient="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -45,11 +46,11 @@
         <relationship name="playlists" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Playlist" inverseName="tracks" inverseEntity="Playlist" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Account" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="285"/>
+        <element name="Playlist" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Template" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

@@ -9,12 +9,13 @@
 #import <WebKit/WebKit.h>
 #import <Foundation/Foundation.h>
 #import "Asset.h"
+#import "PraxController.h"
 
 @interface AssetController : NSObject
 
+@property (weak) IBOutlet PraxController *praxController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (weak) IBOutlet WebView *assetDetailWebView;
-@property (weak) IBOutlet NSView *assetDetailView;
 
 
 @end

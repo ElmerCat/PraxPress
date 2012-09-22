@@ -9,16 +9,16 @@
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
 //#import <SoundCloudAPI/SCAPI.h>
-#import "Document.h"
 #import "SoundCloudController.h"
 #import "WordPressController.h"
 #import "Asset.h"
-#import "PostEditor.h"
+#import "Account.h"
 #import "PraxController.h"
 #import "Template.h"
 
 @class Document;
 @class PostEditor;
+@class PraxController;
 @class SoundCloudController;
 @class WordPressController;
 
@@ -47,34 +47,42 @@ enum UpdateMode {
 typedef enum UpdateMode UpdateMode;
 
 @interface UpdateController : NSObject
-- (IBAction)praxAction:(id)sender;
+
+- (NXOAuth2Account *) scAccount;
+- (NXOAuth2Account *) wpAccount;
 
 @property BOOL stop;
 @property BOOL busy;
+@property BOOL uploadChangedItems;
+@property BOOL reloadChangedItems;
+
+@property Account *account;
+@property NSString *requestMethod;
+@property NSDictionary *parameters;
+@property NSURL *resource;
+@property NSString *statusText;
 @property UpdateMode updateMode;
 @property NSInteger updateCount;
 @property NSInteger targetCount;
-@property (strong) NXOAuth2Account *scAccount;
-
-@property (strong) NXOAuth2Account *wpAccount;
 
 @property (strong) Asset *targetAsset;
 
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
+@property (weak) IBOutlet NSTableView *changedAssetsTableView;
+@property (weak) IBOutlet PraxController *praxController;
 @property (weak) IBOutlet SoundCloudController *soundCloudController;
 @property (weak) IBOutlet WordPressController *wordPressController;
-@property (weak) IBOutlet NSArrayController *postsController;
-@property (weak) IBOutlet NSArrayController *tracksController;
-@property (weak) IBOutlet NSArrayController *playlistsController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 
-@property (weak) IBOutlet NSTextField *statusText;
 @property (weak) IBOutlet NSProgressIndicator *progressBar;
 @property (weak) IBOutlet NSImageView *progressImageWell;
 
 - (IBAction)stop:(id)sender;
 - (IBAction)reloadFromServer:(id)sender;
 - (IBAction)uploadToServer:(id)sender;
+- (IBAction)refreshAllData:(id)sender;
+- (IBAction)uploadChangedItems:(id)sender;
+- (IBAction)reloadChangedItems:(id)sender;
 
 @end

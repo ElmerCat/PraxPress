@@ -15,9 +15,7 @@
 #import "SoundCloudController.h"
 #import "WordPressController.h"
 #import "Asset.h"
-#import "PostEditor.h"
 #import "UpdateController.h"
-#import "AssetDetailView.h"
 #import "Template.h"
 
 @class Document;
@@ -31,17 +29,28 @@
 @property (weak) IBOutlet NSButton *tracksButton;
 @property (weak) IBOutlet NSButton *playlistsButton;
 
-@property Asset *lastSelectedAsset;
+@property Asset *selectedAsset;
+
+@property BOOL batchChange;
+@property BOOL replaceSubstrings;
+@property (weak) IBOutlet NSComboBox *batchChangeKeyField;
+@property (weak) IBOutlet NSTextField *batchChangeValueField;
+@property (weak) IBOutlet NSButton *batchChangeCopyButton;
+@property NSString *batchChangeKey;
+@property NSString *replaceSubstringsKey;
+@property (weak) IBOutlet NSTextField *replaceSubstringsFromField;
+@property (weak) IBOutlet NSTextField *replaceSubstringsToField;
+@property (readonly) NSString *batchChangeCopyValue;
+- (IBAction)batchChangeCopy:(id)sender;
+- (IBAction)batchChangeValues:(id)sender;
+- (IBAction)batchReplaceSubstrings:(id)sender;
 
 @property BOOL batchChangePurchaseTitle;
 @property BOOL batchChangePurchaseURL;
 @property BOOL batchChangeTitleSubstrings;
 @property NSArray *_batchSortDescriptors;
 - (NSArray *)batchSortDescriptors;
-@property (weak) IBOutlet NSTextField *changePurchaseURL;
-@property (weak) IBOutlet NSTextField *changePurchaseTitle;
-@property (weak) IBOutlet NSTextField *changeTitleSubstringFrom;
-@property (weak) IBOutlet NSTextField *changeTitleSubstringTo;
+
 @property (weak) IBOutlet NSTableView *assetBatchEditTable;
 
 @property (weak) IBOutlet NSArrayController *assetsController;
@@ -62,9 +71,6 @@
 - (void)renumberViewPositions;
 - (NSArray *)itemsUsingFetchPredicate:(NSPredicate *)fetchPredicate;
 
-- (IBAction)copyPurchaseTitle:(id)sender;
-- (IBAction)copyPurchaseURL:(id)sender;
-- (IBAction)performBatchChanges:(id)sender;
 - (IBAction)clearBatch:(id)sender;
 
 @property (weak) IBOutlet Document *document;
@@ -73,25 +79,8 @@
 
 @property (weak) IBOutlet SoundCloudController *soundCloudController;
 @property (weak) IBOutlet WordPressController *wordPressController;
-@property (weak) IBOutlet PostEditor *postEditor;
-
-@property (weak) IBOutlet NSArrayController *postsController;
-@property (weak) IBOutlet NSArrayController *tracksController;
-@property (weak) IBOutlet NSArrayController *playlistsController;
-@property (weak) IBOutlet NSTableView *tracksTableView;
-@property (weak) IBOutlet NSTableView *playlistsTableView;
-
-@property (unsafe_unretained) IBOutlet NSPanel *postsWindow;
-@property (unsafe_unretained) IBOutlet NSPanel *tracksWindow;
-@property (unsafe_unretained) IBOutlet NSPanel *playlistsWindow;
 @property (weak) IBOutlet NSTableView *templateTableView;
 
-@property (unsafe_unretained) IBOutlet NSTextView *startingFormatText;
-@property (unsafe_unretained) IBOutlet NSTextView *blockFormatText;
-@property (unsafe_unretained) IBOutlet NSTextView *endingFormatText;
-
-@property (unsafe_unretained) IBOutlet NSPanel *postEditorPanel;
-@property (unsafe_unretained) IBOutlet NSPanel *trackEditorPanel;
 @property (unsafe_unretained) IBOutlet NSPanel *playlistEditorPanel;
 
 - (NSPredicate *)changedAssetsFilterPredicate;

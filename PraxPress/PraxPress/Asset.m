@@ -7,6 +7,7 @@
 //
 
 #import "Asset.h"
+#import "UpdateController.h"
 
 @implementation Asset
 
@@ -26,81 +27,52 @@
 @dynamic asset_id;
 @dynamic batchPosition;
 
-@dynamic accountType;
-@dynamic city;
-@dynamic country;
-@dynamic username;
-@dynamic followers_count;
-@dynamic followings_count;
-@dynamic playlist_count;
-@dynamic track_count;
-@dynamic update_offset;
-@dynamic user_id;
-
 @dynamic account;
 @dynamic tracks;
 @dynamic playlists;
 
--(void)loadWordPressSiteData:(NSDictionary *)data {
-    NSLog(@"loadWordPressSiteData: %@", data);
-    self.track_count = data[@"post_count"];
-    self.title = data[@"description"];
-}
-
--(void)loadWordPressAccountData:(NSDictionary *)data {
-    NSLog(@"loadWordPressAccountData: %@", data);
-    self.user_id = data[@"ID"];
-    self.asset_id = data[@"primary_blog"];
-    self.title = data[@"description"];
-    self.username = data[@"display_name"];
-    self.permalink = data[@"username"];
+-(NXOAuth2Request *)updateRequest:(UpdateController *)sender {  // return a request, configured as required for account type
     
-    if (data[@"avatar_URL"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_URL"];
-        //     NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        //     artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        self.artwork_url = artwork_url;
+    if (![self.account oauthReady:sender.document]) return nil; // not authorized yet
+    NXOAuth2Request *request;
+    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] initWithCapacity:10];
+
+    if ([self.account.accountType isEqualToString:@"com.soundcloud.api"]) {
+        sender.statusText = @"Updating SoundCloud Asset";
+        sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
+        for (NSString *key in @[@"title", @"purchase_title", @"purchase_url"]) {
+            
+            NSString *asset_key = ([self.entity.name isEqualToString:@"Track"]) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
+            NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
+            [parameters setObject:value forKey:asset_key];
+        }
+        sender.parameters = parameters;
         
-        //     artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        self.image =  [NSArchiver archivedDataWithRootObject:image];
+        request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"PUT" parameters:sender.parameters];
     }
     
-}
--(void)loadSoundCloudAccountData:(NSDictionary *)data {
-    self.title = data[@"full_name"];
-    self.asset_id = data[@"id"];
-    self.username = data[@"username"];
-    self.permalink = data[@"permalink"];
-    self.playlist_count = data[@"playlist_count"];
-    self.track_count = data[@"track_count"];
-    self.followers_count = data[@"followers_count"];
-    self.followings_count = data[@"followings_count"];
-    self.contents = data[@"description"];
-    self.city = data[@"city"];
-    self.country = data[@"country"];
-    self.purchase_url = data[@"website"];
-    self.purchase_title = data[@"website_title"];
-    if (data[@"avatar_url"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_url"];
-        NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        self.artwork_url = artwork_url;
+    else if ([self.account.accountType isEqualToString:@"com.wordpress.api"]) {
+        sender.statusText = @"Updating WordPress Asset";
+        sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
         
-        artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        self.image =  [NSArchiver archivedDataWithRootObject:image];
-        //       });
+        [parameters setObject:self.title forKey:@"title"];
+        [parameters setObject:self.contents forKey:@"content"];
+        
+        sender.parameters = parameters;
+        request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"POST" parameters:sender.parameters];
+        
     }
+    
+    else return nil;  // invalid account type
+    
+    sender.account = self.account;
+    request.account = self.account.oauthAccount;
+    
+    return request;
+
 }
 
-
-
-
--(void)loadWordPressPostData:(Asset *)asset data:(NSDictionary *)data {
+-(void)loadWordPressPostData:(NSDictionary *)data {
     
     self.title = data[@"title"];
     self.purchase_url = data[@"URL"];
@@ -113,7 +85,7 @@
     self.sync_mode = [NSNumber numberWithBool:FALSE];
     
 }
--(void)loadSoundCloudItemData:(NSDictionary *)data {
+-(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
     
     self.type = ([self.entity.name isEqualToString:@"Playlist"]) ? @"playlist" : @"track";
     
@@ -131,6 +103,10 @@
     else {
         self.purchase_title = nil;
     }
+    self.permalink = data[@"permalink"];
+    self.uri = data[@"uri"];
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
+
     if (data[@"artwork_url"] != [NSNull null]) {
         NSString *artwork_url = data[@"artwork_url"];
         NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
@@ -140,12 +116,9 @@
         NSURL *url = [NSURL URLWithString:artwork_url];
         NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
         self.image = [NSArchiver archivedDataWithRootObject:image];
-        //        [self.progressImageWell setImage:image];
+        return image;
     }
-    self.permalink = data[@"permalink"];
-    self.uri = data[@"uri"];
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
-    
+    else return nil;
 }
 
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data {

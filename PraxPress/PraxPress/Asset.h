@@ -8,9 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <OAuth2Client/NXOAuth2.h>
 
 @class Account;
-
+@class UpdateController;
 @interface Asset : NSManagedObject
 
 @property (nonatomic, retain) NSString * artwork_url;
@@ -31,16 +32,6 @@
 
  // Account
 @property (nonatomic, retain) Account *account;
-@property (nonatomic, retain) NSString * accountType;
-@property (nonatomic, retain) NSString * city;
-@property (nonatomic, retain) NSString * country;
-@property (nonatomic, retain) NSString * username;
-@property (nonatomic, retain) NSNumber * followers_count;
-@property (nonatomic, retain) NSNumber * followings_count;
-@property (nonatomic, retain) NSNumber * playlist_count;
-@property (nonatomic, retain) NSNumber * track_count;
-@property (nonatomic, retain) NSNumber * update_offset;
-@property (nonatomic, retain) NSNumber * user_id;
 
 // Tracks and Playlists
 @property (nonatomic, retain) NSSet *tracks;
@@ -61,16 +52,11 @@
 - (void)addTracks:(NSSet *)values;
 - (void)removeTracks:(NSSet *)values;
 
--(void)loadWordPressAccountData:(NSDictionary *)data;
--(void)loadWordPressSiteData:(NSDictionary *)data;
--(void)loadWordPressPostData:(Asset *)asset data:(NSDictionary *)data;
--(void)loadSoundCloudAccountData:(NSDictionary *)data;
--(void)loadSoundCloudItemData:(NSDictionary *)data;
+-(NXOAuth2Request *)updateRequest:(UpdateController *)sender;
+-(void)loadWordPressPostData:(NSDictionary *)data;
+-(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
 +(NSString *)htmlStringForAsset:(Asset *)asset;
 
-
-
 @end
-
 

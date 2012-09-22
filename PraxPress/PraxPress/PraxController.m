@@ -9,6 +9,9 @@
 #import "PraxController.h"
 
 @implementation PraxController
+@synthesize batchChangeKeyField;
+@synthesize batchChangeValueField;
+@synthesize batchChangeCopyButton;
 
 NSString *PraxItemsDropType = @"PraxItemsDropType";
 int temporaryViewPosition = -1;
@@ -18,6 +21,47 @@ int endViewPosition = -3;
 #define temporaryViewPositionNum [NSNumber numberWithInt:temporaryViewPosition]
 #define startViewPositionNum [NSNumber numberWithInt:startViewPosition]
 #define endViewPositionNum [NSNumber numberWithInt:endViewPosition]
+
++ (NSSet *)keyPathsForValuesAffectingBatchChangeCopyValue {
+    return [NSSet setWithObjects:@"self.batchChangeKey", @"self.selectedAsset", nil];
+}
+- (NSString *)batchChangeCopyValue {
+    
+    if (!self.selectedAsset)
+        return @"Prax";
+    else if (!self.batchChangeKey)
+        return @"Prax";
+
+    else return [self.selectedAsset valueForKey:self.batchChangeKey];
+    
+}
+- (IBAction)batchChangeCopy:(id)sender {
+    [self.batchChangeValueField setStringValue:[sender title]];
+}
+
+- (IBAction)batchChangeValues:(id)sender {
+    
+    for (Asset *asset in [self.assetBatchEditController arrangedObjects]) {
+        [asset setValue:[self.batchChangeValueField stringValue] forKey:self.batchChangeKey];
+        asset.sync_mode = [NSNumber numberWithBool:TRUE];
+        
+    }
+    self.batchChange = FALSE;
+    [self.changedAssetsController rearrangeObjects];
+}
+- (IBAction)batchReplaceSubstrings:(id)sender {
+    
+    for (Asset *asset in [self.assetBatchEditController arrangedObjects]) {
+       
+        [asset setValue:[[asset valueForKey:self.replaceSubstringsKey] stringByReplacingOccurrencesOfString:[self.replaceSubstringsFromField stringValue] withString:[self.replaceSubstringsToField stringValue]] forKey:self.replaceSubstringsKey ];
+        asset.sync_mode = [NSNumber numberWithBool:TRUE];
+        
+    }
+    self.replaceSubstrings = FALSE;
+    [self.changedAssetsController rearrangeObjects];
+}
+
+
 
 - (id)init {
     self = [super init];
@@ -29,14 +73,14 @@ int endViewPosition = -3;
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
                                                           
-                                                          if ([aNotification object] == self.postEditorPanel) {
-                                                              [self.postEditor loadWebView];
-                                                          }
+                                                       //   if ([aNotification object] == self.postEditorPanel) {
+                                                        //      [self.postEditor loadWebView];
+                                                         // }
                                                           //        else NSLog(@"UpdateController NSWindowDidResignKeyNotification aNotification: %@", aNotification);
                                                           
                                                           
                                                       }];
-        [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowDidResignKeyNotification
+/*        [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowDidResignKeyNotification
                                                           object:nil
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
@@ -46,23 +90,24 @@ int endViewPosition = -3;
                                                           
                                                           else if ([aNotification object] == self.postsWindow) {
                                                               if ([[self.postsController arrangedObjects] count] > 0) {
-                                                                  self.lastSelectedAsset = (([[self.postsController selectedObjects] count] > 0) ? [self.postsController selectedObjects][0] : [self.postsController arrangedObjects][0]);
+                                                                  self.selectedAsset = (([[self.postsController selectedObjects] count] > 0) ? [self.postsController selectedObjects][0] : [self.postsController arrangedObjects][0]);
                                                               }
                                                           }
                                                           else if ([aNotification object] == self.tracksWindow) {
                                                               if ([[self.tracksController arrangedObjects] count] > 0) {
-                                                                  self.lastSelectedAsset = (([[self.tracksController selectedObjects] count] > 0) ? [self.tracksController selectedObjects][0] : [self.tracksController arrangedObjects][0]);
+                                                                  self.selectedAsset = (([[self.tracksController selectedObjects] count] > 0) ? [self.tracksController selectedObjects][0] : [self.tracksController arrangedObjects][0]);
                                                               }
                                                           }
                                                           else if ([aNotification object] == self.playlistsWindow) {
                                                               if ([[self.playlistsController arrangedObjects] count] > 0) {
-                                                                  self.lastSelectedAsset = (([[self.playlistsController selectedObjects] count] > 0) ? [self.playlistsController selectedObjects][0] : [self.playlistsController arrangedObjects][0]);
+                                                                  self.selectedAsset = (([[self.playlistsController selectedObjects] count] > 0) ? [self.playlistsController selectedObjects][0] : [self.playlistsController arrangedObjects][0]);
                                                               }
                                                           }
                                                           //        else NSLog(@"UpdateController NSWindowDidResignKeyNotification aNotification: %@", aNotification);
                                                           
                                                           
-                                                      }];
+                                                      }]; */
+        
         [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification
                                                           object:nil
                                                            queue:nil
@@ -73,10 +118,26 @@ int endViewPosition = -3;
                                                               //[self updateGeneratedCode];
                                                           }
                                                           else if ([aNotification object] == self.assetTableView){
-                                                              if ([self.assetDetailPanel isVisible])
-                                                              [self.assetDetailPanel makeKeyAndOrderFront:self];
+                                                              if (self.assetsController.selectedObjects.count > 0) {
+                                                                  self.selectedAsset = [self.assetsController selectedObjects][0];
+                                                                  if ([self.assetDetailPanel isVisible])
+                                                                      [self.assetDetailPanel makeKeyAndOrderFront:self];
+                                                              }
                                                           }
-                                                          else NSLog(@"UpdateController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
+                                                          
+                                                          
+                                                          else if ([aNotification object] == self.assetBatchEditTable){
+                                                              if (self.assetBatchEditController.selectedObjects.count > 0) {
+                                                                  self.selectedAsset = [self.assetBatchEditController selectedObjects][0];
+                                                                  if ([self.assetDetailPanel isVisible])
+                                                                      [self.assetDetailPanel makeKeyAndOrderFront:self];
+                                                              }
+                                                          }
+                                                          else if ([aNotification object] == self.batchChangeKeyField){
+                                                              NSLog(@"controlTextDidChange batchChangeKey");
+                                                              
+                                                          }
+                                                          else NSLog(@"PraxController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
                                                           
                                                           
                                                       }];
@@ -93,18 +154,14 @@ int endViewPosition = -3;
                                                               asset.sync_mode = [NSNumber numberWithBool:TRUE];
                                                               [self.changedAssetsController rearrangeObjects];
                                                           }
-                                                          else if (([[aNotification object] window] == self.trackEditorPanel)||([aNotification object] == self.tracksTableView)) {
-                                                              //          NSLog(@"controlTextDidChange trackEditorPanel || tracksTableView");
-                                                              asset = [self.tracksController selectedObjects][0];
-                                                              asset.sync_mode = [NSNumber numberWithBool:TRUE];
-                                                              [self.changedAssetsController rearrangeObjects];
+                                                               else if ([aNotification object] == self.batchChangeKeyField){
+                                                              NSLog(@"controlTextDidChange batchChangeKey");
                                                           }
-                                                          else if (([[aNotification object] window] == self.playlistEditorPanel)||([aNotification object] == self.playlistsTableView)) {
-                                                              NSLog(@"controlTextDidChange playlistEditorPanel || playlistsTableView");
-                                                              asset = [self.playlistsController selectedObjects][0];
-                                                              asset.sync_mode = [NSNumber numberWithBool:TRUE];
-                                                              [self.changedAssetsController rearrangeObjects];
+                                                          
+                                                          else if ([aNotification object] == self.batchChangeValueField){
+                                                              NSLog(@"controlTextDidChange batchChangeValue");                                                              
                                                           }
+                                                          
                                                           else NSLog(@"controlTextDidChange something else");
                                                           
                                                       }];
@@ -164,13 +221,6 @@ int endViewPosition = -3;
 }
 
 
-- (void)textDidChange:(NSNotification *)aNotification {
-    
-    if ((([aNotification object] == self.startingFormatText)||([aNotification object] == self.blockFormatText))|| ([aNotification object] == self.endingFormatText)){
-//        [self updateGeneratedCode];
-    }
-    
-}
 
 - (NSPredicate *)changedAssetsFilterPredicate {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"sync_mode == YES"];
@@ -178,47 +228,6 @@ int endViewPosition = -3;
 }
 
 
-- (void)postsTableDoubleClicked {
-    [self.postEditorPanel makeKeyAndOrderFront:self];
-}
-- (void)tracksTableDoubleClicked {
-    [self.trackEditorPanel makeKeyAndOrderFront:self];
-}
-- (void)playlistsTableDoubleClicked {
-    [self.playlistEditorPanel makeKeyAndOrderFront:self];
-}
-
-
-- (IBAction)copyPurchaseTitle:(id)sender {
-    [self.changePurchaseTitle setStringValue:[sender title]];
-}
-
-- (IBAction)copyPurchaseURL:(id)sender {
-    [self.changePurchaseURL setStringValue:[sender title]];
-}
-
-- (IBAction)performBatchChanges:(id)sender {
-    
-    for (Asset *asset in [self.assetBatchEditController arrangedObjects]) {
-        if (self.batchChangePurchaseTitle) {
-            asset.purchase_title = [self.changePurchaseTitle stringValue];
-            asset.sync_mode = [NSNumber numberWithBool:TRUE];
-        }
-        if (self.batchChangePurchaseURL) {
-            asset.purchase_url = [self.changePurchaseURL stringValue];
-            asset.sync_mode = [NSNumber numberWithBool:TRUE];
-        }
-        if (self.batchChangeTitleSubstrings) {
-            asset.title = [asset.title stringByReplacingOccurrencesOfString:[self.changeTitleSubstringFrom stringValue] withString:[self.changeTitleSubstringTo stringValue]];
-            asset.sync_mode = [NSNumber numberWithBool:TRUE];
-        }
-        
-    }
-    self.batchChangePurchaseTitle = FALSE;
-    self.batchChangePurchaseURL = FALSE;
-    self.batchChangeTitleSubstrings = FALSE;
-    [self.changedAssetsController rearrangeObjects];
-}
 
 - (IBAction)clearBatch:(id)sender {
     NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"edit_mode == YES"];
@@ -226,14 +235,6 @@ int endViewPosition = -3;
     for (Asset *asset in items) asset.edit_mode = [NSNumber numberWithBool:FALSE];
     [self.assetBatchEditController rearrangeObjects];
 }
-
-
-- (IBAction)praxAction:(id)sender {
-    NSLog(@"praxAction: - praxAction: - praxAction: - praxAction: - praxAction: - ");
-    [[NSSound soundNamed:@"Error"] play];
-    
-}
-
 
 
 - (NSArray *)batchSortDescriptors {
@@ -433,100 +434,6 @@ int endViewPosition = -3;
     }
     [self.assetBatchEditController rearrangeObjects];
 }
-
-
-
-/*- (void)popoverWillClose:(NSNotification *)notification {
-    NSLog(@"popoverWillShow notification %@", notification);
-    NSLog(@"popoverWillShow notification.object %@", notification.object);
-    NSPopover *popover = notification.object;
-    
-    if (popover == self.templatePopover) {
-        
-    }
-    else if (popover == self.assetDetailPopover) {
-        AssetDetailView *controller = (AssetDetailView *)[notification.object contentViewController];
-
-        [controller clearWebView];
-        
-    }
-
-    
-}
-
-
-
-- (void)popoverWillShow:(NSNotification *)notification {
-    NSLog(@"popoverWillShow notification.object %@", notification.object);
-    
-    NSPopover *popover = notification.object;
-    NSViewController *controller = [notification.object contentViewController];
-    
-    if (popover == self.templatePopover) {
-        Template *template = [self.templateController selectedObjects][0];
-       controller.representedObject = template;
-        
-    }
-    else if (popover == self.assetDetailPopover) {
-        Asset *asset = (([[self.assetController selectedObjects] count] > 0) ? [self.assetController selectedObjects][0] : [self.assetController arrangedObjects][0]);
-        
-        controller.representedObject = asset;
-
-        NSXMLDocument *doc = [NSXMLNode documentWithRootElement:[NSXMLNode elementWithName:@"document"]];
-        [[doc rootElement] addChild:[NSXMLNode elementWithName:@"item" stringValue:@"Item-One"]];
-        [[doc rootElement] addChild:[NSXMLNode elementWithName:@"item" stringValue:@"Item-Two"]];
-        NSData *xmlData = [doc XMLData];
-        NSString *error;
-        if(xmlData) {
-            NSLog(@"No error creating XML data: %@", xmlData);
-            
-            NSString *string = [[NSString alloc]initWithData:xmlData encoding:NSUTF8StringEncoding];
-            
-            NSLog(@"XML Data as string: %@", string);
- 
-            NSSavePanel* panel = [NSSavePanel savePanel];
-            
-            [panel beginWithCompletionHandler:^(NSInteger result){
-                if (result == NSFileHandlingPanelOKButton)
-                {
-                    NSURL*  theFile = [panel URL];
-                    [xmlData writeToURL:theFile atomically:NO];
- 
-                    // Write the contents in the new format.
-                }
-            }];
- 
-        }
-        else {
-            NSLog(@"Error: %@", error);
-        }
-
-    }
-    
-    else controller.representedObject = nil;
-
-    
-    
-    
-}
-
-- (NSWindow *)detachableWindowForPopover:(NSPopover *)popover {
-    
-    
-    
-    if (popover == self.templatePopover) {
-        return self.templatePanel;
-    }
-    else if (popover == self.assetDetailPopover) {
-        return self.assetDetailPanel;
-    }
-    else return nil;
-    
-}
-*/
-
-//tableView:writeRowsWithIndexes:toPasteboard:	[newItem setValue:[NSNumber numberWithInt:-1] forKey:@"viewPosition"];
-
 
 
 

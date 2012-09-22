@@ -16,6 +16,7 @@
 #import "Asset.h"
 @class UpdateController;
 @class Document;
+@class Asset;
 
 @interface WordPressController : NSObject
 

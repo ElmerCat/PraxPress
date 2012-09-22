@@ -10,7 +10,8 @@
 #import <WebKit/WebKit.h>
 #import "Document.h"
 #import "UpdateController.h"
-#import "Asset.h"
+
+@class Asset;
 @class Document;
 @class UpdateController;
 

@@ -41,7 +41,7 @@
 
 - (IBAction)logout:(id)sender {
     [[NSSound soundNamed:@"Connect"] play];
-    [self.document removeAccessForAccountType:@"com.wordpress.api"];
+ //   [self.removeAccessForAccountType:@"com.wordpress.api"];
     
 }
 

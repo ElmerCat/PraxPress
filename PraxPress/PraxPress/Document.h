@@ -15,8 +15,6 @@
 //#import <CocoaWordPressAPI/WPAPI.h>
 #import "SoundCloudController.h"
 #import "PraxTransformers.h"
-#import "Asset.h"
-
 
 @class SoundCloudController;
 
@@ -25,15 +23,11 @@
 @property (strong) IBOutlet SoundCloudController *soundCloudController;
 @property (strong) NSArray *scTracks;
 
-- (NXOAuth2Account *) scAccount;
-- (NXOAuth2Account *) wpAccount;
-
 @property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
-- (void)removeAccessForAccountType:(NSString *)accountType;
 @end
 
 
