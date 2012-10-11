@@ -8,48 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
-//#import <SoundCloudAPI/SCAPI.h>
-#import "SoundCloudController.h"
-#import "WordPressController.h"
 #import "Asset.h"
 #import "Account.h"
 #import "PraxController.h"
-#import "Template.h"
+#import "ServiceView.h"
 
 @class Document;
 @class PostEditor;
 @class PraxController;
-@class SoundCloudController;
-@class WordPressController;
-
-enum UpdateMode {
-    UpdateModeIdle = 0,
-    UpdateModeDone,
-    UpdateModeWordPress,
-    UpdateModeWordPressSite,
-    UpdateModeWordPressPost,
-    UpdateModeUploadWordPressPost,
-    UpdateModeUploadingWordPressPost,
-    UpdateModeWordPressPosts,
-    UpdateModeAsset,
-    UpdateModeAssets,
-    UpdateModeSoundCloud,
-    UpdateModeTrack,
-    UpdateModeUploadTrack,
-    UpdateModeUploadingTrack,
-    UpdateModeTracks,
-    UpdateModePlaylist,
-    UpdateModeUploadPlaylist,
-    UpdateModeUploadingPlaylist,
-    UpdateModePlaylists,
-    UpdateModeError
-};
-typedef enum UpdateMode UpdateMode;
 
 @interface UpdateController : NSObject
-
-- (NXOAuth2Account *) scAccount;
-- (NXOAuth2Account *) wpAccount;
 
 @property BOOL stop;
 @property BOOL busy;
@@ -61,7 +29,6 @@ typedef enum UpdateMode UpdateMode;
 @property NSDictionary *parameters;
 @property NSURL *resource;
 @property NSString *statusText;
-@property UpdateMode updateMode;
 @property NSInteger updateCount;
 @property NSInteger targetCount;
 
@@ -71,18 +38,21 @@ typedef enum UpdateMode UpdateMode;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
 @property (weak) IBOutlet PraxController *praxController;
-@property (weak) IBOutlet SoundCloudController *soundCloudController;
-@property (weak) IBOutlet WordPressController *wordPressController;
 @property (weak) IBOutlet NSArrayController *assetsController;
+@property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
 
 @property (weak) IBOutlet NSProgressIndicator *progressBar;
 @property (weak) IBOutlet NSImageView *progressImageWell;
 
 - (IBAction)stop:(id)sender;
+- (IBAction)logout:(id)sender;
 - (IBAction)reloadFromServer:(id)sender;
 - (IBAction)uploadToServer:(id)sender;
-- (IBAction)refreshAllData:(id)sender;
+
 - (IBAction)uploadChangedItems:(id)sender;
 - (IBAction)reloadChangedItems:(id)sender;
+
+- (void)refreshAccountData:(Account *)account;
+- (void)logoutAccount:(Account *)account;
 
 @end

@@ -45,6 +45,13 @@
     [self addObserver:self forKeyPath:@"self.assetsController.selectedObjects" options:NSKeyValueObservingOptionNew context:0];
     [self addObserver:self forKeyPath:@"self.assetBatchEditController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
     
+ 
+    NSDictionary *templateDefaults = @{@"templates":@[@{@"name":@"titles", @"startingFormatText":@"Titles\n", @"blockFormatText":@"$$$title$$$\n", @"endingFormatText":@"\n...PraxPress...\n"}]};
+    
+    [[NSUserDefaults standardUserDefaults] registerDefaults:templateDefaults];
+    
+    
+    
     [generatedCodeText setStringValue:@"Julie d'Prax"];
     
     //   [self.assetBatchEditTable registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];

@@ -11,6 +11,7 @@
 
 @implementation Document
 
+
 - (id)init
 {
     self = [super init];
@@ -29,14 +30,22 @@
     NSManagedObjectContext *moc = [self managedObjectContext];
     [moc processPendingChanges];
     [[moc undoManager] disableUndoRegistration];
-    Account *account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-    [account setValue:@"com.wordpress.api" forKey:@"accountType"];
-    account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-    [account setValue:@"com.soundcloud.api" forKey:@"accountType"];
-    account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-    [account setValue:@"YouTube" forKey:@"accountType"];
-    account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-    [account setValue:@"Flickr" forKey:@"accountType"];
+    
+    NSManagedObject *source = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    [source setValue:@"Services" forKey:@"name"];
+    
+    Account *account;
+    NSManagedObject *service;
+    
+    for (NSString *name in @[@"WordPress", @"SoundCloud", @"YouTube", @"Flickr"]) {
+        account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
+        account.accountType = name;
+        
+        service = [NSEntityDescription insertNewObjectForEntityForName:@"Service" inManagedObjectContext:moc];
+        [service setValue:name forKey:@"name"];
+        [service setValue:account forKey:@"account"];
+        [service setValue:source forKey:@"parent"];
+    }
     
     [moc processPendingChanges];
     [[moc undoManager] enableUndoRegistration];

@@ -16,6 +16,8 @@
 @property (weak) IBOutlet PraxController *praxController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (weak) IBOutlet WebView *assetDetailWebView;
+@property (weak) IBOutlet NSTableView *assetTableView;
+@property NSIndexSet *selectedRowIndexes;
 
 
 @end

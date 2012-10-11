@@ -61,6 +61,17 @@
     self.title = data[@"description"];
 }
 
+-(void)loadWordPressPageCount:(NSDictionary *)data {
+    NSLog(@"loadWordPressPageCount: %@", data);
+    
+    self.playlist_count = data[@"found"];
+    int posts = [self.track_count intValue];
+    int pages = [self.playlist_count intValue];
+    posts -= pages;
+    self.track_count = [NSNumber numberWithInt:posts];
+}
+
+
 -(void)loadWordPressAccountData:(NSDictionary *)data {
     NSLog(@"loadWordPressAccountData: %@", data);
     self.user_id = data[@"ID"];

@@ -12,24 +12,24 @@
 #import <OAuth2Client/NXOAuth2.h>
 //#import <SoundCloudAPI/SCAPI.h>
 #import "Document.h"
-#import "SoundCloudController.h"
-#import "WordPressController.h"
 #import "Asset.h"
 #import "UpdateController.h"
-#import "Template.h"
 
 @class Document;
 @class PostEditor;
 @class SoundCloudController;
 @class WordPressController;
 
-@interface PraxController : NSObject
+@interface PraxController : NSObject <NSPopoverDelegate>
 @property (weak) IBOutlet NSButton *postsButton;
 @property (weak) IBOutlet NSButton *pagesButton;
 @property (weak) IBOutlet NSButton *tracksButton;
 @property (weak) IBOutlet NSButton *playlistsButton;
 
 @property Asset *selectedAsset;
+@property (weak) IBOutlet NSPopover *batchChangePopover;
+
+@property (unsafe_unretained) IBOutlet NSViewController *batchChangePopoverViewController;
 
 @property BOOL batchChange;
 @property BOOL replaceSubstrings;
@@ -45,6 +45,7 @@
 - (IBAction)batchChangeValues:(id)sender;
 - (IBAction)batchReplaceSubstrings:(id)sender;
 
+- (NSPredicate *)batchEditFilterPredicate;
 @property BOOL batchChangePurchaseTitle;
 @property BOOL batchChangePurchaseURL;
 @property BOOL batchChangeTitleSubstrings;
@@ -87,6 +88,5 @@
 
 - (IBAction)addAssetBatchButtonClicked:(id)sender;
 - (IBAction)removeAssetBatchButtonClicked:(id)sender;
-- (IBAction)filterButtonClicked:(id)sender;
 
 @end

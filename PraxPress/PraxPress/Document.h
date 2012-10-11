@@ -13,8 +13,9 @@
 #import <OAuth2Client/NXOAuth2.h>
 //#import <SoundCloudAPI/SCAPI.h>
 //#import <CocoaWordPressAPI/WPAPI.h>
-#import "SoundCloudController.h"
+//#import "SoundCloudController.h"
 #import "PraxTransformers.h"
+#import "Account.h"
 
 @class SoundCloudController;
 
@@ -28,6 +29,8 @@
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
+
+
 @end
 
 

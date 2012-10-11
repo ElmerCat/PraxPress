@@ -14,24 +14,22 @@
 - (id)init {
     self = [super init];
     if (self) {
-        NSLog(@"Asset init");
-        //       [[NSSound soundNamed:@"Start"] play];
+        NSLog(@"AssetController init");
         
-        //        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-        //       [notificationCenter addObserver:self
-        //                              selector:@selector(tracksNotification:)
-        //                                  name:tracksNotificationName object:nil];
-        //     [notificationCenter addObserver:self
-        //                          selector:@selector(undoNotification:)
-        //                            name:NSUndoManagerCheckpointNotification
-        //                        object:[[document managedObjectContext] undoManager]];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.assetTableView queue:nil usingBlock:^(NSNotification *aNotification){
+            if (![self.selectedRowIndexes isEqualToIndexSet:[self.assetTableView selectedRowIndexes]]) {
+                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: self.selectedRowIndexes];
+                self.selectedRowIndexes = [self.assetTableView selectedRowIndexes];
+                [changedRowIndexes addIndexes:self.selectedRowIndexes];
+                [self.assetTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+            }
+        }];
     }
     return self;
 }
 
-
 - (void)awakeFromNib {
-    NSLog(@"Asset awakeFromNib");
+    NSLog(@"AssetController awakeFromNib");
     
 }
 
@@ -49,7 +47,54 @@
         NSString *html = [Asset htmlStringForAsset:self.praxController.selectedAsset];
         [[self.assetDetailWebView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
     }
+}
 
+ 
+
+
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
+    
+    if ([[tableView selectedRowIndexes] containsIndex:row]) return 120;
+    else return 20;
+}
+
+
+- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row{
+    
+    
+    Asset *asset = [self.assetsController arrangedObjects][row];
+    NSString *identifier = [NSString stringWithFormat:@"%@View", asset.type];
+    NSView *view = [tableView makeViewWithIdentifier:identifier owner:self];
+
+    if (view) return view;
+    
+    else return [tableView makeViewWithIdentifier:@"praxView" owner:self];
+        
+//        NSManagedObject *source = [(NSTreeNode *)item representedObject];
+//        if (![source valueForKey:@"parent"]) return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
+//        else return [outlineView makeViewWithIdentifier:@"ServiceView" owner:self];
+        
+        
+        //    if ([item isKindOfClass:[ATDesktopFolderEntity class]]) {
+        // Everything is setup in bindings
+        //       return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
+        /*    } else {
+         NSView *result = [outlineView makeViewWithIdentifier:[tableColumn identifier] owner:self];
+         if ([result isKindOfClass:[ATTableCellView class]]) {
+         ATTableCellView *cellView = (ATTableCellView *)result;
+         // setup the color; we can't do this in bindings
+         cellView.colorView.drawBorder = YES;
+         cellView.colorView.backgroundColor = [item fillColor];
+         }
+         // Use a shared date formatter on the DateCell for better performance. Otherwise, it is encoded in every NSTextField
+         if ([[tableColumn identifier] isEqualToString:@"DateCell"]) {
+         [(id)result setFormatter:_sharedDateFormatter];
+         }
+         return result;
+         }
+         return nil;
+         }
+    */
     
     
     

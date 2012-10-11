@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="12C54" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="12C54" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Account" representedClassName="Account" parentEntity="Asset" syncable="YES">
         <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
@@ -12,7 +12,7 @@
         <attribute name="update_offset" optional="YES" transient="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="user_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
+        <relationship name="source" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="account" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Asset" representedClassName="Asset" syncable="YES">
         <attribute name="artwork_url" optional="YES" attributeType="String" syncable="YES"/>
@@ -30,27 +30,36 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="tracks" inverseEntity="Account" syncable="YES"/>
+        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Asset" inverseName="accounts" inverseEntity="Asset" syncable="YES"/>
+        <relationship name="accounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
     </entity>
     <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Track" inverseName="playlists" inverseEntity="Track" syncable="YES"/>
     </entity>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
-    <entity name="Template" representedClassName="Template" syncable="YES">
-        <attribute name="blockFormatText" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="endingFormatText" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="name" attributeType="String" defaultValueString="New Template" syncable="YES"/>
-        <attribute name="startingFormatText" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="Service" parentEntity="Source" syncable="YES"/>
+    <entity name="Source" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="optionFour" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="optionOne" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="optionThree" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="optionTwo" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+        <attribute name="predicateFormat" optional="YES" transient="YES" attributeType="String" syncable="YES"/>
+        <attribute name="selected" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="source" inverseEntity="Account" syncable="YES"/>
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
+        <relationship name="parent" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <relationship name="playlists" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Playlist" inverseName="tracks" inverseEntity="Playlist" syncable="YES"/>
     </entity>
     <elements>
         <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="285"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="300"/>
         <element name="Playlist" positionX="0" positionY="0" width="128" height="60"/>
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Template" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
+        <element name="Source" positionX="160" positionY="192" width="128" height="195"/>
         <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

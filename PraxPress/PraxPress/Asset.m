@@ -37,7 +37,7 @@
     NXOAuth2Request *request;
     NSMutableDictionary *parameters = [[NSMutableDictionary alloc] initWithCapacity:10];
 
-    if ([self.account.accountType isEqualToString:@"com.soundcloud.api"]) {
+    if ([self.account.accountType isEqualToString:@"SoundCloud"]) {
         sender.statusText = @"Updating SoundCloud Asset";
         sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
         for (NSString *key in @[@"title", @"purchase_title", @"purchase_url"]) {
@@ -51,7 +51,7 @@
         request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"PUT" parameters:sender.parameters];
     }
     
-    else if ([self.account.accountType isEqualToString:@"com.wordpress.api"]) {
+    else if ([self.account.accountType isEqualToString:@"WordPress"]) {
         sender.statusText = @"Updating WordPress Asset";
         sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
         

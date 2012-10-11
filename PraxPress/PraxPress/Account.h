@@ -30,6 +30,7 @@
 -(BOOL)oauthReady:(Document *)document;
 -(void)loadWordPressAccountData:(NSDictionary *)data;
 -(void)loadWordPressSiteData:(NSDictionary *)data;
+-(void)loadWordPressPageCount:(NSDictionary *)data;
 -(void)loadSoundCloudAccountData:(NSDictionary *)data;
 
 

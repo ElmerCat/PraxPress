@@ -25,6 +25,13 @@ int endViewPosition = -3;
 + (NSSet *)keyPathsForValuesAffectingBatchChangeCopyValue {
     return [NSSet setWithObjects:@"self.batchChangeKey", @"self.selectedAsset", nil];
 }
+
+- (IBAction)showBatchChangePopover:(id)sender
+{
+    
+    [self.batchChangePopover showRelativeToRect:[(NSButton *)sender bounds] ofView:sender preferredEdge:NSMinYEdge];
+}
+
 - (NSString *)batchChangeCopyValue {
     
     if (!self.selectedAsset)
@@ -59,6 +66,11 @@ int endViewPosition = -3;
     }
     self.replaceSubstrings = FALSE;
     [self.changedAssetsController rearrangeObjects];
+}
+
+- (NSPredicate *)batchEditFilterPredicate {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(edit_mode == YES) AND (entity.name != \"Account\")"];
+    return predicate;
 }
 
 
@@ -181,43 +193,6 @@ int endViewPosition = -3;
     [self.assetBatchEditTable registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
     [self.assetBatchEditTable setSortDescriptors:self.batchSortDescriptors];
     
-}
-
-- (IBAction)filterButtonClicked:(id)sender {
-    BOOL orFlag = FALSE;
-    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:20];
-    NSPredicate *predicate;
-    
-    if ([self.postsButton state]) {
-        [string appendString:@"type == \"post\""];
-        orFlag = TRUE;
-    }
-    if ([self.pagesButton state]) {
-        if (orFlag) [string appendString:@" OR "];
-        [string appendString:@"type == \"page\""];
-        orFlag = TRUE;
-    }
-    if ([self.tracksButton state]) {
-        if (orFlag) [string appendString:@" OR "];
-        [string appendString:@"type == \"track\""];
-        orFlag = TRUE;
-    }
-    if ([self.playlistsButton state]) {
-        if (orFlag) [string appendString:@" OR "];
-        [string appendString:@"type == \"playlist\""];
-        orFlag = TRUE;
-    }
-    
-    if (!orFlag) {
-        [self.postsButton setState:TRUE];
-        [self.pagesButton setState:TRUE];
-        [self.tracksButton setState:TRUE];
-        [self.playlistsButton setState:TRUE];
-        [string setString:@"entity.name != \"Account\""];
-    }
-    predicate= [NSPredicate predicateWithFormat:string];
-    [self.assetsController setFetchPredicate:predicate];
-    [self.assetsController rearrangeObjects];
 }
 
 
