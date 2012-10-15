@@ -8,8 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Account.h"
-#import "SourceController.h"
-@class SourceController;
+#import "SourceViewController.h"
+@class SourceViewController;
 
 @interface ServiceView : NSTableCellView
 @property (readonly) Account *account;
@@ -18,7 +18,8 @@
 @property NSString *checkThreeTitle;
 @property NSString *checkFourTitle;
 
-@property IBOutlet SourceController *sourceController;
+
+@property IBOutlet SourceViewController *sourceViewController;
 @property IBOutlet NSSearchField *searchField;
 @property NSInteger searchCategory;
 

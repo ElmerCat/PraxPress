@@ -1,5 +1,5 @@
 //
-//  SourceController.h
+//  SourceViewController.h
 //  PraxPress
 //
 //  Created by John Canfield on 10/9/12.
@@ -12,9 +12,10 @@
 #import "ServiceView.h"
 #import "AccountViewController.h"
 
-@interface SourceController : NSObject
+@interface SourceViewController : NSViewController
 @property (weak) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSArrayController *assetsController;
+@property BOOL awake;
 
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
 

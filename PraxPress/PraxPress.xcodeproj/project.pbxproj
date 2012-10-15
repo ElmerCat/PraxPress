@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
-		E63614621625107B005A4D0A /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = E63614611625107B005A4D0A /* SourceController.m */; };
+		E63614621625107B005A4D0A /* SourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E63614611625107B005A4D0A /* SourceViewController.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E64774AC16067BA0003BD981 /* TemplateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateController.m */; };
 		E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */; };
@@ -21,6 +21,8 @@
 		E665448E1625568C00EB579B /* ServiceView.m in Sources */ = {isa = PBXBuildFile; fileRef = E665448D1625568C00EB579B /* ServiceView.m */; };
 		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
 		E67782CA160D06990069FEE3 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E67782C9160D06990069FEE3 /* Account.m */; };
+		E68DF03B162A0F7100999500 /* PlaylistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E68DF039162A0F7100999500 /* PlaylistViewController.m */; };
+		E68DF03C162A0F7100999500 /* PlaylistViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E68DF03A162A0F7100999500 /* PlaylistViewController.xib */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
 		E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6B137F815E845C40003EB15 /* AssetDetailView.xib */; };
 		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
@@ -83,8 +85,8 @@
 /* Begin PBXFileReference section */
 		E606CDBC1606F1C000D34EDE /* AssetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetController.h; sourceTree = "<group>"; };
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
-		E63614601625107B005A4D0A /* SourceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceController.h; sourceTree = "<group>"; };
-		E63614611625107B005A4D0A /* SourceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceController.m; sourceTree = "<group>"; };
+		E63614601625107B005A4D0A /* SourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceViewController.h; sourceTree = "<group>"; };
+		E63614611625107B005A4D0A /* SourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceViewController.m; sourceTree = "<group>"; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E64774AA16067BA0003BD981 /* TemplateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateController.h; sourceTree = "<group>"; };
@@ -103,6 +105,9 @@
 		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
 		E67782C8160D06990069FEE3 /* Account.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Account.h; sourceTree = "<group>"; };
 		E67782C9160D06990069FEE3 /* Account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Account.m; sourceTree = "<group>"; };
+		E68DF038162A0F7100999500 /* PlaylistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistViewController.h; sourceTree = "<group>"; };
+		E68DF039162A0F7100999500 /* PlaylistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistViewController.m; sourceTree = "<group>"; };
+		E68DF03A162A0F7100999500 /* PlaylistViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlaylistViewController.xib; sourceTree = "<group>"; };
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
 		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6B137F815E845C40003EB15 /* AssetDetailView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetDetailView.xib; sourceTree = "<group>"; };
@@ -174,6 +179,71 @@
 			name = Helpers;
 			sourceTree = "<group>";
 		};
+		E661E63216279D3600EFD83A /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
+				E67782C8160D06990069FEE3 /* Account.h */,
+				E67782C9160D06990069FEE3 /* Account.m */,
+				E661E6271626098B00EFD83A /* Source.h */,
+				E661E6281626098C00EFD83A /* Source.m */,
+				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
+				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
+			);
+			name = Entities;
+			sourceTree = "<group>";
+		};
+		E661E63316279D5C00EFD83A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E665448C1625568C00EB579B /* ServiceView.h */,
+				E665448D1625568C00EB579B /* ServiceView.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		E661E63416279DB500EFD83A /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				E6BC79B215C4759800080762 /* Document.xib */,
+				E665634315E9744400DFC7C9 /* TemplateView.xib */,
+				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
+				E6BC79B515C4759800080762 /* MainMenu.xib */,
+				E661E62C1626182400EFD83A /* AccountViewController.xib */,
+				E6F80B291623969100828086 /* ChangeValuesController.xib */,
+				E6F80B2E1623DDE100828086 /* ReplaceSubstringsController.xib */,
+				E68DF03A162A0F7100999500 /* PlaylistViewController.xib */,
+			);
+			name = Interface;
+			sourceTree = "<group>";
+		};
+		E661E63516279DF200EFD83A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				E63614601625107B005A4D0A /* SourceViewController.h */,
+				E63614611625107B005A4D0A /* SourceViewController.m */,
+				E6ACA28415D6D41800373A3B /* UpdateController.h */,
+				E6ACA28515D6D41800373A3B /* UpdateController.m */,
+				E6F80B2416238D8600828086 /* BatchChangeViewController.h */,
+				E6F80B2516238D8600828086 /* BatchChangeViewController.m */,
+				E65BD6F315E7C63900D9F0A4 /* PraxController.h */,
+				E65BD6F415E7C63900D9F0A4 /* PraxController.m */,
+				E64774AA16067BA0003BD981 /* TemplateController.h */,
+				E64774AB16067BA0003BD981 /* TemplateController.m */,
+				E606CDBC1606F1C000D34EDE /* AssetController.h */,
+				E606CDBD1606F1C000D34EDE /* AssetController.m */,
+				E6F80B271623969100828086 /* ChangeValuesController.h */,
+				E661E62A1626182300EFD83A /* AccountViewController.h */,
+				E661E62B1626182400EFD83A /* AccountViewController.m */,
+				E6F80B281623969100828086 /* ChangeValuesController.m */,
+				E6F80B2C1623DDE100828086 /* ReplaceSubstringsController.h */,
+				E6F80B2D1623DDE100828086 /* ReplaceSubstringsController.m */,
+				E68DF038162A0F7100999500 /* PlaylistViewController.h */,
+				E68DF039162A0F7100999500 /* PlaylistViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
@@ -218,39 +288,14 @@
 		E6BC79A315C4759800080762 /* PraxPress */ = {
 			isa = PBXGroup;
 			children = (
-				E661E6271626098B00EFD83A /* Source.h */,
-				E661E6281626098C00EFD83A /* Source.m */,
 				E6BC79AF15C4759800080762 /* Document.h */,
 				E6BC79B015C4759800080762 /* Document.m */,
-				E665448C1625568C00EB579B /* ServiceView.h */,
-				E665448D1625568C00EB579B /* ServiceView.m */,
-				E63614601625107B005A4D0A /* SourceController.h */,
-				E63614611625107B005A4D0A /* SourceController.m */,
-				E6ACA28415D6D41800373A3B /* UpdateController.h */,
-				E6ACA28515D6D41800373A3B /* UpdateController.m */,
-				E6F80B2416238D8600828086 /* BatchChangeViewController.h */,
-				E6F80B2516238D8600828086 /* BatchChangeViewController.m */,
-				E6BC79A415C4759800080762 /* Supporting Files */,
+				E661E63216279D3600EFD83A /* Entities */,
+				E661E63316279D5C00EFD83A /* Views */,
+				E661E63516279DF200EFD83A /* Controllers */,
+				E661E63416279DB500EFD83A /* Interface */,
 				E624D84A15EAEC570066D7D7 /* Helpers */,
-				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
-				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
-				E65BD6F315E7C63900D9F0A4 /* PraxController.h */,
-				E65BD6F415E7C63900D9F0A4 /* PraxController.m */,
-				E64774AA16067BA0003BD981 /* TemplateController.h */,
-				E64774AB16067BA0003BD981 /* TemplateController.m */,
-				E606CDBC1606F1C000D34EDE /* AssetController.h */,
-				E606CDBD1606F1C000D34EDE /* AssetController.m */,
-				E67782C8160D06990069FEE3 /* Account.h */,
-				E67782C9160D06990069FEE3 /* Account.m */,
-				E6F80B271623969100828086 /* ChangeValuesController.h */,
-				E661E62A1626182300EFD83A /* AccountViewController.h */,
-				E661E62B1626182400EFD83A /* AccountViewController.m */,
-				E661E62C1626182400EFD83A /* AccountViewController.xib */,
-				E6F80B281623969100828086 /* ChangeValuesController.m */,
-				E6F80B291623969100828086 /* ChangeValuesController.xib */,
-				E6F80B2C1623DDE100828086 /* ReplaceSubstringsController.h */,
-				E6F80B2D1623DDE100828086 /* ReplaceSubstringsController.m */,
-				E6F80B2E1623DDE100828086 /* ReplaceSubstringsController.xib */,
+				E6BC79A415C4759800080762 /* Supporting Files */,
 			);
 			path = PraxPress;
 			sourceTree = "<group>";
@@ -258,16 +303,11 @@
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				E6BC79B215C4759800080762 /* Document.xib */,
-				E665634315E9744400DFC7C9 /* TemplateView.xib */,
-				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
-				E6BC79B515C4759800080762 /* MainMenu.xib */,
 				E6BC79A515C4759800080762 /* PraxPress-Info.plist */,
 				E6BC79A615C4759800080762 /* InfoPlist.strings */,
 				E6BC79A915C4759800080762 /* main.m */,
 				E6BC79AB15C4759800080762 /* PraxPress-Prefix.pch */,
 				E6BC79AC15C4759800080762 /* Credits.rtf */,
-				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -390,6 +430,7 @@
 				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
 				E6F80B301623DDE100828086 /* ReplaceSubstringsController.xib in Resources */,
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
+				E68DF03C162A0F7100999500 /* PlaylistViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,10 +456,11 @@
 				E6F80B2616238D8600828086 /* BatchChangeViewController.m in Sources */,
 				E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */,
 				E6F80B2F1623DDE100828086 /* ReplaceSubstringsController.m in Sources */,
-				E63614621625107B005A4D0A /* SourceController.m in Sources */,
+				E63614621625107B005A4D0A /* SourceViewController.m in Sources */,
 				E665448E1625568C00EB579B /* ServiceView.m in Sources */,
 				E661E6291626098C00EFD83A /* Source.m in Sources */,
 				E661E62D1626182400EFD83A /* AccountViewController.m in Sources */,
+				E68DF03B162A0F7100999500 /* PlaylistViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

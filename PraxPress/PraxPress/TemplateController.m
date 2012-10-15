@@ -20,7 +20,7 @@
 - (id)init {
     self = [super init];
     if (self) {
-        NSLog(@"TemplateController init");
+//        NSLog(@"TemplateController init");
         
         
         //       [[NSSound soundNamed:@"Start"] play];
@@ -41,7 +41,7 @@
 
 - (void)awakeFromNib {
     
-    NSLog(@"TemplateController awakeFromNib");
+//    NSLog(@"TemplateController awakeFromNib");
     [self addObserver:self forKeyPath:@"self.assetsController.selectedObjects" options:NSKeyValueObservingOptionNew context:0];
     [self addObserver:self forKeyPath:@"self.assetBatchEditController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
     

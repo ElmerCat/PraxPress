@@ -25,7 +25,10 @@
 }
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self.assetBatchEditController removeObserver:self forKeyPath:@"arrangedObjects"];
+    [self removeObserver:self forKeyPath:@"keyValue"];
 }
+
 
 - (void)awakeFromNib {
     [self.assetBatchEditController addObserver:self

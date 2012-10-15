@@ -21,8 +21,10 @@
 
 @interface Document : NSPersistentDocument
 
-@property (strong) IBOutlet SoundCloudController *soundCloudController;
 @property (strong) NSArray *scTracks;
+@property int sourceSetup;
+@property (weak) IBOutlet NSOutlineView *sourceOutlineView;
+@property (weak) IBOutlet NSTableView *assetTableView;
 
 @property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;

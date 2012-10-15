@@ -8,28 +8,50 @@
 
 #import "AssetController.h"
 
+
 @implementation AssetController
 
 
 - (id)init {
     self = [super init];
     if (self) {
-        NSLog(@"AssetController init");
+//        NSLog(@"AssetController init");
         
         [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.assetTableView queue:nil usingBlock:^(NSNotification *aNotification){
             if (![self.selectedRowIndexes isEqualToIndexSet:[self.assetTableView selectedRowIndexes]]) {
                 NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: self.selectedRowIndexes];
                 self.selectedRowIndexes = [self.assetTableView selectedRowIndexes];
                 [changedRowIndexes addIndexes:self.selectedRowIndexes];
+                
+                if ([[self.assetsController selectedObjects] count] > 0) {
+                    Asset *asset = [self.assetsController selectedObjects][0];
+                    [self.associatedItemsController setContent:asset.associatedItems];
+                }
+
                 [self.assetTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
             }
         }];
+        
+        
     }
     return self;
 }
 
-- (void)awakeFromNib {
+/*- (void)awakeFromNib {
     NSLog(@"AssetController awakeFromNib");
+    
+}*/
+
+- (IBAction)sortAssets:(id)sender {
+    
+    NSMenuItem *item = [(NSPopUpButton *)sender selectedItem];
+    NSString *descriptor = item.title;
+    if ([descriptor isEqualToString:@"Genre"]) descriptor = @"genre";
+    else if ([descriptor isEqualToString:@"Date"]) descriptor = @"date";
+    else descriptor = @"title";
+    
+    [self.assetTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:descriptor ascending:YES]]];
+    
     
 }
 
@@ -63,7 +85,7 @@
     
     
     Asset *asset = [self.assetsController arrangedObjects][row];
-    NSString *identifier = [NSString stringWithFormat:@"%@View", asset.type];
+    NSString *identifier = [NSString stringWithFormat:@"%@AssetView", asset.type];
     NSView *view = [tableView makeViewWithIdentifier:identifier owner:self];
 
     if (view) return view;
@@ -103,4 +125,11 @@
 
 
 
+- (IBAction)playlistButtonPressed:(id)sender {
+    Asset *asset = [self.assetsController selectedObjects][0];
+    [self.associatedItemsController setContent:asset.associatedItems];
+
+    [self.playlistViewPopover showRelativeToRect:[(NSButton *)sender bounds] ofView:sender preferredEdge:NSMinYEdge];
+
+}
 @end

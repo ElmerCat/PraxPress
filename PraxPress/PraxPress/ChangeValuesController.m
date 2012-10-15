@@ -23,6 +23,9 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self.assetBatchEditController removeObserver:self forKeyPath:@"arrangedObjects"];
+    [self.assetsController removeObserver:self forKeyPath:@"selectedObjects"];
+    [self removeObserver:self forKeyPath:@"keyValue"];
 }
 
 - (void)awakeFromNib {

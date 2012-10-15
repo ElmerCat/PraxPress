@@ -57,8 +57,15 @@
 
 -(void)loadWordPressSiteData:(NSDictionary *)data {
     NSLog(@"loadWordPressSiteData: %@", data);
-    self.track_count = data[@"post_count"];
-    self.title = data[@"description"];
+    
+    NSDictionary *keys = @{
+    @"track_count":@"post_count",
+    @"title":@"description"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
 }
 
 -(void)loadWordPressPageCount:(NSDictionary *)data {
@@ -74,13 +81,19 @@
 
 -(void)loadWordPressAccountData:(NSDictionary *)data {
     NSLog(@"loadWordPressAccountData: %@", data);
-    self.user_id = data[@"ID"];
-    self.asset_id = data[@"primary_blog"];
-    self.title = data[@"description"];
-    self.username = data[@"display_name"];
-    self.permalink = data[@"username"];
     
-    if (data[@"avatar_URL"] != [NSNull null]) {
+    NSDictionary *keys = @{
+    @"user_id":@"ID",
+    @"asset_id":@"primary_blog",
+    @"title":@"description",
+    @"username":@"display_name",
+    @"permalink":@"username"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
+     if (data[@"avatar_URL"] != [NSNull null]) {
         NSString *artwork_url = data[@"avatar_URL"];
         //     NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
         //     artwork_url = [NSString stringWithString:(NSString *)a[0]];
@@ -94,19 +107,24 @@
     
 }
 -(void)loadSoundCloudAccountData:(NSDictionary *)data {
-    self.title = data[@"full_name"];
-    self.asset_id = data[@"id"];
-    self.username = data[@"username"];
-    self.permalink = data[@"permalink"];
-    self.playlist_count = data[@"playlist_count"];
-    self.track_count = data[@"track_count"];
-    self.followers_count = data[@"followers_count"];
-    self.followings_count = data[@"followings_count"];
-    self.contents = data[@"description"];
-    self.city = data[@"city"];
-    self.country = data[@"country"];
-    self.purchase_url = data[@"website"];
-    self.purchase_title = data[@"website_title"];
+    
+    NSDictionary *keys = @{
+    @"title":@"full_name",
+    @"asset_id":@"id",
+    @"username":@"username",
+    @"permalink":@"permalink",
+    @"playlist_count":@"playlist_count",
+    @"track_count":@"track_count",
+    @"contents":@"description",
+    @"city":@"city",
+    @"country":@"country",
+    @"purchase_url":@"website",
+    @"purchase_title":@"website_title"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
     if (data[@"avatar_url"] != [NSNull null]) {
         NSString *artwork_url = data[@"avatar_url"];
         NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];

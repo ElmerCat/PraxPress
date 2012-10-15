@@ -15,9 +15,11 @@
 
 @property (weak) IBOutlet PraxController *praxController;
 @property (weak) IBOutlet NSArrayController *assetsController;
+@property (weak) IBOutlet NSArrayController *associatedItemsController;
 @property (weak) IBOutlet WebView *assetDetailWebView;
 @property (weak) IBOutlet NSTableView *assetTableView;
 @property NSIndexSet *selectedRowIndexes;
-
+- (IBAction)playlistButtonPressed:(id)sender;
+@property (weak) IBOutlet NSPopover *playlistViewPopover;
 
 @end

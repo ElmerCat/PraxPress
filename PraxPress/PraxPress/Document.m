@@ -17,6 +17,7 @@
     self = [super init];
     if (self) {
         // Add your subclass-specific initialization here.
+        self.sourceSetup = 0;
         NSLog(@"Document init");
     }
     return self;
@@ -66,6 +67,7 @@
     
     [PraxTransformers load];
     
+    [self.assetTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
     
     // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
     
@@ -76,13 +78,25 @@
 
 }
 
-- (void)dealloc {
+/*- (void)dealloc {
     NSLog(@"Document dealloc");
-}
+}*/
+
 - (void)windowWillClose:(NSNotification *)notification {
-    NSLog(@"Document windowWillClose notification: %@", notification);    
+//    NSLog(@"Document windowWillClose notification: %@", notification);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+/*- (void)windowDidBecomeMain:(NSNotification *)notification {
+    if (self.sourceSetup < 2) {
+        
+        if ([self.sourceOutlineView numberOfRows] > 0) {
+            self.sourceSetup += 1;
+            [self.sourceOutlineView expandItem:[self.sourceOutlineView itemAtRow:0]];
+         
+        }
+    }
+}*/
 
 
 /* Called just before a webView attempts to load a resource.  Here, we look at the
@@ -133,5 +147,9 @@
 {
     return YES;
 }
+
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return TRUE;}
+
+- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return TRUE;}
 
 @end

@@ -1,19 +1,19 @@
 //
-//  SourceController.m
+//  SourceViewController.m
 //  PraxPress
 //
 //  Created by John Canfield on 10/9/12.
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import "SourceController.h"
+#import "SourceViewController.h"
 
-@implementation SourceController
+@implementation SourceViewController
 
 - (id)init {
     self = [super init];
     if (self) {
-        NSLog(@"AssetController init");
+        NSLog(@"SourceViewController init");
         [[NSNotificationCenter defaultCenter] addObserverForName:NSOutlineViewSelectionDidChangeNotification object:self.sourceOutlineView queue:nil usingBlock:^(NSNotification *aNotification){
             if (![self.selectedRowIndexes isEqualToIndexSet:[self.sourceOutlineView selectedRowIndexes]]) {
                 NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: self.selectedRowIndexes];
@@ -27,13 +27,39 @@
     return self;
 }
 
-- (void)awakeFromNib {
-       NSLog(@"SourceController awakeFromNib");
-    
 
-    
-//    [NSBundle loadNibNamed:@"SourceView" owner:self];
+
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self.sourceTreeController removeObserver:self forKeyPath:@"arrangedObjects"];
 }
+
+- (void)awakeFromNib {
+    if (!self.awake) {
+        self.awake = TRUE;
+        NSLog(@"SourceViewController awakeFromNib");
+        [self.sourceTreeController addObserver:self
+                                    forKeyPath:@"arrangedObjects"
+                                       options:NSKeyValueObservingOptionNew
+                                       context:NULL];
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    if([keyPath isEqualToString:@"arrangedObjects"]) {
+            [self.sourceOutlineView expandItem:nil expandChildren:YES];
+            
+    }
+    
+    // deal with other observations and/or invoke super...
+    
+}
+
+
+
+
 
 
 - (IBAction)accountButtonClicked:(id)sender {
@@ -78,7 +104,7 @@
 }
 
 - (void) updateFetchPredicate {
-    NSLog(@"SourceController updateFetchPredicate");
+//    NSLog(@"SourceViewController updateFetchPredicate");
     
     BOOL orFlag = FALSE;
     NSMutableString *string = [[NSMutableString alloc] initWithCapacity:20];
@@ -129,12 +155,18 @@
     
 }
 
+/*- (id)outlineView:(NSOutlineView *)outlineView persistentObjectForItem:(id)item {
+    NSLog(@"SourceViewController outlineView persistentObjectForItem: %@", item);
+    return nil;
+}*/
+
+
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
     NSManagedObject *source = [(NSTreeNode *)item representedObject];
     if ([source valueForKey:@"parent"]) {
         
         if ([[outlineView selectedRowIndexes] containsIndex:[outlineView rowForItem:item]] ) return 120;
-        else return 20;
+        else return 30;
     }
     else return 20;
 }
@@ -149,7 +181,12 @@
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     
     NSManagedObject *source = [(NSTreeNode *)item representedObject];
-    if (![source valueForKey:@"parent"]) return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
+    if (![source valueForKey:@"parent"]) {
+        return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
+ //       [outlineView expandItem:item];
+        
+    }
+    
     else return [outlineView makeViewWithIdentifier:@"ServiceView" owner:self];
 
     

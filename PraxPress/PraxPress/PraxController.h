@@ -21,29 +21,8 @@
 @class WordPressController;
 
 @interface PraxController : NSObject <NSPopoverDelegate>
-@property (weak) IBOutlet NSButton *postsButton;
-@property (weak) IBOutlet NSButton *pagesButton;
-@property (weak) IBOutlet NSButton *tracksButton;
-@property (weak) IBOutlet NSButton *playlistsButton;
 
 @property Asset *selectedAsset;
-@property (weak) IBOutlet NSPopover *batchChangePopover;
-
-@property (unsafe_unretained) IBOutlet NSViewController *batchChangePopoverViewController;
-
-@property BOOL batchChange;
-@property BOOL replaceSubstrings;
-@property (weak) IBOutlet NSComboBox *batchChangeKeyField;
-@property (weak) IBOutlet NSTextField *batchChangeValueField;
-@property (weak) IBOutlet NSButton *batchChangeCopyButton;
-@property NSString *batchChangeKey;
-@property NSString *replaceSubstringsKey;
-@property (weak) IBOutlet NSTextField *replaceSubstringsFromField;
-@property (weak) IBOutlet NSTextField *replaceSubstringsToField;
-@property (readonly) NSString *batchChangeCopyValue;
-- (IBAction)batchChangeCopy:(id)sender;
-- (IBAction)batchChangeValues:(id)sender;
-- (IBAction)batchReplaceSubstrings:(id)sender;
 
 - (NSPredicate *)batchEditFilterPredicate;
 @property BOOL batchChangePurchaseTitle;
@@ -78,11 +57,7 @@
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSArrayController *assetBatchEditController;
 
-@property (weak) IBOutlet SoundCloudController *soundCloudController;
-@property (weak) IBOutlet WordPressController *wordPressController;
 @property (weak) IBOutlet NSTableView *templateTableView;
-
-@property (unsafe_unretained) IBOutlet NSPanel *playlistEditorPanel;
 
 - (NSPredicate *)changedAssetsFilterPredicate;
 

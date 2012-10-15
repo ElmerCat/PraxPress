@@ -21,24 +21,27 @@
         <attribute name="contents" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="edit_mode" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="genre" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="info_mode" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="metadata" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="permalink" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_url" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sync_mode" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="tag_list" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Asset" inverseName="accounts" inverseEntity="Asset" syncable="YES"/>
         <relationship name="accounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
+        <relationship name="associatedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="associatedItems" inverseEntity="Asset" syncable="YES"/>
     </entity>
-    <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
-        <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Track" inverseName="playlists" inverseEntity="Track" syncable="YES"/>
-    </entity>
+    <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="Service" parentEntity="Source" syncable="YES"/>
     <entity name="Source" syncable="YES">
+        <attribute name="itemCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="optionFour" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
         <attribute name="optionOne" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
@@ -50,16 +53,14 @@
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
         <relationship name="parent" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
     </entity>
-    <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
-        <relationship name="playlists" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Playlist" inverseName="tracks" inverseEntity="Playlist" syncable="YES"/>
-    </entity>
+    <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <elements>
-        <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="300"/>
-        <element name="Playlist" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Account" positionX="0" positionY="0" width="128" height="223"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="358"/>
+        <element name="Playlist" positionX="0" positionY="0" width="128" height="43"/>
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
-        <element name="Source" positionX="160" positionY="192" width="128" height="195"/>
-        <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Source" positionX="160" positionY="192" width="128" height="208"/>
+        <element name="Track" positionX="0" positionY="0" width="128" height="43"/>
     </elements>
 </model>

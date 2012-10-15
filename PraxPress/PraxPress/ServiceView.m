@@ -25,7 +25,7 @@
 
 - (void)awakeFromNib {
     
-    NSLog(@"awakeFromNib ServiceView");
+//    NSLog(@"awakeFromNib ServiceView");
     
     [self addObserver:self forKeyPath:@"self.objectValue.account.accountType" options:NSKeyValueObservingOptionNew context:NULL];
     [self addObserver:self forKeyPath:@"self.objectValue.account.track_count" options:NSKeyValueObservingOptionNew context:NULL];
@@ -50,11 +50,13 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-        NSLog(@"ServiceView observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
+ //       NSLog(@"ServiceView observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
     
     if (([keyPath isEqualToString:@"self.objectValue.account.accountType"] ||
         [keyPath isEqualToString:@"self.objectValue.account.track_count"]) ||
         [keyPath isEqualToString:@"self.objectValue.account.playlist_count"]) {
+        
+        [self.objectValue setValue:@([self.account.track_count integerValue] + [self.account.playlist_count integerValue]) forKey:@"itemCount"];
         
         NSString *accountType = self.account.accountType;
         
@@ -96,6 +98,16 @@
                 item = [[NSMenuItem alloc] initWithTitle:@"Contents..." action:@selector(setSearchCategoryFrom:) keyEquivalent:@""];
                 [item setTarget:self];
                 [item setTag:6];
+                [cellMenu insertItem:item atIndex:1];
+                
+                item = [[NSMenuItem alloc] initWithTitle:@"Genre..." action:@selector(setSearchCategoryFrom:) keyEquivalent:@""];
+                [item setTarget:self];
+                [item setTag:7];
+                [cellMenu insertItem:item atIndex:1];
+                
+                item = [[NSMenuItem alloc] initWithTitle:@"Tags..." action:@selector(setSearchCategoryFrom:) keyEquivalent:@""];
+                [item setTarget:self];
+                [item setTag:8];
                 [cellMenu insertItem:item atIndex:1];
                 
                 id searchCell = [self.searchField cell];
@@ -303,11 +315,19 @@
             predicate = [NSPredicate predicateWithFormat:
                          @"contents contains[cd] %@", searchString];
         }
+        if (self.searchCategory == 7) {
+            predicate = [NSPredicate predicateWithFormat:
+                         @"genre contains[cd] %@", searchString];
+        }
+        if (self.searchCategory == 8) {
+            predicate = [NSPredicate predicateWithFormat:
+                         @"tag_list contains[cd] %@", searchString];
+        }
     }
     
     [self.objectValue setValue:[predicate predicateFormat] forKey:@"predicateFormat"];
     
-    [self.sourceController updateFilterPredicate];
+    [self.sourceViewController updateFilterPredicate];
     
 }
 - (Account *)account {

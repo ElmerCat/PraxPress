@@ -11,25 +11,28 @@
 
 @implementation Asset
 
-@dynamic image;
-@dynamic edit_mode;
-@dynamic info_mode;
-@dynamic sync_mode;
 @dynamic artwork_url;
+@dynamic asset_id;
+@dynamic batchPosition;
 @dynamic contents;
 @dynamic date;
+@dynamic edit_mode;
+@dynamic genre;
+@dynamic image;
+@dynamic info_mode;
 @dynamic permalink;
 @dynamic purchase_title;
 @dynamic purchase_url;
+@dynamic sync_mode;
+@dynamic tag_list;
 @dynamic title;
 @dynamic type;
 @dynamic uri;
-@dynamic asset_id;
-@dynamic batchPosition;
+@dynamic metadata;
+
 
 @dynamic account;
-@dynamic tracks;
-@dynamic playlists;
+@dynamic associatedItems;
 
 -(NXOAuth2Request *)updateRequest:(UpdateController *)sender {  // return a request, configured as required for account type
     
@@ -72,41 +75,34 @@
 
 }
 
+
 -(void)loadWordPressPostData:(NSDictionary *)data {
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
     
-    self.title = data[@"title"];
-    self.purchase_url = data[@"URL"];
-    self.type = data[@"type"];
-    self.permalink = data[@"slug"];
-    self.contents = data[@"content"];
+    NSDictionary *keys = @{@"title":@"title", @"purchase_url":@"URL", @"type":@"type", @"permalink":@"slug", @"contents":@"content"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
     
     self.uri = data[@"meta"][@"links"][@"site"];
     
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
-    
 }
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
+    
+    for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"uri", @"genre",@"tag_list"]) {
+        if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[key] forKey:key];
+    }
+    NSDictionary *keys = @{@"date":@"created_at", @"contents":@"description"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
     
     self.type = ([self.entity.name isEqualToString:@"Playlist"]) ? @"playlist" : @"track";
     
-    self.title = data[@"title"];
-    
-    if (data[@"purchase_url"] != [NSNull null]) {
-        self.purchase_url = data[@"purchase_url"];
-    }
-    else {
-        self.purchase_url = nil;
-    }
-    if (data[@"purchase_title"] != [NSNull null]) {
-        self.purchase_title = data[@"purchase_title"];
-    }
-    else {
-        self.purchase_title = nil;
-    }
-    self.permalink = data[@"permalink"];
-    self.uri = data[@"uri"];
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
-
     if (data[@"artwork_url"] != [NSNull null]) {
         NSString *artwork_url = data[@"artwork_url"];
         NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
@@ -125,7 +121,7 @@
     Asset *subAsset;
     NSArray *subItems;
     NSError *error = nil;
-    asset.tracks = nil;
+    asset.associatedItems = nil;
     subItems = data[@"tracks"];
     for (NSDictionary *subItem in subItems) {
         NSLog(@"subItem asset_id: %@", subItem[@"id"]);
@@ -139,7 +135,7 @@
         }
         else {
             subAsset = matchingItems[0];
-            [asset addTracksObject:subAsset];
+            [asset addAssociatedItemsObject:subAsset];
         }
     }
 }

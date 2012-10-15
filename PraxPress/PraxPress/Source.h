@@ -19,6 +19,7 @@
 @property (nonatomic, retain) NSNumber * optionTwo;
 @property (nonatomic, retain) NSNumber * selected;
 @property (nonatomic, retain) NSString * predicateFormat;
+@property (nonatomic, retain) NSNumber * itemCount;
 
 @property (nonatomic, retain) Account *account;
 @property (nonatomic, retain) NSSet *children;

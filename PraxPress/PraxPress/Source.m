@@ -17,6 +17,7 @@
 @dynamic optionTwo;
 @dynamic selected;
 @dynamic predicateFormat;
+@dynamic itemCount;
 
 @dynamic account;
 @dynamic children;
