@@ -17,25 +17,6 @@
     //    NSLog(@"UpdateController init");
         
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification
-                                                          object:self.changedAssetsTableView
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification *aNotification){
-                                                          if ([aNotification object] == self.changedAssetsTableView){
-                                                              
-                                                              NSLog(@"changedAssetsTableView NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
-                                                              if (self.changedAssetsController.selectedObjects.count > 0) {
-                                                                  self.praxController.selectedAsset = [self.changedAssetsController selectedObjects][0];
-                                                                  if ([self.praxController.assetDetailPanel isVisible])
-                                                                      [self.praxController.assetDetailPanel makeKeyAndOrderFront:self];
-                                                              }
-                                                          }
-                                                          
-                                                          else NSLog(@"UpdateController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
-                                                          
-                                                          
-                                                      }];
-
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(updateNotification:)
@@ -111,6 +92,27 @@
 
 - (void)awakeFromNib {
         NSLog(@"UpdateController awakeFromNib");
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification
+                                                      object:self.changedAssetsTableView
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *aNotification){
+                                                      if ([aNotification object] == self.changedAssetsTableView){
+                                                          
+                                                          NSLog(@"changedAssetsTableView NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
+                                                 //         if (self.changedAssetsController.selectedObjects.count > 0) {
+                                                  //            self.batchController.selectedAsset = [self.changedAssetsController selectedObjects][0];
+                                                  //            if ([self.batchController.assetDetailPanel isVisible])
+                                                  //                [self.batchController.assetDetailPanel makeKeyAndOrderFront:self];
+                                                  //        }
+                                                      }
+                                                      
+                                                      else NSLog(@"UpdateController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
+                                                      
+                                                      
+                                                  }];
+    
+
 }
 
 - (void)dealloc {
@@ -188,10 +190,11 @@
 }
 
 
+
 - (IBAction)reloadFromServer:(id)sender {
     if (self.busy) return;
     
-     [self reloadAsset:[self.assetsController selectedObjects][0]];
+     [self reloadAsset:[self.batchController selectedAsset]];
     
 }
 
@@ -265,7 +268,7 @@
 - (IBAction)uploadToServer:(id)sender {
     if (self.busy) return;
     [self.progressBar setIndeterminate:TRUE];
-    [self uploadAsset:[self.assetsController selectedObjects][0]];
+    [self uploadAsset:self.batchController.selectedAsset];
 }
 
 - (void)uploadAsset:(Asset *)asset {
@@ -331,22 +334,22 @@
     }
     
     if ([self.account.accountType isEqualToString:@"SoundCloud"]) {
-        self.statusText = @"Updating SoundCloud User Profile";
+        self.statusText = @"Downloading SoundCloud User Profile";
         self.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me.json"];
         
     }
     else if ([self.account.accountType isEqualToString:@"WordPress"]) {
-        self.statusText = @"Updating WordPress User Profile";
+        self.statusText = @"Downloading WordPress User Profile";
         self.resource = [NSURL URLWithString:@"https://public-api.wordpress.com/rest/v1/me"];
     }
     
     /*  else if ([self.account.accountType isEqualToString:@"Flickr]) {
-     self.statusText = @"Updating Flickr User Profile";
+     self.statusText = @"Downloading Flickr User Profile";
      self.resource = [NSURL URLWithString:@"https://public-api.Flickr.com/rest/v1/me"];
      }
      */
     /*  else if ([self.account.accountType isEqualToString:@"YouTube]) {
-     self.statusText = @"Updating YouTube User Profile";
+     self.statusText = @"Downloading YouTube User Profile";
      self.resource = [NSURL URLWithString:@"https://public-api.YouTube.com/rest/v1/me"];
      }
      */
@@ -381,7 +384,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
                     
-                    self.statusText = @"Updating Tracks";
+                    self.statusText = @"Downloading Tracks";
                     self.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/tracks.json"];
                     self.updateCount = 0;
                     self.targetCount = [self.account.track_count integerValue];
@@ -394,7 +397,7 @@
             else if ([self.account.accountType isEqualToString:@"WordPress"]) {
                 [self.account loadWordPressAccountData:data];
                 
-                self.statusText = @"Updating WordPress SiteData";
+                self.statusText = @"Downloading WordPress SiteData";
                 self.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://public-api.wordpress.com/rest/v1/sites/%@", self.account.asset_id]];
                 
                 [request setResource:self.resource];
@@ -413,7 +416,7 @@
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
                         
-                        self.statusText = @"Updating WordPress Posts";
+                        self.statusText = @"Downloading WordPress Posts";
                         self.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://public-api.wordpress.com/rest/v1/sites/%@/posts/", self.account.asset_id]];
                         
                         [request setResource:self.resource];
@@ -438,7 +441,7 @@
                             }
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 
-                                self.statusText = @"Updating WordPress Posts";
+                                self.statusText = @"Downloading WordPress Posts";
                                 self.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://public-api.wordpress.com/rest/v1/sites/%@/posts/", self.account.asset_id]];
                                 
                                 
@@ -596,7 +599,7 @@
                                                   
                                                   dispatch_async(dispatch_get_main_queue(), ^{
                                                       
-                                                      self.statusText = @"Updating Playlists";
+                                                      self.statusText = @"Downloading Playlists";
                                                       self.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/playlists.json"];
                                                       self.updateCount = 0;
                                                       self.targetCount = [self.account.playlist_count integerValue];

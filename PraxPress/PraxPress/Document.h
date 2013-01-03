@@ -22,7 +22,6 @@
 @interface Document : NSPersistentDocument
 
 @property (strong) NSArray *scTracks;
-@property int sourceSetup;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
 @property (weak) IBOutlet NSTableView *assetTableView;
 

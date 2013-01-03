@@ -17,7 +17,6 @@
     self = [super init];
     if (self) {
         // Add your subclass-specific initialization here.
-        self.sourceSetup = 0;
         NSLog(@"Document init");
     }
     return self;
@@ -88,15 +87,8 @@
 }
 
 /*- (void)windowDidBecomeMain:(NSNotification *)notification {
-    if (self.sourceSetup < 2) {
-        
-        if ([self.sourceOutlineView numberOfRows] > 0) {
-            self.sourceSetup += 1;
-            [self.sourceOutlineView expandItem:[self.sourceOutlineView itemAtRow:0]];
-         
-        }
-    }
-}*/
+
+ }*/
 
 
 /* Called just before a webView attempts to load a resource.  Here, we look at the
@@ -150,6 +142,23 @@
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return TRUE;}
 
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return TRUE;}
+- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return FALSE;}
+
+- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
+    NSRect effectiveRect = proposedEffectiveRect;
+   // effectiveRect.origin.x -= 2.0;
+    if (splitView.isVertical) {
+        effectiveRect.origin.x -= 10.0;
+        effectiveRect.size.width += 10.0;
+    }
+    else {
+        effectiveRect.origin.y -= 10.0;
+        effectiveRect.size.height += 10.0;
+    }
+    
+
+    
+    return effectiveRect;
+}
 
 @end

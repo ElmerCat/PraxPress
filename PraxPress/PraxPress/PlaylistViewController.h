@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface PlaylistViewController : NSViewController
-@property (weak) IBOutlet NSArrayController *playlistItemController;
+
+@property (weak) IBOutlet NSArrayController *associatedItemsController;
 
 @end

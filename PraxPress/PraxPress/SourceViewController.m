@@ -47,6 +47,7 @@
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    NSLog(@"SourceViewController observeValueForKeyPath: %@", keyPath);
     
     if([keyPath isEqualToString:@"arrangedObjects"]) {
             [self.sourceOutlineView expandItem:nil expandChildren:YES];

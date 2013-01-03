@@ -26,12 +26,16 @@
 @property (nonatomic, retain) NSString * permalink;
 @property (nonatomic, retain) NSString * purchase_title;
 @property (nonatomic, retain) NSString * purchase_url;
+@property (nonatomic, retain) NSString * sharing;
 @property (nonatomic, retain) NSNumber * sync_mode;
 @property (nonatomic, retain) NSString * tag_list;
 @property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) NSString * type;
+@property (nonatomic, retain) NSString * sub_type;
 @property (nonatomic, retain) NSString * uri;
 @property (nonatomic, retain) NSDictionary *metadata;
+@property (nonatomic, retain) NSString * playlistType;
+@property (nonatomic, retain) NSString * trackType;
 
 
  // Account

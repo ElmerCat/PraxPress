@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import "PraxController.h"
+#import "BatchController.h"
 
-@implementation PraxController
+@implementation BatchController
 
 NSString *PraxItemsDropType = @"PraxItemsDropType";
 int temporaryViewPosition = -1;
@@ -34,7 +34,23 @@ int endViewPosition = -3;
 - (id)init {
     self = [super init];
     if (self) {
-        //    NSLog(@"PraxController init");
+        //    NSLog(@"BatchController init");
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"BatchAssetChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
+            Asset *asset = (Asset *)[aNotification object];
+            
+            if (asset.edit_mode.boolValue) {
+                asset.batchPosition = [NSNumber numberWithInt:([self.batchAssetsController.arrangedObjects count] - 1)];
+            }
+            else {
+                
+            }
+            NSLog(@"BatchController BatchAssetChangedNotification: %@", asset.edit_mode);
+            NSLog(@"self.batchAssetsController.arrangedObjects.count: %lu", [self.batchAssetsController.arrangedObjects count]);
+            
+        }];
+        
+
         
 /*        [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowDidBecomeKeyNotification
                                                           object:nil
@@ -84,38 +100,98 @@ int endViewPosition = -3;
                                                           NSTableView *table = [aNotification object];
                                                           
                                                           
-                                                          if ( (table == self.assetTableView) || (table == self.assetBatchEditTable) ){
+                                                          if ( (table == self.assetsTableView) || (table == self.assetBatchEditTable) ){
+                                                              
                                                               if (table.selectedRow >= 0) {
-                                                                  self.selectedAsset = self.assetsController.arrangedObjects[table.selectedRow];
-                                                                  
-                                                                  for (NSTableView *tableView in @[self.assetTableView, self.assetBatchEditTable]) {
+                                                                  Asset *newSelectedAsset;
+                                                                  if (table == self.assetsTableView) {
+                                                                      newSelectedAsset = self.assetsController.arrangedObjects[table.selectedRow];
+                                                                  }
+                                                                  else if (table == self.assetBatchEditTable) {
+                                                                      newSelectedAsset = self.batchAssetsController.arrangedObjects[table.selectedRow];
+                                                                  }
+                                                                   
+                                                                  if (self.selectedAsset != newSelectedAsset) {
+                                                                      self.selectedAsset = newSelectedAsset;
+                                                                      [[self.selectedAssetWebView mainFrame] loadHTMLString:[Asset htmlStringForAsset:self.selectedAsset] baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
+                                                                      
+                                                                      [self.associatedAssetsController setContent:self.selectedAsset.associatedItems];
+                                                                      
+                                                                    }
+                                                                  for (NSTableView *tableView in @[self.assetsTableView, self.assetBatchEditTable]) {
                                                                       if (table != tableView) {
                                                                           [tableView deselectAll:self];
                                                                       }
                                                                   }
+
+                                                                  
                                                               }
                                                           }
-                                                          else NSLog(@"PraxController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
+                                                          else if (table == self.templateTableView) [self.templateController updateGeneratedCode];
+                                                          
+                                                          else {} //NSLog(@"PraxController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
                                                           
                                                           
                                                       }];
+/*        [[NSNotificationCenter defaultCenter] addObserverForName:NSTextDidChangeNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *aNotification){
+                                                          NSLog(@"PraxController NSTextDidChangeNotification aNotification: %@", aNotification);
+                                                          
+                                                          NSView *aView = [[aNotification object] superview];
+                                                          NSScrollView *aScrollView = [aView enclosingScrollView];
+                                                          if (aScrollView == self.assetScrollView) {
+                                                              self.selectedAsset.sync_mode = [NSNumber numberWithBool:TRUE];
+                                                              [self.changedAssetsController rearrangeObjects];
+                                                          }
+                                                          else {
+                                                              NSLog(@"textDidChange something else");
+                                                          }
+                                                          
+                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSPopUpButtonWillPopUpNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *aNotification){
+                                                          NSLog(@"PraxController NSPopUpButtonWillPopUpNotification aNotification: %@", aNotification);
+                                                          
+                                                          NSView *aView = [[aNotification object] superview];
+                                                          NSScrollView *aScrollView = [aView enclosingScrollView];
+                                                          if (aScrollView == self.assetScrollView) {
+                                                              self.selectedAsset.sync_mode = [NSNumber numberWithBool:TRUE];
+                                                              [self.changedAssetsController rearrangeObjects];
+                                                          }
+                                                          else {
+                                                              NSLog(@"NSPopUpButtonWillPopUpNotification something else");
+                                                          }
+                                                          
+                                                      }]; 
         [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidChangeNotification
                                                           object:nil
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
                                                           //     NSLog(@"UpdateController NSControlTextDidChangeNotification aNotification: %@", aNotification);
                                                           
-                                                          Asset *asset;
                                                           if (([[aNotification object] window] == self.assetDetailPanel)||([aNotification object] == self.assetTableView)) {
-                                                                        NSLog(@"controlTextDidChange assetDetailPanel || assetTableView");
-                                                              asset = [self.assetsController selectedObjects][0];
-                                                              asset.sync_mode = [NSNumber numberWithBool:TRUE];
+                                                              NSLog(@"controlTextDidChange assetDetailPanel || assetTableView");
+                                                              
+                                                              self.selectedAsset.sync_mode = [NSNumber numberWithBool:TRUE];
                                                               [self.changedAssetsController rearrangeObjects];
                                                           }
+                                                          else {
+                                                              NSView *aView = [[aNotification object] superview];
+                                                              NSScrollView *aScrollView = [aView enclosingScrollView];
+                                                              if (aScrollView == self.assetScrollView) {
+                                                                  self.selectedAsset.sync_mode = [NSNumber numberWithBool:TRUE];
+                                                                  [self.changedAssetsController rearrangeObjects];
+                                                              }
+                                                              else {
+                                                                  NSLog(@"controlTextDidChange something else");
+                                                              }
+                                                          }
                                                           
-                                                          else NSLog(@"controlTextDidChange something else");
-                                                          
-                                                      }];
+                                                      }];*/
     }
     return self;
 }
@@ -127,6 +203,7 @@ int endViewPosition = -3;
 - (void)awakeFromNib {
     //   NSLog(@"UpdateController awakeFromNib");
     
+    [self.batchAssetsTableView registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
     [self.assetBatchEditTable registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
     [self.assetBatchEditTable setSortDescriptors:self.batchSortDescriptors];
     
@@ -141,7 +218,7 @@ int endViewPosition = -3;
     NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"edit_mode == YES"];
     NSArray *items = [self itemsUsingFetchPredicate:fetchPredicate];
     for (Asset *asset in items) asset.edit_mode = [NSNumber numberWithBool:FALSE];
-    [self.assetBatchEditController rearrangeObjects];
+    [self.batchAssetsController rearrangeObjects];
 }
 
 - (NSArray *)batchSortDescriptors {
@@ -161,8 +238,8 @@ int endViewPosition = -3;
 }
 - (NSDragOperation)tableView:(NSTableView*)table validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation
 {
-	if( [info draggingSource] == self.assetBatchEditTable ) {
-        NSArray *sortDescriptors = [self.assetBatchEditTable sortDescriptors];
+	if (([info draggingSource] == self.assetBatchEditTable) || ([info draggingSource] == self.batchAssetsTableView)) {
+        NSArray *sortDescriptors = [self.batchAssetsController sortDescriptors];
         if ([sortDescriptors count] > 0) {
             if ([[sortDescriptors[0] key] isEqualToString:@"batchPosition"]) {
                 if (operation == NSTableViewDropOn) [table setDropRow:row dropOperation:NSTableViewDropAbove];
@@ -178,7 +255,7 @@ int endViewPosition = -3;
 	NSData *rowData = [pasteboard dataForType:PraxItemsDropType];
 	NSIndexSet *rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
     
-	NSArray *allItemsArray = [self.assetBatchEditController arrangedObjects];
+	NSArray *allItemsArray = [self.batchAssetsController arrangedObjects];
 	NSMutableArray *draggedItemsArray = [NSMutableArray arrayWithCapacity:[rowIndexes count]];
     
 	NSUInteger currentItemIndex;
@@ -282,7 +359,7 @@ int endViewPosition = -3;
     
 	if( endItems && ([endItems count] > 0) )
 		currentViewPosition = [self renumberViewPositionsOfItems:endItems startingAt:currentViewPosition];
-    [self.assetBatchEditController rearrangeObjects];
+    [self.batchAssetsController rearrangeObjects];
 }
 
 
@@ -328,7 +405,7 @@ int endViewPosition = -3;
         [item setValue:[NSNumber numberWithBool:TRUE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.assetBatchEditController rearrangeObjects];
+    [self.batchAssetsController rearrangeObjects];
 }
 
 - (IBAction)removeAssetBatchButtonClicked:(id)sender {
@@ -339,7 +416,7 @@ int endViewPosition = -3;
         [item setValue:[NSNumber numberWithBool:FALSE] forKey:@"edit_mode"];
         //  NSLog(@"item: %@", item);
     }
-    [self.assetBatchEditController rearrangeObjects];
+    [self.batchAssetsController rearrangeObjects];
 }
 
 

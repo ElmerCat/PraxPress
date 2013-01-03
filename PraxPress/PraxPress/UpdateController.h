@@ -10,12 +10,12 @@
 #import <OAuth2Client/NXOAuth2.h>
 #import "Asset.h"
 #import "Account.h"
-#import "PraxController.h"
+#import "BatchController.h"
 #import "ServiceView.h"
 
 @class Document;
 @class PostEditor;
-@class PraxController;
+@class BatchController;
 
 @interface UpdateController : NSObject
 
@@ -37,7 +37,7 @@
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
-@property (weak) IBOutlet PraxController *praxController;
+@property (weak) IBOutlet BatchController *batchController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
 
@@ -46,6 +46,7 @@
 
 - (IBAction)stop:(id)sender;
 - (IBAction)logout:(id)sender;
+- (void)reloadAsset:(Asset *)asset;
 - (IBAction)reloadFromServer:(id)sender;
 - (IBAction)uploadToServer:(id)sender;
 

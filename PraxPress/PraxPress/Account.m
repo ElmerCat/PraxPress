@@ -76,6 +76,7 @@
     int pages = [self.playlist_count intValue];
     posts -= pages;
     self.track_count = [NSNumber numberWithInt:posts];
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
 }
 
 
@@ -103,8 +104,8 @@
         NSURL *url = [NSURL URLWithString:artwork_url];
         NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
         self.image =  [NSArchiver archivedDataWithRootObject:image];
+         
     }
-    
 }
 -(void)loadSoundCloudAccountData:(NSDictionary *)data {
     
@@ -138,6 +139,8 @@
         self.image =  [NSArchiver archivedDataWithRootObject:image];
         //       });
     }
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
+
 }
 
 

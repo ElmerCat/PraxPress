@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="12C54" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="12C60" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Account" representedClassName="Account" parentEntity="Asset" syncable="YES">
         <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
@@ -20,6 +20,7 @@
         <attribute name="batchPosition" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="contents" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="duration" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="edit_mode" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="genre" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -28,6 +29,8 @@
         <attribute name="permalink" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="purchase_url" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sharing" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sub_type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sync_mode" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="tag_list" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
@@ -37,7 +40,9 @@
         <relationship name="accounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
         <relationship name="associatedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="associatedItems" inverseEntity="Asset" syncable="YES"/>
     </entity>
-    <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
+    <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
+        <attribute name="playlist_type" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="Service" parentEntity="Source" syncable="YES"/>
     <entity name="Source" syncable="YES">
@@ -53,14 +58,16 @@
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
         <relationship name="parent" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
     </entity>
-    <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
+    <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
+        <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <elements>
         <element name="Account" positionX="0" positionY="0" width="128" height="223"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="358"/>
-        <element name="Playlist" positionX="0" positionY="0" width="128" height="43"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="405"/>
+        <element name="Playlist" positionX="0" positionY="0" width="128" height="60"/>
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
-        <element name="Source" positionX="160" positionY="192" width="128" height="208"/>
-        <element name="Track" positionX="0" positionY="0" width="128" height="43"/>
+        <element name="Source" positionX="160" positionY="192" width="128" height="225"/>
+        <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

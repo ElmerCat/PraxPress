@@ -1,5 +1,5 @@
 //
-//  PraxController.h
+//  batchController.h
 //  PraxPress
 //
 //  Created by John Canfield on 8/24/12.
@@ -14,13 +14,14 @@
 #import "Document.h"
 #import "Asset.h"
 #import "UpdateController.h"
+#import "TemplateController.h"
 
 @class Document;
 @class PostEditor;
 @class SoundCloudController;
 @class WordPressController;
 
-@interface PraxController : NSObject <NSPopoverDelegate>
+@interface BatchController : NSObject <NSPopoverDelegate>
 
 @property Asset *selectedAsset;
 
@@ -32,14 +33,22 @@
 - (NSArray *)batchSortDescriptors;
 
 @property (weak) IBOutlet NSTableView *assetBatchEditTable;
+@property (weak) IBOutlet WebView *selectedAssetWebView;
 
+@property (weak) IBOutlet TemplateController *templateController;
 @property (weak) IBOutlet NSArrayController *assetsController;
+@property (weak) IBOutlet NSArrayController *changedAssetsController;
+@property (weak) IBOutlet NSArrayController *associatedAssetsController;
+@property (weak) IBOutlet NSArrayController *batchAssetsController;
+
+
 @property (unsafe_unretained) IBOutlet NSPanel *assetDetailPanel;
-@property (weak) IBOutlet NSTableView *assetTableView;
+@property (weak) IBOutlet NSTableView *batchAssetsTableView;
+@property (weak) IBOutlet NSTableView *assetsTableView;
+@property (weak) IBOutlet NSScrollView *assetsScrollView;
 //@property (weak) IBOutlet NSPopover *assetDetailPopover;
 
 //@property (weak) IBOutlet NSPopover *templatePopover;
-@property (weak) IBOutlet NSArrayController *templateController;
 @property (unsafe_unretained) IBOutlet NSPanel *templatePanel;
 @property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
 
@@ -54,8 +63,6 @@
 - (IBAction)clearBatch:(id)sender;
 
 @property (weak) IBOutlet Document *document;
-@property (weak) IBOutlet NSArrayController *changedAssetsController;
-@property (weak) IBOutlet NSArrayController *assetBatchEditController;
 
 @property (weak) IBOutlet NSTableView *templateTableView;
 
