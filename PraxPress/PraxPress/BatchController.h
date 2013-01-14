@@ -14,15 +14,18 @@
 #import "Document.h"
 #import "Asset.h"
 #import "UpdateController.h"
-#import "TemplateController.h"
+#import "TemplateViewController.h"
+#import "AssetDetailController.h"
 
 @class Document;
 @class PostEditor;
 @class SoundCloudController;
 @class WordPressController;
+@class TemplateViewController;
 
 @interface BatchController : NSObject <NSPopoverDelegate>
 
+@property (weak) IBOutlet Document *document;
 @property Asset *selectedAsset;
 
 - (NSPredicate *)batchEditFilterPredicate;
@@ -32,24 +35,19 @@
 @property NSArray *_batchSortDescriptors;
 - (NSArray *)batchSortDescriptors;
 
-@property (weak) IBOutlet NSTableView *assetBatchEditTable;
-@property (weak) IBOutlet WebView *selectedAssetWebView;
 
-@property (weak) IBOutlet TemplateController *templateController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSArrayController *associatedAssetsController;
 @property (weak) IBOutlet NSArrayController *batchAssetsController;
 
 
-@property (unsafe_unretained) IBOutlet NSPanel *assetDetailPanel;
 @property (weak) IBOutlet NSTableView *batchAssetsTableView;
 @property (weak) IBOutlet NSTableView *assetsTableView;
 @property (weak) IBOutlet NSScrollView *assetsScrollView;
 //@property (weak) IBOutlet NSPopover *assetDetailPopover;
 
 //@property (weak) IBOutlet NSPopover *templatePopover;
-@property (unsafe_unretained) IBOutlet NSPanel *templatePanel;
 @property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
 
 - (NSArray *)itemsWithViewPosition:(int)value;
@@ -62,13 +60,11 @@
 
 - (IBAction)clearBatch:(id)sender;
 
-@property (weak) IBOutlet Document *document;
-
-@property (weak) IBOutlet NSTableView *templateTableView;
 
 - (NSPredicate *)changedAssetsFilterPredicate;
 
 - (IBAction)addAssetBatchButtonClicked:(id)sender;
 - (IBAction)removeAssetBatchButtonClicked:(id)sender;
+
 
 @end

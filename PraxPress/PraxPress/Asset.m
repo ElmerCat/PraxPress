@@ -11,6 +11,7 @@
 
 @implementation Asset
 
+@synthesize awake;
 @dynamic artwork_url;
 @dynamic asset_id;
 @dynamic batchPosition;
@@ -39,7 +40,7 @@
 @dynamic account;
 @dynamic associatedItems;
 
-/*- (id)init {
+- (id)init {
     self = [super init];
     if (self) {
         NSLog(@"Asset init");
@@ -49,13 +50,28 @@
 }
 
 - (void)dealloc {
-    NSLog(@"Asset dealloc");
+//    NSLog(@"Asset dealloc");
+    if (self.awake) {
+        self.awake = FALSE;
+        
+        [self removeObserver:self forKeyPath:@"self.edit_mode"];
+        [self removeObserver:self forKeyPath:@"self.title"];
+        [self removeObserver:self forKeyPath:@"self.purchase_title"];
+        [self removeObserver:self forKeyPath:@"self.purchase_url"];
+        [self removeObserver:self forKeyPath:@"self.sub_type"];
+        [self removeObserver:self forKeyPath:@"self.sharing"];
+        [self removeObserver:self forKeyPath:@"self.genre"];
+        [self removeObserver:self forKeyPath:@"self.permalink"];
+        [self removeObserver:self forKeyPath:@"self.tag_list"];
+        [self removeObserver:self forKeyPath:@"self.contents"];
+        
+    }
 
-    [self removeObserver:self forKeyPath:@"self.title"];
     
 //    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+/*
 - (void)awakeFromNib {
     NSLog(@"Asset awakeFromNib");
     
@@ -64,20 +80,23 @@
 */
  
 - (void)awakeFromFetch {
- //   NSLog(@"Asset awakeFromFetch");
- 
-    [self addObserver:self forKeyPath:@"self.edit_mode" options:NSKeyValueObservingOptionNew context:NULL];
-
-    [self addObserver:self forKeyPath:@"self.title" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.purchase_title" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.purchase_url" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.sub_type" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.sharing" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
     
+    if (!self.awake) {
+        self.awake = TRUE;
+//        NSLog(@"Asset awakeFromFetch");
+        
+        [self addObserver:self forKeyPath:@"self.edit_mode" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.title" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.purchase_title" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.purchase_url" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.sub_type" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.sharing" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
+        
+    }
     
 }
 
@@ -343,11 +362,11 @@
         html = asset.contents;
     }
     else if ([asset.type isEqualToString:@"track"]) {
-        html = [NSString stringWithFormat:@"<html><body>%@<br/> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.title, asset.asset_id, asset.asset_id];
+        html = [NSString stringWithFormat:@"<html><body>%@<br/> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.title, asset.asset_id, asset.asset_id];
         
     }
     else if ([asset.type isEqualToString:@"playlist"]) {
-        html = [NSString stringWithFormat:@"<html><body> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.asset_id, asset.asset_id];
+        html = [NSString stringWithFormat:@"<html><body> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.asset_id, asset.asset_id];
     }
     return html;
 }

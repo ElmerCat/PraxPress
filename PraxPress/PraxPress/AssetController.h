@@ -15,6 +15,9 @@
 
 @interface AssetController : NSObject
 
+@property BOOL awake;
+@property (weak) IBOutlet Document *document;
+@property NSMapTable *assetDetailControllers;
 @property NSIndexSet *selectedRowIndexes;
 @property NSInteger assetsViewMode;
 @property NSInteger associatedAssetsViewMode;
@@ -22,11 +25,11 @@
 @property NSInteger changedAssetsViewMode;
 
 @property (weak) IBOutlet UpdateController *updateController;
-@property (weak) IBOutlet BatchController *batchController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (weak) IBOutlet NSArrayController *batchAssetsController;
 @property (weak) IBOutlet NSArrayController *associatedAssetsController;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
+
 @property (weak) IBOutlet WebView *assetDetailWebView;
 @property (weak) IBOutlet NSTableView *assetsTableView;
 @property (weak) IBOutlet NSTableView *batchAssetsTableView;
@@ -43,8 +46,7 @@
 - (IBAction)batchAssetsTableViewModeSelectorClicked:(id)sender;
 - (IBAction)associatedAssetsTableViewModeSelectorClicked:(id)sender;
 - (IBAction)sortAssets:(id)sender;
-- (IBAction)playlistButtonPressed:(id)sender;
-- (IBAction)reloadFromServer:(id)sender;
-- (IBAction)uploadToServer:(id)sender;
+
+- (void)assetTableDoubleClicked:(NSArray *)selectedObjects;
 
 @end

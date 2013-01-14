@@ -18,6 +18,15 @@
         NSLog(@"AssetController init");
         
         
+        self.assetDetailControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetDetailClosedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
+            Asset *asset = (Asset *)[aNotification object];
+            [self.assetDetailControllers removeObjectForKey:asset];
+            NSLog(@"BatchController AssetDetailClosedNotification: %@", asset.title);
+            
+        }];
+        
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
             Asset *asset = (Asset *)[aNotification object];
             
@@ -58,10 +67,19 @@
     return self;
 }
 
-/*- (void)awakeFromNib {
-    NSLog(@"AssetController awakeFromNib");
-    
-}*/
+- (void)awakeFromNib {
+    if (!self.awake) {
+        self.awake = TRUE;
+        NSLog(@"AssetController awakeFromNib");
+        self.assetDetailControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
+        NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AssetTableCellView" bundle:[NSBundle mainBundle]];
+        for (NSTableView *tableView in @[self.assetsTableView, self.batchAssetsTableView, self.changedAssetsTableView, self.associatedAssetsTableView]) {
+            for (NSString *identifier in @[@"trackTableCellView", @"playlistTableCellView", @"postTableCellView", @"pageTableCellView"]) {
+                [tableView registerNib:nib forIdentifier:identifier];
+            }
+        }
+    }
+}
 
 - (IBAction)sortAssets:(id)sender {
     
@@ -175,11 +193,14 @@
     }
     
  //   NSLog (@"viewForTableColumn: row: %ld", row);
-    NSString *identifier = [NSString stringWithFormat:@"%@View", asset.type];
+    NSString *identifier = [NSString stringWithFormat:@"%@TableCellView", asset.type];
+//    NSView *view = [tableView makeViewWithIdentifier:@"praxView" owner:self];
     NSView *view = [tableView makeViewWithIdentifier:identifier owner:self];
     
     if (view && [view isKindOfClass:[AssetTableCellView class]]) {
  //       NSLog (@"[view isKindOfClass:[AssetTableCellView class]] row: %ld", row);
+        
+        [(AssetTableCellView *)view setUpdateController:self.updateController];
         [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:NO];
     }
 
@@ -216,23 +237,22 @@
     
     
 }
-
-- (IBAction)reloadFromServer:(id)sender {
-    [self.updateController reloadFromServer:sender];
-    
-}
-
-
-- (IBAction)uploadToServer:(id)sender {
-    [self.updateController uploadToServer:sender];
-}
-
-
-- (IBAction)playlistButtonPressed:(id)sender {
-    Asset *asset = [self.assetsController selectedObjects][0];
-    [self.associatedAssetsController setContent:asset.associatedItems];
-
-    [self.playlistViewPopover showRelativeToRect:[(NSButton *)sender bounds] ofView:sender preferredEdge:NSMinYEdge];
+- (void)assetTableDoubleClicked:(NSArray *)selectedObjects {
+    if (selectedObjects.count > 0) {
+        Asset *asset = selectedObjects[0];
+        AssetDetailController *assetDetailController = [self.assetDetailControllers objectForKey:asset];
+        if (!assetDetailController) {
+            assetDetailController = [[AssetDetailController alloc] initWithWindowNibName:@"AssetDetailController"];
+            [self.assetDetailControllers setObject:assetDetailController forKey:asset];
+            assetDetailController.asset = asset;
+            assetDetailController.filesOwner = self.document;
+            [assetDetailController showWindow:self];
+        }
+        else {
+            [[assetDetailController window] makeKeyAndOrderFront:self];
+        }
+    }
 
 }
+
 @end

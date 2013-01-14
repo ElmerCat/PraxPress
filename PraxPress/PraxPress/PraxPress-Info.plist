@@ -11,6 +11,8 @@
 			<array>
 				<string>praxpress</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>icon</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/octet-stream</string>
@@ -96,7 +98,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2012 ElmerCat. All rights reserved.</string>
+	<string>Copyright © 2013 ElmerCat. All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

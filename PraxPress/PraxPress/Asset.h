@@ -14,6 +14,7 @@
 @class UpdateController;
 @interface Asset : NSManagedObject
 
+@property BOOL awake;
 @property (nonatomic, retain) NSString * artwork_url;
 @property (nonatomic, retain) NSNumber * asset_id;
 @property (nonatomic, retain) NSNumber * batchPosition;

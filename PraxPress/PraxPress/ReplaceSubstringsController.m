@@ -58,7 +58,7 @@
 - (IBAction)show:(id)sender
 {
     
-    [self.popover showRelativeToRect:[self.batchChangeTableView bounds] ofView:self.batchChangeTableView preferredEdge:NSMinYEdge];
+    [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge];
 }
 
 

@@ -100,25 +100,25 @@ int endViewPosition = -3;
                                                           NSTableView *table = [aNotification object];
                                                           
                                                           
-                                                          if ( (table == self.assetsTableView) || (table == self.assetBatchEditTable) ){
+                                                          if ( (table == self.assetsTableView) || (table == self.batchAssetsTableView) ){
                                                               
                                                               if (table.selectedRow >= 0) {
                                                                   Asset *newSelectedAsset;
                                                                   if (table == self.assetsTableView) {
                                                                       newSelectedAsset = self.assetsController.arrangedObjects[table.selectedRow];
                                                                   }
-                                                                  else if (table == self.assetBatchEditTable) {
+                                                                  else if (table == self.batchAssetsTableView) {
                                                                       newSelectedAsset = self.batchAssetsController.arrangedObjects[table.selectedRow];
                                                                   }
                                                                    
                                                                   if (self.selectedAsset != newSelectedAsset) {
                                                                       self.selectedAsset = newSelectedAsset;
-                                                                      [[self.selectedAssetWebView mainFrame] loadHTMLString:[Asset htmlStringForAsset:self.selectedAsset] baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
+                                                                //      [[self.selectedAssetWebView mainFrame] loadHTMLString:[Asset htmlStringForAsset:self.selectedAsset] baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
                                                                       
                                                                       [self.associatedAssetsController setContent:self.selectedAsset.associatedItems];
                                                                       
                                                                     }
-                                                                  for (NSTableView *tableView in @[self.assetsTableView, self.assetBatchEditTable]) {
+                                                                  for (NSTableView *tableView in @[self.assetsTableView, self.batchAssetsTableView]) {
                                                                       if (table != tableView) {
                                                                           [tableView deselectAll:self];
                                                                       }
@@ -127,7 +127,7 @@ int endViewPosition = -3;
                                                                   
                                                               }
                                                           }
-                                                          else if (table == self.templateTableView) [self.templateController updateGeneratedCode];
+                                                       //   else if (table == self.templateTableView) [self.templateController updateGeneratedCode];
                                                           
                                                           else {} //NSLog(@"PraxController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
                                                           
@@ -204,8 +204,7 @@ int endViewPosition = -3;
     //   NSLog(@"UpdateController awakeFromNib");
     
     [self.batchAssetsTableView registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
-    [self.assetBatchEditTable registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
-    [self.assetBatchEditTable setSortDescriptors:self.batchSortDescriptors];
+    [self.batchAssetsTableView setSortDescriptors:self.batchSortDescriptors];
     
 }
 
@@ -238,7 +237,7 @@ int endViewPosition = -3;
 }
 - (NSDragOperation)tableView:(NSTableView*)table validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation
 {
-	if (([info draggingSource] == self.assetBatchEditTable) || ([info draggingSource] == self.batchAssetsTableView)) {
+	if (([info draggingSource] == self.batchAssetsTableView) || ([info draggingSource] == self.batchAssetsTableView)) {
         NSArray *sortDescriptors = [self.batchAssetsController sortDescriptors];
         if ([sortDescriptors count] > 0) {
             if ([[sortDescriptors[0] key] isEqualToString:@"batchPosition"]) {
@@ -377,27 +376,8 @@ int endViewPosition = -3;
 	return arrayOfItems;
 }
 
-- (void)templateTableDoubleClicked {
-    
-    [self.templatePanel makeKeyAndOrderFront:self];
-    
-//    if (!self.templatePanel.isVisible) {
-  //      [self.templatePopover showRelativeToRect:[self.templateTableView bounds] ofView:self.templateTableView preferredEdge:0];
-  //  }
-    
-    
-}
 
-- (void)assetTableDoubleClicked {
-    
-    [self.assetDetailPanel makeKeyAndOrderFront:self];
-    
-//    if (!self.assetDetailPanel.isVisible) {
-  //      [self.assetDetailPopover showRelativeToRect:[self.assetTableView bounds] ofView:self.assetTableView preferredEdge:0];
-  //  }
-
-}
-- (IBAction)addAssetBatchButtonClicked:(id)sender {
+ - (IBAction)addAssetBatchButtonClicked:(id)sender {
     NSArray *items = [self.assetsController arrangedObjects];
     Asset *item;
     for (NSInteger row = 0; row < [items count]; row++) {

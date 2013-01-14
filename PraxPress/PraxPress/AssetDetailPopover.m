@@ -1,18 +1,18 @@
 //
-//  PlaylistViewController.m
+//  AssetDetailPopover.m
 //  PraxPress
 //
-//  Created by John Canfield on 10/13/12.
-//  Copyright (c) 2012 ElmerCat. All rights reserved.
+//  Created by Elmer on 1/12/13.
+//  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import "PlaylistViewController.h"
+#import "AssetDetailPopover.h"
 
-@interface PlaylistViewController ()
+@interface AssetDetailPopover ()
 
 @end
 
-@implementation PlaylistViewController
+@implementation AssetDetailPopover
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
