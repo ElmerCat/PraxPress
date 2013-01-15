@@ -22,6 +22,7 @@
 @interface Document : NSPersistentDocument
 
 @property (weak) IBOutlet NSArrayController *templatesController;
+@property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
 @property (weak) IBOutlet NSTableView *assetTableView;

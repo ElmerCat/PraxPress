@@ -9,8 +9,6 @@
 #import "TemplateViewController.h"
 
 @implementation TemplateViewController
-@synthesize formatText;
-@synthesize generatedCodeText;
 + (NSSet *)keyPathsForValuesAffectingGeneratedCode {
     return [NSSet setWithObjects:@"self.assetBatchEditController.arrangedObjects", @"self.assetsController.selectedObjects", @"formatText", nil];
 }
@@ -46,25 +44,6 @@
         [self show:[aNotification object]];
     }];
     
-    
-    [self addObserver:self forKeyPath:@"self.assetsController.selectedObjects" options:NSKeyValueObservingOptionNew context:0];
-    [self addObserver:self forKeyPath:@"self.assetBatchEditController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
-    
- 
-    NSDictionary *templateDefaults = @{@"templates":@[@{@"name":@"titles", @"startingFormatText":@"Titles\n", @"formatText":@"$$$title$$$\n", @"endingFormatText":@"\n...PraxPress...\n"}]};
-    
-    [[NSUserDefaults standardUserDefaults] registerDefaults:templateDefaults];
-    
-    
-    [self.filesOwner.templatesController setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
-
-    
-    
-    [generatedCodeText setStringValue:@"Julie d'Prax"];
-    
-    //   [self.assetBatchEditTable registerForDraggedTypes:[NSArray arrayWithObjects:PraxItemsDropType, nil]];
-    //   [self.assetBatchEditTable setSortDescriptors:self.batchSortDescriptors];
-    
 }
 
 -(void)dealloc {
@@ -87,18 +66,6 @@
 }
 
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (([keyPath isEqualToString:@"self.assetsController.selectedObjects"]) || ([keyPath isEqualToString:@"self.assetBatchEditController.arrangedObjects"])) {
-        [self updateGeneratedCode];
-        
-    }
-    else {
-        NSLog(@"Template observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
-
-    }
-}
-
 - (IBAction)show:(id)sender {
     [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge];
 }
@@ -109,31 +76,6 @@
 
     return completions;
     
-}
-
-- (void)windowDidBecomeKey:(NSNotification *)notification {
-    [self updateGeneratedCode];
-}
-
-- (IBAction)sync:(id)sender {
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (void)updateGeneratedCode {
-    
-    NSMutableString *code = [[NSMutableString alloc] initWithCapacity:1024];
-    NSArray *assets = [self.assetBatchEditController arrangedObjects];
-    if (([assets count] > 0) &&  ([[self.formatText string] length] > 0)){
-        for (Asset *asset in assets) {
-            [code appendString:[TemplateViewController stringWithTemplate:[self.formatText string] forAsset:asset]];
-        }
-    }
-    //   NSLog(@"code: %@", code);
-    
-    [generatedCodeText setStringValue:[code description]];
-    
-    //    [[self.previewWebView mainFrame] loadHTMLString:code baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
-    //    [self.previewFrameWindow makeKeyAndOrderFront:self];
 }
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets {
@@ -218,17 +160,20 @@
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL *url = [panel URLs][0];
+            
             NSMutableDictionary *templates = [NSMutableDictionary dictionaryWithCapacity:10];
-            for (NSDictionary *template in self.filesOwner.templatesController.arrangedObjects) {
-                templates[template[@"name"]] = template[@"formatText"];
+            for (Template *template in self.templatesController.arrangedObjects) {
+                templates[template.name] = template.formatText;
             }
+            
             NSArray *importTemplates = [NSKeyedUnarchiver unarchiveObjectWithFile:[url path]];
             for (NSDictionary *importTemplate in importTemplates) {
                 NSString *text = templates[importTemplate[@"name"]];
                 if (text.length <= 0) {
-//                    NSDictionary *newTemplate = @{@"name":importTemplate[@"name"], @"formatText":importTemplate[@"blockFormatText"]};
-//                    [self.filesOwner.templatesController addObject:newTemplate];
-                    [self.filesOwner.templatesController addObject:importTemplate];
+                    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.managedObjectContext];
+                    template.name = importTemplate[@"name"];
+                    template.formatText = importTemplate[@"formatText"];
+                    [self.templatesController rearrangeObjects];
                 }
             }
         }
@@ -236,45 +181,42 @@
 }
 
 - (IBAction)exportTemplates:(id)sender {
-    NSArray *templates = self.filesOwner.templatesController.arrangedObjects;
-    for (NSDictionary *template in templates) {
-        NSLog(@"template %@", template);
-    }
     NSSavePanel *panel = [NSSavePanel savePanel];
     [panel setAllowedFileTypes:@[@"prax-templates"]];
     [panel setAllowsOtherFileTypes:YES];
     [panel setMessage:@"Export Templates to File"];
     [panel setNameFieldStringValue:@"Templates"];
     [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton)
-        {
-            NSURL *url = [panel URL];
-            [NSKeyedArchiver archiveRootObject:templates toFile:[url path]];
-            
+        if (result == NSFileHandlingPanelOKButton) {
+            NSMutableArray *templates = [NSMutableArray arrayWithCapacity:10];
+            for (Template *template in self.filesOwner.templatesController.arrangedObjects) {
+                [templates addObject:@{@"name":template.name, @"formatText":template.formatText}];
+            }
+            [NSKeyedArchiver archiveRootObject:templates toFile:panel.URL.path];
         }
     }];
 }
 
 - (IBAction)duplicate:(id)sender {
     if (self.filesOwner.templatesController.selectedObjects.count > 0) {
-        NSMutableDictionary *template = [NSMutableDictionary dictionaryWithDictionary:self.filesOwner.templatesController.selectedObjects[0]];
-        template[@"name"] = [NSString stringWithFormat:@"%@ COPY", template[@"name"]];
-        [self.filesOwner.templatesController addObject:template];
+        Template *selectedTemplate = self.filesOwner.templatesController.selectedObjects[0];
+        
+        Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.managedObjectContext];
+
+        template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
+        template.formatText = selectedTemplate.formatText;
+        [self.filesOwner.templatesController rearrangeObjects];
         [self.tableView scrollRowToVisible:self.filesOwner.templatesController.selectionIndex];
     }
 }
 
 - (IBAction)addTemplate:(id)sender {
-    NSDictionary *template = @{@"name":@"NEW Template", @"formatText":@"<div>$$$title$$$</div>"};
-    [self.filesOwner.templatesController addObject:template];
+    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.managedObjectContext];
+    template.name = @"NEW Template";
+    template.formatText = @"<div>$$$title$$$</div>";
+    [self.filesOwner.templatesController rearrangeObjects];
     [self.tableView scrollRowToVisible:self.filesOwner.templatesController.selectionIndex];
     
-}
-
-- (IBAction)preview:(id)sender {
-    
-    [[self.previewWebView mainFrame] loadHTMLString:[self.generatedCodeText stringValue] baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
-    [self.previewFrameWindow makeKeyAndOrderFront:self];
 }
 
 

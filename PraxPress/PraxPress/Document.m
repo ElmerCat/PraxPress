@@ -16,8 +16,8 @@
 {
     self = [super init];
     if (self) {
-        // Add your subclass-specific initialization here.
         NSLog(@"Document init");
+        self.templateSortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
     }
     return self;
 }
@@ -51,6 +51,16 @@
     [[moc undoManager] enableUndoRegistration];
     
     return self;
+}
+
+- (BOOL)configurePersistentStoreCoordinatorForURL:(NSURL *)url ofType:(NSString *)fileType modelConfiguration:(NSString *)configuration storeOptions:(NSDictionary *)storeOptions error:(NSError **)error {
+//    NSLog(@"Document configurePersistentStoreCoordinatorForURL");
+    NSMutableDictionary *options = nil;
+    if (storeOptions != nil) options = [storeOptions mutableCopy];
+    else options = [[NSMutableDictionary alloc] init];
+    options[NSMigratePersistentStoresAutomaticallyOption] = [NSNumber numberWithBool:YES];
+    options[NSInferMappingModelAutomaticallyOption] = [NSNumber numberWithBool:YES];
+    return [super configurePersistentStoreCoordinatorForURL:url ofType:fileType modelConfiguration:configuration storeOptions:options error:error];
 }
 
 - (NSString *)windowNibName

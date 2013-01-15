@@ -1951,7 +1951,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="843316854">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSButton" id="160524585">
@@ -2088,7 +2088,7 @@
 											<array class="NSMutableArray" key="NSSubviews"/>
 											<string key="NSFrameSize">{767, 445}</string>
 											<reference key="NSSuperview" ref="305633470"/>
-											<reference key="NSNextKeyView" ref="909407574"/>
+											<reference key="NSNextKeyView" ref="736804016"/>
 											<string key="NSReuseIdentifierKey">_NS:13</string>
 											<bool key="NSEnabled">YES</bool>
 											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -2259,7 +2259,6 @@
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{1, 163}, {411, 16}}</string>
 									<reference key="NSSuperview" ref="933308757"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:60</string>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<int key="NSsFlags">1</int>
@@ -2284,7 +2283,7 @@
 							</array>
 							<string key="NSFrame">{{20, 20}, {769, 463}}</string>
 							<reference key="NSSuperview" ref="843316854"/>
-							<reference key="NSNextKeyView" ref="736804016"/>
+							<reference key="NSNextKeyView" ref="305633470"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<int key="NSsFlags">133682</int>
 							<reference key="NSVScroller" ref="909407574"/>
@@ -2386,7 +2385,6 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{809, 719}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="106954563"/>
 					<string key="NSReuseIdentifierKey">_NS:21</string>
 				</object>
@@ -2405,7 +2403,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="427458577">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="WebView" id="155606306">
@@ -2440,7 +2438,6 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{750, 674}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="155606306"/>
 					<string key="NSReuseIdentifierKey">_NS:21</string>
 				</object>
@@ -2547,7 +2544,10 @@
 			<object class="NSArrayController" id="347884683">
 				<bool key="NSEditable">YES</bool>
 				<bool key="NSAutomaticallyPreparesContent">YES</bool>
-				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
+				<object class="_NSManagedProxy" key="_NSManagedProxy">
+					<string key="NSEntityName">Template</string>
+				</object>
+				<bool key="_NSIsUsingManagedProxy">YES</bool>
 				<bool key="NSAvoidsEmptySelection">YES</bool>
 				<bool key="NSSelectsInsertedObjects">YES</bool>
 				<bool key="NSFilterRestrictsInsertion">YES</bool>
@@ -3785,19 +3785,35 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">contentArray: values.templates</string>
+						<string key="label">managedObjectContext: self.managedObjectContext</string>
 						<reference key="source" ref="347884683"/>
-						<reference key="destination" ref="985013625"/>
+						<reference key="destination" ref="512844837"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="347884683"/>
-							<reference key="NSDestination" ref="985013625"/>
-							<string key="NSLabel">contentArray: values.templates</string>
-							<string key="NSBinding">contentArray</string>
-							<string key="NSKeyPath">values.templates</string>
+							<reference key="NSDestination" ref="512844837"/>
+							<string key="NSLabel">managedObjectContext: self.managedObjectContext</string>
+							<string key="NSBinding">managedObjectContext</string>
+							<string key="NSKeyPath">self.managedObjectContext</string>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">119791</int>
+					<int key="connectionID">119802</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">sortDescriptors: self.templateSortDescriptors</string>
+						<reference key="source" ref="347884683"/>
+						<reference key="destination" ref="512844837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="347884683"/>
+							<reference key="NSDestination" ref="512844837"/>
+							<string key="NSLabel">sortDescriptors: self.templateSortDescriptors</string>
+							<string key="NSBinding">sortDescriptors</string>
+							<string key="NSKeyPath">self.templateSortDescriptors</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">119806</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -8968,7 +8984,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">119800</int>
+			<int key="maxID">119806</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -9552,6 +9568,7 @@
 						<string key="previewFrameWindow">NSPanel</string>
 						<string key="previewWebView">WebView</string>
 						<string key="tableView">NSTableView</string>
+						<string key="templatesController">NSArrayController</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="assetBatchEditController">
@@ -9593,6 +9610,10 @@
 						<object class="IBToOneOutletInfo" key="tableView">
 							<string key="name">tableView</string>
 							<string key="candidateClassName">NSTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="templatesController">
+							<string key="name">templatesController</string>
+							<string key="candidateClassName">NSArrayController</string>
 						</object>
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">

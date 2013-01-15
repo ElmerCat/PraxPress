@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="Version0" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="12C60" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="12C60" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Account" representedClassName="Account" parentEntity="Asset" syncable="YES">
         <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
@@ -58,10 +58,6 @@
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
         <relationship name="parent" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
     </entity>
-    <entity name="Template" representedClassName="Template" syncable="YES">
-        <attribute name="formatText" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-    </entity>
     <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
@@ -72,7 +68,6 @@
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
         <element name="Source" positionX="160" positionY="192" width="128" height="225"/>
-        <element name="Template" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

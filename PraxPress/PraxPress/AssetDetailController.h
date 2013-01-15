@@ -20,6 +20,7 @@
 @property NSString *templateName;
 @property Asset *asset;
 @property (weak) IBOutlet WebView *webView;
+@property (unsafe_unretained) IBOutlet NSTextView *codeTextView;
 - (IBAction)showMetadataPopover:(id)sender;
 - (IBAction)showTemplatesPopover:(id)sender;
 

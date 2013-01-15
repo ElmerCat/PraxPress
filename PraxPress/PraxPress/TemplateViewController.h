@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import "Document.h"
 #import "Asset.h"
+#import "Template.h"
 #import "AssetController.h"
 @class AssetController;
 
@@ -22,19 +23,13 @@
 @property (weak) IBOutlet AssetController *assetController;
 
 @property (weak) IBOutlet NSArrayController *assetsController;
-@property (weak) IBOutlet NSArrayController *assetBatchEditController;
-@property (unsafe_unretained) IBOutlet NSTextView *formatText;
-@property (weak) IBOutlet NSTextField *generatedCodeText;
-@property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
-@property (weak) IBOutlet WebView *previewWebView;
+@property (weak) IBOutlet NSArrayController *templatesController;
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets;
 - (IBAction)show:(id)sender;
-- (IBAction)sync:(id)sender;
-- (void)updateGeneratedCode;
 - (IBAction)duplicate:(id)sender;
+- (IBAction)remove:(id)sender;
 - (IBAction)addTemplate:(id)sender;
-- (IBAction)preview:(id)sender;
 - (IBAction)exportTemplates:(id)sender;
 - (IBAction)importTemplates:(id)sender;
 

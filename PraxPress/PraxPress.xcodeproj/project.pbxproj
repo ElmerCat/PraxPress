@@ -19,6 +19,7 @@
 		E661E6291626098C00EFD83A /* Source.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E6281626098C00EFD83A /* Source.m */; };
 		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
+		E664659516A4D94E004E3448 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E664659316A4D94E004E3448 /* Document.xcdatamodeld */; };
 		E665448E1625568C00EB579B /* ServiceView.m in Sources */ = {isa = PBXBuildFile; fileRef = E665448D1625568C00EB579B /* ServiceView.m */; };
 		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
 		E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6BFF169F1252006F07D1 /* AssetDetailController.m */; };
@@ -29,6 +30,7 @@
 		E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */; };
 		E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */; };
 		E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */; };
+		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E67782CA160D06990069FEE3 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E67782C9160D06990069FEE3 /* Account.m */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
 		E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6B137F815E845C40003EB15 /* AssetDetailView.xib */; };
@@ -39,7 +41,6 @@
 		E6BC79B115C4759800080762 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79B015C4759800080762 /* Document.m */; };
 		E6BC79B415C4759800080762 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B215C4759800080762 /* Document.xib */; };
 		E6BC79B715C4759800080762 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B515C4759800080762 /* MainMenu.xib */; };
-		E6BC79BA15C4759800080762 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79B815C4759800080762 /* Document.xcdatamodeld */; };
 		E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79EF15C48A1000080762 /* WebKit.framework */; };
 		E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79F615C48FE300080762 /* SpecialProtocol.m */; };
 		E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D19B93168AB11300D068BC /* AssetTableCellView.m */; };
@@ -109,6 +110,8 @@
 		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
 		E661E62B1626182400EFD83A /* AccountViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountViewController.m; sourceTree = "<group>"; };
 		E661E62C1626182400EFD83A /* AccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
+		E664659416A4D94E004E3448 /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
+		E664659616A4D9B0004E3448 /* Document1.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document1.0.xcdatamodel; sourceTree = "<group>"; };
 		E665448C1625568C00EB579B /* ServiceView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceView.h; sourceTree = "<group>"; };
 		E665448D1625568C00EB579B /* ServiceView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceView.m; sourceTree = "<group>"; };
 		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
@@ -124,6 +127,8 @@
 		E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetMetadataPopover.h; sourceTree = "<group>"; };
 		E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetMetadataPopover.m; sourceTree = "<group>"; };
 		E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetMetadataPopover.xib; sourceTree = "<group>"; };
+		E6775E4616A4BF4C00CDA34B /* Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Template.h; sourceTree = "<group>"; };
+		E6775E4716A4BF4C00CDA34B /* Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Template.m; sourceTree = "<group>"; };
 		E67782C8160D06990069FEE3 /* Account.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Account.h; sourceTree = "<group>"; };
 		E67782C9160D06990069FEE3 /* Account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Account.m; sourceTree = "<group>"; };
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
@@ -143,7 +148,6 @@
 		E6BC79B015C4759800080762 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Document.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC79B315C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Document.xib; sourceTree = "<group>"; };
 		E6BC79B615C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		E6BC79B915C4759800080762 /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
 		E6BC79C115C4759800080762 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		E6BC79D715C475B900080762 /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = ../OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E6BC79EF15C48A1000080762 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -202,13 +206,15 @@
 		E661E63216279D3600EFD83A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
-				E6BC79B815C4759800080762 /* Document.xcdatamodeld */,
+				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
 				E67782C8160D06990069FEE3 /* Account.h */,
 				E67782C9160D06990069FEE3 /* Account.m */,
 				E661E6271626098B00EFD83A /* Source.h */,
 				E661E6281626098C00EFD83A /* Source.m */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
 				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
+				E6775E4616A4BF4C00CDA34B /* Template.h */,
+				E6775E4716A4BF4C00CDA34B /* Template.m */,
 			);
 			name = Entities;
 			sourceTree = "<group>";
@@ -480,7 +486,6 @@
 			files = (
 				E6BC79AA15C4759800080762 /* main.m in Sources */,
 				E6BC79B115C4759800080762 /* Document.m in Sources */,
-				E6BC79BA15C4759800080762 /* Document.xcdatamodeld in Sources */,
 				E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */,
 				E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */,
 				E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */,
@@ -501,6 +506,8 @@
 				E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */,
 				E66E6C0A169F78DF006F07D1 /* AssetPredicateController.m in Sources */,
 				E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */,
+				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
+				E664659516A4D94E004E3448 /* Document.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -665,12 +672,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		E6BC79B815C4759800080762 /* Document.xcdatamodeld */ = {
+		E664659316A4D94E004E3448 /* Document.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				E6BC79B915C4759800080762 /* Document.xcdatamodel */,
+				E664659616A4D9B0004E3448 /* Document1.0.xcdatamodel */,
+				E664659416A4D94E004E3448 /* Document.xcdatamodel */,
 			);
-			currentVersion = E6BC79B915C4759800080762 /* Document.xcdatamodel */;
+			currentVersion = E664659416A4D94E004E3448 /* Document.xcdatamodel */;
 			path = Document.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

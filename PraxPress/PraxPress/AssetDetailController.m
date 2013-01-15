@@ -34,11 +34,9 @@
     if ([keyPath isEqualToString:@"self.templateName"]) {
         [[NSUserDefaults standardUserDefaults] setObject:self.templateName forKey:@"assetDetailTemplate"];
         [self loadWebView];
-        
     }
     else {
         NSLog(@"Template observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
-        
     }
 }
 
@@ -56,14 +54,15 @@
 - (void)loadWebView {
     
     NSString *formatText;
-    for (NSDictionary *template in self.filesOwner.templatesController.arrangedObjects) {
-        if ([template[@"name"] isEqualToString:self.templateName]) {
-            formatText = template[@"formatText"];
+    for (Template *template in self.filesOwner.templatesController.arrangedObjects) {
+        if ([template.name isEqualToString:self.templateName]) {
+            formatText = template.formatText;
             break;
         }
     }
     NSString *html = [TemplateViewController codeForTemplate:formatText withAssets:@[self.asset]];
     [[self.webView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
+    [self.codeTextView setString:html];
 }
 
 

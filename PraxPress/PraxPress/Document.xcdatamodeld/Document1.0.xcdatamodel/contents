@@ -72,7 +72,7 @@
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
         <element name="Source" positionX="160" positionY="192" width="128" height="225"/>
-        <element name="Template" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Template" positionX="160" positionY="192" width="128" height="75"/>
     </elements>
 </model>
