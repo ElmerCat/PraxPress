@@ -74,7 +74,7 @@
 {
     [super windowControllerDidLoadNib:aController];
     
-    [PraxTransformers load];
+    [PraxTransformers loadForDocument:self];
     
     [self.assetTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
     
@@ -92,8 +92,10 @@
 }*/
 
 - (void)windowWillClose:(NSNotification *)notification {
-//    NSLog(@"Document windowWillClose notification: %@", notification);
+    NSLog(@"Document windowWillClose notification: %@", notification);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+  //  [self.tagController windowWillClose:notification];
 }
 
 /*- (void)windowDidBecomeMain:(NSNotification *)notification {

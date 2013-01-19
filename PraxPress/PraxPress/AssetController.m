@@ -200,6 +200,7 @@
     if (view && [view isKindOfClass:[AssetTableCellView class]]) {
  //       NSLog (@"[view isKindOfClass:[AssetTableCellView class]] row: %ld", row);
         
+ //       [(AssetTableCellView *)view setAsset:asset];
         [(AssetTableCellView *)view setUpdateController:self.updateController];
         [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:NO];
     }
@@ -253,6 +254,12 @@
         }
     }
 
+}
+
+- (void)showMetadataPopoverForAsset:(Asset *)asset sender:(id)sender {
+    
+    [self.assetMetadataPopover showPopoverRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge withDictionary:asset.metadata];
+    
 }
 
 @end

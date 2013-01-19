@@ -9,8 +9,6 @@
 #import "AssetTableCellView.h"
 
 @implementation AssetTableCellView
-
-
   
 /* - (void)awakeFromNib {
      NSLog(@"AssetTableCellView awakeFromNib");

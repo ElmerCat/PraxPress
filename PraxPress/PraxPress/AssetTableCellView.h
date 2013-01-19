@@ -13,6 +13,8 @@
 
 @property UpdateController *updateController;
 
+@property Asset *asset;
+
 - (void)layoutViewsForTable:(NSTableView *)table viewMode:(NSInteger)viewMode animated:(BOOL)animated;
 
 @end

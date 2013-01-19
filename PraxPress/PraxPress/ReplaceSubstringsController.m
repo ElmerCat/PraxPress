@@ -24,6 +24,7 @@
     return self;
 }
 - (void)dealloc {
+    NSLog(@"ReplaceSubstringsController dealloc");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.assetBatchEditController removeObserver:self forKeyPath:@"arrangedObjects"];
     [self removeObserver:self forKeyPath:@"keyValue"];

@@ -10,7 +10,7 @@
 
 @implementation PraxTransformers
 
-+(void)load {
++(void)loadForDocument:(Document *)document {
 
     id transformer = [[PraxNumberIsZeroTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsZeroTransformer"];
@@ -18,6 +18,10 @@
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
     transformer = [[PraxAssetStringTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxAssetStringTransformer"];
+    
+    PraxAssetTagStringTransformer *patsTransformer = [[PraxAssetTagStringTransformer alloc] init];
+    patsTransformer.document = document;
+    [NSValueTransformer setValueTransformer:patsTransformer forName:@"PraxAssetTagStringTransformer"];
     
 }
 
@@ -82,6 +86,55 @@
     Asset *asset = (Asset *)value;
     
     return asset.type;
+}
+
+@end
+
+@implementation PraxAssetTagStringTransformer
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        NSLog(@"PraxAssetTagStringTransformer init");
+    }
+    return self;
+}
+
++ (Class)transformedValueClass {
+    return [NSString class];
+}
+
++ (BOOL)allowsReverseTransformation { return YES; }
+- (NSString *)transformedValue:(id)value {
+    NSSet *tags = (NSSet *)value;
+    NSMutableString *string = [[NSMutableString alloc] init];
+    for (Tag *tag in tags) {
+        if (string.length > 0) [string appendString:@","];
+        [string appendString:tag.name];
+    }
+    return string;
+}
+- (id)reverseTransformedValue:(id)value {
+    NSArray *array = (NSArray *)value;
+    NSError *error;
+    Tag *tag;
+    NSMutableSet *tags = [[NSMutableSet alloc] init];
+    
+    for (NSString *string in array) {
+        NSLog(@"%@", string);
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", string]];
+        NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+        if ([matchingItems count] < 1) {
+            tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+            tag.name = string;
+            
+        }
+        else tag = matchingItems[0];
+        [tags addObject:tag];
+    }
+    
+    return tags.copy;
 }
 
 @end

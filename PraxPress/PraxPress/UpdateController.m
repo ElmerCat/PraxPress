@@ -244,6 +244,9 @@
                                                   NSLog(@"item: %@", item);
                                                   [asset loadWordPressPostData:item];
                                               }
+                                              [self.tagController loadAssetTags:asset];
+                                              asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                                              
                                               [self.changedAssetsController rearrangeObjects];
                                               self.updateCount += 1;
                                               if (self.reloadChangedItems) {
@@ -514,6 +517,8 @@
                                                   asset.account = self.account;
                                                   
                                                   [asset loadWordPressPostData:item];
+                                                  [self.tagController loadAssetTags:asset];
+
                                                   
                                                   self.updateCount = self.updateCount + 1;
                                                   [self.assetsController rearrangeObjects];
@@ -585,6 +590,8 @@
                                                   asset.account = self.account;
                                                   
                                                   [self.progressImageWell setImage:[asset loadSoundCloudItemData:item]];
+                                                  [self.tagController loadAssetTags:asset];
+
 
                                                   
                                                   //  if ([asset.entity.name isEqualToString:@"Playlist"]) {
@@ -668,6 +675,9 @@
                                                   
                                                   [self.progressImageWell setImage:[asset loadSoundCloudItemData:item]];
                                                   [asset loadPlaylistsAsset:asset data:item];
+                                                  [self.tagController loadAssetTags:asset];
+                                                  asset.sync_mode = [NSNumber numberWithBool:FALSE];
+
                                                   self.updateCount = self.updateCount + 1;
                                               }
                                               [self.assetsController rearrangeObjects];

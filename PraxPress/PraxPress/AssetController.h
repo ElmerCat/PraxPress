@@ -12,6 +12,7 @@
 #import "UpdateController.h"
 #import "BatchController.h"
 #import "AssetTableCellView.h"
+#import "AssetMetadataPopover.h"
 
 @interface AssetController : NSObject
 
@@ -35,7 +36,7 @@
 @property (weak) IBOutlet NSTableView *batchAssetsTableView;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
 @property (weak) IBOutlet NSTableView *associatedAssetsTableView;
-@property (weak) IBOutlet NSPopover *playlistViewPopover;
+@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
 
 
 @property (weak) IBOutlet NSPopUpButton *sortPopupButton;
@@ -48,5 +49,6 @@
 - (IBAction)sortAssets:(id)sender;
 
 - (void)assetTableDoubleClicked:(NSArray *)selectedObjects;
+- (void)showMetadataPopoverForAsset:(Asset *)asset sender:(id)sender;
 
 @end

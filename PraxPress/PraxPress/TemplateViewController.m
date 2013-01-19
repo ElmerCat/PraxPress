@@ -37,13 +37,15 @@
 
 - (void)awakeFromNib {
     
-    
-    NSLog(@"TemplateController awakeFromNib");
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"ShowTemplatesNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
-        [self show:[aNotification object]];
-    }];
-    
+    if (!self.awake) {
+        self.awake = TRUE;
+        
+        NSLog(@"TemplateController awakeFromNib");
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"ShowTemplatesNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
+            [self show:[aNotification object]];
+        }];
+    }
 }
 
 -(void)dealloc {
@@ -61,8 +63,6 @@
       //      amDoingAutoComplete = YES;
       //      [[[aNotification userInfo] objectForKey:@"NSFieldEditor"] complete:nil];
         //}
-    
-    
 }
 
 
@@ -189,7 +189,7 @@
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSMutableArray *templates = [NSMutableArray arrayWithCapacity:10];
-            for (Template *template in self.filesOwner.templatesController.arrangedObjects) {
+            for (Template *template in self.templatesController.arrangedObjects) {
                 [templates addObject:@{@"name":template.name, @"formatText":template.formatText}];
             }
             [NSKeyedArchiver archiveRootObject:templates toFile:panel.URL.path];
@@ -198,15 +198,15 @@
 }
 
 - (IBAction)duplicate:(id)sender {
-    if (self.filesOwner.templatesController.selectedObjects.count > 0) {
-        Template *selectedTemplate = self.filesOwner.templatesController.selectedObjects[0];
+    if (self.templatesController.selectedObjects.count > 0) {
+        Template *selectedTemplate = self.templatesController.selectedObjects[0];
         
         Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.managedObjectContext];
 
         template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
         template.formatText = selectedTemplate.formatText;
-        [self.filesOwner.templatesController rearrangeObjects];
-        [self.tableView scrollRowToVisible:self.filesOwner.templatesController.selectionIndex];
+        [self.templatesController rearrangeObjects];
+        [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
     }
 }
 
@@ -214,8 +214,8 @@
     Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.managedObjectContext];
     template.name = @"NEW Template";
     template.formatText = @"<div>$$$title$$$</div>";
-    [self.filesOwner.templatesController rearrangeObjects];
-    [self.tableView scrollRowToVisible:self.filesOwner.templatesController.selectionIndex];
+    [self.templatesController rearrangeObjects];
+    [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
     
 }
 

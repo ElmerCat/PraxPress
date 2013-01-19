@@ -7,10 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Document.h"
 #import "Asset.h"
+#import "Tag.h"
+
+@class Document;
 
 @interface PraxTransformers : NSObject
-+(void)load;
++(void)loadForDocument:(Document *)document;
 @end
 
 @interface PraxNumberIsZeroTransformer : NSValueTransformer
@@ -20,4 +24,10 @@
 @end
 
 @interface PraxAssetStringTransformer : NSValueTransformer
+@end
+
+@interface PraxAssetTagStringTransformer : NSValueTransformer {
+   Document *_document;
+}
+@property Document *document;
 @end

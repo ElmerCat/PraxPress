@@ -17,13 +17,18 @@
 #import "TemplateViewController.h"
 #import "AssetDetailController.h"
 
-@class Document;
 @class PostEditor;
 @class SoundCloudController;
 @class WordPressController;
 @class TemplateViewController;
 
-@interface BatchController : NSObject <NSPopoverDelegate>
+@interface BatchController : NSObject
+
+@property NSString *templateName;
+@property (unsafe_unretained) IBOutlet NSWindow *batchViewWindow;
+@property (weak) IBOutlet WebView *webView;
+@property (unsafe_unretained) IBOutlet NSTextView *codeTextView;
+
 
 @property (weak) IBOutlet Document *document;
 @property Asset *selectedAsset;
@@ -45,26 +50,14 @@
 @property (weak) IBOutlet NSTableView *batchAssetsTableView;
 @property (weak) IBOutlet NSTableView *assetsTableView;
 @property (weak) IBOutlet NSScrollView *assetsScrollView;
-//@property (weak) IBOutlet NSPopover *assetDetailPopover;
-
-//@property (weak) IBOutlet NSPopover *templatePopover;
-@property (unsafe_unretained) IBOutlet NSPanel *previewFrameWindow;
-
-- (NSArray *)itemsWithViewPosition:(int)value;
-- (NSArray *)itemsWithNonTemporaryViewPosition;
-- (NSArray *)itemsWithViewPositionGreaterThanOrEqualTo:(int)value;
-- (NSArray *)itemsWithViewPositionBetween:(int)lowValue and:(int)highValue;
-- (int)renumberViewPositionsOfItems:(NSArray *)array startingAt:(int)value;
-- (void)renumberViewPositions;
-- (NSArray *)itemsUsingFetchPredicate:(NSPredicate *)fetchPredicate;
 
 - (IBAction)clearBatch:(id)sender;
 
 
 - (NSPredicate *)changedAssetsFilterPredicate;
 
-- (IBAction)addAssetBatchButtonClicked:(id)sender;
-- (IBAction)removeAssetBatchButtonClicked:(id)sender;
+- (IBAction)addAssetsToBatch:(id)sender;
+- (IBAction)removeAssetsFromBatch:(id)sender;
 
 
 @end

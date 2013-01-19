@@ -14,14 +14,21 @@
 //#import <SoundCloudAPI/SCAPI.h>
 //#import <CocoaWordPressAPI/WPAPI.h>
 //#import "SoundCloudController.h"
+
 #import "PraxTransformers.h"
+#import "Asset.h"
 #import "Account.h"
 
+#import "TagController.h"
+
 @class SoundCloudController;
+@class TagController;
 
 @interface Document : NSPersistentDocument
 
+@property (strong) IBOutlet TagController *tagController;
 @property (weak) IBOutlet NSArrayController *templatesController;
+@property (weak) IBOutlet NSArrayController *tagsController;
 @property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;

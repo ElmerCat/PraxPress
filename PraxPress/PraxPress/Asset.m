@@ -22,6 +22,7 @@
 @dynamic image;
 @dynamic info_mode;
 @dynamic permalink;
+@dynamic playlistPosition;
 @dynamic purchase_title;
 @dynamic purchase_url;
 @dynamic sharing;
@@ -33,7 +34,9 @@
 @dynamic uri;
 @dynamic metadata;
 @dynamic playlistType;
+@dynamic trackList;
 @dynamic trackType;
+@dynamic tags;
 
 
 
@@ -63,6 +66,8 @@
         [self removeObserver:self forKeyPath:@"self.genre"];
         [self removeObserver:self forKeyPath:@"self.permalink"];
         [self removeObserver:self forKeyPath:@"self.tag_list"];
+        [self removeObserver:self forKeyPath:@"self.trackList"];
+        [self removeObserver:self forKeyPath:@"self.tags"];
         [self removeObserver:self forKeyPath:@"self.contents"];
         
     }
@@ -94,6 +99,8 @@
         [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
         [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
         [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.trackList" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObserver:self forKeyPath:@"self.tags" options:NSKeyValueObservingOptionNew context:NULL];
         [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
         
     }
@@ -108,6 +115,10 @@
     }
     else {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
+        if ([keyPath isEqualToString:@"self.tags"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetTagsChangedNotification" object:self];
+        }
+
     }
     
 }
@@ -245,6 +256,17 @@
         }
         else {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"playlist[playlist_type]"];
+            NSArray *tracks = [self.trackList componentsSeparatedByString:@","];
+            NSMutableString *playlistTracks = [NSMutableString stringWithString:@"["];
+            
+            int count = 0;
+            for (NSString *track in tracks) {
+                if (count > 0) [playlistTracks appendString:@","];
+                [playlistTracks appendFormat:@"%@", track];
+                count++;
+            }
+            [playlistTracks appendString:@"]"];
+            [parameters setObject:playlistTracks forKey:@"playlist[tracks]"];
        }
         sender.parameters = parameters;
         
@@ -282,7 +304,6 @@
     }
     
     self.uri = data[@"meta"][@"links"][@"site"];
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
     
 }
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
@@ -293,6 +314,8 @@
         if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[key] forKey:key];
     }
+    
+    
     NSDictionary *keys = @{@"date":@"created_at", @"contents":@"description"};
     for (NSString *key in keys) {
         if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
@@ -317,7 +340,6 @@
         }
     }
     
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
     
     if (data[@"artwork_url"] != [NSNull null]) {
         NSString *artwork_url = data[@"artwork_url"];
@@ -339,9 +361,11 @@
     NSError *error = nil;
     asset.associatedItems = nil;
     subItems = data[@"tracks"];
+    NSMutableString *trackList = [[NSMutableString alloc] init];
     for (NSDictionary *subItem in subItems) {
         NSLog(@"subItem asset_id: %@", subItem[@"id"]);
-        
+        if (trackList.length > 0) [trackList appendString:@","];
+        [trackList appendString:[subItem[@"id"] stringValue]];
         NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Track"];
         [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", subItem[@"id"]]];
         NSArray *matchingItems = [asset.managedObjectContext executeFetchRequest:request error:&error];
@@ -354,6 +378,7 @@
             [asset addAssociatedItemsObject:subAsset];
         }
     }
+    self.trackList = trackList.description;
 }
 
 + (NSString *)htmlStringForAsset:(Asset *)asset {

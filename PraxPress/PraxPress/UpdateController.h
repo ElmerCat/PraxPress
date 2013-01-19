@@ -9,8 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
 #import "Asset.h"
+#import "Tag.h"
 #import "Account.h"
 #import "BatchController.h"
+#import "TagController.h"
 #import "ServiceView.h"
 
 @class Document;
@@ -35,6 +37,8 @@
 @property (strong) Asset *targetAsset;
 
 @property (weak) IBOutlet Document *document;
+@property (weak) IBOutlet TagController *tagController;
+
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
 @property (weak) IBOutlet BatchController *batchController;

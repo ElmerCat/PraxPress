@@ -16,6 +16,7 @@
 
 @interface TemplateViewController : NSViewController
 
+@property BOOL awake;
 @property (weak) IBOutlet Document *filesOwner;
 @property (weak) IBOutlet NSPopover *popover;
 @property (weak) IBOutlet NSTableView *tableView;
@@ -28,7 +29,6 @@
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets;
 - (IBAction)show:(id)sender;
 - (IBAction)duplicate:(id)sender;
-- (IBAction)remove:(id)sender;
 - (IBAction)addTemplate:(id)sender;
 - (IBAction)exportTemplates:(id)sender;
 - (IBAction)importTemplates:(id)sender;
