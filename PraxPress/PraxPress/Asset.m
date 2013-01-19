@@ -240,7 +240,7 @@
     
     if (![self.account oauthReady:sender.document]) return nil; // not authorized yet
     NXOAuth2Request *request;
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] initWithCapacity:10];
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
 
     if ([self.account.accountType isEqualToString:@"SoundCloud"]) {
         sender.statusText = @"Updating SoundCloud Asset";
@@ -256,17 +256,9 @@
         }
         else {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"playlist[playlist_type]"];
+
             NSArray *tracks = [self.trackList componentsSeparatedByString:@","];
-            NSMutableString *playlistTracks = [NSMutableString stringWithString:@"["];
-            
-            int count = 0;
-            for (NSString *track in tracks) {
-                if (count > 0) [playlistTracks appendString:@","];
-                [playlistTracks appendFormat:@"%@", track];
-                count++;
-            }
-            [playlistTracks appendString:@"]"];
-            [parameters setObject:playlistTracks forKey:@"playlist[tracks]"];
+            [parameters setObject:tracks forKey:@"playlist[tracks][][id]"];
        }
         sender.parameters = parameters;
         
