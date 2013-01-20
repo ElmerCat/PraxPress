@@ -26,5 +26,6 @@
 - (IBAction)addAssociatedAssetsToBatch:(id)sender;
 - (IBAction)removeAssociatedAssetsFromBatch:(id)sender;
 - (IBAction)changePlaylistOrder:(id)sender;
+- (IBAction)setPlaylistTracksFromBatch:(id)sender;
 
 @end

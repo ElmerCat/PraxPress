@@ -18,6 +18,7 @@
 @class Document;
 @class PostEditor;
 @class BatchController;
+@class TagController;
 
 @interface UpdateController : NSObject
 
@@ -51,6 +52,8 @@
 - (IBAction)stop:(id)sender;
 - (IBAction)logout:(id)sender;
 - (void)reloadAsset:(Asset *)asset;
+- (void)uploadAsset:(Asset *)asset;
+
 - (IBAction)reloadFromServer:(id)sender;
 - (IBAction)uploadToServer:(id)sender;
 

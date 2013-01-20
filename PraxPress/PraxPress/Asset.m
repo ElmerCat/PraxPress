@@ -244,25 +244,57 @@
 
     if ([self.account.accountType isEqualToString:@"SoundCloud"]) {
         sender.statusText = @"Updating SoundCloud Asset";
-        sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
-        for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"sharing", @"genre", @"permalink"]) {
+
+        
+        for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"sharing", @"genre", @"permalink", @"tag_list"]) {
             
             NSString *asset_key = ([self.entity.name isEqualToString:@"Track"]) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
             NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
             [parameters setObject:value forKey:asset_key];
         }
+        
         if ([self.entity.name isEqualToString:@"Track"]) {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"track[track_type]"];
         }
         else {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"playlist[playlist_type]"];
-
+            
             NSArray *tracks = [self.trackList componentsSeparatedByString:@","];
             [parameters setObject:tracks forKey:@"playlist[tracks][][id]"];
-       }
-        sender.parameters = parameters;
+        }
         
-        request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"PUT" parameters:sender.parameters];
+        if (!self.asset_id) {
+            
+            if ([self.entity.name isEqualToString:@"Playlist"]) {
+
+                sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/playlists.json"]];
+                
+               
+                
+            }
+            else {
+                sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/tracks.json"]];
+                
+                
+            }
+
+            
+            sender.parameters = parameters;
+            
+            request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"POST" parameters:sender.parameters];
+            
+        }
+        
+        else {
+            
+            sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
+            sender.parameters = parameters;
+            
+            request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"PUT" parameters:sender.parameters];
+            
+        }
+        
+        
     }
     
     else if ([self.account.accountType isEqualToString:@"WordPress"]) {
@@ -299,6 +331,9 @@
     
 }
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
+    
+    if (!self.asset_id) self.asset_id = [NSNumber numberWithInt:[data[@"id"] intValue]];
+
     
     [self setValue:data forKey:@"metadata"];
     

@@ -112,6 +112,7 @@
     NSDictionary *keys = @{
     @"title":@"full_name",
     @"asset_id":@"id",
+    @"uri":@"uri",
     @"username":@"username",
     @"permalink":@"permalink",
     @"playlist_count":@"playlist_count",

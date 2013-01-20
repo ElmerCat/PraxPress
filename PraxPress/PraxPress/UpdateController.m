@@ -229,7 +229,7 @@
                                               self.busy = FALSE;
                                           }
                                           else {
-                                              NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, data, error);
+                                           //   NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, data, error);
                                               NSDictionary *item;
                                               if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
                                                   item = [NSJSONSerialization JSONObjectWithData:data options:0 error:0];
@@ -298,8 +298,39 @@
                                           }
                                           else {
                                               [[NSSound soundNamed:@"Connect"] play];
-
-                                              [self reloadAsset:asset];
+                                              
+                                              if ([asset.asset_id.stringValue isEqualToString:@"0"]) {
+                                                  
+/*                                                  NSString *stringX = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                  
+                                                  id itemX = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:0];
+                                                  NSError *error = nil;
+                                            //      NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, data, error);
+                                                  NSDictionary *item;
+                                                  if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
+                                                      item = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+                                                      NSLog(@"item: %@", item);
+                                                      [asset loadSoundCloudItemData:item];
+                                                      if ([asset.entity.name isEqualToString:@"Playlist"]) {
+                                                          [asset loadPlaylistsAsset:asset data:item];
+                                                      }
+                                                  }
+                                                  else if (([asset.type isEqualToString:@"post"]) || ([asset.type isEqualToString:@"page"])) {
+                                                      item = [NSJSONSerialization JSONObjectWithData:data options:0 error:0];
+                                                      NSLog(@"item: %@", item);
+                                                      [asset loadWordPressPostData:item];
+                                                  }
+                                                  [self.tagController loadAssetTags:asset];
+                                                  asset.sync_mode = [NSNumber numberWithBool:FALSE];
+  */                                                                                                  
+                                              }
+                                              
+                                              else {
+                                                  
+                                                  [self reloadAsset:asset];
+                                              }
+                                              
+                                               
                                           }
                                       }];
 }
@@ -592,6 +623,7 @@
                                                   [self.progressImageWell setImage:[asset loadSoundCloudItemData:item]];
                                                   [self.tagController loadAssetTags:asset];
 
+                                                  asset.sync_mode = [NSNumber numberWithBool:FALSE];
 
                                                   
                                                   //  if ([asset.entity.name isEqualToString:@"Playlist"]) {

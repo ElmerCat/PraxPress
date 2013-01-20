@@ -16,5 +16,6 @@
 @property (weak) IBOutlet Document *document;
 
 - (void)loadAssetTags:(Asset *)asset;
++ (void)setAssetTagList:(Asset *)asset;
 
 @end

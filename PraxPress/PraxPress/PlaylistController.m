@@ -155,7 +155,7 @@
     Asset *playlist = self.assetsController.arrangedObjects[self.assetsController.selectionIndex];
     if ([playlist.type isEqualToString:@"playlist"]) {
         
-        NSMutableArray *trackIDs = [NSMutableArray arrayWithCapacity:[self.associatedAssetsController.arrangedObjects count]];
+        NSMutableArray *trackIDs = [NSMutableArray array];
         for (Asset *asset in self.associatedAssetsController.arrangedObjects) {
             [trackIDs addObject:asset.asset_id.stringValue];
         }
@@ -163,9 +163,37 @@
         playlist.trackList = trackList;
     
     }
-
     
 }
+
+
+- (IBAction)setPlaylistTracksFromBatch:(id)sender {
+    
+    if (self.assetsController.selectionIndex != NSNotFound) {
+        Asset *playlist = self.assetsController.arrangedObjects[self.assetsController.selectionIndex];
+        if ([playlist.type isEqualToString:@"playlist"]) {
+            
+            NSMutableArray *trackIDs = [NSMutableArray array];
+            NSMutableSet *tracks = [NSMutableSet set];
+            int count = 0;
+            for (Asset *asset in self.batchAssetsController.arrangedObjects) {
+                if ([asset.entity.name isEqualToString:@"Track"]) {
+                    [tracks addObject:asset];
+                    asset.playlistPosition = [NSNumber numberWithInt:count];
+                    [trackIDs addObject:asset.asset_id.stringValue];
+                    count++;
+                }
+                
+            }
+            if (tracks.count) {
+                NSString *trackList = [trackIDs componentsJoinedByString:@","];
+                playlist.trackList = trackList;
+                playlist.associatedItems = tracks;
+            }
+        }
+    }
+}
+
 
 - (IBAction)addAssociatedAssetsToBatch:(id)sender {
     for (Asset *asset in self.associatedAssetsController.arrangedObjects) {

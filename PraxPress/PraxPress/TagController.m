@@ -56,6 +56,21 @@
     
 }
 
+
+
++ (void)setAssetTagList:(Asset *)asset {
+    
+    NSMutableArray *tags = [NSMutableArray array];
+    
+    for (Tag *tag in asset.tags) {
+        [tags addObject:tag.name];
+    }
+    asset.tag_list = [TagController tagStringFromArray:tags];
+    
+}
+
+
+
 + (NSArray *)arrayFromTagString:(NSString *)string {
     
     NSScanner *scanner = [NSScanner scannerWithString:string];
