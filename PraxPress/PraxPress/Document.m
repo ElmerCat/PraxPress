@@ -31,20 +31,12 @@
     [moc processPendingChanges];
     [[moc undoManager] disableUndoRegistration];
     
-    NSManagedObject *source = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
-    [source setValue:@"Services" forKey:@"name"];
-    
     Account *account;
-    NSManagedObject *service;
     
     for (NSString *name in @[@"WordPress", @"SoundCloud", @"YouTube", @"Flickr"]) {
         account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
         account.accountType = name;
         
-        service = [NSEntityDescription insertNewObjectForEntityForName:@"Service" inManagedObjectContext:moc];
-        [service setValue:name forKey:@"name"];
-        [service setValue:account forKey:@"account"];
-        [service setValue:source forKey:@"parent"];
     }
     
     [moc processPendingChanges];
@@ -150,6 +142,57 @@
 + (BOOL)autosavesInPlace
 {
     return YES;
+}
+
+-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem {
+    NSLog(@"validateToolbarItem: %@", toolbarItem);
+    
+    BOOL enable = NO;
+    if ([[toolbarItem itemIdentifier] isEqual:NSToolbarShowColorsItemIdentifier]) {
+        // We will return YES (enable the save item)
+        // only when the document is dirty and needs saving
+        enable = [self isDocumentEdited];
+    } else if ([[toolbarItem itemIdentifier] isEqual:NSToolbarPrintItemIdentifier]) {
+        // always enable print for this window
+        enable = NO;
+    }
+    return enable;
+}
+
+- (IBAction)selectAccount:(id)sender {
+    NSLog(@"selectAccount sender.tag: %ld", [(NSMenuItem *)sender tag]);
+    NSString *accountType;
+    NSInteger selectionIndex = [(NSMenuItem *)sender tag];
+    switch (selectionIndex) {
+        case 0:
+            accountType = @"SoundCloud";
+            break;
+        case 1:
+            accountType = @"WordPress";
+            break;
+        case 2:
+            accountType = @"YouTube";
+            break;
+        case 3:
+            accountType = @"Flickr";
+            break;
+        default:
+            return;
+            break;
+    }
+    
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Account"];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"accountType", accountType]];
+    NSArray *matchingItems = [self.managedObjectContext executeFetchRequest:request error:nil];
+    if ([matchingItems count] > 0) {
+        Account *account = matchingItems[0];
+        [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
+        [(AccountViewController *)[self.accountViewPopover contentViewController] setSelectionIndex:selectionIndex];
+        [self.accountViewPopover showRelativeToRect:[[self.accountsToolbarButton view] bounds] ofView:[self.accountsToolbarButton view] preferredEdge:NSMaxXEdge];
+
+    }
+
+    
 }
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return TRUE;}

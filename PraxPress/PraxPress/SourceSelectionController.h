@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Document.h"
-#import "Source.h"
-#import "ServiceView.h"
 #import "AccountViewController.h"
 
 @interface SourceSelectionController : NSViewController

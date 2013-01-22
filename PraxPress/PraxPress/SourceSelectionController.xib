@@ -47,7 +47,7 @@
 			<object class="NSArrayController" id="905322234">
 				<bool key="NSAutomaticallyPreparesContent">YES</bool>
 				<object class="_NSManagedProxy" key="_NSManagedProxy">
-					<string key="NSEntityName">Service</string>
+					<string key="NSEntityName">Account</string>
 				</object>
 				<bool key="_NSIsUsingManagedProxy">YES</bool>
 				<bool key="NSFilterRestrictsInsertion">YES</bool>
@@ -377,13 +377,13 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: objectValue.account.accountType</string>
+						<string key="label">value: objectValue.accountType</string>
 						<object class="NSTextField" key="source" id="448434128">
 							<reference key="NSNextResponder" ref="986394641"/>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{0, 45}, {92, 17}}</string>
 							<reference key="NSSuperview" ref="986394641"/>
-							<reference key="NSNextKeyView" ref="434337080"/>
+							<reference key="NSNextKeyView" ref="273097453"/>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="775368308">
@@ -487,13 +487,13 @@
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="448434128"/>
 							<reference key="NSDestination" ref="986394641"/>
-							<string key="NSLabel">value: objectValue.account.accountType</string>
+							<string key="NSLabel">value: objectValue.accountType</string>
 							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">objectValue.account.accountType</string>
+							<string key="NSKeyPath">objectValue.accountType</string>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">170</int>
+					<int key="connectionID">289</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -517,19 +517,19 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: objectValue.account.username</string>
+						<string key="label">value: objectValue.username</string>
 						<reference key="source" ref="434337080"/>
 						<reference key="destination" ref="986394641"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="434337080"/>
 							<reference key="NSDestination" ref="986394641"/>
-							<string key="NSLabel">value: objectValue.account.username</string>
+							<string key="NSLabel">value: objectValue.username</string>
 							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">objectValue.account.username</string>
+							<string key="NSKeyPath">objectValue.username</string>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">162</int>
+					<int key="connectionID">290</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -1154,7 +1154,6 @@
 				<string key="108.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="114.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="115.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="124.CustomClassName">ServiceView</string>
 				<array class="NSMutableArray" key="124.IBNSViewMetadataConstraints">
 					<reference ref="816228358"/>
 					<reference ref="670911050"/>
@@ -1219,7 +1218,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">288</int>
+			<int key="maxID">290</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1227,23 +1226,78 @@
 					<string key="className">Document</string>
 					<string key="superclassName">NSPersistentDocument</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="assetTableView">NSTableView</string>
+						<string key="assetsController">NSArrayController</string>
+						<string key="assetsTableView">NSTableView</string>
+						<string key="associatedAssetsController">NSArrayController</string>
+						<string key="associatedAssetsTableView">NSTableView</string>
 						<string key="authorizationWindow">NSWindow</string>
+						<string key="batchAssetsController">NSArrayController</string>
+						<string key="batchAssetsTableView">NSTableView</string>
+						<string key="changedAssetsController">NSArrayController</string>
+						<string key="changedAssetsTableView">NSTableView</string>
 						<string key="sourceOutlineView">NSOutlineView</string>
+						<string key="tagController">TagController</string>
+						<string key="tagsController">NSArrayController</string>
+						<string key="templatesController">NSArrayController</string>
+						<string key="updateController">UpdateController</string>
 						<string key="webView">WebView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="assetTableView">
-							<string key="name">assetTableView</string>
+						<object class="IBToOneOutletInfo" key="assetsController">
+							<string key="name">assetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="assetsTableView">
+							<string key="name">assetsTableView</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="associatedAssetsController">
+							<string key="name">associatedAssetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="associatedAssetsTableView">
+							<string key="name">associatedAssetsTableView</string>
 							<string key="candidateClassName">NSTableView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="authorizationWindow">
 							<string key="name">authorizationWindow</string>
 							<string key="candidateClassName">NSWindow</string>
 						</object>
+						<object class="IBToOneOutletInfo" key="batchAssetsController">
+							<string key="name">batchAssetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="batchAssetsTableView">
+							<string key="name">batchAssetsTableView</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="changedAssetsController">
+							<string key="name">changedAssetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="changedAssetsTableView">
+							<string key="name">changedAssetsTableView</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
 						<object class="IBToOneOutletInfo" key="sourceOutlineView">
 							<string key="name">sourceOutlineView</string>
 							<string key="candidateClassName">NSOutlineView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="tagController">
+							<string key="name">tagController</string>
+							<string key="candidateClassName">TagController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="tagsController">
+							<string key="name">tagsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="templatesController">
+							<string key="name">templatesController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="updateController">
+							<string key="name">updateController</string>
+							<string key="candidateClassName">UpdateController</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="webView">
 							<string key="name">webView</string>
@@ -1261,47 +1315,6 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/NSLayoutConstraint.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">ServiceView</string>
-					<string key="superclassName">NSTableCellView</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="praxButtonClicked:">id</string>
-						<string key="setSearchCategoryFrom:">NSMenuItem</string>
-						<string key="updateFilter:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="praxButtonClicked:">
-							<string key="name">praxButtonClicked:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="setSearchCategoryFrom:">
-							<string key="name">setSearchCategoryFrom:</string>
-							<string key="candidateClassName">NSMenuItem</string>
-						</object>
-						<object class="IBActionInfo" key="updateFilter:">
-							<string key="name">updateFilter:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="searchField">NSSearchField</string>
-						<string key="sourceViewController">SourceViewController</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="searchField">
-							<string key="name">searchField</string>
-							<string key="candidateClassName">NSSearchField</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="sourceViewController">
-							<string key="name">sourceViewController</string>
-							<string key="candidateClassName">SourceViewController</string>
-						</object>
-					</dictionary>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/ServiceView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -1363,6 +1376,96 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/SourceSelectionController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">TagController</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">document</string>
+						<string key="NS.object.0">Document</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">document</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">document</string>
+							<string key="candidateClassName">Document</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/TagController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">UpdateController</string>
+					<string key="superclassName">NSObject</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="reloadChangedItems:">id</string>
+						<string key="stop:">id</string>
+						<string key="uploadChangedItems:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="reloadChangedItems:">
+							<string key="name">reloadChangedItems:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="stop:">
+							<string key="name">stop:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="uploadChangedItems:">
+							<string key="name">uploadChangedItems:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="assetsController">NSArrayController</string>
+						<string key="changedAssetsController">NSArrayController</string>
+						<string key="changedAssetsTableView">NSTableView</string>
+						<string key="document">Document</string>
+						<string key="progressBar">NSProgressIndicator</string>
+						<string key="progressImageWell">NSImageView</string>
+						<string key="synchronizePanel">NSPanel</string>
+						<string key="tagController">TagController</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="assetsController">
+							<string key="name">assetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="changedAssetsController">
+							<string key="name">changedAssetsController</string>
+							<string key="candidateClassName">NSArrayController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="changedAssetsTableView">
+							<string key="name">changedAssetsTableView</string>
+							<string key="candidateClassName">NSTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="document">
+							<string key="name">document</string>
+							<string key="candidateClassName">Document</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="progressBar">
+							<string key="name">progressBar</string>
+							<string key="candidateClassName">NSProgressIndicator</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="progressImageWell">
+							<string key="name">progressImageWell</string>
+							<string key="candidateClassName">NSImageView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="synchronizePanel">
+							<string key="name">synchronizePanel</string>
+							<string key="candidateClassName">NSPanel</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="tagController">
+							<string key="name">tagController</string>
+							<string key="candidateClassName">TagController</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/UpdateController.h</string>
 					</object>
 				</object>
 			</array>

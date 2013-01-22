@@ -24,18 +24,29 @@
     return self;
 }
 
-- (IBAction)logoutButtonClicked:(id)sender {
-    [self.updateController logoutAccount:self.representedObject];
-    [self.accountViewPopover performClose:self];
+
+- (void)awakeFromNib {
+    
+    if (!self.awake) {
+        self.awake = TRUE;
+        
+        NSLog(@"AccountViewController awakeFromNib");
+        
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"NSPopoverWillShowNotification" object:self.popover queue:nil usingBlock:^(NSNotification *aNotification){
+            NSLog(@"AccountViewController NSPopoverWillShowNotification");
+            [self.tabView selectTabViewItemAtIndex:self.selectionIndex];
+            
+        }];
+    }
+}
+
+- (IBAction)showMetadataPopover:(id)sender {
+    
+    [self.document.assetMetadataPopover showPopoverRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge withDictionary:[(Asset *)self.representedObject metadata]];
     
 }
 
-- (IBAction)refreshButtonClicked:(id)sender {
-    [self.synchronizePanel makeKeyAndOrderFront:self];
-    [self.updateController refreshAccountData:self.representedObject];
-    [self.accountViewPopover performClose:self];
-
-}
 
 
 @end

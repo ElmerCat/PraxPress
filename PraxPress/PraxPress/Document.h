@@ -9,26 +9,24 @@
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
 #import <Foundation/NSError.h>
-
 #import <OAuth2Client/NXOAuth2.h>
-//#import <SoundCloudAPI/SCAPI.h>
-//#import <CocoaWordPressAPI/WPAPI.h>
-//#import "SoundCloudController.h"
 
 #import "PraxTransformers.h"
 #import "Asset.h"
 #import "Account.h"
-
 #import "TagController.h"
+#import "AccountViewController.h"
 #import "UpdateController.h"
-
-@class SoundCloudController;
-@class TagController;
+#import "AssetMetadataPopover.h"
+#import "TemplateViewController.h"
 
 @interface Document : NSPersistentDocument
 
 @property (strong) IBOutlet TagController *tagController;
 @property (strong) IBOutlet UpdateController *updateController;
+@property (weak) IBOutlet NSToolbarItem *accountsToolbarButton;
+@property (weak) IBOutlet NSPopover *accountViewPopover;
+@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
 
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
@@ -41,8 +39,6 @@
 @property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;
 
-@property (weak) IBOutlet NSOutlineView *sourceOutlineView;
-
 @property (weak) IBOutlet NSTableView *assetsTableView;
 @property (weak) IBOutlet NSTableView *batchAssetsTableView;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
@@ -50,6 +46,10 @@
 
 @property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;
+
+-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem;
+- (IBAction)selectAccount:(id)sender;
+
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;

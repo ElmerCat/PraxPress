@@ -14,6 +14,17 @@
 @class UpdateController;
 @interface Asset : NSManagedObject
 
+enum {
+    PRAXReloadOptionAccount = 1,
+    PRAXReloadOptionSite,
+    PRAXReloadOptionTracks,
+    PRAXReloadOptionPlaylists,
+    PRAXReloadOptionPosts
+};
+typedef NSUInteger PRAXReloadOption;
+
+
+
 @property BOOL awake;
 @property (nonatomic, retain) NSString * artwork_url;
 @property (nonatomic, retain) NSNumber * asset_id;
@@ -35,6 +46,7 @@
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) NSString * sub_type;
 @property (nonatomic, retain) NSString * uri;
+@property (nonatomic, retain) NSNumber * updateOption;
 @property (nonatomic, retain) NSMutableDictionary *metadata;
 @property (nonatomic, retain) NSString * playlistType;
 @property (nonatomic, retain) NSString * trackList;
@@ -42,12 +54,23 @@
 
 @property (nonatomic, retain) Account *account;
 
--(NXOAuth2Request *)updateRequest:(UpdateController *)sender;
+@property (readonly) BOOL isSoundCloudAsset;
+@property (readonly) BOOL isTrack;
+@property (readonly) BOOL isPlaylist;
+@property (readonly) BOOL isWordPressAsset;
+@property (readonly) BOOL isPage;
+@property (readonly) BOOL isPost;
+@property (readonly) BOOL isAccount;
+
+
+
+-(NXOAuth2Request *)requestForUploadController:(UpdateController *)controller;
+-(NXOAuth2Request *)requestForReloadController:(UpdateController *)controller option:(PRAXReloadOption)option;
+-(BOOL)handleReloadResponseData:(NSData *)responseData forController:(UpdateController *)controller;
 
 -(void)loadWordPressPostData:(NSDictionary *)data;
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
-+(NSString *)htmlStringForAsset:(Asset *)asset;
 
 @property (nonatomic, retain) NSSet *tags;
 @property (nonatomic, retain) NSSet *associatedItems;

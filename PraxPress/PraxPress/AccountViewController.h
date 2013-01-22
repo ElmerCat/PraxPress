@@ -6,16 +6,17 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import "UpdateController.h"
+#import "Document.h"
 
 @interface AccountViewController : NSViewController
 
-- (IBAction)refreshButtonClicked:(id)sender;
-- (IBAction)logoutButtonClicked:(id)sender;
+@property BOOL awake;
+@property NSInteger selectionIndex;
+@property (weak) IBOutlet Document *document;
+@property (weak) IBOutlet NSPopover *popover;
+@property (weak) IBOutlet NSTabView *tabView;
 
-@property (weak) IBOutlet UpdateController *updateController;
-@property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
-@property (weak) IBOutlet NSPopover *accountViewPopover;
+- (IBAction)showMetadataPopover:(id)sender;
+
 
 @end

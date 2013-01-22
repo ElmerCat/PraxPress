@@ -18,6 +18,7 @@
 @dynamic username;
 @dynamic followers_count;
 @dynamic followings_count;
+@dynamic itemCount;
 @dynamic playlist_count;
 @dynamic track_count;
 @dynamic update_offset;
@@ -55,19 +56,6 @@
 }
 
 
--(void)loadWordPressSiteData:(NSDictionary *)data {
-    NSLog(@"loadWordPressSiteData: %@", data);
-    
-    NSDictionary *keys = @{
-    @"track_count":@"post_count",
-    @"title":@"description"};
-    for (NSString *key in keys) {
-        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
-        else [self setValue:data[[keys objectForKey:key]] forKey:key];
-    }
-    
-}
-
 -(void)loadWordPressPageCount:(NSDictionary *)data {
     NSLog(@"loadWordPressPageCount: %@", data);
     
@@ -82,13 +70,18 @@
 
 -(void)loadWordPressAccountData:(NSDictionary *)data {
     NSLog(@"loadWordPressAccountData: %@", data);
+    [self setValue:data forKey:@"metadata"];
+    NSDictionary *meta = data[@"meta"];
+    self.uri = meta[@"links"][@"site"];
     
     NSDictionary *keys = @{
     @"user_id":@"ID",
+    @"username":@"username",
     @"asset_id":@"primary_blog",
-    @"title":@"description",
-    @"username":@"display_name",
-    @"permalink":@"username"};
+    @"city":@"email",
+    @"title":@"display_name",
+    @"country":@"profile_URL",
+    @"purchase_title":@"display_name"};
     for (NSString *key in keys) {
         if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[[keys objectForKey:key]] forKey:key];
@@ -104,10 +97,29 @@
         NSURL *url = [NSURL URLWithString:artwork_url];
         NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
         self.image =  [NSArchiver archivedDataWithRootObject:image];
-         
     }
 }
+-(void)loadWordPressSiteData:(NSDictionary *)data {
+    NSLog(@"loadWordPressSiteData: %@", data);
+
+    NSMutableDictionary *metadata = [NSMutableDictionary dictionaryWithDictionary:self.metadata];
+    [metadata addEntriesFromDictionary:data];
+    [self setValue:metadata forKey:@"metadata"];
+    
+    NSDictionary *keys = @{
+    @"itemCount":@"post_count",
+    @"contents":@"description",
+    @"purchase_url":@"URL",
+    @"purchase_title":@"name" };
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
+}
 -(void)loadSoundCloudAccountData:(NSDictionary *)data {
+    
+    [self setValue:data forKey:@"metadata"];
     
     NSDictionary *keys = @{
     @"title":@"full_name",

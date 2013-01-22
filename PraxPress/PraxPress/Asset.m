@@ -32,16 +32,54 @@
 @dynamic type;
 @dynamic sub_type;
 @dynamic uri;
+@dynamic updateOption;
 @dynamic metadata;
 @dynamic playlistType;
 @dynamic trackList;
 @dynamic trackType;
 @dynamic tags;
 
-
-
 @dynamic account;
 @dynamic associatedItems;
+
+#pragma mark Accessors
+
+-(NSInteger)reloadOptionAccount {return 1;}
+-(NSInteger)reloadOptionSite {return 2;}
+-(NSInteger)reloadOptionTracks {return 3;}
+-(NSInteger)reloadOptionPlaylists {return 4;}
+-(NSInteger)reloadOptionPosts {return 5;}
+
+
+-(BOOL)isSoundCloudAsset {
+    if ((self.isTrack)||(self.isPlaylist)) return YES;
+    else return NO;
+}
+-(BOOL)isTrack {
+    if ([self.entity.name isEqualToString:@"Track"]) return YES;
+    else return NO;
+}
+-(BOOL)isPlaylist {
+    if ([self.entity.name isEqualToString:@"Playlist"]) return YES;
+    else return NO;
+}
+-(BOOL)isWordPressAsset {
+    if ([self.entity.name isEqualToString:@"Post"]) return YES;
+    else return NO;
+}
+-(BOOL)isPage {
+    if (([self.type isEqualToString:@"page"])) return YES;
+    else return NO;
+}
+-(BOOL)isPost {
+    if (([self.type isEqualToString:@"post"])) return YES;
+    else return NO;
+}
+-(BOOL)isAccount {
+    if ([self.entity.name isEqualToString:@"Account"]) return YES;
+    else return NO;
+}
+
 
 - (id)init {
     self = [super init];
@@ -124,202 +162,345 @@
 }
 
 
-/*
 
-- (BOOL)validateValue:(id *)value forKey:(NSString *)key error:(NSError **)error {
-    BOOL result = [super validateValue:value forKey:key error:error];
+-(NXOAuth2Request *)requestForReloadController:(UpdateController *)controller option:(PRAXReloadOption)option {  // return a request, configured as required for account type
     
-    NSLog(@"Asset validateValue:%@ forKey:%@ error:%@", *value, key, *error);
+    controller.parameters = [NSDictionary dictionary];
+    self.updateOption = [NSNumber numberWithUnsignedInteger:option];
     
+    if ([self.entity.name isEqualToString:@"Account"]) {
+        
+        if (![(Account *)self oauthReady:controller.document]) return nil;
+        
+
+        if ([[(Account *)self accountType] isEqualToString:@"SoundCloud"]) {
+            if (option == PRAXReloadOptionAccount) {
+                controller.statusText = @"Downloading SoundCloud User Profile";
+                controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me.json"];
+            }
+            else if (option == PRAXReloadOptionTracks) {
+                controller.statusText = @"Downloading SoundCloud Tracks";
+                controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/tracks.json"];
+                controller.parameters = @{@"limit":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
+                controller.targetCount = [[(Account *)self track_count] integerValue];
+                
+ 
+            }
+            else if (option == PRAXReloadOptionPlaylists) {
+                controller.statusText = @"Downloading SoundCloud Playlists";
+                controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/playlists.json"];
+                controller.parameters = @{@"limit":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
+                controller.targetCount = [[(Account *)self playlist_count] integerValue];
+                
+            }
+            else return nil;
+
+            
+            
+        }
+        else if ([[(Account *)self accountType] isEqualToString:@"WordPress"]) {
+            if (option == PRAXReloadOptionAccount) {
+                controller.statusText = @"Downloading WordPress User Profile";
+                controller.resource = [NSURL URLWithString:@"https://public-api.wordpress.com/rest/v1/me"];
+            }
+            else if (option == PRAXReloadOptionSite) {
+                controller.statusText = @"Downloading WordPress SiteData";
+                controller.resource = [NSURL URLWithString:self.uri];
+            }
+            else if (option == PRAXReloadOptionPosts) {
+                controller.statusText = @"Downloading WordPress Posts";
+                controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/", self.uri]];
+                controller.parameters = @{@"status":@"any", @"type":@"any", @"context":@"edit", @"number":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
+                controller.targetCount = [[(Account *)self itemCount] integerValue];
+            }
+            else return nil;
+        }
+        
+        else if ([self.account.accountType isEqualToString:@"Flickr"]) {
+            controller.statusText = @"Downloading Flickr User Profile";
+            controller.resource = [NSURL URLWithString:@"https://public-api.Flickr.com/rest/v1/me"];
+        }
+        
+        else if ([self.account.accountType isEqualToString:@"YouTube"]) {
+            controller.statusText = @"Downloading YouTube User Profile";
+            controller.resource = [NSURL URLWithString:@"https://public-api.YouTube.com/rest/v1/me"];
+        }
+        else return nil;
+        
+        NXOAuth2Request *request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"GET" parameters:controller.parameters];
+        request.account = [(Account *)self oauthAccount];
+        if (!request.account) return nil;
+        else return request;
+    }
+    else {
+      
+        if (![self.account oauthReady:controller.document]) return nil;
+        
+        
+        if (self.isSoundCloudAsset) {
+            controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
+            if (self.isTrack) controller.statusText = [NSString stringWithFormat:@"Downloading SoundCloud Track ---- %@", self.title];
+            else controller.statusText = [NSString stringWithFormat:@"Downloading SoundCloud Playlist ---- %@", self.title];
+         }
+        
+        else if (self.isWordPressAsset) {
+            controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
+            controller.parameters = @{@"context":@"edit"};
+            if (self.isPost) controller.statusText = [NSString stringWithFormat:@"Downloading WordPress Post ---- %@", self.title];
+            else controller.statusText = [NSString stringWithFormat:@"Downloading WordPress Page ---- %@", self.title];
+        }
+        else return nil;
+        
+        NXOAuth2Request *request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"GET" parameters:controller.parameters];
+        request.account = self.account.oauthAccount;
+        if (!request.account) return nil;
+        else return request;
+        
+    }
     
-    return result;
-    
+
 }
 
 
-- (BOOL)validateForUpdate:(NSError **)error {
-    BOOL result = [super validateForUpdate:error];
 
-    NSLog(@"Asset validateForUpdate");
+-(NXOAuth2Request *)requestForUploadController:(UpdateController *)controller {  // return a request, configured as required for account type
     
     
-    return result;
-}
-
-- (BOOL)validateSharing:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateSharing %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validateSub_type:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateSub_type %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validateTitle:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateTitle %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validateGenre:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateGenre %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validatePermalink:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validatePermalink %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validatePurchase_title:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateTitle %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validatePurchase_url:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateTitle %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validateTag_list:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateTag_list %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (BOOL)validateContents:(id *)value error:(NSError **)error {
-    
-    NSLog(@"Asset validateContents %@", *value);
-    [self setAssetChanged:self];
-    
-    
-    return YES;
-}
-
-- (void)setAssetChanged:(Asset *)asset {
-    
-    asset.sync_mode = [NSNumber numberWithBool:TRUE];
-//    [self.changedAssetsController rearrangeObjects];
-    
-} */
-
-
-
--(NXOAuth2Request *)updateRequest:(UpdateController *)sender {  // return a request, configured as required for account type
-    
-    if (![self.account oauthReady:sender.document]) return nil; // not authorized yet
+    if (![self.account oauthReady:controller.document]) return nil; // not authorized yet
     NXOAuth2Request *request;
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
 
-    if ([self.account.accountType isEqualToString:@"SoundCloud"]) {
-        sender.statusText = @"Updating SoundCloud Asset";
-
-        
+    controller.statusText = [NSString stringWithFormat:@"Uploading %@ Asset %@", self.account.accountType, self.permalink];
+    request.account = self.account.oauthAccount;
+    
+    if (self.isSoundCloudAsset) {
+       
         for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"sharing", @"genre", @"permalink", @"tag_list"]) {
             
-            NSString *asset_key = ([self.entity.name isEqualToString:@"Track"]) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
+            NSString *asset_key = (self.isTrack) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
             NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
             [parameters setObject:value forKey:asset_key];
         }
         
-        if ([self.entity.name isEqualToString:@"Track"]) {
+        if (self.isTrack) {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"track[track_type]"];
+            controller.statusText = [NSString stringWithFormat:@"Uploading SoundCloud Track ---- %@", self.title];
         }
         else {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"playlist[playlist_type]"];
             
             NSArray *tracks = [self.trackList componentsSeparatedByString:@","];
             [parameters setObject:tracks forKey:@"playlist[tracks][][id]"];
+            controller.statusText = [NSString stringWithFormat:@"Uploading SoundCloud Playlist ---- %@", self.title];
         }
         
-        if (!self.asset_id) {
-            
-            if ([self.entity.name isEqualToString:@"Playlist"]) {
-
-                sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/playlists.json"]];
-                
-               
+        if (!self.asset_id) {  // uploading a new Asset
+            if (self.isPlaylist) {
+                controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/playlists.json"]];
                 
             }
             else {
-                sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/tracks.json"]];
-                
+                controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/me/tracks.json"]];
                 
             }
-
-            
-            sender.parameters = parameters;
-            
-            request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"POST" parameters:sender.parameters];
-            
+            controller.parameters = parameters;
+            request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"POST" parameters:controller.parameters];
         }
         
         else {
-            
-            sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
-            sender.parameters = parameters;
-            
-            request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"PUT" parameters:sender.parameters];
-            
+            controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
+            controller.parameters = parameters;
+            request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"PUT" parameters:controller.parameters];
         }
-        
-        
     }
     
-    else if ([self.account.accountType isEqualToString:@"WordPress"]) {
-        sender.statusText = @"Updating WordPress Asset";
-        sender.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
+    else if (self.isWordPressAsset) {
+
         
         [parameters setObject:self.title forKey:@"title"];
         [parameters setObject:self.contents forKey:@"content"];
         
-        sender.parameters = parameters;
-        request = [[NXOAuth2Request alloc] initWithResource:sender.resource method:@"POST" parameters:sender.parameters];
+        
+        controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
+        controller.parameters = parameters;
+        if (self.isPost) controller.statusText = [NSString stringWithFormat:@"Uploading WordPress Post ---- %@", self.title];
+        else controller.statusText = [NSString stringWithFormat:@"Uploading WordPress Page ---- %@", self.title];
+        request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"POST" parameters:controller.parameters];
         
     }
     
-    else return nil;  // invalid account type
-    
-    sender.account = self.account;
-    request.account = self.account.oauthAccount;
+    else return nil;  // invalid Asset type
     
     return request;
 
 }
 
+-(BOOL)handleReloadResponseData:(NSData *)responseData forController:(UpdateController *)controller {
+    
+    
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:0];
+    NSLog(@"data: %@", data);
+    
+ 
+    if ([self.entity.name isEqualToString:@"Account"]) {
+
+        if ([[(Account *)self accountType] isEqualToString:@"SoundCloud"]) {
+            
+            if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionAccount) {
+                [(Account *)self loadSoundCloudAccountData:data];
+                if (controller.reloadAll) {
+                    [controller reloadAsset:self option:PRAXReloadOptionTracks];
+                }
+                else [controller reset];
+            }
+
+            else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionTracks) {
+                Asset *asset;
+                for (NSDictionary *item in data) {
+                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Track"];
+                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"id"]]];
+                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
+                    if ([matchingItems count] < 1) {
+                        asset = [NSEntityDescription insertNewObjectForEntityForName:@"Track" inManagedObjectContext:controller.document.managedObjectContext];
+                        asset.asset_id = [NSNumber numberWithInt:[item[@"id"] intValue]];
+                        asset.batchPosition = [NSNumber numberWithInt:-1];
+                    }
+                    else asset = matchingItems[0];
+                    asset.account = (Account *)self;
+                    
+                    controller.determinate = YES;
+                    controller.updateCount = controller.updateCount + 1;
+                    [asset loadSoundCloudItemData:item];
+                    [controller.document.tagController loadAssetTags:asset];
+                    asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                    
+                }
+                
+                if (controller.updateCount < controller.targetCount) {
+                    [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
+                }
+                else if (controller.reloadAll) {
+                    controller.updateCount = 0;
+                    controller.determinate = NO;
+                    [controller reloadAsset:self option:PRAXReloadOptionPlaylists];
+                }
+                else [controller reset];
+                
+            }
+            else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionPlaylists) {
+                
+                Asset *asset;
+                for (NSDictionary *item in data) {
+                    
+                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Playlist"];
+                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"id"]]];
+                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
+                    if ([matchingItems count] < 1) {
+                        asset = [NSEntityDescription insertNewObjectForEntityForName:@"Playlist" inManagedObjectContext:controller.document.managedObjectContext];
+                        asset.asset_id = [NSNumber numberWithInt:[item[@"id"] intValue]];
+                        asset.batchPosition = [NSNumber numberWithInt:-1];
+                        
+                    }
+                    else asset = matchingItems[0];
+                    asset.account = self.account;
+                    
+                    controller.determinate = YES;
+                    controller.updateCount = controller.updateCount + 1;
+                    [asset loadSoundCloudItemData:item];
+                    [asset loadPlaylistsAsset:asset data:item];
+                    [controller.tagController loadAssetTags:asset];
+                    asset.sync_mode = [NSNumber numberWithBool:FALSE];
+
+                }
+                if (controller.updateCount < controller.targetCount) {
+                    [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
+                }
+                else [controller reset];
+            }
+            else return NO; // invalid option
+        }
+
+        
+        else if ([[(Account *)self accountType] isEqualToString:@"WordPress"]) {
+            
+            if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionAccount) {
+                [(Account *)self loadWordPressAccountData:data];
+                if (controller.reloadAll) {
+                    [controller reloadAsset:self option:PRAXReloadOptionSite];
+                }
+                else [controller reset];
+            }
+            else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionSite) {
+                [(Account *)self loadWordPressSiteData:data];
+                if (controller.reloadAll) {
+                    [controller reloadAsset:self option:PRAXReloadOptionPosts];
+                }
+                else [controller reset];
+            }
+            else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionPosts) {
+                Asset *asset;
+                for (NSDictionary *item in data[@"posts"]) {
+                    
+                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
+                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"ID"]]];
+                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
+                    if ([matchingItems count] < 1) {
+                        asset = [NSEntityDescription insertNewObjectForEntityForName:@"Post" inManagedObjectContext:controller.document.managedObjectContext];
+                        asset.asset_id = [NSNumber numberWithInt:[item[@"ID"] intValue]];
+                        asset.batchPosition = [NSNumber numberWithInt:-1];
+                    }
+                    else asset = matchingItems[0];
+                    asset.account = (Account *)self;
+                    
+                    controller.determinate = YES;
+                    controller.updateCount = controller.updateCount + 1;
+                    [asset loadWordPressPostData:item];
+                    [controller.document.tagController loadAssetTags:asset];
+                    asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                    
+                }
+                
+                if (controller.updateCount < controller.targetCount) {
+                    [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
+                }
+                else [controller reset];
+            }
+            else return NO; // invalid option
+        }
+    }
+    else {
+        if (self.isSoundCloudAsset) {
+            [self loadSoundCloudItemData:data];
+            if (self.isPlaylist) [self loadPlaylistsAsset:self data:data];
+        }
+        else if (self.isWordPressAsset)[self loadWordPressPostData:data];
+        else return NO; // invalid option
+        
+        [controller.tagController loadAssetTags:self];
+        self.sync_mode = [NSNumber numberWithBool:FALSE];
+        
+        if (controller.reloadAll) {
+            controller.updateCount += 1;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [controller reloadChangedAssets];
+            });
+        }
+        else if (controller.uploadAll) {
+            controller.updateCount += 1;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [controller uploadChangedAssets];
+            });
+        }
+        else {
+            [controller reset];
+        }
+    }
+    return YES;
+    
+}
 
 -(void)loadWordPressPostData:(NSDictionary *)data {
+    [self setValue:data forKey:@"metadata"];
     
     NSDictionary *keys = @{@"title":@"title", @"purchase_url":@"URL", @"type":@"type", @"permalink":@"slug", @"contents":@"content"};
     for (NSString *key in keys) {
@@ -330,10 +511,8 @@
     self.uri = data[@"meta"][@"links"][@"site"];
     
 }
--(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
-    
-    if (!self.asset_id) self.asset_id = [NSNumber numberWithInt:[data[@"id"] intValue]];
 
+-(NSImage *)loadSoundCloudItemData:(NSDictionary *)data {
     
     [self setValue:data forKey:@"metadata"];
     
@@ -349,11 +528,8 @@
         else [self setValue:data[[keys objectForKey:key]] forKey:key];
     }
     
-    self.type = ([self.entity.name isEqualToString:@"Playlist"]) ? @"playlist" : @"track";
-    
-    if ([self.entity.name isEqualToString:@"Playlist"]) {
+    if (self.isPlaylist) {
         self.type = @"playlist";
-        
         for (NSString *key in @[@"playlist_type"]) {
             if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
             else [self setValue:data[key] forKey:@"sub_type"];
@@ -408,20 +584,118 @@
     self.trackList = trackList.description;
 }
 
-+ (NSString *)htmlStringForAsset:(Asset *)asset {
-    NSString *html = @"<html><body>Prax</body></html>";
-    if (([asset.type isEqualToString:@"post"])||([asset.type isEqualToString:@"page"])) {
-        html = asset.contents;
-    }
-    else if ([asset.type isEqualToString:@"track"]) {
-        html = [NSString stringWithFormat:@"<html><body>%@<br/> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.title, asset.asset_id, asset.asset_id];
-        
-    }
-    else if ([asset.type isEqualToString:@"playlist"]) {
-        html = [NSString stringWithFormat:@"<html><body> <object height=\"250\" width=\"250\"> <param name=\"movie\" value=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\"></param> <param name=\"allowscriptaccess\" value=\"always\"></param> <embed allowscriptaccess=\"always\" height=\"300\" src=\"http://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/playlists/%@&amp;auto_play=true&amp;single_active=false&amp;buying=false&amp;sharing=false&amp;download=false&amp;player_type=artwork&amp;color=ff7700\" type=\"application/x-shockwave-flash\" width=\"250\"></embed> </object>    </body></html>", asset.asset_id, asset.asset_id];
-    }
-    return html;
-}
+
+/*
+ 
+ - (BOOL)validateValue:(id *)value forKey:(NSString *)key error:(NSError **)error {
+ BOOL result = [super validateValue:value forKey:key error:error];
+ 
+ NSLog(@"Asset validateValue:%@ forKey:%@ error:%@", *value, key, *error);
+ 
+ 
+ return result;
+ 
+ }
+ 
+ 
+ - (BOOL)validateForUpdate:(NSError **)error {
+ BOOL result = [super validateForUpdate:error];
+ 
+ NSLog(@"Asset validateForUpdate");
+ 
+ 
+ return result;
+ }
+ 
+ - (BOOL)validateSharing:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateSharing %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validateSub_type:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateSub_type %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validateTitle:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateTitle %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validateGenre:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateGenre %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validatePermalink:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validatePermalink %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validatePurchase_title:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateTitle %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validatePurchase_url:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateTitle %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validateTag_list:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateTag_list %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (BOOL)validateContents:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateContents %@", *value);
+ [self setAssetChanged:self];
+ 
+ 
+ return YES;
+ }
+ 
+ - (void)setAssetChanged:(Asset *)asset {
+ 
+ asset.sync_mode = [NSNumber numberWithBool:TRUE];
+ //    [self.changedAssetsController rearrangeObjects];
+ 
+ } */
+
+
 
 
 

@@ -13,7 +13,6 @@
 #import "Account.h"
 #import "BatchController.h"
 #import "TagController.h"
-#import "ServiceView.h"
 
 @class Document;
 @class PostEditor;
@@ -22,18 +21,18 @@
 
 @interface UpdateController : NSObject
 
-@property BOOL stop;
-@property BOOL busy;
-@property BOOL uploadChangedItems;
-@property BOOL reloadChangedItems;
 
-@property Account *account;
-@property NSString *requestMethod;
 @property NSDictionary *parameters;
 @property NSURL *resource;
 @property NSString *statusText;
 @property NSInteger updateCount;
 @property NSInteger targetCount;
+@property BOOL stop;
+@property BOOL busy;
+@property BOOL determinate;
+@property BOOL uploadAll;
+@property BOOL reloadAll;
+- (void)reset;
 
 @property (strong) Asset *targetAsset;
 
@@ -42,25 +41,29 @@
 
 @property (weak) IBOutlet NSArrayController *changedAssetsController;
 @property (weak) IBOutlet NSTableView *changedAssetsTableView;
-@property (weak) IBOutlet BatchController *batchController;
 @property (weak) IBOutlet NSArrayController *assetsController;
 @property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
 
 @property (weak) IBOutlet NSProgressIndicator *progressBar;
 @property (weak) IBOutlet NSImageView *progressImageWell;
 
-- (IBAction)stop:(id)sender;
-- (IBAction)logout:(id)sender;
-- (void)reloadAsset:(Asset *)asset;
-- (void)uploadAsset:(Asset *)asset;
-
-- (IBAction)reloadFromServer:(id)sender;
-- (IBAction)uploadToServer:(id)sender;
 
 - (IBAction)uploadChangedItems:(id)sender;
 - (IBAction)reloadChangedItems:(id)sender;
+- (IBAction)stop:(id)sender;
 
-- (void)refreshAccountData:(Account *)account;
+- (void)reloadAllAssetData:(Asset *)asset;
+- (void)reloadAssetAccountData:(Asset *)asset;
+- (void)reloadAssetSiteData:(Asset *)asset;
+- (void)reloadAssetPostsData:(Asset *)asset;
+- (void)reloadAssetTracksData:(Asset *)asset;
+- (void)reloadAssetPlaylistsData:(Asset *)asset;
+
+- (void)reloadAsset:(Asset *)asset;
+- (void)reloadAsset:(Asset *)asset option:(PRAXReloadOption)option;
+- (void)uploadAsset:(Asset *)asset;
+- (void)reloadChangedAssets;
+- (void)uploadChangedAssets;
 - (void)logoutAccount:(Account *)account;
 
 @end

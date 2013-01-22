@@ -6,13 +6,13 @@
         <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="followers_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="followings_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="itemCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="oauthAccount" optional="YES" transient="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="playlist_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="track_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="update_offset" optional="YES" transient="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="user_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="source" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="account" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Asset" representedClassName="Asset" syncable="YES">
         <attribute name="artwork_url" optional="YES" attributeType="String" syncable="YES"/>
@@ -36,6 +36,7 @@
         <attribute name="tag_list" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="updateOption" optional="YES" transient="YES" attributeType="Integer 64" syncable="YES"/>
         <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Asset" inverseName="accounts" inverseEntity="Asset" syncable="YES"/>
         <relationship name="accounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
@@ -45,22 +46,9 @@
     <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="playlist_type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="trackList" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="trackListSaved" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
-    <entity name="Service" parentEntity="Source" syncable="YES"/>
-    <entity name="Source" syncable="YES">
-        <attribute name="itemCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="optionFour" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <attribute name="optionOne" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <attribute name="optionThree" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <attribute name="optionTwo" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
-        <attribute name="predicateFormat" optional="YES" transient="YES" attributeType="String" syncable="YES"/>
-        <attribute name="selected" optional="YES" attributeType="Boolean" syncable="YES"/>
-        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="source" inverseEntity="Account" syncable="YES"/>
-        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
-        <relationship name="parent" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
-    </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="tags" inverseEntity="Asset" syncable="YES"/>
@@ -73,12 +61,10 @@
         <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Account" positionX="0" positionY="0" width="128" height="223"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="435"/>
-        <element name="Playlist" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="450"/>
+        <element name="Playlist" positionX="0" positionY="0" width="128" height="90"/>
         <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Service" positionX="160" positionY="192" width="128" height="45"/>
-        <element name="Source" positionX="160" positionY="192" width="128" height="225"/>
         <element name="Tag" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Template" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Track" positionX="0" positionY="0" width="128" height="60"/>

@@ -30,30 +30,23 @@
 
 - (void)loadAssetTags:(Asset *)asset {
     NSString *tag_list = asset.tag_list;
-    NSArray *tagArray = [TagController arrayFromTagString:tag_list];
-    NSError *error;
-    Tag *tag;
-    
-    for (NSString *tagString in tagArray) {
-       
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", tagString]];
-        NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
-        if ([matchingItems count] < 1) {
-            tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
-            tag.name = tagString;
-            
+    if (tag_list.length > 0) {
+        NSArray *tagArray = [TagController arrayFromTagString:tag_list];
+        NSError *error;
+        Tag *tag;
+        for (NSString *tagString in tagArray) {
+            NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+            [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", tagString]];
+            NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+            if ([matchingItems count] < 1) {
+                tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+                tag.name = tagString;
+            }
+            else tag = matchingItems[0];
+            [asset addTagsObject:tag];
         }
-        else tag = matchingItems[0];
-        [asset addTagsObject:tag];
-
     }
-    NSLog(@"Asset: %@", asset);
-    
-    
 //    tag_list = [TagController tagStringFromArray:tagArray];
-    
-    
 }
 
 

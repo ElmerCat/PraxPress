@@ -67,7 +67,7 @@
 
 
 - (IBAction)show:(id)sender {
-    [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge];
+    [self.popover showRelativeToRect:[[sender superview] bounds] ofView:[sender superview] preferredEdge:NSMinYEdge];
 }
 
 - (NSArray *)control:(NSControl *)control textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {

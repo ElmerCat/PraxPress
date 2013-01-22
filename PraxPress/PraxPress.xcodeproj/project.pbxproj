@@ -20,11 +20,9 @@
 		E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */; };
 		E6535E9E1613C19600A49036 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E6535E9D1613C19600A49036 /* icon.icns */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
-		E661E6291626098C00EFD83A /* Source.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E6281626098C00EFD83A /* Source.m */; };
 		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
 		E664659516A4D94E004E3448 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E664659316A4D94E004E3448 /* Document.xcdatamodeld */; };
-		E665448E1625568C00EB579B /* ServiceView.m in Sources */ = {isa = PBXBuildFile; fileRef = E665448D1625568C00EB579B /* ServiceView.m */; };
 		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
 		E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6BFF169F1252006F07D1 /* AssetDetailController.m */; };
 		E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C00169F1252006F07D1 /* AssetDetailController.xib */; };
@@ -51,19 +49,23 @@
 		E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D19B93168AB11300D068BC /* AssetTableCellView.m */; };
 		E6D6F61015D976F5005CA87F /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79E015C475B900080762 /* OAuth2Client.framework */; };
 		E6D6F61315D97B78005CA87F /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E6BC79E015C475B900080762 /* OAuth2Client.framework */; };
+		E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9516AD26020076BDC4 /* toggleOff.png */; };
+		E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9616AD26020076BDC4 /* toggleOn.png */; };
+		E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9916AD9F830076BDC4 /* toggleLeft.png */; };
+		E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9A16AD9F830076BDC4 /* toggleRight.png */; };
 		E6EA108616A9CB090004800F /* icon-network-drive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E6EA108316A9CB090004800F /* icon-network-drive.tiff */; };
 		E6EA108716A9CB090004800F /* page_Arrow_Down_hi.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E6EA108416A9CB090004800F /* page_Arrow_Down_hi.tiff */; };
 		E6EA108816A9CB090004800F /* page_Arrow_Up_hi.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E6EA108516A9CB090004800F /* page_Arrow_Up_hi.tiff */; };
 		E6EA10A216AB22DD0004800F /* NewPlaylistPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EA10A016AB22DD0004800F /* NewPlaylistPopover.m */; };
 		E6EA10A316AB22DD0004800F /* NewPlaylistPopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */; };
+		E6EA10A616ACCEB40004800F /* SoundCloudName138x29.png in Resources */ = {isa = PBXBuildFile; fileRef = E6EA10A416ACCEB40004800F /* SoundCloudName138x29.png */; };
+		E6EA10A716ACCEB40004800F /* WordPressName127x29.png in Resources */ = {isa = PBXBuildFile; fileRef = E6EA10A516ACCEB40004800F /* WordPressName127x29.png */; };
+		E6EA10A916ACD7680004800F /* Umbrella32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = E6EA10A816ACD7680004800F /* Umbrella32x32.png */; };
 		E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */; };
 		E6EE3F2615C773D10025C04B /* Connect.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2215C773D10025C04B /* Connect.wav */; };
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
-		E6F1562715E58EA80098EC32 /* WordPress.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562615E58EA80098EC32 /* WordPress.png */; };
-		E6F1562915E590970098EC32 /* WordPressName.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562815E590970098EC32 /* WordPressName.png */; };
-		E6F1562B15E592FA0098EC32 /* SoundCloudName.png in Resources */ = {isa = PBXBuildFile; fileRef = E6F1562A15E592FA0098EC32 /* SoundCloudName.png */; };
 		E6F80B2616238D8600828086 /* BatchChangeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B2516238D8600828086 /* BatchChangeViewController.m */; };
 		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
@@ -123,15 +125,11 @@
 		E6535E9D1613C19600A49036 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
-		E661E6271626098B00EFD83A /* Source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Source.h; sourceTree = "<group>"; };
-		E661E6281626098C00EFD83A /* Source.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Source.m; sourceTree = "<group>"; };
 		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
 		E661E62B1626182400EFD83A /* AccountViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountViewController.m; sourceTree = "<group>"; };
 		E661E62C1626182400EFD83A /* AccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
 		E664659416A4D94E004E3448 /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
 		E664659616A4D9B0004E3448 /* Document1.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document1.0.xcdatamodel; sourceTree = "<group>"; };
-		E665448C1625568C00EB579B /* ServiceView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceView.h; sourceTree = "<group>"; };
-		E665448D1625568C00EB579B /* ServiceView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceView.m; sourceTree = "<group>"; };
 		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
 		E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PraxPress.entitlements; sourceTree = "<group>"; };
 		E66E6BFE169F1252006F07D1 /* AssetDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetDetailController.h; sourceTree = "<group>"; };
@@ -175,12 +173,19 @@
 		E6BC79F615C48FE300080762 /* SpecialProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpecialProtocol.m; sourceTree = "<group>"; };
 		E6D19B92168AB11300D068BC /* AssetTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetTableCellView.h; sourceTree = "<group>"; };
 		E6D19B93168AB11300D068BC /* AssetTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetTableCellView.m; sourceTree = "<group>"; };
+		E6DECE9516AD26020076BDC4 /* toggleOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleOff.png; sourceTree = "<group>"; };
+		E6DECE9616AD26020076BDC4 /* toggleOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleOn.png; sourceTree = "<group>"; };
+		E6DECE9916AD9F830076BDC4 /* toggleLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleLeft.png; sourceTree = "<group>"; };
+		E6DECE9A16AD9F830076BDC4 /* toggleRight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleRight.png; sourceTree = "<group>"; };
 		E6EA108316A9CB090004800F /* icon-network-drive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "icon-network-drive.tiff"; sourceTree = "<group>"; };
 		E6EA108416A9CB090004800F /* page_Arrow_Down_hi.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = page_Arrow_Down_hi.tiff; sourceTree = "<group>"; };
 		E6EA108516A9CB090004800F /* page_Arrow_Up_hi.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = page_Arrow_Up_hi.tiff; sourceTree = "<group>"; };
 		E6EA109F16AB22DD0004800F /* NewPlaylistPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewPlaylistPopover.h; sourceTree = "<group>"; };
 		E6EA10A016AB22DD0004800F /* NewPlaylistPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewPlaylistPopover.m; sourceTree = "<group>"; };
 		E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewPlaylistPopover.xib; sourceTree = "<group>"; };
+		E6EA10A416ACCEB40004800F /* SoundCloudName138x29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloudName138x29.png; sourceTree = "<group>"; };
+		E6EA10A516ACCEB40004800F /* WordPressName127x29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPressName127x29.png; sourceTree = "<group>"; };
+		E6EA10A816ACD7680004800F /* Umbrella32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Umbrella32x32.png; sourceTree = "<group>"; };
 		E6EDDE2515DC0CF60039BEFD /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Asset.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E6EDDE2615DC0CF60039BEFD /* Asset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Asset.m; sourceTree = "<group>"; };
 		E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTextFieldFormatter.h; sourceTree = "<group>"; };
@@ -189,9 +194,6 @@
 		E6EE3F2315C773D10025C04B /* Error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Error.wav; sourceTree = "<group>"; };
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
-		E6F1562615E58EA80098EC32 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
-		E6F1562815E590970098EC32 /* WordPressName.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPressName.png; sourceTree = "<group>"; };
-		E6F1562A15E592FA0098EC32 /* SoundCloudName.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloudName.png; sourceTree = "<group>"; };
 		E6F80B2416238D8600828086 /* BatchChangeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchChangeViewController.h; sourceTree = "<group>"; };
 		E6F80B2516238D8600828086 /* BatchChangeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchChangeViewController.m; sourceTree = "<group>"; };
 		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
@@ -243,98 +245,92 @@
 		E661E63216279D3600EFD83A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
-				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
-				E64555AA16A773BF00740F45 /* Tag.h */,
-				E64555AB16A773BF00740F45 /* Tag.m */,
 				E67782C8160D06990069FEE3 /* Account.h */,
 				E67782C9160D06990069FEE3 /* Account.m */,
-				E661E6271626098B00EFD83A /* Source.h */,
-				E661E6281626098C00EFD83A /* Source.m */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
 				E6EDDE2615DC0CF60039BEFD /* Asset.m */,
+				E64555AA16A773BF00740F45 /* Tag.h */,
+				E64555AB16A773BF00740F45 /* Tag.m */,
 				E6775E4616A4BF4C00CDA34B /* Template.h */,
 				E6775E4716A4BF4C00CDA34B /* Template.m */,
 			);
 			name = Entities;
 			sourceTree = "<group>";
 		};
-		E661E63316279D5C00EFD83A /* Views */ = {
+		E661E63316279D5C00EFD83A /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E665448C1625568C00EB579B /* ServiceView.h */,
-				E665448D1625568C00EB579B /* ServiceView.m */,
+				E661E62A1626182300EFD83A /* AccountViewController.h */,
+				E661E62B1626182400EFD83A /* AccountViewController.m */,
 				E66E6BFE169F1252006F07D1 /* AssetDetailController.h */,
 				E66E6BFF169F1252006F07D1 /* AssetDetailController.m */,
-				E66E6C00169F1252006F07D1 /* AssetDetailController.xib */,
-				E66E6C07169F78DF006F07D1 /* AssetPredicateController.h */,
-				E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */,
-				E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */,
-				E6D19B92168AB11300D068BC /* AssetTableCellView.h */,
-				E6D19B93168AB11300D068BC /* AssetTableCellView.m */,
-				E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */,
-				E64774AA16067BA0003BD981 /* TemplateViewController.h */,
-				E64774AB16067BA0003BD981 /* TemplateViewController.m */,
-				E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */,
 				E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */,
 				E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */,
-				E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */,
+				E66E6C07169F78DF006F07D1 /* AssetPredicateController.h */,
+				E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */,
+				E6D19B92168AB11300D068BC /* AssetTableCellView.h */,
+				E6D19B93168AB11300D068BC /* AssetTableCellView.m */,
+				E6F80B2416238D8600828086 /* BatchChangeViewController.h */,
+				E6F80B2516238D8600828086 /* BatchChangeViewController.m */,
+				E6F80B271623969100828086 /* ChangeValuesController.h */,
+				E6F80B281623969100828086 /* ChangeValuesController.m */,
 				E6EA109F16AB22DD0004800F /* NewPlaylistPopover.h */,
 				E6EA10A016AB22DD0004800F /* NewPlaylistPopover.m */,
-				E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */,
+				E6F80B2C1623DDE100828086 /* ReplaceSubstringsController.h */,
+				E6F80B2D1623DDE100828086 /* ReplaceSubstringsController.m */,
+				E644B175168F67190001CE52 /* SourceSelectionController.h */,
+				E644B176168F67190001CE52 /* SourceSelectionController.m */,
+				E64774AA16067BA0003BD981 /* TemplateViewController.h */,
+				E64774AB16067BA0003BD981 /* TemplateViewController.m */,
 			);
-			name = Views;
+			name = "View Controllers";
 			sourceTree = "<group>";
 		};
 		E661E63416279DB500EFD83A /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				E661E62C1626182400EFD83A /* AccountViewController.xib */,
+				E66E6C00169F1252006F07D1 /* AssetDetailController.xib */,
+				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
+				E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */,
+				E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */,
+				E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */,
+				E6F80B291623969100828086 /* ChangeValuesController.xib */,
+				E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */,
+				E6F80B2E1623DDE100828086 /* ReplaceSubstringsController.xib */,
 				E644B177168F67190001CE52 /* SourceSelectionController.xib */,
 				E665634315E9744400DFC7C9 /* TemplateView.xib */,
-				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
-				E6BC79B515C4759800080762 /* MainMenu.xib */,
-				E661E62C1626182400EFD83A /* AccountViewController.xib */,
-				E6F80B291623969100828086 /* ChangeValuesController.xib */,
-				E6F80B2E1623DDE100828086 /* ReplaceSubstringsController.xib */,
+				E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
 		};
-		E661E63516279DF200EFD83A /* Controllers */ = {
+		E661E63516279DF200EFD83A /* Object Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E6ACA28415D6D41800373A3B /* UpdateController.h */,
-				E6ACA28515D6D41800373A3B /* UpdateController.m */,
-				E644B175168F67190001CE52 /* SourceSelectionController.h */,
-				E644B176168F67190001CE52 /* SourceSelectionController.m */,
-				E6F80B2416238D8600828086 /* BatchChangeViewController.h */,
-				E6F80B2516238D8600828086 /* BatchChangeViewController.m */,
-				E65BD6F315E7C63900D9F0A4 /* BatchController.h */,
-				E65BD6F415E7C63900D9F0A4 /* BatchController.m */,
 				E606CDBC1606F1C000D34EDE /* AssetController.h */,
 				E606CDBD1606F1C000D34EDE /* AssetController.m */,
-				E6F80B271623969100828086 /* ChangeValuesController.h */,
-				E6F80B281623969100828086 /* ChangeValuesController.m */,
-				E661E62A1626182300EFD83A /* AccountViewController.h */,
-				E661E62B1626182400EFD83A /* AccountViewController.m */,
-				E6F80B2C1623DDE100828086 /* ReplaceSubstringsController.h */,
-				E6F80B2D1623DDE100828086 /* ReplaceSubstringsController.m */,
-				E64555A716A76F6900740F45 /* TagController.h */,
-				E64555A816A76F6900740F45 /* TagController.m */,
+				E65BD6F315E7C63900D9F0A4 /* BatchController.h */,
+				E65BD6F415E7C63900D9F0A4 /* BatchController.m */,
 				E673D1A916A9A05C002B060D /* PlaylistController.h */,
 				E673D1AA16A9A05C002B060D /* PlaylistController.m */,
+				E64555A716A76F6900740F45 /* TagController.h */,
+				E64555A816A76F6900740F45 /* TagController.m */,
+				E6ACA28415D6D41800373A3B /* UpdateController.h */,
+				E6ACA28515D6D41800373A3B /* UpdateController.m */,
 			);
-			name = Controllers;
+			name = "Object Controllers";
 			sourceTree = "<group>";
 		};
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E645559C16A70A4B00740F45 /* M3TokenController */,
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
 				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
+				E645559C16A70A4B00740F45 /* M3TokenController */,
 			);
 			sourceTree = "<group>";
 		};
@@ -375,9 +371,10 @@
 				E6BC79AF15C4759800080762 /* Document.h */,
 				E6BC79B015C4759800080762 /* Document.m */,
 				E6BC79B215C4759800080762 /* Document.xib */,
+				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
+				E661E63516279DF200EFD83A /* Object Controllers */,
+				E661E63316279D5C00EFD83A /* View Controllers */,
 				E661E63216279D3600EFD83A /* Entities */,
-				E661E63316279D5C00EFD83A /* Views */,
-				E661E63516279DF200EFD83A /* Controllers */,
 				E661E63416279DB500EFD83A /* Interface */,
 				E624D84A15EAEC570066D7D7 /* Helpers */,
 				E6BC79A415C4759800080762 /* Supporting Files */,
@@ -388,6 +385,7 @@
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E6BC79B515C4759800080762 /* MainMenu.xib */,
 				E6BC79A515C4759800080762 /* PraxPress-Info.plist */,
 				E6BC79A615C4759800080762 /* InfoPlist.strings */,
 				E6BC79A915C4759800080762 /* main.m */,
@@ -419,14 +417,18 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E6DECE9916AD9F830076BDC4 /* toggleLeft.png */,
+				E6DECE9A16AD9F830076BDC4 /* toggleRight.png */,
+				E6DECE9516AD26020076BDC4 /* toggleOff.png */,
+				E6DECE9616AD26020076BDC4 /* toggleOn.png */,
+				E6EA10A816ACD7680004800F /* Umbrella32x32.png */,
+				E6EA10A416ACCEB40004800F /* SoundCloudName138x29.png */,
+				E6EA10A516ACCEB40004800F /* WordPressName127x29.png */,
 				E6EA108316A9CB090004800F /* icon-network-drive.tiff */,
 				E6EA108416A9CB090004800F /* page_Arrow_Down_hi.tiff */,
 				E6EA108516A9CB090004800F /* page_Arrow_Up_hi.tiff */,
 				E6535E9D1613C19600A49036 /* icon.icns */,
 				E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */,
-				E6F1562A15E592FA0098EC32 /* SoundCloudName.png */,
-				E6F1562815E590970098EC32 /* WordPressName.png */,
-				E6F1562615E58EA80098EC32 /* WordPress.png */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -508,9 +510,6 @@
 				E6EE3F2715C773D10025C04B /* Error.wav in Resources */,
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
-				E6F1562715E58EA80098EC32 /* WordPress.png in Resources */,
-				E6F1562915E590970098EC32 /* WordPressName.png in Resources */,
-				E6F1562B15E592FA0098EC32 /* SoundCloudName.png in Resources */,
 				E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */,
 				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
 				E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */,
@@ -528,6 +527,13 @@
 				E6EA108716A9CB090004800F /* page_Arrow_Down_hi.tiff in Resources */,
 				E6EA108816A9CB090004800F /* page_Arrow_Up_hi.tiff in Resources */,
 				E6EA10A316AB22DD0004800F /* NewPlaylistPopover.xib in Resources */,
+				E6EA10A616ACCEB40004800F /* SoundCloudName138x29.png in Resources */,
+				E6EA10A716ACCEB40004800F /* WordPressName127x29.png in Resources */,
+				E6EA10A916ACD7680004800F /* Umbrella32x32.png in Resources */,
+				E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */,
+				E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */,
+				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
+				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,8 +558,6 @@
 				E6F80B2616238D8600828086 /* BatchChangeViewController.m in Sources */,
 				E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */,
 				E6F80B2F1623DDE100828086 /* ReplaceSubstringsController.m in Sources */,
-				E665448E1625568C00EB579B /* ServiceView.m in Sources */,
-				E661E6291626098C00EFD83A /* Source.m in Sources */,
 				E661E62D1626182400EFD83A /* AccountViewController.m in Sources */,
 				E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */,
 				E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */,

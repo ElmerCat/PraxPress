@@ -169,7 +169,7 @@
     
     if (viewMode == 0) return 14;
     else if (viewMode == 1) return 50;
-    else return 100;
+    else return 800;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row{

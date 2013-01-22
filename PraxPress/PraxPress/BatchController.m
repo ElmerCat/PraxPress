@@ -15,14 +15,6 @@
     return [NSSet setWithObjects:@"self.batchChangeKey", @"self.selectedAsset", nil];
 }
 
-
-- (NSPredicate *)batchEditFilterPredicate {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(edit_mode == YES) AND (entity.name != \"Account\")"];
-    return predicate;
-}
-
-
-
 - (id)init {
     self = [super init];
     if (self) {
@@ -212,13 +204,6 @@
         [[self.webView mainFrame] loadHTMLString:[html description] baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
         [self.codeTextView setString:[html description]];
     }
-}
-
-
-
-- (NSPredicate *)changedAssetsFilterPredicate {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"sync_mode == YES"];
-    return predicate;
 }
 
 - (IBAction)clearBatch:(id)sender {

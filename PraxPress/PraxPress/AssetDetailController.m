@@ -83,7 +83,7 @@
 
 - (IBAction)showMetadataPopover:(id)sender {
     
-    [self.assetMetadataPopover showPopoverRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge withDictionary:self.asset.metadata];
+    [self.filesOwner.assetMetadataPopover showPopoverRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMinYEdge withDictionary:self.asset.metadata];
     
 }
 

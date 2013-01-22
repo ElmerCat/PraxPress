@@ -32,8 +32,8 @@
 
 
 - (IBAction)accountButtonClicked:(id)sender {
-    ServiceView *view = (ServiceView *)[sender superview];
-    Account *account = (Account *)[[view objectValue] account];
+    NSTableCellView *view = (NSTableCellView *)[sender superview];
+    Account *account = (Account *)[view objectValue];
     [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
     [self.accountViewPopover showRelativeToRect:[(NSButton *)sender bounds] ofView:sender preferredEdge:NSMinYEdge];
 }

@@ -6,16 +6,11 @@
 //  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "Asset.h"
-#import "TemplateViewController.h"
-#import "AssetMetadataPopover.h"
+#import "Document.h"
 
 @interface AssetDetailController : NSWindowController
 
 @property (weak) Document *filesOwner;
-@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
 
 @property NSString *templateName;
 @property Asset *asset;

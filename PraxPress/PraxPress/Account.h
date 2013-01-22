@@ -18,11 +18,13 @@
 @property (nonatomic, retain) NSString * city;
 @property (nonatomic, retain) NSString * country;
 @property (nonatomic, retain) NSString * username;
+@property (nonatomic, retain) NSNumber * itemCount;
 @property (nonatomic, retain) NSNumber * followers_count;
 @property (nonatomic, retain) NSNumber * followings_count;
 @property (nonatomic, retain) NSNumber * playlist_count;
 @property (nonatomic, retain) NSNumber * track_count;
 @property (nonatomic, retain) NSNumber * update_offset;
+
 @property (nonatomic, retain) NSNumber * user_id;
 @property (nonatomic, retain) id oauthAccount;
 

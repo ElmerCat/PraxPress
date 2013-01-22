@@ -33,7 +33,6 @@
 @property (weak) IBOutlet Document *document;
 @property Asset *selectedAsset;
 
-- (NSPredicate *)batchEditFilterPredicate;
 @property BOOL batchChangePurchaseTitle;
 @property BOOL batchChangePurchaseURL;
 @property BOOL batchChangeTitleSubstrings;
@@ -52,9 +51,6 @@
 @property (weak) IBOutlet NSScrollView *assetsScrollView;
 
 - (IBAction)clearBatch:(id)sender;
-
-
-- (NSPredicate *)changedAssetsFilterPredicate;
 
 - (IBAction)addAssetsToBatch:(id)sender;
 - (IBAction)removeAssetsFromBatch:(id)sender;
