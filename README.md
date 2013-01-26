@@ -37,7 +37,7 @@ Prax
 
 ## BSD License 
 
-Copyright © 2012, ElmerCat / ElmerCat.org
+Copyright © 2013, ElmerCat / ElmerCat.org
 
 All rights reserved.
 
