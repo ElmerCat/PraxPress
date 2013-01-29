@@ -38,29 +38,31 @@
         }];
         
         
-/*        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.assetTableView queue:nil usingBlock:^(NSNotification *aNotification){
-            if (![self.selectedRowIndexes isEqualToIndexSet:[self.assetTableView selectedRowIndexes]]) {
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.assetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
+            if (![self.selectedRowIndexes isEqualToIndexSet:[self.assetsTableView selectedRowIndexes]]) {
                 NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: self.selectedRowIndexes];
-                self.selectedRowIndexes = [self.assetTableView selectedRowIndexes];
+                self.selectedRowIndexes = [self.assetsTableView selectedRowIndexes];
                 [changedRowIndexes addIndexes:self.selectedRowIndexes];
                 
                 [NSAnimationContext beginGrouping];
                 [[NSAnimationContext currentContext] setDuration:0.5];
                 
                 [changedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
-                    NSView *view = [self.assetTableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                    NSView *view = [self.assetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
                     if (view && [view isKindOfClass:[AssetTableCellView class]]) {
-                        [(AssetTableCellView *)view layoutViewsForTable:self.assetTableView viewMode:self.viewMode animated:YES];
+                         
+                        [(AssetTableCellView *)view setSelected:[self.assetsTableView isRowSelected:row]];
+                        [(AssetTableCellView *)view layoutViewsForTable:self.assetsTableView viewMode:self.assetsViewMode animated:YES];
                     }
                 }];
                 
 
-                [self.assetTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+                [self.assetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
                 [NSAnimationContext endGrouping];
                 
 
             }
-        }]; */
+        }]; 
         
         
     }
@@ -140,7 +142,7 @@
         for (NSInteger i = 0; i < [tableView tableColumns].count; i++) {
             NSView *view = [tableView viewAtColumn:i row:row makeIfNecessary:NO];
             if (view && [view isKindOfClass:[AssetTableCellView class]]) {
-                [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:NO];
+                [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:YES];
             }
         }
     }];
@@ -148,6 +150,12 @@
     [tableView noteHeightOfRowsWithIndexesChanged:indexesToNoteHeightChanges];
     [tableView scrollRowToVisible:[tableView selectedRow]];
     [NSAnimationContext endGrouping];
+}
+
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+    NSLog(@"AssetController tableView:willDisplayCell:forTableColumn:row");
+    
+    
 }
 
 
@@ -167,9 +175,27 @@
         viewMode = self.assetsViewMode;
     }
     
-    if (viewMode == 0) return 14;
-    else if (viewMode == 1) return 50;
-    else return 800;
+    if (viewMode == 0) {
+        if ([tableView isRowSelected:row]) {
+            return [AssetTableCellView viewModeZeroSelectedRowHeight];
+        }
+        else return [AssetTableCellView viewModeZeroRowHeight];
+
+    }
+    
+    else if (viewMode == 1) {
+        if ([tableView isRowSelected:row]) {
+            return [AssetTableCellView viewModeOneSelectedRowHeight];
+        }
+        else return [AssetTableCellView viewModeOneRowHeight];
+    }
+    else {
+        if ([tableView isRowSelected:row]) {
+            return [AssetTableCellView viewModeTwoSelectedRowHeight];
+        }
+        else return [AssetTableCellView viewModeTwoRowHeight];
+
+    }
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row{
@@ -192,52 +218,25 @@
         viewMode = self.assetsViewMode;
     }
     
- //   NSLog (@"viewForTableColumn: row: %ld", row);
     NSString *identifier = [NSString stringWithFormat:@"%@TableCellView", asset.type];
-//    NSView *view = [tableView makeViewWithIdentifier:@"praxView" owner:self];
     NSView *view = [tableView makeViewWithIdentifier:identifier owner:self];
     
-    if (view && [view isKindOfClass:[AssetTableCellView class]]) {
- //       NSLog (@"[view isKindOfClass:[AssetTableCellView class]] row: %ld", row);
+    if (!view) {
+        NSLog (@"!view tableView makeViewWithIdentifier:identifier: %@", identifier);
+
         
- //       [(AssetTableCellView *)view setAsset:asset];
+    }
+    
+    if (view && [view isKindOfClass:[AssetTableCellView class]]) {
         [(AssetTableCellView *)view setUpdateController:self.updateController];
+        [(AssetTableCellView *)view setSelected:[self.assetsTableView isRowSelected:row]];
+     //   [(AssetTableCellView *)view setSelected:NO];
         [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:NO];
     }
 
-    if (view) return view;
-    
-    else return [tableView makeViewWithIdentifier:@"praxView" owner:self];
-        
-//        NSManagedObject *source = [(NSTreeNode *)item representedObject];
-//        if (![source valueForKey:@"parent"]) return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
-//        else return [outlineView makeViewWithIdentifier:@"ServiceView" owner:self];
-        
-        
-        //    if ([item isKindOfClass:[ATDesktopFolderEntity class]]) {
-        // Everything is setup in bindings
-        //       return [outlineView makeViewWithIdentifier:@"SourceView" owner:self];
-        /*    } else {
-         NSView *result = [outlineView makeViewWithIdentifier:[tableColumn identifier] owner:self];
-         if ([result isKindOfClass:[ATTableCellView class]]) {
-         ATTableCellView *cellView = (ATTableCellView *)result;
-         // setup the color; we can't do this in bindings
-         cellView.colorView.drawBorder = YES;
-         cellView.colorView.backgroundColor = [item fillColor];
-         }
-         // Use a shared date formatter on the DateCell for better performance. Otherwise, it is encoded in every NSTextField
-         if ([[tableColumn identifier] isEqualToString:@"DateCell"]) {
-         [(id)result setFormatter:_sharedDateFormatter];
-         }
-         return result;
-         }
-         return nil;
-         }
-    */
-    
-    
-    
+    return view;
 }
+
 - (void)assetTableDoubleClicked:(NSArray *)selectedObjects {
     if (selectedObjects.count > 0) {
         Asset *asset = selectedObjects[0];

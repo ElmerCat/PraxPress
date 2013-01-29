@@ -46,7 +46,7 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    NSLog(@"PlaylistController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
+ //   NSLog(@"PlaylistController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
     
     if ([keyPath isEqualToString:@"self.associatedAssetsController.arrangedObjects"]) {
     

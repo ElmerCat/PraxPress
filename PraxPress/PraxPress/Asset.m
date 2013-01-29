@@ -17,6 +17,12 @@
 @dynamic batchPosition;
 @dynamic contents;
 @dynamic date;
+@dynamic comment_count;
+@dynamic download_count;
+@dynamic duration;
+@dynamic favoritings_count;
+@dynamic playback_count;
+
 @dynamic edit_mode;
 @dynamic genre;
 @dynamic image;
@@ -43,12 +49,6 @@
 @dynamic associatedItems;
 
 #pragma mark Accessors
-
--(NSInteger)reloadOptionAccount {return 1;}
--(NSInteger)reloadOptionSite {return 2;}
--(NSInteger)reloadOptionTracks {return 3;}
--(NSInteger)reloadOptionPlaylists {return 4;}
--(NSInteger)reloadOptionPosts {return 5;}
 
 
 -(BOOL)isSoundCloudAsset {
@@ -270,9 +270,6 @@
     NXOAuth2Request *request;
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
 
-    controller.statusText = [NSString stringWithFormat:@"Uploading %@ Asset %@", self.account.accountType, self.permalink];
-    request.account = self.account.oauthAccount;
-    
     if (self.isSoundCloudAsset) {
        
         for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"sharing", @"genre", @"permalink", @"tag_list"]) {
@@ -330,6 +327,9 @@
     }
     
     else return nil;  // invalid Asset type
+    
+    controller.statusText = [NSString stringWithFormat:@"Uploading %@ Asset %@", self.account.accountType, self.permalink];
+    request.account = self.account.oauthAccount;
     
     return request;
 
@@ -516,10 +516,27 @@
     
     [self setValue:data forKey:@"metadata"];
     
-    for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre", @"tag_list", @"duration"]) {
+    
+    for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
+         @"favoritings_count", @"playback_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
         if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[key] forKey:key];
     }
+/*    if (self.isTrack) {
+        for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
+             @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+            if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
+            else [self setValue:data[key] forKey:key];
+        }
+    }
+    if (self.isPlaylist) {
+        for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
+             @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+            if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
+            else [self setValue:data[key] forKey:key];
+        }
+    }
+  */  
     
     
     NSDictionary *keys = @{@"date":@"created_at", @"contents":@"description"};

@@ -199,7 +199,7 @@
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return FALSE;}
 
-- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
+/*- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
     NSRect effectiveRect = proposedEffectiveRect;
    // effectiveRect.origin.x -= 2.0;
     if (splitView.isVertical) {
@@ -214,6 +214,6 @@
 
     
     return effectiveRect;
-}
+}*/
 
 @end
