@@ -33,6 +33,7 @@
 @property (weak) IBOutlet Document *document;
 @property Asset *selectedAsset;
 
+
 @property BOOL batchChangePurchaseTitle;
 @property BOOL batchChangePurchaseURL;
 @property BOOL batchChangeTitleSubstrings;
@@ -54,6 +55,13 @@
 
 - (IBAction)addAssetsToBatch:(id)sender;
 - (IBAction)removeAssetsFromBatch:(id)sender;
+
+@property (weak) IBOutlet NSPopUpButton *sortPopupButton;
+@property BOOL sortAscending;
+@property NSString *sortKey;
+@property NSInteger sortKeyTag;
+- (IBAction)sortAssetsKey:(id)sender;
+- (IBAction)sortAssetsDirection:(id)sender;
 
 
 @end

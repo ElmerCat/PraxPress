@@ -19,10 +19,15 @@
     self = [super init];
     if (self) {
             NSLog(@"BatchController init");
+        
+        self.sortAscending = YES;
+        self.sortKey = @"title";
+        self.sortKeyTag = 1;
+        
         self.templateName = [[NSUserDefaults standardUserDefaults] objectForKey:@"batchViewTemplate"];
 
         [self addObserver:self forKeyPath:@"self.templateName" options:NSKeyValueObservingOptionNew context:0];
-        [self addObserver:self forKeyPath:@"self.batchAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
+        [self addObserver:self forKeyPath:@"self.document.batchAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
         
 
         
@@ -128,7 +133,7 @@
 - (void)dealloc {
     NSLog(@"dealloc BatchController");
     [self removeObserver:self forKeyPath:@"self.templateName"];
-    [self removeObserver:self forKeyPath:@"self.batchAssetsController.arrangedObjects"];
+    [self removeObserver:self forKeyPath:@"self.document.batchAssetsController.arrangedObjects"];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -156,8 +161,8 @@
         else {
             
         }
-        NSLog(@"BatchController BatchAssetChangedNotification: %@", asset.edit_mode);
-        NSLog(@"self.batchAssetsController.arrangedObjects.count: %lu", [self.batchAssetsController.arrangedObjects count]);
+    //    NSLog(@"BatchController BatchAssetChangedNotification: %@", asset.edit_mode);
+    //    NSLog(@"self.batchAssetsController.arrangedObjects.count: %lu", [self.batchAssetsController.arrangedObjects count]);
         
     }];
     
@@ -219,6 +224,42 @@
 	return self._batchSortDescriptors;
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSInteger tag = [item tag];
+    if (tag < 100) {
+        [item setState:((tag == self.sortKeyTag) ? NSOnState : NSOffState)];
+    } else if (tag == 101) {
+        [item setState:(self.sortAscending ? NSOnState : NSOffState)];
+    } else if (tag == 102) {
+        [item setState:(self.sortAscending ? NSOffState : NSOnState)];
+    }
+    return YES;
+}
+
+- (IBAction)sortAssetsDirection:(id)sender {
+    [sender setState:NSOnState];
+    NSString *selectionTitle = [[self.sortPopupButton selectedItem] title];
+    if ([selectionTitle isEqualToString:@"Ascending"]) self.sortAscending = YES;
+    else if ([selectionTitle isEqualToString:@"Descending"]) self.sortAscending = NO;
+    [self sortAssetsTable];
+}
+
+- (IBAction)sortAssetsKey:(id)sender {
+    self.sortKeyTag = [sender tag];
+    NSString *selectionTitle = [[self.sortPopupButton selectedItem] title];
+    if ([selectionTitle isEqualToString:@"Manual Sort"]) self.sortKey = @"batchPosition";
+    else self.sortKey = selectionTitle;
+    [self sortAssetsTable];
+}
+
+- (void)sortAssetsTable {
+    self._batchSortDescriptors = @[[[NSSortDescriptor alloc] initWithKey:self.sortKey ascending:self.sortAscending]];
+    [self.batchAssetsTableView setSortDescriptors:self.batchSortDescriptors];
+    [self.document.batchAssetsTableView scrollRowToVisible:[self.document.batchAssetsTableView selectedRow]];
+}
+
+
+
 - (BOOL)tableView:(NSTableView *)table writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pasteboard
 {
 	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
@@ -279,6 +320,7 @@
 - (IBAction)addAssetsToBatch:(id)sender {
     for (Asset *asset in self.assetsController.arrangedObjects) {
         asset.edit_mode = @YES;
+        [self.document.assetsController rearrangeObjects];
     }
 }
 

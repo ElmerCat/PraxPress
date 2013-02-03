@@ -402,7 +402,7 @@
                         
                     }
                     else asset = matchingItems[0];
-                    asset.account = self.account;
+                    asset.account = (Account *)self;
                     
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;

@@ -17,6 +17,10 @@
     if (self) {
         NSLog(@"AssetController init");
         
+        self.sortAscending = YES;
+        self.sortKey = @"title";
+        self.sortKeyTag = 1;
+    
         
         self.assetDetailControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
         
@@ -31,39 +35,99 @@
             Asset *asset = (Asset *)[aNotification object];
             
             if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
-            [self.changedAssetsController rearrangeObjects];
+            [self.document.changedAssetsController rearrangeObjects];
             
     //        NSLog(@"AssetController AssetChangedNotification: %@", asset.sync_mode);
             
         }];
-        
-        
-        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.assetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
-            if (![self.selectedRowIndexes isEqualToIndexSet:[self.assetsTableView selectedRowIndexes]]) {
-                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet: self.selectedRowIndexes];
-                self.selectedRowIndexes = [self.assetsTableView selectedRowIndexes];
-                [changedRowIndexes addIndexes:self.selectedRowIndexes];
-                
+    
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.document.assetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
+             
+            if (![self.assetsSelectedRowIndexes isEqualToIndexSet:[self.document.assetsTableView selectedRowIndexes]]) {
+                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet:self.assetsSelectedRowIndexes];
+                self.assetsSelectedRowIndexes = [self.document.assetsTableView selectedRowIndexes];
+                [changedRowIndexes addIndexes:self.assetsSelectedRowIndexes];
                 [NSAnimationContext beginGrouping];
                 [[NSAnimationContext currentContext] setDuration:0.5];
-                
                 [changedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
-                    NSView *view = [self.assetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
-                    if (view && [view isKindOfClass:[AssetTableCellView class]]) {
-                         
-                        [(AssetTableCellView *)view setSelected:[self.assetsTableView isRowSelected:row]];
-                        [(AssetTableCellView *)view layoutViewsForTable:self.assetsTableView viewMode:self.assetsViewMode animated:YES];
+                    if (row < [self.document.assetsTableView numberOfRows]) {
+                        NSView *view = [self.document.assetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                        if (view && [view isKindOfClass:[AssetTableCellView class]]) {
+                            BOOL selected = [self.document.assetsTableView isRowSelected:row];
+                            [(AssetTableCellView *)view setSelected:selected];
+                            [(AssetTableCellView *)view layoutViewsForTable:self.document.assetsTableView viewMode:self.assetsViewMode animated:YES];
+                        }
                     }
                 }];
-                
-
-                [self.assetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+                [self.document.assetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
                 [NSAnimationContext endGrouping];
-                
-
             }
-        }]; 
-        
+            
+        }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.document.batchAssetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
+            if (![self.batchAssetsSelectedRowIndexes isEqualToIndexSet:[self.document.batchAssetsTableView selectedRowIndexes]]) {
+                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet:self.batchAssetsSelectedRowIndexes];
+                self.batchAssetsSelectedRowIndexes = [self.document.batchAssetsTableView selectedRowIndexes];
+                [changedRowIndexes addIndexes:self.batchAssetsSelectedRowIndexes];
+                [NSAnimationContext beginGrouping];
+                [[NSAnimationContext currentContext] setDuration:0.5];
+                [changedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+                    if (row < [self.document.batchAssetsTableView numberOfRows]) {
+                        NSView *view = [self.document.batchAssetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                        if (view && [view isKindOfClass:[AssetTableCellView class]]) {
+                            BOOL selected = [self.document.batchAssetsTableView isRowSelected:row];
+                            [(AssetTableCellView *)view setSelected:selected];
+                            [(AssetTableCellView *)view layoutViewsForTable:self.document.batchAssetsTableView viewMode:self.batchAssetsViewMode animated:YES];
+                        }
+                    }
+                }];
+                [self.document.batchAssetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+                [NSAnimationContext endGrouping];
+            }
+
+        }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.document.associatedAssetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
+            if (![self.associatedAssetsSelectedRowIndexes isEqualToIndexSet:[self.document.associatedAssetsTableView selectedRowIndexes]]) {
+                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet:self.associatedAssetsSelectedRowIndexes];
+                self.associatedAssetsSelectedRowIndexes = [self.document.associatedAssetsTableView selectedRowIndexes];
+                [changedRowIndexes addIndexes:self.associatedAssetsSelectedRowIndexes];
+                [NSAnimationContext beginGrouping];
+                [[NSAnimationContext currentContext] setDuration:0.5];
+                [changedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+                    if (row < [self.document.associatedAssetsTableView numberOfRows]) {
+                        NSView *view = [self.document.associatedAssetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                        if (view && [view isKindOfClass:[AssetTableCellView class]]) {
+                            BOOL selected = [self.document.associatedAssetsTableView isRowSelected:row];
+                            [(AssetTableCellView *)view setSelected:selected];
+                            [(AssetTableCellView *)view layoutViewsForTable:self.document.associatedAssetsTableView viewMode:self.associatedAssetsViewMode animated:YES];
+                        }
+                    }
+                }];
+                [self.document.associatedAssetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+                [NSAnimationContext endGrouping];
+            }
+        }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification object:self.document.changedAssetsTableView queue:nil usingBlock:^(NSNotification *aNotification){
+            if (![self.changedAssetsSelectedRowIndexes isEqualToIndexSet:[self.document.changedAssetsTableView selectedRowIndexes]]) {
+                NSMutableIndexSet *changedRowIndexes = [[NSMutableIndexSet alloc] initWithIndexSet:self.changedAssetsSelectedRowIndexes];
+                self.changedAssetsSelectedRowIndexes = [self.document.changedAssetsTableView selectedRowIndexes];
+                [changedRowIndexes addIndexes:self.changedAssetsSelectedRowIndexes];
+                [NSAnimationContext beginGrouping];
+                [[NSAnimationContext currentContext] setDuration:0.5];
+                [changedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+                    if (row < [self.document.changedAssetsTableView numberOfRows]) {
+                        NSView *view = [self.document.changedAssetsTableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                        if (view && [view isKindOfClass:[AssetTableCellView class]]) {
+                            BOOL selected = [self.document.changedAssetsTableView isRowSelected:row];
+                            [(AssetTableCellView *)view setSelected:selected];
+                            [(AssetTableCellView *)view layoutViewsForTable:self.document.changedAssetsTableView viewMode:self.changedAssetsViewMode animated:YES];
+                        }
+                    }
+                }];
+                [self.document.changedAssetsTableView noteHeightOfRowsWithIndexesChanged:changedRowIndexes];
+                [NSAnimationContext endGrouping];
+            }
+        }];
         
     }
     return self;
@@ -75,28 +139,43 @@
         NSLog(@"AssetController awakeFromNib");
         self.assetDetailControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"AssetTableCellView" bundle:[NSBundle mainBundle]];
-        for (NSTableView *tableView in @[self.assetsTableView, self.batchAssetsTableView, self.changedAssetsTableView, self.associatedAssetsTableView]) {
+        for (NSTableView *tableView in @[self.document.assetsTableView, self.document.batchAssetsTableView, self.document.changedAssetsTableView, self.document.associatedAssetsTableView]) {
             for (NSString *identifier in @[@"trackTableCellView", @"playlistTableCellView", @"postTableCellView", @"pageTableCellView"]) {
                 [tableView registerNib:nib forIdentifier:identifier];
             }
         }
     }
 }
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSInteger tag = [item tag];
+    if (tag < 100) {
+        [item setState:((tag == self.sortKeyTag) ? NSOnState : NSOffState)];
+    } else if (tag == 101) {
+        [item setState:(self.sortAscending ? NSOnState : NSOffState)];
+    } else if (tag == 102) {
+        [item setState:(self.sortAscending ? NSOffState : NSOnState)];
+    }
+    return YES;
+}
 
-- (IBAction)sortAssets:(id)sender {
-    
-    NSMenuItem *item = [self.sortPopupButton selectedItem];
-    NSString *descriptor = item.title;
-    BOOL ascendState = [self.sortDirectionButton state];
-   // if ([descriptor isEqualToString:@"Genre"]) descriptor = @"genre";
-   // else if ([descriptor isEqualToString:@"Date"]) descriptor = @"date";
-  //  else if ([descriptor isEqualToString:@"Title"]) descriptor = @"title";
-    
-    [self.assetsTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:descriptor ascending:ascendState]]];
-    [self.assetsTableView scrollRowToVisible:[self.assetsTableView selectedRow]];
-    
-//    [self viewModeSelectorClicked:NULL];
-    
+- (IBAction)sortAssetsDirection:(id)sender {
+    [sender setState:NSOnState];
+    NSString *selectionTitle = [[self.sortPopupButton selectedItem] title];
+    if ([selectionTitle isEqualToString:@"Ascending"]) self.sortAscending = YES;
+    else if ([selectionTitle isEqualToString:@"Descending"]) self.sortAscending = NO;
+    [self sortAssetsTable];
+}
+
+- (IBAction)sortAssetsKey:(id)sender {
+    self.sortKeyTag = [sender tag];
+    NSString *selectionTitle = [[self.sortPopupButton selectedItem] title];
+    self.sortKey = selectionTitle;
+    [self sortAssetsTable];
+}
+
+- (void)sortAssetsTable {
+    [self.document.assetsTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:self.sortKey ascending:self.sortAscending]]];
+    [self.document.assetsTableView scrollRowToVisible:[self.document.assetsTableView selectedRow]];
 }
 
 /*- (void)windowWillClose:(NSNotification *)notification {
@@ -117,16 +196,16 @@
 */
 
 - (IBAction)assetsTableViewModeSelectorClicked:(id)sender {
-    [self selectTableView:self.assetsTableView mode:self.assetsViewMode];
+    [self selectTableView:self.document.assetsTableView mode:self.assetsViewMode];
 }
 - (IBAction)changedAssetsTableViewModeSelectorClicked:(id)sender {
-    [self selectTableView:self.changedAssetsTableView mode:self.changedAssetsViewMode];
+    [self selectTableView:self.document.changedAssetsTableView mode:self.changedAssetsViewMode];
 }
 - (IBAction)batchAssetsTableViewModeSelectorClicked:(id)sender {
-    [self selectTableView:self.batchAssetsTableView mode:self.batchAssetsViewMode];
+    [self selectTableView:self.document.batchAssetsTableView mode:self.batchAssetsViewMode];
 }
 - (IBAction)associatedAssetsTableViewModeSelectorClicked:(id)sender {
-    [self selectTableView:self.associatedAssetsTableView mode:self.associatedAssetsViewMode];
+    [self selectTableView:self.document.associatedAssetsTableView mode:self.associatedAssetsViewMode];
 }
 
 - (void)selectTableView:(NSTableView *)tableView mode:(NSInteger)viewMode {
@@ -162,16 +241,16 @@
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
     
     NSInteger viewMode;
-    if (tableView == self.changedAssetsTableView) {
+    if (tableView == self.document.changedAssetsTableView) {
         viewMode = self.changedAssetsViewMode;
     }
-    else if (tableView == self.batchAssetsTableView) {
+    else if (tableView == self.document.batchAssetsTableView) {
         viewMode = self.batchAssetsViewMode;
     }
-    else if (tableView == self.associatedAssetsTableView) {
+    else if (tableView == self.document.associatedAssetsTableView) {
         viewMode = self.associatedAssetsViewMode;
     }
-    else {  // self.assetsTableView
+    else {  // self.document.assetsTableView
         viewMode = self.assetsViewMode;
     }
     
@@ -201,20 +280,20 @@
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row{
     Asset *asset;
     NSInteger viewMode;
-    if (tableView == self.changedAssetsTableView) {
-        asset = [self.changedAssetsController arrangedObjects][row];
+    if (tableView == self.document.changedAssetsTableView) {
+        asset = [self.document.changedAssetsController arrangedObjects][row];
         viewMode = self.changedAssetsViewMode;
     }
-    else if (tableView == self.batchAssetsTableView) {
-        asset = [self.batchAssetsController arrangedObjects][row];
+    else if (tableView == self.document.batchAssetsTableView) {
+        asset = [self.document.batchAssetsController arrangedObjects][row];
         viewMode = self.batchAssetsViewMode;
     }
-    else if (tableView == self.associatedAssetsTableView) {
-        asset = [self.associatedAssetsController arrangedObjects][row];
+    else if (tableView == self.document.associatedAssetsTableView) {
+        asset = [self.document.associatedAssetsController arrangedObjects][row];
         viewMode = self.associatedAssetsViewMode;
     }
-    else {  // self.assetsTableView
-        asset = [self.assetsController arrangedObjects][row];
+    else {  // self.document.assetsTableView
+        asset = [self.document.assetsController arrangedObjects][row];
         viewMode = self.assetsViewMode;
     }
     
@@ -223,14 +302,11 @@
     
     if (!view) {
         NSLog (@"!view tableView makeViewWithIdentifier:identifier: %@", identifier);
-
-        
     }
     
     if (view && [view isKindOfClass:[AssetTableCellView class]]) {
-        [(AssetTableCellView *)view setUpdateController:self.updateController];
-        [(AssetTableCellView *)view setSelected:[self.assetsTableView isRowSelected:row]];
-     //   [(AssetTableCellView *)view setSelected:NO];
+        [(AssetTableCellView *)view setDocument:self.document];
+        [(AssetTableCellView *)view setSelected:[tableView isRowSelected:row]];
         [(AssetTableCellView *)view layoutViewsForTable:tableView viewMode:viewMode animated:NO];
     }
 

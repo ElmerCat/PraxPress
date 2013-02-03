@@ -7,18 +7,32 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Asset.h"
+#import "Document.h"
 
 @interface ChangeValuesController : NSViewController
-@property (weak) IBOutlet NSArrayController *assetBatchEditController;
-@property (weak) IBOutlet NSArrayController *assetsController;
-@property (weak) IBOutlet NSArrayController *changedAssetsController;
-@property (weak) IBOutlet NSTableView *batchChangeTableView;
+
+@property (weak) IBOutlet Document *document;
+
+@property NSArray *changeOptions;
+
+@property BOOL prefixWith;
+@property BOOL appendWith;
+@property BOOL changeTo;
+@property BOOL findReplace;
+@property BOOL removeTags;
+@property BOOL removeAllTags;
+@property BOOL addTags;
+@property BOOL changeTrackSubType;
+@property BOOL changePlaylistSubType;
+
+
 @property NSString *batchCount;
 @property NSString *valueCopyText;
 @property NSString *keyValue;
 @property Asset *selectedAsset;
 
+- (IBAction)tagSelected:(id)sender;
+- (IBAction)changeOptionSelected:(id)sender;
 - (IBAction)cancel:(id)sender;
 - (IBAction)copy:(id)sender;
 - (IBAction)change:(id)sender;

@@ -16,8 +16,8 @@
     if (self) {
         NSLog(@"PlaylistController init");
         
-//        [self addObserver:self forKeyPath:@"self.associatedAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
-        [self addObserver:self forKeyPath:@"self.assetsController.selectionIndex" options:NSKeyValueObservingOptionNew context:0];
+//        [self addObserver:self forKeyPath:@"self.document.associatedAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
+        [self addObserver:self forKeyPath:@"self.document.assetsController.selectionIndex" options:NSKeyValueObservingOptionNew context:0];
         
     }
     return self;
@@ -25,8 +25,8 @@
 
 - (void)dealloc {
     NSLog(@"dealloc PlaylistController");
-//    [self removeObserver:self forKeyPath:@"self.associatedAssetsController.arrangedObjects"];
-    [self removeObserver:self forKeyPath:@"self.assetsController.selectionIndex"];
+//    [self removeObserver:self forKeyPath:@"self.document.associatedAssetsController.arrangedObjects"];
+    [self removeObserver:self forKeyPath:@"self.document.assetsController.selectionIndex"];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -34,8 +34,8 @@
 - (void)awakeFromNib {
     NSLog(@"PlaylistController awakeFromNib");
     
-    [self.associatedAssetsTableView registerForDraggedTypes:@[@"PraxItemsDropType"]];
-    [self.associatedAssetsTableView setSortDescriptors:self.playlistSortDescriptors];
+    [self.document.associatedAssetsTableView registerForDraggedTypes:@[@"PraxItemsDropType"]];
+    [self.document.associatedAssetsTableView setSortDescriptors:self.playlistSortDescriptors];
     
 //    [[NSNotificationCenter defaultCenter] addObserverForName:@"AssociatedAssetChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
   //      NSLog(@"AssociatedAssetChangedNotification aNotification: %@", aNotification);
@@ -46,16 +46,16 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
- //   NSLog(@"PlaylistController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
     
-    if ([keyPath isEqualToString:@"self.associatedAssetsController.arrangedObjects"]) {
+    if ([keyPath isEqualToString:@"self.document.associatedAssetsController.arrangedObjects"]) {
+        NSLog(@"PlaylistController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
     
   
     }
     
-    else if ([keyPath isEqualToString:@"self.assetsController.selectionIndex"]) {
-        if (self.assetsController.selectionIndex != NSNotFound) {
-            Asset *playlist = self.assetsController.arrangedObjects[self.assetsController.selectionIndex];
+    else if ([keyPath isEqualToString:@"self.document.assetsController.selectionIndex"]) {
+        if (self.document.assetsController.selectionIndex != NSNotFound) {
+            Asset *playlist = self.document.assetsController.arrangedObjects[self.document.assetsController.selectionIndex];
             if ([playlist.type isEqualToString:@"playlist"]) {
                 NSSet *tracks = playlist.associatedItems;
                 NSMutableDictionary *trackIndex = [NSMutableDictionary dictionaryWithCapacity:8];
@@ -101,8 +101,8 @@
 }
 - (NSDragOperation)tableView:(NSTableView*)table validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation
 {
-	if (([info draggingSource] == self.associatedAssetsTableView) || ([info draggingSource] == self.associatedAssetsTableView)) {
-        NSArray *sortDescriptors = [self.associatedAssetsController sortDescriptors];
+	if (([info draggingSource] == self.document.associatedAssetsTableView) || ([info draggingSource] == self.document.associatedAssetsTableView)) {
+        NSArray *sortDescriptors = [self.document.associatedAssetsController sortDescriptors];
         if ([sortDescriptors count] > 0) {
             if ([[sortDescriptors[0] key] isEqualToString:@"playlistPosition"]) {
                 if (operation == NSTableViewDropOn) [table setDropRow:row dropOperation:NSTableViewDropAbove];
@@ -118,7 +118,7 @@
 	NSData *rowData = [pasteboard dataForType:@"PraxItemsDropType"];
 	NSIndexSet *draggedItems = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
     
-	NSArray *allItemsArray = [[self.associatedAssetsController arrangedObjects] copy];
+	NSArray *allItemsArray = [[self.document.associatedAssetsController arrangedObjects] copy];
     NSMutableIndexSet *allItems = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [allItemsArray count])];
     NSMutableIndexSet *firstItems = [NSMutableIndexSet indexSet];
     NSMutableIndexSet *lastItems = [NSMutableIndexSet indexSet];
@@ -144,7 +144,8 @@
         asset.playlistPosition = [NSNumber numberWithInteger:newRow];
         newRow++;
     }];
-//    [self.associatedAssetsController rearrangeObjects];
+    [self.document.associatedAssetsController rearrangeObjects];
+    [self changePlaylistOrder:self];
   	return YES;
 }
 
@@ -152,11 +153,11 @@
 
 - (IBAction)changePlaylistOrder:(id)sender {
     
-    Asset *playlist = self.assetsController.arrangedObjects[self.assetsController.selectionIndex];
+    Asset *playlist = self.document.assetsController.arrangedObjects[self.document.assetsController.selectionIndex];
     if ([playlist.type isEqualToString:@"playlist"]) {
         
         NSMutableArray *trackIDs = [NSMutableArray array];
-        for (Asset *asset in self.associatedAssetsController.arrangedObjects) {
+        for (Asset *asset in self.document.associatedAssetsController.arrangedObjects) {
             [trackIDs addObject:asset.asset_id.stringValue];
         }
         NSString *trackList = [trackIDs componentsJoinedByString:@","];
@@ -169,14 +170,14 @@
 
 - (IBAction)setPlaylistTracksFromBatch:(id)sender {
     
-    if (self.assetsController.selectionIndex != NSNotFound) {
-        Asset *playlist = self.assetsController.arrangedObjects[self.assetsController.selectionIndex];
+    if (self.document.assetsController.selectionIndex != NSNotFound) {
+        Asset *playlist = self.document.assetsController.arrangedObjects[self.document.assetsController.selectionIndex];
         if ([playlist.type isEqualToString:@"playlist"]) {
             
             NSMutableArray *trackIDs = [NSMutableArray array];
             NSMutableSet *tracks = [NSMutableSet set];
             int count = 0;
-            for (Asset *asset in self.batchAssetsController.arrangedObjects) {
+            for (Asset *asset in self.document.batchAssetsController.arrangedObjects) {
                 if ([asset.entity.name isEqualToString:@"Track"]) {
                     [tracks addObject:asset];
                     asset.playlistPosition = [NSNumber numberWithInt:count];
@@ -196,17 +197,17 @@
 
 
 - (IBAction)addAssociatedAssetsToBatch:(id)sender {
-    for (Asset *asset in self.associatedAssetsController.arrangedObjects) {
+    for (Asset *asset in self.document.associatedAssetsController.arrangedObjects) {
         asset.edit_mode = @YES;
     }
-    [self.batchAssetsController rearrangeObjects];
+    [self.document.batchAssetsController rearrangeObjects];
 }
 
 - (IBAction)removeAssociatedAssetsFromBatch:(id)sender {
-    for (Asset *asset in self.associatedAssetsController.arrangedObjects) {
+    for (Asset *asset in self.document.associatedAssetsController.arrangedObjects) {
         asset.edit_mode = @NO;
     }
-    [self.batchAssetsController rearrangeObjects];
+    [self.document.batchAssetsController rearrangeObjects];
 }
 
 

@@ -16,6 +16,7 @@
     if (self) {
     NSLog(@"UpdateController init");
         
+        [self addObserver:self forKeyPath:@"self.document.changedAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
         
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -111,8 +112,55 @@
 
 - (void)dealloc {
     NSLog(@"UpdateController dealloc");
+    [self removeObserver:self forKeyPath:@"self.document.changedAssetsController.arrangedObjects"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"self.document.changedAssetsController.arrangedObjects"]) {
+        NSInteger count = [self.document.changedAssetsController.arrangedObjects count];
+
+        if ((count > 0) && (self.document.changedAssetsView.frame.size.height < 150)) {
+            self.document.changedAssetsView.hidden = NO;
+            
+            [NSAnimationContext beginGrouping];
+            [[NSAnimationContext currentContext] setDuration:1];
+            NSRect newCollapsingFrame = self.document.assetsView.frame;
+            newCollapsingFrame.size.height = self.document.leftSplitView.frame.size.height-150;
+            [[self.document.assetsView animator] setFrame:newCollapsingFrame];
+            
+            NSRect newExpandingFrame = self.document.changedAssetsView.frame;
+            newExpandingFrame.size.height = 150;
+            newExpandingFrame.origin.x = self.document.leftSplitView.frame.size.height-150;
+            [[self.document.changedAssetsView animator] setFrame:newExpandingFrame];
+                        
+            [NSAnimationContext endGrouping];
+
+        }
+        else if ((!count) && (self.document.changedAssetsView.frame.size.height > 0)) {
+            
+            [NSAnimationContext beginGrouping];
+            [[NSAnimationContext currentContext] setDuration:1];
+            NSRect newExpandingFrame = self.document.assetsView.frame;
+            newExpandingFrame.size.height =  self.document.leftSplitView.frame.size.height;
+            [[self.document.assetsView animator] setFrame:newExpandingFrame];
+            
+            NSRect newCollapsingFrame = self.document.changedAssetsView.frame;
+            newCollapsingFrame.size.height = 0.0f;
+            newCollapsingFrame.origin.x = self.document.leftSplitView.frame.size.height;
+            [[self.document.changedAssetsView animator] setFrame:newCollapsingFrame];
+
+            [NSAnimationContext endGrouping];
+            
+        }       
+    }
+    else {
+        NSLog(@"UpdateController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
+    }
+}
+
+
 
 - (void)removeAccessForAccountType:(NSString *)accountType {
     NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:accountType];

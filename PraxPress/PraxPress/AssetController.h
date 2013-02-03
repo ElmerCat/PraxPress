@@ -19,34 +19,29 @@
 @property BOOL awake;
 @property (weak) IBOutlet Document *document;
 @property NSMapTable *assetDetailControllers;
-@property NSIndexSet *selectedRowIndexes;
+@property NSIndexSet *assetsSelectedRowIndexes;
+@property NSIndexSet *associatedAssetsSelectedRowIndexes;
+@property NSIndexSet *batchAssetsSelectedRowIndexes;
+@property NSIndexSet *changedAssetsSelectedRowIndexes;
 @property NSInteger assetsViewMode;
 @property NSInteger associatedAssetsViewMode;
 @property NSInteger batchAssetsViewMode;
 @property NSInteger changedAssetsViewMode;
 
-@property (weak) IBOutlet UpdateController *updateController;
-@property (weak) IBOutlet NSArrayController *assetsController;
-@property (weak) IBOutlet NSArrayController *batchAssetsController;
-@property (weak) IBOutlet NSArrayController *associatedAssetsController;
-@property (weak) IBOutlet NSArrayController *changedAssetsController;
-
-@property (weak) IBOutlet WebView *assetDetailWebView;
-@property (weak) IBOutlet NSTableView *assetsTableView;
-@property (weak) IBOutlet NSTableView *batchAssetsTableView;
-@property (weak) IBOutlet NSTableView *changedAssetsTableView;
-@property (weak) IBOutlet NSTableView *associatedAssetsTableView;
 @property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
 
-
-@property (weak) IBOutlet NSPopUpButton *sortPopupButton;
-@property (weak) IBOutlet NSButton *sortDirectionButton;
 
 - (IBAction)assetsTableViewModeSelectorClicked:(id)sender;
 - (IBAction)changedAssetsTableViewModeSelectorClicked:(id)sender;
 - (IBAction)batchAssetsTableViewModeSelectorClicked:(id)sender;
 - (IBAction)associatedAssetsTableViewModeSelectorClicked:(id)sender;
-- (IBAction)sortAssets:(id)sender;
+
+@property (weak) IBOutlet NSPopUpButton *sortPopupButton;
+@property BOOL sortAscending;
+@property NSString *sortKey;
+@property NSInteger sortKeyTag;
+- (IBAction)sortAssetsKey:(id)sender;
+- (IBAction)sortAssetsDirection:(id)sender;
 
 - (void)assetTableDoubleClicked:(NSArray *)selectedObjects;
 - (void)showMetadataPopoverForAsset:(Asset *)asset sender:(id)sender;

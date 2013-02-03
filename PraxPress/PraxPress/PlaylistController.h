@@ -16,10 +16,6 @@
 
 
 @property (weak) IBOutlet Document *document;
-@property (weak) IBOutlet NSTableView *associatedAssetsTableView;
-@property (weak) IBOutlet NSArrayController *assetsController;
-@property (weak) IBOutlet NSArrayController *associatedAssetsController;
-@property (weak) IBOutlet NSArrayController *batchAssetsController;
 @property NSArray *_playlistSortDescriptors;
 - (NSArray *)playlistSortDescriptors;
 

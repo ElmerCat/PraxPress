@@ -195,9 +195,16 @@
     
 }
 
+
+- (BOOL)splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex {
+    NSLog(@"splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:%ld", (long)dividerIndex);
+    if (subview == self.changedAssetsView) return YES;
+    else return NO;
+}
+
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return TRUE;}
 
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return FALSE;}
+- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return TRUE;}
 
 /*- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
     NSRect effectiveRect = proposedEffectiveRect;

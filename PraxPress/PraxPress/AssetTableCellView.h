@@ -7,11 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "UpdateController.h"
+#import "Document.h"
 
 @interface AssetTableCellView : NSTableCellView
 
-@property UpdateController *updateController;
+@property Document *document;
 
 @property Asset *asset;
 @property BOOL selected;

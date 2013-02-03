@@ -12,8 +12,6 @@
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
-		E64555A116A70AB300740F45 /* M3TokenCloud.m in Sources */ = {isa = PBXBuildFile; fileRef = E645559E16A70AB300740F45 /* M3TokenCloud.m */; };
-		E64555A216A70AB300740F45 /* M3TokenController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A016A70AB300740F45 /* M3TokenController.m */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
@@ -36,7 +34,6 @@
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E67782CA160D06990069FEE3 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E67782C9160D06990069FEE3 /* Account.m */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
-		E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6B137F815E845C40003EB15 /* AssetDetailView.xib */; };
 		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
@@ -66,7 +63,6 @@
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
-		E6F80B2616238D8600828086 /* BatchChangeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B2516238D8600828086 /* BatchChangeViewController.m */; };
 		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
 		E6F80B2F1623DDE100828086 /* ReplaceSubstringsController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B2D1623DDE100828086 /* ReplaceSubstringsController.m */; };
@@ -111,10 +107,6 @@
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
 		E644B176168F67190001CE52 /* SourceSelectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceSelectionController.m; sourceTree = "<group>"; };
 		E644B177168F67190001CE52 /* SourceSelectionController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourceSelectionController.xib; sourceTree = "<group>"; };
-		E645559D16A70AB300740F45 /* M3TokenCloud.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = M3TokenCloud.h; path = ../M3TokenController/M3TokenCloud.h; sourceTree = "<group>"; };
-		E645559E16A70AB300740F45 /* M3TokenCloud.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = M3TokenCloud.m; path = ../M3TokenController/M3TokenCloud.m; sourceTree = "<group>"; };
-		E645559F16A70AB300740F45 /* M3TokenController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = M3TokenController.h; path = ../M3TokenController/M3TokenController.h; sourceTree = "<group>"; };
-		E64555A016A70AB300740F45 /* M3TokenController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = M3TokenController.m; path = ../M3TokenController/M3TokenController.m; sourceTree = "<group>"; };
 		E64555A716A76F6900740F45 /* TagController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagController.h; sourceTree = "<group>"; };
 		E64555A816A76F6900740F45 /* TagController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TagController.m; sourceTree = "<group>"; };
 		E64555AA16A773BF00740F45 /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
@@ -151,7 +143,6 @@
 		E67782C9160D06990069FEE3 /* Account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Account.m; sourceTree = "<group>"; };
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
 		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		E6B137F815E845C40003EB15 /* AssetDetailView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetDetailView.xib; sourceTree = "<group>"; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC799D15C4759800080762 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E6BC79A015C4759800080762 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -194,8 +185,6 @@
 		E6EE3F2315C773D10025C04B /* Error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Error.wav; sourceTree = "<group>"; };
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
-		E6F80B2416238D8600828086 /* BatchChangeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchChangeViewController.h; sourceTree = "<group>"; };
-		E6F80B2516238D8600828086 /* BatchChangeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchChangeViewController.m; sourceTree = "<group>"; };
 		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
 		E6F80B281623969100828086 /* ChangeValuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeValuesController.m; sourceTree = "<group>"; };
 		E6F80B291623969100828086 /* ChangeValuesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeValuesController.xib; sourceTree = "<group>"; };
@@ -231,17 +220,6 @@
 			name = Helpers;
 			sourceTree = "<group>";
 		};
-		E645559C16A70A4B00740F45 /* M3TokenController */ = {
-			isa = PBXGroup;
-			children = (
-				E645559D16A70AB300740F45 /* M3TokenCloud.h */,
-				E645559E16A70AB300740F45 /* M3TokenCloud.m */,
-				E645559F16A70AB300740F45 /* M3TokenController.h */,
-				E64555A016A70AB300740F45 /* M3TokenController.m */,
-			);
-			name = M3TokenController;
-			sourceTree = "<group>";
-		};
 		E661E63216279D3600EFD83A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
@@ -270,8 +248,6 @@
 				E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */,
 				E6D19B92168AB11300D068BC /* AssetTableCellView.h */,
 				E6D19B93168AB11300D068BC /* AssetTableCellView.m */,
-				E6F80B2416238D8600828086 /* BatchChangeViewController.h */,
-				E6F80B2516238D8600828086 /* BatchChangeViewController.m */,
 				E6F80B271623969100828086 /* ChangeValuesController.h */,
 				E6F80B281623969100828086 /* ChangeValuesController.m */,
 				E6EA109F16AB22DD0004800F /* NewPlaylistPopover.h */,
@@ -291,7 +267,6 @@
 			children = (
 				E661E62C1626182400EFD83A /* AccountViewController.xib */,
 				E66E6C00169F1252006F07D1 /* AssetDetailController.xib */,
-				E6B137F815E845C40003EB15 /* AssetDetailView.xib */,
 				E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */,
 				E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */,
 				E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */,
@@ -330,7 +305,6 @@
 				E6F1562515E58EA80098EC32 /* Images */,
 				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
-				E645559C16A70A4B00740F45 /* M3TokenController */,
 			);
 			sourceTree = "<group>";
 		};
@@ -510,7 +484,6 @@
 				E6EE3F2715C773D10025C04B /* Error.wav in Resources */,
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
-				E6B137F915E845C40003EB15 /* AssetDetailView.xib in Resources */,
 				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
 				E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */,
 				E6535E9E1613C19600A49036 /* icon.icns in Resources */,
@@ -555,7 +528,6 @@
 				E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */,
 				E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */,
 				E67782CA160D06990069FEE3 /* Account.m in Sources */,
-				E6F80B2616238D8600828086 /* BatchChangeViewController.m in Sources */,
 				E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */,
 				E6F80B2F1623DDE100828086 /* ReplaceSubstringsController.m in Sources */,
 				E661E62D1626182400EFD83A /* AccountViewController.m in Sources */,
@@ -566,8 +538,6 @@
 				E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */,
 				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
 				E664659516A4D94E004E3448 /* Document.xcdatamodeld in Sources */,
-				E64555A116A70AB300740F45 /* M3TokenCloud.m in Sources */,
-				E64555A216A70AB300740F45 /* M3TokenController.m in Sources */,
 				E64555A916A76F6900740F45 /* TagController.m in Sources */,
 				E64555AC16A773C000740F45 /* Tag.m in Sources */,
 				E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */,

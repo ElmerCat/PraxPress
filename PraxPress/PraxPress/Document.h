@@ -22,6 +22,10 @@
 
 @interface Document : NSPersistentDocument
 
+@property (weak) IBOutlet NSSplitView *leftSplitView;
+@property (weak) IBOutlet NSView *assetsView;
+@property (weak) IBOutlet NSView *changedAssetsView;
+
 @property (strong) IBOutlet TagController *tagController;
 @property (strong) IBOutlet UpdateController *updateController;
 @property (weak) IBOutlet NSToolbarItem *accountsToolbarButton;
