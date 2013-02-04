@@ -18,6 +18,36 @@
     if (self) {
         NSLog(@"Document init");
         self.templateSortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+        
+        self.sharingTypes = @[@{@"name":@"Private", @"value":@"private"},
+                              @{@"name":@"Public", @"value":@"public"}];
+        
+        self.trackSubTypes = @[@{@"name":@"(none)", @"value":@""},
+                               @{@"name":@"Other", @"value":@"other"},
+                               @{@"name":@"One Shot Sample", @"value":@"sample"},
+                               @{@"name":@"Sound Effect", @"value":@"sound effect"},
+                               @{@"name":@"Loop", @"value":@"loop"},
+                               @{@"name":@"Stem", @"value":@"stem"},
+                               @{@"name":@"Work in Progress", @"value":@"in progress"},
+                               @{@"name":@"Demo", @"value":@"demo"},
+                               @{@"name":@"Podcast", @"value":@"podcast"},
+                               @{@"name":@"Spoken", @"value":@"spoken"},
+                               @{@"name":@"Recording", @"value":@"recording"},
+                               @{@"name":@"Live", @"value":@"live"},
+                               @{@"name":@"Remix", @"value":@"remix"},
+                               @{@"name":@"Original", @"value":@"original"}];
+        
+        self.playlistSubTypes = @[@{@"name":@"(none)", @"value":@""},
+                                  @{@"name":@"Album", @"value":@"album"},
+                                  @{@"name":@"Archive", @"value":@"archive"},
+                                  @{@"name":@"Compilation", @"value":@"compilation"},
+                                  @{@"name":@"Demo", @"value":@"demo"},
+                                  @{@"name":@"EP/Single", @"value":@"ep single"},
+                                  @{@"name":@"Other", @"value":@"other"},
+                                  @{@"name":@"Project Files", @"value":@"project files"},
+                                  @{@"name":@"Sample Pack", @"value":@"sample pack"},
+                                  @{@"name":@"Showcase", @"value":@"showcase"}];
+        
     }
     return self;
 }

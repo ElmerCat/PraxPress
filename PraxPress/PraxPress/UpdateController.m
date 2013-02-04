@@ -9,7 +9,6 @@
 #import "UpdateController.h"
 
 @implementation UpdateController
-@synthesize assetsController;
 
 - (id)init {
     self = [super init];
@@ -175,7 +174,7 @@
 
 - (IBAction)uploadChangedItems:(id)sender {
     if (self.busy) return;
-    self.targetCount = [self.changedAssetsController.arrangedObjects count];
+    self.targetCount = [self.document.changedAssetsController.arrangedObjects count];
     if (self.targetCount < 1) return;
     self.updateCount = 0;
     self.uploadAll = TRUE;
@@ -183,18 +182,18 @@
 }
 
 -(void)uploadChangedAssets {
-    if ([self.changedAssetsController.arrangedObjects count] < 1) {
+    if ([self.document.changedAssetsController.arrangedObjects count] < 1) {
         [self reset];
         return;
     }
     else if ((self.targetCount - self.updateCount) > 1) self.determinate = YES;
     else self.determinate = NO;
-    [self uploadAsset:self.changedAssetsController.arrangedObjects[0]];
+    [self uploadAsset:self.document.changedAssetsController.arrangedObjects[0]];
 }
 
 - (IBAction)reloadChangedItems:(id)sender {
     if (self.busy) return;
-    self.targetCount = [self.changedAssetsController.arrangedObjects count];
+    self.targetCount = [self.document.changedAssetsController.arrangedObjects count];
     if (self.targetCount < 1) return;
     self.updateCount = 0;
     self.reloadAll = TRUE;
@@ -202,13 +201,13 @@
 }
 
 -(void)reloadChangedAssets {
-    if ([self.changedAssetsController.arrangedObjects count] < 1) {
+    if ([self.document.changedAssetsController.arrangedObjects count] < 1) {
         [self reset];
         return;
     }
     else if ((self.targetCount - self.updateCount) > 1) self.determinate = YES;
-    self.determinate = NO;
-    [self reloadAsset:self.changedAssetsController.arrangedObjects[0]];
+    else self.determinate = NO;
+    [self reloadAsset:self.document.changedAssetsController.arrangedObjects[0]];
 }
 
 

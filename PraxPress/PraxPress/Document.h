@@ -40,6 +40,10 @@
 @property (weak) IBOutlet NSArrayController *templatesController;
 @property (weak) IBOutlet NSArrayController *tagsController;
 
+@property NSArray *sharingTypes;
+@property NSArray *trackSubTypes;
+@property NSArray *playlistSubTypes;
+
 @property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;
 

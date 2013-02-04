@@ -58,6 +58,18 @@
                                options:NSKeyValueObservingOptionNew
                                context:NULL];
     
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"NSPopoverWillShowNotification" object:self.popover queue:nil usingBlock:^(NSNotification *aNotification){
+        [self resetChangeOptions];
+        [self.changeOptionsController setSelectionIndex:0];
+        self.didShowPopover = NO;
+        
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"NSPopoverDidShowNotification" object:self.popover queue:nil usingBlock:^(NSNotification *aNotification){  // gets called twice every time popover does show
+        if (!self.didShowPopover) self.didShowPopover = YES;
+        else [self.changeOptionsPopUpButton performClick:self];
+    }];
+
+    
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -122,13 +134,66 @@
 
 
 - (IBAction)change:(id)sender {
+    
+    NSString *key = [self.changeOptionsController.selection valueForKey:@"key"];
+    
     for (Asset *asset in [self.document.batchAssetsController arrangedObjects]) {
-        [asset setValue:[self.valueField stringValue] forKey:self.keyValue];
-        asset.sync_mode = [NSNumber numberWithBool:TRUE];
+         
+        if (self.changeTo) {
+            [asset setValue:self.changeToString forKey:key];
+        }
+        else if (((self.prefixWith)||(self.appendWith))||(self.findReplace)) {
+            NSMutableString *value = ([asset valueForKey:key]) ? [NSMutableString stringWithString:[asset valueForKey:key]] : [NSMutableString stringWithString:@""];
+            
+            if (self.findReplace) {
+                
+                [value setString:[value stringByReplacingOccurrencesOfString:self.findString withString:self.replaceString]];
+                
+            }
+            if (self.prefixWith) {
+                [value insertString:self.prefixWithString atIndex:0];
+                
+            }
+            if (self.appendWith) {
+                [value appendString:self.appendWithString];
+            }
+            
+            [asset setValue:value forKey:key];
+            
+        }
+        else if ([key isEqualToString:@"sharing"]) {
+            [asset setValue:[self.sharingTypesController.selection valueForKey:@"value"] forKey:key];
+            
+        }
+        else if ([key isEqualToString:@"sub_type"]) {
+            if ((self.changeTrackSubType) && (asset.isTrack)) {
+                [asset setValue:[self.trackSubTypesController.selection valueForKey:@"value"] forKey:key];
+            }
+            else if ((self.changePlaylistSubType) && (asset.isPlaylist)) {
+                [asset setValue:[self.playlistSubTypesController.selection valueForKey:@"value"] forKey:key];
+            }
+       }
+        else if ([key isEqualToString:@"tags"]) {
+            
+            
+            
+        }
+        else {
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+   //     [asset setValue:[self.valueField stringValue] forKey:self.keyValue];
+   //     asset.sync_mode = [NSNumber numberWithBool:TRUE];
         
     }
-    self.keyValue = nil;
-    [self.document.changedAssetsController rearrangeObjects];
+  //  self.keyValue = nil;
+  //  [self.document.changedAssetsController rearrangeObjects];
     [self.popover performClose:sender];
     
 }
@@ -141,18 +206,25 @@
 }
 
 - (void)resetChangeOptions {
-    
     self.prefixWith = NO;
+    self.prefixWithString = @"";
     self.appendWith = NO;
+    self.appendWithString = @"";
     self.changeTo = NO;
+    self.changeToString = @"";
     self.findReplace = NO;
+    self.findString = @"";
+    self.replaceString = @"";
     self.removeTags = NO;
+    self.removeTagsString = @"";
     self.removeAllTags = NO;
     self.addTags = NO;
+    self.addTagsString = @"";
     self.changeTrackSubType = NO;
     self.changePlaylistSubType = NO;
-    
-    
+    [self.trackSubTypesController setSelectionIndex:0];
+    [self.playlistSubTypesController setSelectionIndex:0];
+    [self.sharingTypesController setSelectionIndex:0];
 }
 
 - (IBAction)changeOptionSelected:(id)sender {

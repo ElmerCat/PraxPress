@@ -39,9 +39,6 @@
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet TagController *tagController;
 
-@property (weak) IBOutlet NSArrayController *changedAssetsController;
-@property (weak) IBOutlet NSTableView *changedAssetsTableView;
-@property (weak) IBOutlet NSArrayController *assetsController;
 @property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
 
 @property (weak) IBOutlet NSProgressIndicator *progressBar;

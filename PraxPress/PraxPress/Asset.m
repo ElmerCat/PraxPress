@@ -261,8 +261,6 @@
 
 }
 
-
-
 -(NXOAuth2Request *)requestForUploadController:(UpdateController *)controller {  // return a request, configured as required for account type
     
     
@@ -272,11 +270,24 @@
 
     if (self.isSoundCloudAsset) {
        
-        for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"sharing", @"genre", @"permalink", @"tag_list"]) {
+        for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"contents", @"sharing", @"genre", @"permalink", @"tag_list"]) {
             
             NSString *asset_key = (self.isTrack) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
-            NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
-            [parameters setObject:value forKey:asset_key];
+            if ([key isEqualToString:@"tag_list"]) {
+                NSMutableString *value = [[NSMutableString alloc] init];
+                NSRange range;
+                for (Tag *tag in self.tags) {
+                    if (value.length > 0) [value appendString:@" "];
+                    range = [tag.name rangeOfString:@" "];
+                    if (range.location != NSNotFound) [value appendFormat:@"\"%@\"", tag.name];
+                    else [value appendString:tag.name];
+                }
+                [parameters setObject:[value description] forKey:asset_key];
+            }
+            else {
+                NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
+                [parameters setObject:value forKey:asset_key];
+            }
         }
         
         if (self.isTrack) {
@@ -373,6 +384,7 @@
                     [asset loadSoundCloudItemData:item];
                     [controller.document.tagController loadAssetTags:asset];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                    [controller.document.changedAssetsController fetch:self];
                     
                 }
                 
@@ -410,6 +422,7 @@
                     [asset loadPlaylistsAsset:asset data:item];
                     [controller.tagController loadAssetTags:asset];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                    [controller.document.changedAssetsController fetch:self];
 
                 }
                 if (controller.updateCount < controller.targetCount) {
@@ -457,6 +470,7 @@
                     [asset loadWordPressPostData:item];
                     [controller.document.tagController loadAssetTags:asset];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                    [controller.document.changedAssetsController fetch:self];
                     
                 }
                 
@@ -478,6 +492,7 @@
         
         [controller.tagController loadAssetTags:self];
         self.sync_mode = [NSNumber numberWithBool:FALSE];
+        [controller.document.changedAssetsController fetch:self];
         
         if (controller.reloadAll) {
             controller.updateCount += 1;
