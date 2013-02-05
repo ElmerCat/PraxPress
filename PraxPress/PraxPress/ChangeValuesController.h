@@ -30,10 +30,10 @@
 @property NSString *findString;
 @property NSString *replaceString;
 @property BOOL removeTags;
-@property NSString *removeTagsString;
+@property NSArray *removeTagsArray;
 @property BOOL removeAllTags;
 @property BOOL addTags;
-@property NSString *addTagsString;
+@property NSArray *addTagsArray;
 @property BOOL changeTrackSubType;
 @property BOOL changePlaylistSubType;
 

@@ -11,8 +11,6 @@
 			<array>
 				<string>praxpress</string>
 			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>icon</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/octet-stream</string>
@@ -53,8 +51,6 @@
 			<array>
 				<string>xml</string>
 			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string></string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>text/xml</string>
@@ -78,7 +74,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>icon</string>
+	<string>PraxPress</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.ElmerCat.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

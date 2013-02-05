@@ -136,9 +136,45 @@
 - (IBAction)change:(id)sender {
     
     NSString *key = [self.changeOptionsController.selection valueForKey:@"key"];
+
+    NSMutableSet *tagsToRemove;
+    NSMutableSet *tagsToAdd;
+    if ([key isEqualToString:@"tags"]) {
+        Tag *tag;
+        if (self.removeTags) {
+            tagsToRemove = [[NSMutableSet alloc] init];
+            for (NSString *string in self.removeTagsArray) {
+                NSLog(@"%@", string);
+                NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+                [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", string]];
+                NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:nil];
+                if ([matchingItems count] < 1) {
+                    tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+                    tag.name = string;
+                }
+                else tag = matchingItems[0];
+                [tagsToRemove addObject:tag];
+            }
+        }
+        if (self.addTags) {
+            tagsToAdd = [[NSMutableSet alloc] init];
+            for (NSString *string in self.addTagsArray) {
+                NSLog(@"%@", string);
+                NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+                [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", string]];
+                NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:nil];
+                if ([matchingItems count] < 1) {
+                    tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+                    tag.name = string;
+                }
+                else tag = matchingItems[0];
+                [tagsToAdd addObject:tag];
+            }
+        }
+    }
     
     for (Asset *asset in [self.document.batchAssetsController arrangedObjects]) {
-         
+        
         if (self.changeTo) {
             [asset setValue:self.changeToString forKey:key];
         }
@@ -174,9 +210,11 @@
             }
        }
         else if ([key isEqualToString:@"tags"]) {
-            
-            
-            
+            NSMutableSet *tags = [asset mutableSetValueForKey:key];
+            if (self.removeTags) [tags minusSet:tagsToRemove];
+            else if (self.removeAllTags) [tags removeAllObjects];
+            if (self.addTags) [tags unionSet:tagsToAdd];
+            asset.tags = [tags copy];
         }
         else {
             
@@ -216,10 +254,10 @@
     self.findString = @"";
     self.replaceString = @"";
     self.removeTags = NO;
-    self.removeTagsString = @"";
+    self.removeTagsArray = nil;
     self.removeAllTags = NO;
     self.addTags = NO;
-    self.addTagsString = @"";
+    self.addTagsArray = nil;
     self.changeTrackSubType = NO;
     self.changePlaylistSubType = NO;
     [self.trackSubTypesController setSelectionIndex:0];

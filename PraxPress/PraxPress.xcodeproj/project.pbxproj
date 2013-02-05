@@ -15,8 +15,6 @@
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
-		E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */; };
-		E6535E9E1613C19600A49036 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E6535E9D1613C19600A49036 /* icon.icns */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
 		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
@@ -63,6 +61,7 @@
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
+		E6F6417216C0B77600FD5644 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E6F6417116C0B77600FD5644 /* PraxPress.icns */; };
 		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
 /* End PBXBuildFile section */
@@ -183,6 +182,10 @@
 		E6EE3F2315C773D10025C04B /* Error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Error.wav; sourceTree = "<group>"; };
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
+		E6F6417116C0B77600FD5644 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
+		E6F6417316C0B79700FD5644 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
+		E6F6417516C0B7E000FD5644 /* Umbrella-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Umbrella-1.png"; sourceTree = "<group>"; };
+		E6F6417716C0BD7100FD5644 /* Umbrella-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Umbrella-1.png"; sourceTree = "<group>"; };
 		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
 		E6F80B281623969100828086 /* ChangeValuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeValuesController.m; sourceTree = "<group>"; };
 		E6F80B291623969100828086 /* ChangeValuesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeValuesController.xib; sourceTree = "<group>"; };
@@ -292,6 +295,8 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
+				E6F6417716C0BD7100FD5644 /* Umbrella-1.png */,
+				E6F6417316C0B79700FD5644 /* PraxPress.icns */,
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -383,6 +388,8 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E6F6417516C0B7E000FD5644 /* Umbrella-1.png */,
+				E6F6417116C0B77600FD5644 /* PraxPress.icns */,
 				E6DECE9916AD9F830076BDC4 /* toggleLeft.png */,
 				E6DECE9A16AD9F830076BDC4 /* toggleRight.png */,
 				E6DECE9516AD26020076BDC4 /* toggleOff.png */,
@@ -477,8 +484,6 @@
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
 				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
-				E6535E9C1613BE7B00A49036 /* icon_512x512@2x.png in Resources */,
-				E6535E9E1613C19600A49036 /* icon.icns in Resources */,
 				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
 				E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */,
@@ -498,6 +503,7 @@
 				E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
+				E6F6417216C0B77600FD5644 /* PraxPress.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
