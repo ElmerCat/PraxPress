@@ -12,11 +12,11 @@
 
 +(NSInteger)imageTopSelectedSpaceConstant {return 26;}
 +(NSInteger)viewModeZeroRowHeight {return 40;}
-+(NSInteger)viewModeZeroSelectedRowHeight {return 130;}
++(NSInteger)viewModeZeroSelectedRowHeight {return 300;}
 +(NSInteger)viewModeOneRowHeight {return 60;}
-+(NSInteger)viewModeOneSelectedRowHeight {return 200;}
++(NSInteger)viewModeOneSelectedRowHeight {return 300;}
 +(NSInteger)viewModeTwoRowHeight {return 100;}
-+(NSInteger)viewModeTwoSelectedRowHeight {return 400;}
++(NSInteger)viewModeTwoSelectedRowHeight {return 300;}
 
 
 /* - (void)awakeFromNib {

@@ -110,8 +110,6 @@
 		E64555AB16A773BF00740F45 /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
 		E64774AA16067BA0003BD981 /* TemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TemplateViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E64774AB16067BA0003BD981 /* TemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TemplateViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon_512x512@2x.png"; path = "../icon_512x512@2x.png"; sourceTree = "<group>"; };
-		E6535E9D1613C19600A49036 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
 		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
@@ -183,9 +181,6 @@
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
 		E6F6417116C0B77600FD5644 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
-		E6F6417316C0B79700FD5644 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
-		E6F6417516C0B7E000FD5644 /* Umbrella-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Umbrella-1.png"; sourceTree = "<group>"; };
-		E6F6417716C0BD7100FD5644 /* Umbrella-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Umbrella-1.png"; sourceTree = "<group>"; };
 		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
 		E6F80B281623969100828086 /* ChangeValuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeValuesController.m; sourceTree = "<group>"; };
 		E6F80B291623969100828086 /* ChangeValuesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeValuesController.xib; sourceTree = "<group>"; };
@@ -295,8 +290,6 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E6F6417716C0BD7100FD5644 /* Umbrella-1.png */,
-				E6F6417316C0B79700FD5644 /* PraxPress.icns */,
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -388,7 +381,6 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				E6F6417516C0B7E000FD5644 /* Umbrella-1.png */,
 				E6F6417116C0B77600FD5644 /* PraxPress.icns */,
 				E6DECE9916AD9F830076BDC4 /* toggleLeft.png */,
 				E6DECE9A16AD9F830076BDC4 /* toggleRight.png */,
@@ -400,8 +392,6 @@
 				E6EA108316A9CB090004800F /* icon-network-drive.tiff */,
 				E6EA108416A9CB090004800F /* page_Arrow_Down_hi.tiff */,
 				E6EA108516A9CB090004800F /* page_Arrow_Up_hi.tiff */,
-				E6535E9D1613C19600A49036 /* icon.icns */,
-				E6535E9B1613BE7B00A49036 /* icon_512x512@2x.png */,
 			);
 			path = Images;
 			sourceTree = "<group>";

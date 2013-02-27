@@ -145,11 +145,9 @@
 							<string key="NSToolbarItemPaletteLabel">Templates</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="943780209">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{7, 14}, {50, 36}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="589385825">
@@ -217,11 +215,9 @@
 							<string key="NSToolbarItemPaletteLabel">Accounts</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="200834423">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{4, 14}, {48, 28}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="546457910">
@@ -232,6 +228,10 @@
 									<reference key="NSControlView" ref="200834423"/>
 									<int key="NSButtonFlags">-2046803968</int>
 									<int key="NSButtonFlags2">163</int>
+									<object class="NSCustomResource" key="NSNormalImage" id="982163052">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">Umbrella32x32</string>
+									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
 									<int key="NSPeriodicDelay">400</int>
@@ -243,10 +243,7 @@
 										<string key="NSKeyEquiv"/>
 										<int key="NSKeyEquivModMask">1048576</int>
 										<int key="NSMnemonicLoc">2147483647</int>
-										<object class="NSCustomResource" key="NSImage" id="815099489">
-											<string key="NSClassName">NSImage</string>
-											<string key="NSResourceName">Umbrella32x32</string>
-										</object>
+										<reference key="NSImage" ref="982163052"/>
 										<reference key="NSOnImage" ref="708867252"/>
 										<reference key="NSMixedImage" ref="72979903"/>
 										<string key="NSAction">_popUpItemAction:</string>
@@ -361,7 +358,7 @@
 								</object>
 								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 							</object>
-							<reference key="NSToolbarItemImage" ref="815099489"/>
+							<reference key="NSToolbarItemImage" ref="982163052"/>
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
 							<string key="NSToolbarItemMinSize">{33, 28}</string>
@@ -570,7 +567,7 @@
 						<reference ref="877056565"/>
 						<reference ref="817453802"/>
 					</array>
-					<array class="NSMutableArray" key="NSToolbarIBDefaultItems">
+					<array key="NSToolbarIBDefaultItems">
 						<reference ref="877056565"/>
 						<reference ref="360781584"/>
 						<reference ref="396434429"/>
@@ -3610,7 +3607,7 @@ wGw</bytes>
 			<object class="NSPopover" id="152916626">
 				<nil key="NSNextResponder"/>
 				<int key="NSAppearance">1</int>
-				<int key="NSBehavior">1</int>
+				<int key="NSBehavior">2</int>
 				<double key="NSContentWidth">0.0</double>
 				<double key="NSContentHeight">0.0</double>
 				<bool key="NSAnimates">YES</bool>

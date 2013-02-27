@@ -30,6 +30,7 @@
 
 - (void)loadAssetTags:(Asset *)asset {
     NSString *tag_list = asset.tag_list;
+    NSMutableSet *tags = [[NSMutableSet alloc] init];
     if (tag_list.length > 0) {
         NSArray *tagArray = [TagController arrayFromTagString:tag_list];
         NSError *error;
@@ -43,10 +44,10 @@
                 tag.name = tagString;
             }
             else tag = matchingItems[0];
-            [asset addTagsObject:tag];
+            [tags addObject:tag];
         }
     }
-//    tag_list = [TagController tagStringFromArray:tagArray];
+    asset.tags = tags;
 }
 
 
