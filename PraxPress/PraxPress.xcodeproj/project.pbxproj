@@ -260,8 +260,7 @@
 				E61010CD17702FE800ACF17D /* README.md */,
 				E61010CE17702FE800ACF17D /* Sources */,
 			);
-			name = OAuth2Client;
-			path = ../OAuth2Client;
+			path = OAuth2Client;
 			sourceTree = "<group>";
 		};
 		E61010CB17702FE800ACF17D /* Products */ = {
