@@ -126,24 +126,42 @@
     
     if (!self.awake) {
         self.awake = TRUE;
-//        NSLog(@"Asset awakeFromFetch");
+        //        NSLog(@"Asset awakeFromFetch");
         
-        [self addObserver:self forKeyPath:@"self.edit_mode" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.title" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.purchase_title" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.purchase_url" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.sub_type" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.sharing" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.trackList" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.tags" options:NSKeyValueObservingOptionNew context:NULL];
-        [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
+        [self addObservers];
         
     }
     
 }
+
+- (void)awakeFromInsert {
+    
+    if (!self.awake) {
+        self.awake = TRUE;
+        NSLog(@"Asset awakeFromInsert");
+        [self addObservers];
+        
+    }
+    
+}
+
+- (void) addObservers {
+    
+    [self addObserver:self forKeyPath:@"self.edit_mode" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.title" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.purchase_title" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.purchase_url" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.sub_type" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.sharing" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.trackList" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.tags" options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
+    
+}
+
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
  //   NSLog(@"Asset observeValueForKeyPath:%@", keyPath);
