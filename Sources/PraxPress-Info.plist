@@ -99,6 +99,8 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIconFile</key>
+	<string>PraxPress</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.ElmerCat.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -143,6 +145,8 @@
 				<array>
 					<string>praxpress</string>
 				</array>
+				<key>public.mime-type</key>
+				<array/>
 			</dict>
 		</dict>
 		<dict>
@@ -164,6 +168,10 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>prax-templates</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/octet-stream</string>
 				</array>
 			</dict>
 		</dict>

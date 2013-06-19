@@ -11,6 +11,10 @@
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
 		E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8C41771833E0038A502 /* Cocoa.framework */; };
+		E61CF8FE177189630038A502 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8FB177188DC0038A502 /* WebKit.framework */; };
+		E61CF9001771897D0038A502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8FF1771897D0038A502 /* Foundation.framework */; };
+		E61CF901177189FE0038A502 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
+		E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61CF90217718A6F0038A502 /* PraxPress.icns */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
@@ -60,10 +64,26 @@
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
-		E6F6417216C0B77600FD5644 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E6F6417116C0B77600FD5644 /* PraxPress.icns */; };
 		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E61CF8F4177187670038A502 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
+			remoteInfo = OAuth2Client.framework;
+		};
+		E61CF8F6177187670038A502 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = OAuth2Client;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		E6D6F61215D97B66005CA87F /* CopyFiles */ = {
@@ -83,6 +103,48 @@
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
 		E61CF8C41771833E0038A502 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		E61CF8C7177187670038A502 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		E61CF8C8177187670038A502 /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
+		E61CF8C9177187670038A502 /* NXOAuth2Account+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NXOAuth2Account+Private.h"; sourceTree = "<group>"; };
+		E61CF8CA177187670038A502 /* NXOAuth2Client.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = NXOAuth2Client.md; sourceTree = "<group>"; };
+		E61CF8CB177187670038A502 /* NXOAuth2Client.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = NXOAuth2Client.podspec; sourceTree = "<group>"; };
+		E61CF8CC177187670038A502 /* OAuth2Client.framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OAuth2Client.framework-Info.plist"; sourceTree = "<group>"; };
+		E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = OAuth2Client.xcodeproj; sourceTree = "<group>"; };
+		E61CF8D0177187670038A502 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		E61CF8D2177187670038A502 /* NSData+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+NXOAuth2.h"; sourceTree = "<group>"; };
+		E61CF8D3177187670038A502 /* NSData+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+NXOAuth2.m"; sourceTree = "<group>"; };
+		E61CF8D4177187670038A502 /* NSString+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+NXOAuth2.h"; sourceTree = "<group>"; };
+		E61CF8D5177187670038A502 /* NSString+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+NXOAuth2.m"; sourceTree = "<group>"; };
+		E61CF8D6177187670038A502 /* NSURL+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+NXOAuth2.h"; sourceTree = "<group>"; };
+		E61CF8D7177187670038A502 /* NSURL+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+NXOAuth2.m"; sourceTree = "<group>"; };
+		E61CF8D9177187670038A502 /* NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2.h; sourceTree = "<group>"; };
+		E61CF8DA177187670038A502 /* NXOAuth2AccessToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2AccessToken.h; sourceTree = "<group>"; };
+		E61CF8DB177187670038A502 /* NXOAuth2AccessToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2AccessToken.m; sourceTree = "<group>"; };
+		E61CF8DC177187670038A502 /* NXOAuth2Account.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Account.h; sourceTree = "<group>"; };
+		E61CF8DD177187670038A502 /* NXOAuth2Account.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Account.m; sourceTree = "<group>"; };
+		E61CF8DE177187670038A502 /* NXOAuth2AccountStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2AccountStore.h; sourceTree = "<group>"; };
+		E61CF8DF177187670038A502 /* NXOAuth2AccountStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2AccountStore.m; sourceTree = "<group>"; };
+		E61CF8E0177187670038A502 /* NXOAuth2Client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Client.h; sourceTree = "<group>"; };
+		E61CF8E1177187670038A502 /* NXOAuth2Client.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Client.m; sourceTree = "<group>"; };
+		E61CF8E2177187670038A502 /* NXOAuth2ClientDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2ClientDelegate.h; sourceTree = "<group>"; };
+		E61CF8E3177187670038A502 /* NXOAuth2Connection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Connection.h; sourceTree = "<group>"; };
+		E61CF8E4177187670038A502 /* NXOAuth2Connection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Connection.m; sourceTree = "<group>"; };
+		E61CF8E5177187670038A502 /* NXOAuth2ConnectionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2ConnectionDelegate.h; sourceTree = "<group>"; };
+		E61CF8E6177187670038A502 /* NXOAuth2Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Constants.h; sourceTree = "<group>"; };
+		E61CF8E7177187670038A502 /* NXOAuth2Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Constants.m; sourceTree = "<group>"; };
+		E61CF8E8177187670038A502 /* NXOAuth2FileStreamWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2FileStreamWrapper.h; sourceTree = "<group>"; };
+		E61CF8E9177187670038A502 /* NXOAuth2FileStreamWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2FileStreamWrapper.m; sourceTree = "<group>"; };
+		E61CF8EA177187670038A502 /* NXOAuth2PostBodyPart.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2PostBodyPart.h; sourceTree = "<group>"; };
+		E61CF8EB177187670038A502 /* NXOAuth2PostBodyPart.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2PostBodyPart.m; sourceTree = "<group>"; };
+		E61CF8EC177187670038A502 /* NXOAuth2PostBodyStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2PostBodyStream.h; sourceTree = "<group>"; };
+		E61CF8ED177187670038A502 /* NXOAuth2PostBodyStream.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2PostBodyStream.m; sourceTree = "<group>"; };
+		E61CF8EE177187670038A502 /* NXOAuth2Request.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Request.h; sourceTree = "<group>"; };
+		E61CF8EF177187670038A502 /* NXOAuth2Request.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Request.m; sourceTree = "<group>"; };
+		E61CF8F0177187670038A502 /* NXOAuth2TrustDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2TrustDelegate.h; sourceTree = "<group>"; };
+		E61CF8F1177187670038A502 /* OAuth2Client_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OAuth2Client_Prefix.pch; sourceTree = "<group>"; };
+		E61CF8FB177188DC0038A502 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		E61CF8FF1771897D0038A502 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
@@ -169,12 +231,98 @@
 			buildActionMask = 2147483647;
 			files = (
 				E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */,
+				E61CF8FE177189630038A502 /* WebKit.framework in Frameworks */,
+				E61CF9001771897D0038A502 /* Foundation.framework in Frameworks */,
+				E61CF901177189FE0038A502 /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E61CF8C6177187670038A502 /* OAuth2Client */ = {
+			isa = PBXGroup;
+			children = (
+				E61CF8C7177187670038A502 /* .gitignore */,
+				E61CF8C8177187670038A502 /* .gitmodules */,
+				E61CF8C9177187670038A502 /* NXOAuth2Account+Private.h */,
+				E61CF8CA177187670038A502 /* NXOAuth2Client.md */,
+				E61CF8CB177187670038A502 /* NXOAuth2Client.podspec */,
+				E61CF8CC177187670038A502 /* OAuth2Client.framework-Info.plist */,
+				E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */,
+				E61CF8D0177187670038A502 /* README.md */,
+				E61CF8D1177187670038A502 /* Sources */,
+			);
+			name = OAuth2Client;
+			path = ../OAuth2Client;
+			sourceTree = "<group>";
+		};
+		E61CF8CE177187670038A502 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E61CF8F5177187670038A502 /* OAuth2Client.framework */,
+				E61CF8F7177187670038A502 /* libOAuth2Client.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E61CF8D1177187670038A502 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				E61CF8D2177187670038A502 /* NSData+NXOAuth2.h */,
+				E61CF8D3177187670038A502 /* NSData+NXOAuth2.m */,
+				E61CF8D4177187670038A502 /* NSString+NXOAuth2.h */,
+				E61CF8D5177187670038A502 /* NSString+NXOAuth2.m */,
+				E61CF8D6177187670038A502 /* NSURL+NXOAuth2.h */,
+				E61CF8D7177187670038A502 /* NSURL+NXOAuth2.m */,
+				E61CF8D8177187670038A502 /* OAuth2Client */,
+				E61CF8F1177187670038A502 /* OAuth2Client_Prefix.pch */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E61CF8D8177187670038A502 /* OAuth2Client */ = {
+			isa = PBXGroup;
+			children = (
+				E61CF8D9177187670038A502 /* NXOAuth2.h */,
+				E61CF8DA177187670038A502 /* NXOAuth2AccessToken.h */,
+				E61CF8DB177187670038A502 /* NXOAuth2AccessToken.m */,
+				E61CF8DC177187670038A502 /* NXOAuth2Account.h */,
+				E61CF8DD177187670038A502 /* NXOAuth2Account.m */,
+				E61CF8DE177187670038A502 /* NXOAuth2AccountStore.h */,
+				E61CF8DF177187670038A502 /* NXOAuth2AccountStore.m */,
+				E61CF8E0177187670038A502 /* NXOAuth2Client.h */,
+				E61CF8E1177187670038A502 /* NXOAuth2Client.m */,
+				E61CF8E2177187670038A502 /* NXOAuth2ClientDelegate.h */,
+				E61CF8E3177187670038A502 /* NXOAuth2Connection.h */,
+				E61CF8E4177187670038A502 /* NXOAuth2Connection.m */,
+				E61CF8E5177187670038A502 /* NXOAuth2ConnectionDelegate.h */,
+				E61CF8E6177187670038A502 /* NXOAuth2Constants.h */,
+				E61CF8E7177187670038A502 /* NXOAuth2Constants.m */,
+				E61CF8E8177187670038A502 /* NXOAuth2FileStreamWrapper.h */,
+				E61CF8E9177187670038A502 /* NXOAuth2FileStreamWrapper.m */,
+				E61CF8EA177187670038A502 /* NXOAuth2PostBodyPart.h */,
+				E61CF8EB177187670038A502 /* NXOAuth2PostBodyPart.m */,
+				E61CF8EC177187670038A502 /* NXOAuth2PostBodyStream.h */,
+				E61CF8ED177187670038A502 /* NXOAuth2PostBodyStream.m */,
+				E61CF8EE177187670038A502 /* NXOAuth2Request.h */,
+				E61CF8EF177187670038A502 /* NXOAuth2Request.m */,
+				E61CF8F0177187670038A502 /* NXOAuth2TrustDelegate.h */,
+			);
+			path = OAuth2Client;
+			sourceTree = "<group>";
+		};
+		E61CF8FD177189300038A502 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E61CF8C6177187670038A502 /* OAuth2Client */,
+				E61CF8FF1771897D0038A502 /* Foundation.framework */,
+				E61CF8FB177188DC0038A502 /* WebKit.framework */,
+				E61CF8C41771833E0038A502 /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -265,11 +413,12 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E61CF8C41771833E0038A502 /* Cocoa.framework */,
+				E61CF90217718A6F0038A502 /* PraxPress.icns */,
 				E6BC79A315C4759800080762 /* Sources */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
 				E6BC799A15C4759800080762 /* Products */,
+				E61CF8FD177189300038A502 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -320,7 +469,8 @@
 				E6EE3F2415C773D10025C04B /* Start.wav */,
 				E6EE3F2515C773D10025C04B /* Stop.wav */,
 			);
-			path = NSSounds;
+			name = NSSounds;
+			path = Sources/NSSounds;
 			sourceTree = "<group>";
 		};
 		E6F1562515E58EA80098EC32 /* Images */ = {
@@ -340,7 +490,8 @@
 				E6EA108416A9CB090004800F /* page_Arrow_Down_hi.tiff */,
 				E6EA108516A9CB090004800F /* page_Arrow_Up_hi.tiff */,
 			);
-			path = Images;
+			name = Images;
+			path = Sources/Images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -396,12 +547,35 @@
 			mainGroup = E6BC798E15C4759800080762;
 			productRefGroup = E6BC799A15C4759800080762 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E61CF8CE177187670038A502 /* Products */;
+					ProjectRef = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E6BC799815C4759800080762 /* PraxPress */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		E61CF8F5177187670038A502 /* OAuth2Client.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = OAuth2Client.framework;
+			remoteRef = E61CF8F4177187670038A502 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E61CF8F7177187670038A502 /* libOAuth2Client.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libOAuth2Client.a;
+			remoteRef = E61CF8F6177187670038A502 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E6BC799715C4759800080762 /* Resources */ = {
@@ -425,6 +599,7 @@
 				E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */,
 				E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */,
 				E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */,
+				E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */,
 				E6EA108616A9CB090004800F /* icon-network-drive.tiff in Resources */,
 				E6EA108716A9CB090004800F /* page_Arrow_Down_hi.tiff in Resources */,
 				E6EA108816A9CB090004800F /* page_Arrow_Up_hi.tiff in Resources */,
@@ -436,7 +611,6 @@
 				E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
-				E6F6417216C0B77600FD5644 /* PraxPress.icns in Resources */,
 				E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */,
 				E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */,
 			);
