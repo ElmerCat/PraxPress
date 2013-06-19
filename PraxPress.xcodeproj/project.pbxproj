@@ -413,7 +413,6 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E61CF90217718A6F0038A502 /* PraxPress.icns */,
 				E6BC79A315C4759800080762 /* Sources */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -476,6 +475,7 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E61CF90217718A6F0038A502 /* PraxPress.icns */,
 				E61010C0176FE08900ACF17D /* praxpress-document.icns */,
 				E61010C1176FE08900ACF17D /* praxpress-templates.icns */,
 				E6F6417116C0B77600FD5644 /* PraxPress.icns */,
