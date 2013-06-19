@@ -15,14 +15,14 @@
 		E637F8131772092800A95025 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8121772092800A95025 /* Cocoa.framework */; };
 		E637F8151772094900A95025 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8141772094900A95025 /* Foundation.framework */; };
 		E637F8171772095B00A95025 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8161772095B00A95025 /* WebKit.framework */; };
-		E637F81817720CC100A95025 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
-		E637F81917720E5300A95025 /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
+		E6533C5017721B320094D84F /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6533C4B17721A000094D84F /* OAuth2Client.framework */; };
+		E6533C5117721BEC0094D84F /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E6533C4B17721A000094D84F /* OAuth2Client.framework */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
 		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
@@ -70,19 +70,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E61CF8F4177187670038A502 /* PBXContainerItemProxy */ = {
+		E6533C4A17721A000094D84F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
 			remoteInfo = OAuth2Client.framework;
 		};
-		E61CF8F6177187670038A502 /* PBXContainerItemProxy */ = {
+		E6533C4C17721A000094D84F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = OAuth2Client;
+		};
+		E6533C4E17721A370094D84F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 942FFCD512315E0A00E6C65E;
+			remoteInfo = OAuth2Client.framework;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -93,7 +100,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				E637F81917720E5300A95025 /* OAuth2Client.framework in CopyFiles */,
+				E6533C5117721BEC0094D84F /* OAuth2Client.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,45 +111,6 @@
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
-		E61CF8C7177187670038A502 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		E61CF8C8177187670038A502 /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
-		E61CF8C9177187670038A502 /* NXOAuth2Account+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NXOAuth2Account+Private.h"; sourceTree = "<group>"; };
-		E61CF8CA177187670038A502 /* NXOAuth2Client.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = NXOAuth2Client.md; sourceTree = "<group>"; };
-		E61CF8CB177187670038A502 /* NXOAuth2Client.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = NXOAuth2Client.podspec; sourceTree = "<group>"; };
-		E61CF8CC177187670038A502 /* OAuth2Client.framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OAuth2Client.framework-Info.plist"; sourceTree = "<group>"; };
-		E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = OAuth2Client.xcodeproj; sourceTree = "<group>"; };
-		E61CF8D0177187670038A502 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
-		E61CF8D2177187670038A502 /* NSData+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+NXOAuth2.h"; sourceTree = "<group>"; };
-		E61CF8D3177187670038A502 /* NSData+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+NXOAuth2.m"; sourceTree = "<group>"; };
-		E61CF8D4177187670038A502 /* NSString+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+NXOAuth2.h"; sourceTree = "<group>"; };
-		E61CF8D5177187670038A502 /* NSString+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+NXOAuth2.m"; sourceTree = "<group>"; };
-		E61CF8D6177187670038A502 /* NSURL+NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+NXOAuth2.h"; sourceTree = "<group>"; };
-		E61CF8D7177187670038A502 /* NSURL+NXOAuth2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+NXOAuth2.m"; sourceTree = "<group>"; };
-		E61CF8D9177187670038A502 /* NXOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2.h; sourceTree = "<group>"; };
-		E61CF8DA177187670038A502 /* NXOAuth2AccessToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2AccessToken.h; sourceTree = "<group>"; };
-		E61CF8DB177187670038A502 /* NXOAuth2AccessToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2AccessToken.m; sourceTree = "<group>"; };
-		E61CF8DC177187670038A502 /* NXOAuth2Account.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Account.h; sourceTree = "<group>"; };
-		E61CF8DD177187670038A502 /* NXOAuth2Account.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Account.m; sourceTree = "<group>"; };
-		E61CF8DE177187670038A502 /* NXOAuth2AccountStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2AccountStore.h; sourceTree = "<group>"; };
-		E61CF8DF177187670038A502 /* NXOAuth2AccountStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2AccountStore.m; sourceTree = "<group>"; };
-		E61CF8E0177187670038A502 /* NXOAuth2Client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Client.h; sourceTree = "<group>"; };
-		E61CF8E1177187670038A502 /* NXOAuth2Client.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Client.m; sourceTree = "<group>"; };
-		E61CF8E2177187670038A502 /* NXOAuth2ClientDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2ClientDelegate.h; sourceTree = "<group>"; };
-		E61CF8E3177187670038A502 /* NXOAuth2Connection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Connection.h; sourceTree = "<group>"; };
-		E61CF8E4177187670038A502 /* NXOAuth2Connection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Connection.m; sourceTree = "<group>"; };
-		E61CF8E5177187670038A502 /* NXOAuth2ConnectionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2ConnectionDelegate.h; sourceTree = "<group>"; };
-		E61CF8E6177187670038A502 /* NXOAuth2Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Constants.h; sourceTree = "<group>"; };
-		E61CF8E7177187670038A502 /* NXOAuth2Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Constants.m; sourceTree = "<group>"; };
-		E61CF8E8177187670038A502 /* NXOAuth2FileStreamWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2FileStreamWrapper.h; sourceTree = "<group>"; };
-		E61CF8E9177187670038A502 /* NXOAuth2FileStreamWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2FileStreamWrapper.m; sourceTree = "<group>"; };
-		E61CF8EA177187670038A502 /* NXOAuth2PostBodyPart.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2PostBodyPart.h; sourceTree = "<group>"; };
-		E61CF8EB177187670038A502 /* NXOAuth2PostBodyPart.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2PostBodyPart.m; sourceTree = "<group>"; };
-		E61CF8EC177187670038A502 /* NXOAuth2PostBodyStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2PostBodyStream.h; sourceTree = "<group>"; };
-		E61CF8ED177187670038A502 /* NXOAuth2PostBodyStream.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2PostBodyStream.m; sourceTree = "<group>"; };
-		E61CF8EE177187670038A502 /* NXOAuth2Request.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2Request.h; sourceTree = "<group>"; };
-		E61CF8EF177187670038A502 /* NXOAuth2Request.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Request.m; sourceTree = "<group>"; };
-		E61CF8F0177187670038A502 /* NXOAuth2TrustDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2TrustDelegate.h; sourceTree = "<group>"; };
-		E61CF8F1177187670038A502 /* OAuth2Client_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OAuth2Client_Prefix.pch; sourceTree = "<group>"; };
 		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
 		E637F8121772092800A95025 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E637F8141772094900A95025 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -158,6 +126,7 @@
 		E64555AB16A773BF00740F45 /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
 		E64774AA16067BA0003BD981 /* TemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TemplateViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E64774AB16067BA0003BD981 /* TemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TemplateViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = ../OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
 		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
@@ -232,92 +201,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E637F8171772095B00A95025 /* WebKit.framework in Frameworks */,
-				E637F8151772094900A95025 /* Foundation.framework in Frameworks */,
 				E637F8131772092800A95025 /* Cocoa.framework in Frameworks */,
-				E637F81817720CC100A95025 /* OAuth2Client.framework in Frameworks */,
+				E637F8151772094900A95025 /* Foundation.framework in Frameworks */,
+				E637F8171772095B00A95025 /* WebKit.framework in Frameworks */,
+				E6533C5017721B320094D84F /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E61CF8C6177187670038A502 /* OAuth2Client */ = {
-			isa = PBXGroup;
-			children = (
-				E61CF8C7177187670038A502 /* .gitignore */,
-				E61CF8C8177187670038A502 /* .gitmodules */,
-				E61CF8C9177187670038A502 /* NXOAuth2Account+Private.h */,
-				E61CF8CA177187670038A502 /* NXOAuth2Client.md */,
-				E61CF8CB177187670038A502 /* NXOAuth2Client.podspec */,
-				E61CF8CC177187670038A502 /* OAuth2Client.framework-Info.plist */,
-				E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */,
-				E61CF8D0177187670038A502 /* README.md */,
-				E61CF8D1177187670038A502 /* Sources */,
-			);
-			name = OAuth2Client;
-			path = ../OAuth2Client;
-			sourceTree = "<group>";
-		};
-		E61CF8CE177187670038A502 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E61CF8F5177187670038A502 /* OAuth2Client.framework */,
-				E61CF8F7177187670038A502 /* libOAuth2Client.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		E61CF8D1177187670038A502 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				E61CF8D2177187670038A502 /* NSData+NXOAuth2.h */,
-				E61CF8D3177187670038A502 /* NSData+NXOAuth2.m */,
-				E61CF8D4177187670038A502 /* NSString+NXOAuth2.h */,
-				E61CF8D5177187670038A502 /* NSString+NXOAuth2.m */,
-				E61CF8D6177187670038A502 /* NSURL+NXOAuth2.h */,
-				E61CF8D7177187670038A502 /* NSURL+NXOAuth2.m */,
-				E61CF8D8177187670038A502 /* OAuth2Client */,
-				E61CF8F1177187670038A502 /* OAuth2Client_Prefix.pch */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		E61CF8D8177187670038A502 /* OAuth2Client */ = {
-			isa = PBXGroup;
-			children = (
-				E61CF8D9177187670038A502 /* NXOAuth2.h */,
-				E61CF8DA177187670038A502 /* NXOAuth2AccessToken.h */,
-				E61CF8DB177187670038A502 /* NXOAuth2AccessToken.m */,
-				E61CF8DC177187670038A502 /* NXOAuth2Account.h */,
-				E61CF8DD177187670038A502 /* NXOAuth2Account.m */,
-				E61CF8DE177187670038A502 /* NXOAuth2AccountStore.h */,
-				E61CF8DF177187670038A502 /* NXOAuth2AccountStore.m */,
-				E61CF8E0177187670038A502 /* NXOAuth2Client.h */,
-				E61CF8E1177187670038A502 /* NXOAuth2Client.m */,
-				E61CF8E2177187670038A502 /* NXOAuth2ClientDelegate.h */,
-				E61CF8E3177187670038A502 /* NXOAuth2Connection.h */,
-				E61CF8E4177187670038A502 /* NXOAuth2Connection.m */,
-				E61CF8E5177187670038A502 /* NXOAuth2ConnectionDelegate.h */,
-				E61CF8E6177187670038A502 /* NXOAuth2Constants.h */,
-				E61CF8E7177187670038A502 /* NXOAuth2Constants.m */,
-				E61CF8E8177187670038A502 /* NXOAuth2FileStreamWrapper.h */,
-				E61CF8E9177187670038A502 /* NXOAuth2FileStreamWrapper.m */,
-				E61CF8EA177187670038A502 /* NXOAuth2PostBodyPart.h */,
-				E61CF8EB177187670038A502 /* NXOAuth2PostBodyPart.m */,
-				E61CF8EC177187670038A502 /* NXOAuth2PostBodyStream.h */,
-				E61CF8ED177187670038A502 /* NXOAuth2PostBodyStream.m */,
-				E61CF8EE177187670038A502 /* NXOAuth2Request.h */,
-				E61CF8EF177187670038A502 /* NXOAuth2Request.m */,
-				E61CF8F0177187670038A502 /* NXOAuth2TrustDelegate.h */,
-			);
-			path = OAuth2Client;
-			sourceTree = "<group>";
-		};
 		E61CF8FD177189300038A502 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E61CF8C6177187670038A502 /* OAuth2Client */,
+				E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */,
+				E637F8161772095B00A95025 /* WebKit.framework */,
+				E637F8141772094900A95025 /* Foundation.framework */,
+				E637F8121772092800A95025 /* Cocoa.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -333,6 +233,15 @@
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
 			);
 			name = Helpers;
+			sourceTree = "<group>";
+		};
+		E6533C4617721A000094D84F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E6533C4B17721A000094D84F /* OAuth2Client.framework */,
+				E6533C4D17721A000094D84F /* libOAuth2Client.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		E661E63216279D3600EFD83A /* Entities */ = {
@@ -412,9 +321,6 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E637F8161772095B00A95025 /* WebKit.framework */,
-				E637F8141772094900A95025 /* Foundation.framework */,
-				E637F8121772092800A95025 /* Cocoa.framework */,
 				E6BC79A315C4759800080762 /* Sources */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -511,6 +417,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E6533C4F17721A370094D84F /* PBXTargetDependency */,
 			);
 			name = PraxPress;
 			productName = PraxPress;
@@ -551,8 +458,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = E61CF8CE177187670038A502 /* Products */;
-					ProjectRef = E61CF8CD177187670038A502 /* OAuth2Client.xcodeproj */;
+					ProductGroup = E6533C4617721A000094D84F /* Products */;
+					ProjectRef = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -563,18 +470,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		E61CF8F5177187670038A502 /* OAuth2Client.framework */ = {
+		E6533C4B17721A000094D84F /* OAuth2Client.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = OAuth2Client.framework;
-			remoteRef = E61CF8F4177187670038A502 /* PBXContainerItemProxy */;
+			remoteRef = E6533C4A17721A000094D84F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		E61CF8F7177187670038A502 /* libOAuth2Client.a */ = {
+		E6533C4D17721A000094D84F /* libOAuth2Client.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libOAuth2Client.a;
-			remoteRef = E61CF8F6177187670038A502 /* PBXContainerItemProxy */;
+			remoteRef = E6533C4C17721A000094D84F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -653,6 +560,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E6533C4F17721A370094D84F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OAuth2Client.framework;
+			targetProxy = E6533C4E17721A370094D84F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E6BC79A615C4759800080762 /* InfoPlist.strings */ = {
@@ -757,6 +672,7 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
@@ -777,6 +693,7 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
