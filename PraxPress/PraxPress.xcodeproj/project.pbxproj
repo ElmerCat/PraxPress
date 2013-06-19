@@ -10,10 +10,8 @@
 		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
-		E6101133177035A800ACF17D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E610110D177035A800ACF17D /* README.md */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
-		E63F7EEA1771397B00DF42C0 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6101143177035A800ACF17D /* OAuth2Client.framework */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
@@ -36,14 +34,12 @@
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E67782CA160D06990069FEE3 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E67782C9160D06990069FEE3 /* Account.m */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
-		E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC799D15C4759800080762 /* Cocoa.framework */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
 		E6BC79AE15C4759800080762 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79AC15C4759800080762 /* Credits.rtf */; };
 		E6BC79B115C4759800080762 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79B015C4759800080762 /* Document.m */; };
 		E6BC79B415C4759800080762 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B215C4759800080762 /* Document.xib */; };
 		E6BC79B715C4759800080762 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B515C4759800080762 /* MainMenu.xib */; };
-		E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC79EF15C48A1000080762 /* WebKit.framework */; };
 		E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79F615C48FE300080762 /* SpecialProtocol.m */; };
 		E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D19B93168AB11300D068BC /* AssetTableCellView.m */; };
 		E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9516AD26020076BDC4 /* toggleOff.png */; };
@@ -68,30 +64,6 @@
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		E6101142177035A800ACF17D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
-			remoteInfo = OAuth2Client.framework;
-		};
-		E63F7EE41771395D00DF42C0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 942FFCD512315E0A00E6C65E;
-			remoteInfo = OAuth2Client.framework;
-		};
-		E63F7EE81771395E00DF42C0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = OAuth2Client;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		E6D6F61215D97B66005CA87F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -109,8 +81,6 @@
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
-		E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = OAuth2Client.xcodeproj; sourceTree = "<group>"; };
-		E610110D177035A800ACF17D /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
@@ -151,10 +121,6 @@
 		E6ACA28415D6D41800373A3B /* UpdateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateController.h; sourceTree = "<group>"; };
 		E6ACA28515D6D41800373A3B /* UpdateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UpdateController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E6BC799D15C4759800080762 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		E6BC79A015C4759800080762 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		E6BC79A115C4759800080762 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		E6BC79A215C4759800080762 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E6BC79A515C4759800080762 /* PraxPress-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PraxPress-Info.plist"; sourceTree = "<group>"; };
 		E6BC79A715C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E6BC79A915C4759800080762 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -164,8 +130,6 @@
 		E6BC79B015C4759800080762 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Document.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6BC79B315C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Document.xib; sourceTree = "<group>"; };
 		E6BC79B615C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		E6BC79C115C4759800080762 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		E6BC79EF15C48A1000080762 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E6BC79F515C48FE300080762 /* SpecialProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpecialProtocol.h; sourceTree = "<group>"; };
 		E6BC79F615C48FE300080762 /* SpecialProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpecialProtocol.m; sourceTree = "<group>"; };
 		E6D19B92168AB11300D068BC /* AssetTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetTableCellView.h; sourceTree = "<group>"; };
@@ -202,33 +166,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */,
-				E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */,
-				E63F7EEA1771397B00DF42C0 /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E6101104177035A800ACF17D /* OAuth2Client */ = {
-			isa = PBXGroup;
-			children = (
-				E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */,
-				E610110D177035A800ACF17D /* README.md */,
-			);
-			path = OAuth2Client;
-			sourceTree = "<group>";
-		};
-		E610110B177035A800ACF17D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E6101143177035A800ACF17D /* OAuth2Client.framework */,
-				E63F7EE91771395E00DF42C0 /* libOAuth2Client.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -322,7 +265,6 @@
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
-				E6BC799C15C4759800080762 /* Frameworks */,
 				E6BC799A15C4759800080762 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -333,28 +275,6 @@
 				E6BC799915C4759800080762 /* PraxPress.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		E6BC799C15C4759800080762 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				E6101104177035A800ACF17D /* OAuth2Client */,
-				E6BC79EF15C48A1000080762 /* WebKit.framework */,
-				E6BC799D15C4759800080762 /* Cocoa.framework */,
-				E6BC79C115C4759800080762 /* SenTestingKit.framework */,
-				E6BC799F15C4759800080762 /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		E6BC799F15C4759800080762 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				E6BC79A015C4759800080762 /* AppKit.framework */,
-				E6BC79A115C4759800080762 /* CoreData.framework */,
-				E6BC79A215C4759800080762 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 		E6BC79A315C4759800080762 /* PraxPress */ = {
@@ -434,7 +354,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E63F7EE51771395D00DF42C0 /* PBXTargetDependency */,
 			);
 			name = PraxPress;
 			productName = PraxPress;
@@ -449,6 +368,11 @@
 			attributes = {
 				LastUpgradeCheck = 0440;
 				ORGANIZATIONNAME = ElmerCat;
+				TargetAttributes = {
+					E6BC799815C4759800080762 = {
+						DevelopmentTeam = 49335V5QV4;
+					};
+				};
 			};
 			buildConfigurationList = E6BC799315C4759800080762 /* Build configuration list for PBXProject "PraxPress" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -460,35 +384,12 @@
 			mainGroup = E6BC798E15C4759800080762;
 			productRefGroup = E6BC799A15C4759800080762 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = E610110B177035A800ACF17D /* Products */;
-					ProjectRef = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				E6BC799815C4759800080762 /* PraxPress */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		E6101143177035A800ACF17D /* OAuth2Client.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = OAuth2Client.framework;
-			remoteRef = E6101142177035A800ACF17D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E63F7EE91771395E00DF42C0 /* libOAuth2Client.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libOAuth2Client.a;
-			remoteRef = E63F7EE81771395E00DF42C0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E6BC799715C4759800080762 /* Resources */ = {
@@ -526,7 +427,6 @@
 				E6F6417216C0B77600FD5644 /* PraxPress.icns in Resources */,
 				E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */,
 				E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */,
-				E6101133177035A800ACF17D /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,14 +465,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		E63F7EE51771395D00DF42C0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = OAuth2Client.framework;
-			targetProxy = E63F7EE41771395D00DF42C0 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E6BC79A615C4759800080762 /* InfoPlist.strings */ = {

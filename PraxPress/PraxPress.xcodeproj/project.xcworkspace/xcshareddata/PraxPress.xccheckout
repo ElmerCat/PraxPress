@@ -12,6 +12,8 @@
 		<string>https://github.com/nxtbgthng/OAuth2Client.git</string>
 		<key>8F071A7C-F151-463A-AA59-3DBD8C43799D</key>
 		<string>https://github.com/ElmerCat/PraxPress.git</string>
+		<key>9D6A6D4C-EE99-4A05-9B1C-9DE29D7F464D</key>
+		<string>https://github.com/ElmerCat/OAuth2Client.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>PraxPress/PraxPress.xcodeproj/project.xcworkspace</string>
@@ -21,6 +23,8 @@
 		<string>../../../OAuth2Client</string>
 		<key>8F071A7C-F151-463A-AA59-3DBD8C43799D</key>
 		<string>../../..</string>
+		<key>9D6A6D4C-EE99-4A05-9B1C-9DE29D7F464D</key>
+		<string>../../../../OAuth2Client</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/ElmerCat/PraxPress.git</string>
@@ -43,6 +47,14 @@
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>50D91017-EF50-4074-AA83-2C69BCE34C91</string>
+			<key>IDESourceControlWCCName</key>
+			<string>OAuth2Client</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9D6A6D4C-EE99-4A05-9B1C-9DE29D7F464D</string>
 			<key>IDESourceControlWCCName</key>
 			<string>OAuth2Client</string>
 		</dict>
