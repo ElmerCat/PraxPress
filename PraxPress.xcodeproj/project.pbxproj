@@ -12,17 +12,13 @@
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
 		E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61CF90217718A6F0038A502 /* PraxPress.icns */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
-		E637F8131772092800A95025 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8121772092800A95025 /* Cocoa.framework */; };
 		E637F8151772094900A95025 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8141772094900A95025 /* Foundation.framework */; };
-		E637F8171772095B00A95025 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8161772095B00A95025 /* WebKit.framework */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
-		E6533C5017721B320094D84F /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6533C4B17721A000094D84F /* OAuth2Client.framework */; };
-		E6533C5117721BEC0094D84F /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E6533C4B17721A000094D84F /* OAuth2Client.framework */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
 		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
@@ -39,6 +35,7 @@
 		E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = E673D1AA16A9A05C002B060D /* PlaylistController.m */; };
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E67782CA160D06990069FEE3 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E67782C9160D06990069FEE3 /* Account.m */; };
+		E682EF5417723E540008642C /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
 		E6ACA28615D6D41800373A3B /* UpdateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6ACA28515D6D41800373A3B /* UpdateController.m */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
@@ -47,6 +44,9 @@
 		E6BC79B415C4759800080762 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B215C4759800080762 /* Document.xib */; };
 		E6BC79B715C4759800080762 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B515C4759800080762 /* MainMenu.xib */; };
 		E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79F615C48FE300080762 /* SpecialProtocol.m */; };
+		E6C05D7A17722685004F09EA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6C05D7817722685004F09EA /* Cocoa.framework */; };
+		E6C05D7B17722685004F09EA /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6C05D7917722685004F09EA /* WebKit.framework */; };
+		E6C05D801772277B004F09EA /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
 		E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D19B93168AB11300D068BC /* AssetTableCellView.m */; };
 		E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9516AD26020076BDC4 /* toggleOff.png */; };
 		E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9616AD26020076BDC4 /* toggleOn.png */; };
@@ -70,26 +70,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E6533C4A17721A000094D84F /* PBXContainerItemProxy */ = {
+		E676BFCE1772225E007C81B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
 			remoteInfo = OAuth2Client.framework;
 		};
-		E6533C4C17721A000094D84F /* PBXContainerItemProxy */ = {
+		E676BFD01772225E007C81B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = OAuth2Client;
-		};
-		E6533C4E17721A370094D84F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 942FFCD512315E0A00E6C65E;
-			remoteInfo = OAuth2Client.framework;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -100,7 +93,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				E6533C5117721BEC0094D84F /* OAuth2Client.framework in CopyFiles */,
+				E682EF5417723E540008642C /* OAuth2Client.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,9 +105,7 @@
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
 		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
-		E637F8121772092800A95025 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E637F8141772094900A95025 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		E637F8161772095B00A95025 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
@@ -126,7 +117,7 @@
 		E64555AB16A773BF00740F45 /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
 		E64774AA16067BA0003BD981 /* TemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TemplateViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E64774AB16067BA0003BD981 /* TemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TemplateViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = ../OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
+		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
 		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
@@ -167,6 +158,8 @@
 		E6BC79B615C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E6BC79F515C48FE300080762 /* SpecialProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpecialProtocol.h; sourceTree = "<group>"; };
 		E6BC79F615C48FE300080762 /* SpecialProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpecialProtocol.m; sourceTree = "<group>"; };
+		E6C05D7817722685004F09EA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		E6C05D7917722685004F09EA /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		E6D19B92168AB11300D068BC /* AssetTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetTableCellView.h; sourceTree = "<group>"; };
 		E6D19B93168AB11300D068BC /* AssetTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetTableCellView.m; sourceTree = "<group>"; };
 		E6DECE9516AD26020076BDC4 /* toggleOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleOff.png; sourceTree = "<group>"; };
@@ -201,10 +194,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E637F8131772092800A95025 /* Cocoa.framework in Frameworks */,
+				E6C05D801772277B004F09EA /* OAuth2Client.framework in Frameworks */,
+				E6C05D7A17722685004F09EA /* Cocoa.framework in Frameworks */,
+				E6C05D7B17722685004F09EA /* WebKit.framework in Frameworks */,
 				E637F8151772094900A95025 /* Foundation.framework in Frameworks */,
-				E637F8171772095B00A95025 /* WebKit.framework in Frameworks */,
-				E6533C5017721B320094D84F /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,10 +207,10 @@
 		E61CF8FD177189300038A502 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E6C05D7817722685004F09EA /* Cocoa.framework */,
+				E6C05D7917722685004F09EA /* WebKit.framework */,
 				E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */,
-				E637F8161772095B00A95025 /* WebKit.framework */,
 				E637F8141772094900A95025 /* Foundation.framework */,
-				E637F8121772092800A95025 /* Cocoa.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -233,15 +226,6 @@
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
 			);
 			name = Helpers;
-			sourceTree = "<group>";
-		};
-		E6533C4617721A000094D84F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E6533C4B17721A000094D84F /* OAuth2Client.framework */,
-				E6533C4D17721A000094D84F /* libOAuth2Client.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		E661E63216279D3600EFD83A /* Entities */ = {
@@ -316,6 +300,15 @@
 				E6ACA28515D6D41800373A3B /* UpdateController.m */,
 			);
 			name = "Object Controllers";
+			sourceTree = "<group>";
+		};
+		E676BFCA1772225E007C81B0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E676BFCF1772225E007C81B0 /* OAuth2Client.framework */,
+				E676BFD11772225E007C81B0 /* libOAuth2Client.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		E6BC798E15C4759800080762 = {
@@ -417,7 +410,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E6533C4F17721A370094D84F /* PBXTargetDependency */,
 			);
 			name = PraxPress;
 			productName = PraxPress;
@@ -458,7 +450,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = E6533C4617721A000094D84F /* Products */;
+					ProductGroup = E676BFCA1772225E007C81B0 /* Products */;
 					ProjectRef = E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */;
 				},
 			);
@@ -470,18 +462,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		E6533C4B17721A000094D84F /* OAuth2Client.framework */ = {
+		E676BFCF1772225E007C81B0 /* OAuth2Client.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = OAuth2Client.framework;
-			remoteRef = E6533C4A17721A000094D84F /* PBXContainerItemProxy */;
+			remoteRef = E676BFCE1772225E007C81B0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		E6533C4D17721A000094D84F /* libOAuth2Client.a */ = {
+		E676BFD11772225E007C81B0 /* libOAuth2Client.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libOAuth2Client.a;
-			remoteRef = E6533C4C17721A000094D84F /* PBXContainerItemProxy */;
+			remoteRef = E676BFD01772225E007C81B0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -561,14 +553,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		E6533C4F17721A370094D84F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = OAuth2Client.framework;
-			targetProxy = E6533C4E17721A370094D84F /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
 		E6BC79A615C4759800080762 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
@@ -613,7 +597,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Mac Developer: John Canfield (JBBM4XW4GY)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -632,7 +616,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -645,8 +629,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				COPY_PHASE_STRIP = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer: John Canfield (JBBM4XW4GY)";
+				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -657,7 +641,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -672,13 +656,12 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
-					"$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -693,13 +676,12 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
-					"$(CONFIGURATION_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
