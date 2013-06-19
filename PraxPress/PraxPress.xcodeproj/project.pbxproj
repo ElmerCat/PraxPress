@@ -319,7 +319,6 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E6101104177035A800ACF17D /* OAuth2Client */,
 				E6BC79A315C4759800080762 /* PraxPress */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -339,6 +338,7 @@
 		E6BC799C15C4759800080762 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E6101104177035A800ACF17D /* OAuth2Client */,
 				E6BC79EF15C48A1000080762 /* WebKit.framework */,
 				E6BC799D15C4759800080762 /* Cocoa.framework */,
 				E6BC79C115C4759800080762 /* SenTestingKit.framework */,
