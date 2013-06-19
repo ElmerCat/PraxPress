@@ -10,6 +10,7 @@
 		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
+		E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8C41771833E0038A502 /* Cocoa.framework */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
@@ -81,6 +82,7 @@
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
+		E61CF8C41771833E0038A502 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,7 +265,8 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
-				E6BC79A315C4759800080762 /* PraxPress */,
+				E61CF8C41771833E0038A502 /* Cocoa.framework */,
+				E6BC79A315C4759800080762 /* Sources */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
 				E6BC799A15C4759800080762 /* Products */,
@@ -277,7 +281,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E6BC79A315C4759800080762 /* PraxPress */ = {
+		E6BC79A315C4759800080762 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */,
@@ -292,7 +296,7 @@
 				E624D84A15EAEC570066D7D7 /* Helpers */,
 				E6BC79A415C4759800080762 /* Supporting Files */,
 			);
-			path = PraxPress;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
@@ -366,11 +370,19 @@
 		E6BC799015C4759800080762 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = ElmerCat;
 				TargetAttributes = {
 					E6BC799815C4759800080762 = {
 						DevelopmentTeam = 49335V5QV4;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -506,7 +518,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -538,7 +549,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -562,16 +572,17 @@
 		E6BC79D215C4759800080762 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = PraxPress/PraxPress.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/PraxPress.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
-				INFOPLIST_FILE = "PraxPress/PraxPress-Info.plist";
+				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -581,16 +592,17 @@
 		E6BC79D315C4759800080762 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = PraxPress/PraxPress.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/PraxPress.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PraxPress/PraxPress-Prefix.pch";
-				INFOPLIST_FILE = "PraxPress/PraxPress-Info.plist";
+				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
