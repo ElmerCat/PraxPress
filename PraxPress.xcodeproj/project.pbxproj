@@ -10,12 +10,13 @@
 		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
-		E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8C41771833E0038A502 /* Cocoa.framework */; };
-		E61CF8FE177189630038A502 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8FB177188DC0038A502 /* WebKit.framework */; };
-		E61CF9001771897D0038A502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8FF1771897D0038A502 /* Foundation.framework */; };
-		E61CF901177189FE0038A502 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
 		E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61CF90217718A6F0038A502 /* PraxPress.icns */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
+		E637F8131772092800A95025 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8121772092800A95025 /* Cocoa.framework */; };
+		E637F8151772094900A95025 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8141772094900A95025 /* Foundation.framework */; };
+		E637F8171772095B00A95025 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E637F8161772095B00A95025 /* WebKit.framework */; };
+		E637F81817720CC100A95025 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
+		E637F81917720E5300A95025 /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E61CF8F5177187670038A502 /* OAuth2Client.framework */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
@@ -92,6 +93,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				E637F81917720E5300A95025 /* OAuth2Client.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,7 +104,6 @@
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
-		E61CF8C41771833E0038A502 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		E61CF8C7177187670038A502 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		E61CF8C8177187670038A502 /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
 		E61CF8C9177187670038A502 /* NXOAuth2Account+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NXOAuth2Account+Private.h"; sourceTree = "<group>"; };
@@ -142,9 +143,10 @@
 		E61CF8EF177187670038A502 /* NXOAuth2Request.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NXOAuth2Request.m; sourceTree = "<group>"; };
 		E61CF8F0177187670038A502 /* NXOAuth2TrustDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NXOAuth2TrustDelegate.h; sourceTree = "<group>"; };
 		E61CF8F1177187670038A502 /* OAuth2Client_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OAuth2Client_Prefix.pch; sourceTree = "<group>"; };
-		E61CF8FB177188DC0038A502 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
-		E61CF8FF1771897D0038A502 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
+		E637F8121772092800A95025 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		E637F8141772094900A95025 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E637F8161772095B00A95025 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
 		E63E87C115E05B5900110570 /* PraxTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTransformers.m; sourceTree = "<group>"; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
@@ -230,10 +232,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E61CF8C51771833E0038A502 /* Cocoa.framework in Frameworks */,
-				E61CF8FE177189630038A502 /* WebKit.framework in Frameworks */,
-				E61CF9001771897D0038A502 /* Foundation.framework in Frameworks */,
-				E61CF901177189FE0038A502 /* OAuth2Client.framework in Frameworks */,
+				E637F8171772095B00A95025 /* WebKit.framework in Frameworks */,
+				E637F8151772094900A95025 /* Foundation.framework in Frameworks */,
+				E637F8131772092800A95025 /* Cocoa.framework in Frameworks */,
+				E637F81817720CC100A95025 /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,9 +318,6 @@
 			isa = PBXGroup;
 			children = (
 				E61CF8C6177187670038A502 /* OAuth2Client */,
-				E61CF8FF1771897D0038A502 /* Foundation.framework */,
-				E61CF8FB177188DC0038A502 /* WebKit.framework */,
-				E61CF8C41771833E0038A502 /* Cocoa.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -413,6 +412,9 @@
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
+				E637F8161772095B00A95025 /* WebKit.framework */,
+				E637F8141772094900A95025 /* Foundation.framework */,
+				E637F8121772092800A95025 /* Cocoa.framework */,
 				E6BC79A315C4759800080762 /* Sources */,
 				E6EE3F2115C773D10025C04B /* NSSounds */,
 				E6F1562515E58EA80098EC32 /* Images */,
@@ -692,6 +694,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -723,6 +726,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
