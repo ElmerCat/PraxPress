@@ -13,6 +13,7 @@
 		E6101133177035A800ACF17D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E610110D177035A800ACF17D /* README.md */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
+		E63F7EEA1771397B00DF42C0 /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6101143177035A800ACF17D /* OAuth2Client.framework */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
@@ -74,6 +75,20 @@
 			proxyType = 2;
 			remoteGlobalIDString = 942FFCD612315E0A00E6C65E;
 			remoteInfo = OAuth2Client.framework;
+		};
+		E63F7EE41771395D00DF42C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 942FFCD512315E0A00E6C65E;
+			remoteInfo = OAuth2Client.framework;
+		};
+		E63F7EE81771395E00DF42C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E610110A177035A800ACF17D /* OAuth2Client.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = OAuth2Client;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -189,6 +204,7 @@
 			files = (
 				E6BC799E15C4759800080762 /* Cocoa.framework in Frameworks */,
 				E6BC79F015C48A1000080762 /* WebKit.framework in Frameworks */,
+				E63F7EEA1771397B00DF42C0 /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				E6101143177035A800ACF17D /* OAuth2Client.framework */,
+				E63F7EE91771395E00DF42C0 /* libOAuth2Client.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -417,6 +434,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E63F7EE51771395D00DF42C0 /* PBXTargetDependency */,
 			);
 			name = PraxPress;
 			productName = PraxPress;
@@ -461,6 +479,13 @@
 			fileType = wrapper.framework;
 			path = OAuth2Client.framework;
 			remoteRef = E6101142177035A800ACF17D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E63F7EE91771395E00DF42C0 /* libOAuth2Client.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libOAuth2Client.a;
+			remoteRef = E63F7EE81771395E00DF42C0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -540,6 +565,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E63F7EE51771395D00DF42C0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OAuth2Client.framework;
+			targetProxy = E63F7EE41771395D00DF42C0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E6BC79A615C4759800080762 /* InfoPlist.strings */ = {
