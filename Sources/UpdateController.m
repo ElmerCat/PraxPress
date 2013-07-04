@@ -331,7 +331,7 @@
 }
 
 
-- (void)logoutAccount:(Account *)account {
+- (void)logoutAccount:(Asset *)account {
     [self removeAccessForAccountType:account.accountType];
     account.oauthAccount = nil;
 }

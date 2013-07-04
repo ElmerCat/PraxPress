@@ -6,11 +6,10 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
-#import <OAuth2Client/NXOAuth2.h>
+#import "Document.h"
+@class Document;
 
-@class Account;
+
 @class UpdateController;
 @interface Asset : NSManagedObject
 
@@ -58,7 +57,7 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) NSString * trackList;
 @property (nonatomic, retain) NSString * trackType;
 
-@property (nonatomic, retain) Account *account;
+@property (nonatomic, retain) Asset *account;
 
 @property (readonly) BOOL isSoundCloudAsset;
 @property (readonly) BOOL isTrack;
@@ -67,6 +66,27 @@ typedef NSUInteger PRAXReloadOption;
 @property (readonly) BOOL isPage;
 @property (readonly) BOOL isPost;
 @property (readonly) BOOL isAccount;
+
+@property (nonatomic, retain) NSString * accountType;
+@property (nonatomic, retain) NSString * city;
+@property (nonatomic, retain) NSString * country;
+@property (nonatomic, retain) NSString * username;
+@property (nonatomic, retain) NSNumber * itemCount;
+@property (nonatomic, retain) NSNumber * followers_count;
+@property (nonatomic, retain) NSNumber * followings_count;
+@property (nonatomic, retain) NSNumber * playlist_count;
+@property (nonatomic, retain) NSNumber * track_count;
+@property (nonatomic, retain) NSNumber * update_offset;
+
+@property (nonatomic, retain) NSNumber * user_id;
+@property (nonatomic, retain) id oauthAccount;
+
+
+-(BOOL)oauthReady:(Document *)document;
+-(void)loadWordPressAccountData:(NSDictionary *)data;
+-(void)loadWordPressSiteData:(NSDictionary *)data;
+-(void)loadWordPressPageCount:(NSDictionary *)data;
+-(void)loadSoundCloudAccountData:(NSDictionary *)data;
 
 
 

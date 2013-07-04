@@ -6,17 +6,8 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <OAuth2Client/NXOAuth2.h>
-#import "Asset.h"
-#import "Tag.h"
-#import "Account.h"
-#import "BatchController.h"
-#import "TagController.h"
+#import "Document.h"
 
-@class Document;
-@class PostEditor;
-@class BatchController;
 @class TagController;
 
 @interface UpdateController : NSObject
@@ -57,10 +48,10 @@
 - (void)reloadAssetPlaylistsData:(Asset *)asset;
 
 - (void)reloadAsset:(Asset *)asset;
-- (void)reloadAsset:(Asset *)asset option:(PRAXReloadOption)option;
+- (void)reloadAsset:(Asset *)asset option:(NSUInteger)option;
 - (void)uploadAsset:(Asset *)asset;
 - (void)reloadChangedAssets;
 - (void)uploadChangedAssets;
-- (void)logoutAccount:(Account *)account;
+- (void)logoutAccount:(Asset *)account;
 
 @end

@@ -33,7 +33,7 @@
 
 - (IBAction)accountButtonClicked:(id)sender {
     NSTableCellView *view = (NSTableCellView *)[sender superview];
-    Account *account = (Account *)[view objectValue];
+    Asset *account = (Asset *)[view objectValue];
     [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
     [self.accountViewPopover showRelativeToRect:[(NSButton *)sender bounds] ofView:sender preferredEdge:NSMinYEdge];
 }

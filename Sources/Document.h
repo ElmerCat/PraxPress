@@ -6,14 +6,14 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import <Foundation/NSError.h>
+@import Foundation;
+@import Cocoa;
+@import WebKit;
+
 #import <OAuth2Client/NXOAuth2.h>
 
 #import "PraxTransformers.h"
 #import "Asset.h"
-#import "Account.h"
 #import "TagController.h"
 #import "AccountViewController.h"
 #import "UpdateController.h"

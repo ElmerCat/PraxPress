@@ -61,7 +61,7 @@
     [moc processPendingChanges];
     [[moc undoManager] disableUndoRegistration];
     
-    Account *account;
+    Asset *account;
     
     for (NSString *name in @[@"WordPress", @"SoundCloud", @"YouTube", @"Flickr"]) {
         account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
@@ -215,7 +215,7 @@
     [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"accountType", accountType]];
     NSArray *matchingItems = [self.managedObjectContext executeFetchRequest:request error:nil];
     if ([matchingItems count] > 0) {
-        Account *account = matchingItems[0];
+        Asset *account = matchingItems[0];
         [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
         [(AccountViewController *)[self.accountViewPopover contentViewController] setSelectionIndex:selectionIndex];
         [self.accountViewPopover showRelativeToRect:[[self.accountsToolbarButton view] bounds] ofView:[self.accountsToolbarButton view] preferredEdge:NSMaxXEdge];
