@@ -57,26 +57,21 @@
     self = [self init];
     [self setFileType:typeName];
     
-    NSManagedObjectContext *moc = [self managedObjectContext];
-    [moc processPendingChanges];
-    [[moc undoManager] disableUndoRegistration];
+    [self.managedObjectContext processPendingChanges];
+    [[self.managedObjectContext undoManager] disableUndoRegistration];
     
-    Asset *account;
     
-    for (NSString *name in @[@"WordPress", @"SoundCloud", @"YouTube", @"Flickr"]) {
-        account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-        account.accountType = name;
-        
-    }
+    [SourceController initWithType:typeName inManagedObjectContext:self.managedObjectContext];
     
-    [moc processPendingChanges];
-    [[moc undoManager] enableUndoRegistration];
+    
+    [self.managedObjectContext processPendingChanges];
+    [[self.managedObjectContext undoManager] enableUndoRegistration];
     
     return self;
 }
 
 - (BOOL)configurePersistentStoreCoordinatorForURL:(NSURL *)url ofType:(NSString *)fileType modelConfiguration:(NSString *)configuration storeOptions:(NSDictionary *)storeOptions error:(NSError **)error {
-//    NSLog(@"Document configurePersistentStoreCoordinatorForURL");
+    //    NSLog(@"Document configurePersistentStoreCoordinatorForURL");
     NSMutableDictionary *options = nil;
     if (storeOptions != nil) options = [storeOptions mutableCopy];
     else options = [[NSMutableDictionary alloc] init];
@@ -89,7 +84,8 @@
 {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
-    return @"Document";
+    //    return @"Document";
+    return @"PraxPress";
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
@@ -106,22 +102,27 @@
     /* register our special protocol with webkit */
 	[SpecialProtocol registerSpecialProtocol];
     
-
+    
 }
 
+- (void)awakeFromNib {
+    NSLog(@"Document awakeFromNib");
+}
+
+
 /*- (void)dealloc {
-    NSLog(@"Document dealloc");
-}*/
+ NSLog(@"Document dealloc");
+ }*/
 
 - (void)windowWillClose:(NSNotification *)notification {
     NSLog(@"Document windowWillClose notification: %@", notification);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-  //  [self.tagController windowWillClose:notification];
+    //  [self.tagController windowWillClose:notification];
 }
 
 /*- (void)windowDidBecomeMain:(NSNotification *)notification {
-
+ 
  }*/
 
 
@@ -136,7 +137,7 @@
     
     /* if this request will be handled by our special protocol... */
 	if ( [SpecialProtocol canInitWithRequest:request] ) {
-            
+        
         /* create a NSDictionary containing any values we want to share between
          our webView/delegate object we are running in now and the protocol handler.
          Here, we'll put a referernce to ourself in there so we can access this
@@ -169,25 +170,34 @@
 	NSLog(@"callbackFromSpecialRequest %@ received %@", self, NSStringFromSelector(_cmd));
 }
 
+- (IBAction)praxButtonPressed:(id)sender {
+    NSLog(@"praxButtonPressed");
+    
+}
+
 + (BOOL)autosavesInPlace
 {
     return YES;
 }
 
--(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem {
-    NSLog(@"validateToolbarItem: %@", toolbarItem);
-    
-    BOOL enable = NO;
-    if ([[toolbarItem itemIdentifier] isEqual:NSToolbarShowColorsItemIdentifier]) {
-        // We will return YES (enable the save item)
-        // only when the document is dirty and needs saving
-        enable = [self isDocumentEdited];
-    } else if ([[toolbarItem itemIdentifier] isEqual:NSToolbarPrintItemIdentifier]) {
-        // always enable print for this window
-        enable = NO;
-    }
-    return enable;
-}
+/*-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem {
+ NSLog(@"validateToolbarItem: %@", toolbarItem);
+ 
+ BOOL enable = NO;
+ if ([[toolbarItem itemIdentifier] isEqual:NSToolbarShowColorsItemIdentifier]) {
+ // We will return YES (enable the save item)
+ // only when the document is dirty and needs saving
+ enable = [self isDocumentEdited];
+ } else if ([[toolbarItem itemIdentifier] isEqual:NSToolbarPrintItemIdentifier]) {
+ // always enable print for this window
+ enable = NO;
+ }
+ else if ([[toolbarItem itemIdentifier] isEqual:@"PraxButton"]) {
+ enable = YES;
+ }
+ 
+ return enable;
+ }*/
 
 - (IBAction)selectAccount:(id)sender {
     NSLog(@"selectAccount sender.tag: %ld", [(NSMenuItem *)sender tag]);
@@ -219,9 +229,9 @@
         [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
         [(AccountViewController *)[self.accountViewPopover contentViewController] setSelectionIndex:selectionIndex];
         [self.accountViewPopover showRelativeToRect:[[self.accountsToolbarButton view] bounds] ofView:[self.accountsToolbarButton view] preferredEdge:NSMaxXEdge];
-
+        
     }
-
+    
     
 }
 
@@ -237,20 +247,20 @@
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return TRUE;}
 
 /*- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
-    NSRect effectiveRect = proposedEffectiveRect;
-   // effectiveRect.origin.x -= 2.0;
-    if (splitView.isVertical) {
-        effectiveRect.origin.x -= 10.0;
-        effectiveRect.size.width += 10.0;
-    }
-    else {
-        effectiveRect.origin.y -= 10.0;
-        effectiveRect.size.height += 10.0;
-    }
-    
-
-    
-    return effectiveRect;
-}*/
+ NSRect effectiveRect = proposedEffectiveRect;
+ // effectiveRect.origin.x -= 2.0;
+ if (splitView.isVertical) {
+ effectiveRect.origin.x -= 10.0;
+ effectiveRect.size.width += 10.0;
+ }
+ else {
+ effectiveRect.origin.y -= 10.0;
+ effectiveRect.size.height += 10.0;
+ }
+ 
+ 
+ 
+ return effectiveRect;
+ }*/
 
 @end

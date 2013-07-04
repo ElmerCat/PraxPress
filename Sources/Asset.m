@@ -7,7 +7,6 @@
 //
 
 #import "Asset.h"
-#import "UpdateController.h"
 
 @implementation Asset
 
@@ -46,25 +45,212 @@
 @dynamic tags;
 
 @dynamic account;
-@dynamic associatedItems;
-
 @dynamic accountType;
 @dynamic city;
 @dynamic country;
-@dynamic username;
 @dynamic followers_count;
 @dynamic followings_count;
 @dynamic itemCount;
+@dynamic oauthAccount;
 @dynamic playlist_count;
 @dynamic track_count;
 @dynamic update_offset;
 @dynamic user_id;
-@dynamic oauthAccount;
+@dynamic username;
+@dynamic source;
+
+@dynamic associatedItems;
+
++(NSDictionary *)assetKeyLabels {
+    return @{@"accountType": @"Account Type",
+             @"artwork_url": @"Artwork URL",
+             @"asset_id": @"Asset ID",
+             @"city": @"City Placename",
+             @"comment_count": @"Comment Count",
+             @"contents": @"Description Contents",
+             @"country": @"Country Name",
+             @"date": @"Date",
+             @"download_count": @"Download Count",
+             @"duration": @"Duration in Milliseconds",
+             @"favoritings_count": @"Favoritings Count",
+             @"followers_count": @"Followers Count",
+             @"followings_count": @"Followings Count",
+             @"genre": @"Genre",
+             @"itemCount": @"Item Count",
+             @"permalink": @"Permalink",
+             @"playback_count": @"Playback Count",
+             @"playlist_count": @"Playlist Count",
+             @"playlistType": @"Playlist Type",
+             @"purchase_title": @"Purchase Link Title",
+             @"purchase_url": @"Purchase Link URL",
+             @"sharing": @"Sharing Mode",
+             @"sub_type": @"Sub Type",
+             @"tags": @"Tags",
+             @"tag_list": @"Tag List",
+             @"title": @"Title",
+             @"track_count": @"Track Count",
+             @"trackList": @"Track List",
+             @"track_type": @"Track Type",
+             @"type": @"Type",
+             @"uri": @"Resource URI",
+             @"user_id": @"User ID",
+             @"username": @"Username"};
+}
+
++(NSArray *)predicateDateAttributeTypeOperators {
+    
+    return [Asset predicateNumberAttributeTypeOperators];
+}
+
++(NSArray *)predicateStringAttributeTypeOperators {
+    
+    return@[[NSNumber numberWithInt:NSMatchesPredicateOperatorType],
+            [NSNumber numberWithInt:NSLikePredicateOperatorType],
+            [NSNumber numberWithInt:NSBeginsWithPredicateOperatorType],
+            [NSNumber numberWithInt:NSEndsWithPredicateOperatorType],
+            [NSNumber numberWithInt:NSContainsPredicateOperatorType]
+            ];
+}
+
++(NSArray *)predicateNumberAttributeTypeOperators {
+    
+    return@[[NSNumber numberWithInt:NSLessThanPredicateOperatorType],
+            [NSNumber numberWithInt:NSLessThanOrEqualToPredicateOperatorType],
+            [NSNumber numberWithInt:NSGreaterThanPredicateOperatorType],
+            [NSNumber numberWithInt:NSGreaterThanOrEqualToPredicateOperatorType],
+            [NSNumber numberWithInt:NSEqualToPredicateOperatorType],
+            [NSNumber numberWithInt:NSNotEqualToPredicateOperatorType]
+            ];
+}
+
++(NSArray *)predicateLeftExpressionsWithKeys:(NSArray *)keys {
+    NSMutableArray *items = @[].mutableCopy;
+    for (NSString *key in keys) {
+        [items addObject:[NSExpression expressionWithFormat:key]];
+    }
+    return items;
+}
++(NSArray *)predicateRightExpressionsWithKeys:(NSArray *)keys {
+    NSMutableArray *items = @[].mutableCopy;
+    for (NSString *key in keys) {
+        [items addObject:[NSExpression expressionForConstantValue:key]];
+    }
+    return items;
+}
+
++(PraxPredicateEditorRowTemplate *)predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:(NSArray *)keys {
+    
+    NSArray *leftExpressions = [self predicateLeftExpressionsWithKeys:keys];
+    NSArray *choices = [Asset assetKeysAndChoicesWithMultipleChoiceAttributeType][keys[0]];
+    
+    NSArray *rightExpressions;
+    NSArray *operators;
+    if (choices.count > 2) {
+        rightExpressions = [self predicateRightExpressionsWithKeys:choices];
+        operators = @[[NSNumber numberWithInt:NSMatchesPredicateOperatorType]];
+    }
+    else {
+        rightExpressions = @[[NSExpression expressionWithFormat:@"0"],[NSExpression expressionWithFormat:@"1"]];
+        operators = @[[NSNumber numberWithInt:NSEqualToPredicateOperatorType]];
+    }
+    
+    PraxPredicateEditorRowTemplate *rowTemplate = [[PraxPredicateEditorRowTemplate alloc] initWithLeftExpressions:leftExpressions rightExpressions:rightExpressions modifier:0 operators:operators options:0];
+    
+    NSPopUpButton *popUpButton = [[rowTemplate templateViews] objectAtIndex:0];
+    
+    for (NSString *key in keys) {
+        NSMenuItem *item = [popUpButton itemWithTitle:key];
+        NSString *label = [Asset assetKeyLabels][key];
+        if (item) [item setTitle:label];
+        
+    }
+    popUpButton = [[rowTemplate templateViews] objectAtIndex:2];
+    int index;
+    for (index = 0; (index < rightExpressions.count); index++) {
+        NSMenuItem *item = [popUpButton itemWithTitle:[NSString stringWithFormat:@"%d", index]];
+        NSString *y = choices[index];
+        if (item) [item setTitle:y];
+        
+        
+    }
+    
+    
+    
+    return rowTemplate;
+}
+
++(PraxPredicateEditorRowTemplate *)predicateEditorRowTemplateWithKeys:(NSArray *)keys forAttributeType:(NSAttributeType)attributeType {
+    NSArray *leftExpressions = [self predicateLeftExpressionsWithKeys:keys];
+    NSArray *operators;
+    if (attributeType == NSStringAttributeType) operators = [Asset predicateStringAttributeTypeOperators];
+    else if (attributeType == NSDateAttributeType) operators = [Asset predicateDateAttributeTypeOperators];
+    else operators = [Asset predicateNumberAttributeTypeOperators];
+    
+    PraxPredicateEditorRowTemplate *rowTemplate = [[PraxPredicateEditorRowTemplate alloc] initWithLeftExpressions:leftExpressions rightExpressionAttributeType:attributeType modifier:0 operators:operators options:NSCaseInsensitiveSearch];
+    
+    NSPopUpButton *leftExpressionButton = [[rowTemplate templateViews] objectAtIndex:0];
+    
+    for (NSString *key in keys) {
+        NSMenuItem *item = [leftExpressionButton itemWithTitle:key];
+        if (item) [item setTitle:[Asset assetKeyLabels][key]];
+        
+    }
+    return rowTemplate;
+}
 
 
+
++(NSArray *)assetKeysWithStringAttributeType {
+    return @[@"artwork_url",
+             @"asset_id",
+             @"city",
+             @"contents",
+             @"country",
+             @"genre",
+             @"permalink",
+             @"purchase_title",
+             @"purchase_url",
+             @"sub_type",
+             @"tag_list",
+             @"title",
+             @"trackList",
+             @"type",
+             @"uri",
+             @"user_id",
+             @"username"];
+}
+
++(NSArray *)assetKeysWithNumberAttributeType {
+    return @[@"comment_count",
+             @"download_count",
+             @"duration",
+             @"favoritings_count",
+             @"followers_count",
+             @"followings_count",
+             @"itemCount",
+             @"playback_count",
+             @"playlist_count",
+             @"track_count"];
+}
+
++(NSDictionary *)assetKeysAndChoicesWithMultipleChoiceAttributeType {
+    return @{@"sharing": @[@"Public", @"Private"],
+             @"accountType":@[@"SoundCloud", @"WordPress", @"Flickr", @"YouTube"],
+             @"track_type":@[@"one", @"two", @"three", @"four"]};
+}
+
++(NSArray *)assetKeysWithDateAttributeType {
+    return @[@"date"];
+}
+
++(NSArray *)assetKeysWithOtherAttributeType {
+    return @[@"playlistType",
+             @"tags",
+             @"trackType",
+             @"type"];
+}
 
 #pragma mark Accessors
-
 
 -(BOOL)isSoundCloudAsset {
     if ((self.isTrack)||(self.isPlaylist)) return YES;
@@ -100,13 +286,13 @@
     self = [super init];
     if (self) {
         NSLog(@"Asset init");
-  
+        
     }
     return self;
 }
 
 - (void)dealloc {
-//    NSLog(@"Asset dealloc");
+    //    NSLog(@"Asset dealloc");
     if (self.awake) {
         self.awake = FALSE;
         
@@ -124,19 +310,19 @@
         [self removeObserver:self forKeyPath:@"self.contents"];
         
     }
-
     
-//    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    //    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 /*
-- (void)awakeFromNib {
-    NSLog(@"Asset awakeFromNib");
-    
-    
-}
-*/
+ - (void)awakeFromNib {
+ NSLog(@"Asset awakeFromNib");
  
+ 
+ }
+ */
+
 - (void)awakeFromFetch {
     
     if (!self.awake) {
@@ -179,7 +365,7 @@
 
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
- //   NSLog(@"Asset observeValueForKeyPath:%@", keyPath);
+    //   NSLog(@"Asset observeValueForKeyPath:%@", keyPath);
     
     if ([keyPath isEqualToString:@"self.edit_mode"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"BatchAssetChangedNotification" object:self];
@@ -189,24 +375,165 @@
         if ([keyPath isEqualToString:@"self.tags"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetTagsChangedNotification" object:self];
         }
-
+        
     }
     
 }
 
 
 
--(NXOAuth2Request *)requestForReloadController:(UpdateController *)controller option:(PRAXReloadOption)option {  // return a request, configured as required for account type
+- (BOOL)oauthReady:(Document *)document {
+    
+    if (!self.oauthAccount) {
+        NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.accountType];
+        if ([oauthAccounts count] > 0) {
+            self.oauthAccount = oauthAccounts[0];
+        } else {
+            
+            [self removeAccessForAccountType:self.accountType];
+            
+            [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:self.accountType
+                                           withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
+                                               [document.authorizationWindow makeKeyAndOrderFront:self];
+                                               [[document.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
+                                           }];
+            return FALSE;
+        }
+    }
+    return TRUE;
+    
+}
+
+- (void)removeAccessForAccountType:(NSString *)accountType {
+    NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:accountType];
+    for (NXOAuth2Account *account in accounts) {
+        [[NXOAuth2AccountStore sharedStore] removeAccount:account];
+    }
+}
+
+
+-(void)loadWordPressPageCount:(NSDictionary *)data {
+    NSLog(@"loadWordPressPageCount: %@", data);
+    
+    self.playlist_count = data[@"found"];
+    int posts = [self.track_count intValue];
+    int pages = [self.playlist_count intValue];
+    posts -= pages;
+    self.track_count = [NSNumber numberWithInt:posts];
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
+}
+
+
+-(void)loadWordPressAccountData:(NSDictionary *)data {
+    NSLog(@"loadWordPressAccountData: %@", data);
+    [self setValue:data forKey:@"metadata"];
+    NSDictionary *meta = data[@"meta"];
+    self.uri = meta[@"links"][@"site"];
+    
+    NSDictionary *keys = @{
+                           @"user_id":@"ID",
+                           @"username":@"username",
+                           @"asset_id":@"primary_blog",
+                           @"city":@"email",
+                           @"title":@"display_name",
+                           @"country":@"profile_URL",
+                           @"purchase_title":@"display_name"};
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
+    if (data[@"avatar_URL"] != [NSNull null]) {
+        NSString *artwork_url = data[@"avatar_URL"];
+        //     NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
+        //     artwork_url = [NSString stringWithString:(NSString *)a[0]];
+        self.artwork_url = artwork_url;
+        
+        //     artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
+        NSURL *url = [NSURL URLWithString:artwork_url];
+        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
+        self.image =  [NSArchiver archivedDataWithRootObject:image];
+    }
+}
+-(void)loadWordPressSiteData:(NSDictionary *)data {
+    NSLog(@"loadWordPressSiteData: %@", data);
+    
+    NSMutableDictionary *metadata = [NSMutableDictionary dictionaryWithDictionary:self.metadata];
+    [metadata addEntriesFromDictionary:data];
+    [self setValue:metadata forKey:@"metadata"];
+    
+    NSDictionary *keys = @{
+                           @"itemCount":@"post_count",
+                           @"contents":@"description",
+                           @"purchase_url":@"URL",
+                           @"purchase_title":@"name" };
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
+}
+-(void)loadSoundCloudAccountData:(NSDictionary *)data {
+    
+    [self setValue:data forKey:@"metadata"];
+    
+    NSDictionary *keys = @{
+                           @"asset_id":@"id",
+                           @"uri":@"uri",
+                           
+                           @"city":@"city",
+                           @"country":@"country",
+                           @"contents":@"description",
+                           //   @"discogs_name":@"discogs_name",
+                           @"followers_count":@"followers_count",
+                           @"followings_count":@"followings_count",
+                           @"title":@"full_name",
+                           //   @"myspace_name":@"myspace_name",
+                           //   @"permalink":@"permalink",
+                           @"permalink":@"permalink_url",
+                           @"playlist_count":@"playlist_count",
+                           @"favoritings_count":@"public_favorites_count",
+                           @"track_count":@"track_count",
+                           @"username":@"username",
+                           @"purchase_url":@"website",
+                           @"purchase_title":@"website_title"};
+    
+    for (NSString *key in keys) {
+        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
+        else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    
+    if (data[@"avatar_url"] != [NSNull null]) {
+        NSString *artwork_url = data[@"avatar_url"];
+        NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
+        artwork_url = [NSString stringWithString:(NSString *)a[0]];
+        self.artwork_url = artwork_url;
+        
+        artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
+        //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        NSURL *url = [NSURL URLWithString:artwork_url];
+        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
+        self.image =  [NSArchiver archivedDataWithRootObject:image];
+        //       });
+    }
+    self.sync_mode = [NSNumber numberWithBool:FALSE];
+    
+}
+
+
+
+
+-(NXOAuth2Request *)requestForReloadController:(RequestController *)controller option:(PRAXReloadOption)option {  // return a request, configured as required for account type
     
     controller.parameters = [NSDictionary dictionary];
     self.updateOption = [NSNumber numberWithUnsignedInteger:option];
     
     if ([self.entity.name isEqualToString:@"Account"]) {
         
-        if (![self oauthReady:controller.document]) return nil;
+        if (![(Asset *)self oauthReady:controller.document]) return nil;
         
-
-        if ([[self accountType] isEqualToString:@"SoundCloud"]) {
+        
+        if ([[(Asset *)self accountType] isEqualToString:@"SoundCloud"]) {
             if (option == PRAXReloadOptionAccount) {
                 controller.statusText = @"Downloading SoundCloud User Profile";
                 controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me.json"];
@@ -215,23 +542,23 @@
                 controller.statusText = @"Downloading SoundCloud Tracks";
                 controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/tracks.json"];
                 controller.parameters = @{@"limit":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
-                controller.targetCount = [[self track_count] integerValue];
+                controller.targetCount = [[(Asset *)self track_count] integerValue];
                 
- 
+                
             }
             else if (option == PRAXReloadOptionPlaylists) {
                 controller.statusText = @"Downloading SoundCloud Playlists";
                 controller.resource = [NSURL URLWithString:@"https://api.soundcloud.com/me/playlists.json"];
                 controller.parameters = @{@"limit":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
-                controller.targetCount = [[self playlist_count] integerValue];
+                controller.targetCount = [[(Asset *)self playlist_count] integerValue];
                 
             }
             else return nil;
-
+            
             
             
         }
-        else if ([[self accountType] isEqualToString:@"WordPress"]) {
+        else if ([[(Asset *)self accountType] isEqualToString:@"WordPress"]) {
             if (option == PRAXReloadOptionAccount) {
                 controller.statusText = @"Downloading WordPress User Profile";
                 controller.resource = [NSURL URLWithString:@"https://public-api.wordpress.com/rest/v1/me"];
@@ -244,7 +571,7 @@
                 controller.statusText = @"Downloading WordPress Posts";
                 controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/", self.uri]];
                 controller.parameters = @{@"status":@"any", @"type":@"any", @"context":@"edit", @"number":@"10", @"offset":[[NSNumber numberWithInteger:controller.updateCount] stringValue]};
-                controller.targetCount = [[self itemCount] integerValue];
+                controller.targetCount = [[(Asset *)self itemCount] integerValue];
             }
             else return nil;
         }
@@ -261,12 +588,12 @@
         else return nil;
         
         NXOAuth2Request *request = [[NXOAuth2Request alloc] initWithResource:controller.resource method:@"GET" parameters:controller.parameters];
-        request.account = [self oauthAccount];
+        request.account = [(Asset *)self oauthAccount];
         if (!request.account) return nil;
         else return request;
     }
     else {
-      
+        
         if (![self.account oauthReady:controller.document]) return nil;
         
         
@@ -274,7 +601,7 @@
             controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@.json", self.uri]];
             if (self.isTrack) controller.statusText = [NSString stringWithFormat:@"Downloading SoundCloud Track ---- %@", self.title];
             else controller.statusText = [NSString stringWithFormat:@"Downloading SoundCloud Playlist ---- %@", self.title];
-         }
+        }
         
         else if (self.isWordPressAsset) {
             controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
@@ -291,18 +618,18 @@
         
     }
     
-
+    
 }
 
--(NXOAuth2Request *)requestForUploadController:(UpdateController *)controller {  // return a request, configured as required for account type
+-(NXOAuth2Request *)requestForUploadController:(RequestController *)controller {  // return a request, configured as required for account type
     
     
     if (![self.account oauthReady:controller.document]) return nil; // not authorized yet
     NXOAuth2Request *request;
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
-
+    
     if (self.isSoundCloudAsset) {
-       
+        
         for (NSString *key in @[@"title", @"purchase_title", @"purchase_url", @"contents", @"sharing", @"genre", @"permalink", @"tag_list"]) {
             
             NSString *asset_key = (self.isTrack) ? [NSString stringWithFormat:@"track[%@]", key] : [NSString stringWithFormat:@"playlist[%@]", key];
@@ -356,7 +683,7 @@
     }
     
     else if (self.isWordPressAsset) {
-
+        
         
         [parameters setObject:self.title forKey:@"title"];
         [parameters setObject:self.contents forKey:@"content"];
@@ -376,28 +703,28 @@
     request.account = self.account.oauthAccount;
     
     return request;
-
+    
 }
 
--(BOOL)handleReloadResponseData:(NSData *)responseData forController:(UpdateController *)controller {
+-(BOOL)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller {
     
     
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:0];
     NSLog(@"data: %@", data);
     
- 
+    
     if ([self.entity.name isEqualToString:@"Account"]) {
-
-        if ([[self accountType] isEqualToString:@"SoundCloud"]) {
+        
+        if ([[(Asset *)self accountType] isEqualToString:@"SoundCloud"]) {
             
             if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionAccount) {
-                [self loadSoundCloudAccountData:data];
+                [(Asset *)self loadSoundCloudAccountData:data];
                 if (controller.reloadAll) {
                     [controller reloadAsset:self option:PRAXReloadOptionTracks];
                 }
                 else [controller reset];
             }
-
+            
             else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionTracks) {
                 Asset *asset;
                 for (NSDictionary *item in data) {
@@ -410,7 +737,7 @@
                         asset.batchPosition = [NSNumber numberWithInt:-1];
                     }
                     else asset = matchingItems[0];
-                    asset.account = self;
+                    asset.account = (Asset *)self;
                     
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
@@ -447,7 +774,7 @@
                         
                     }
                     else asset = matchingItems[0];
-                    asset.account = self;
+                    asset.account = (Asset *)self;
                     
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
@@ -456,7 +783,7 @@
                     [controller.tagController loadAssetTags:asset];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
                     [controller.document.changedAssetsController fetch:self];
-
+                    
                 }
                 if (controller.updateCount < controller.targetCount) {
                     [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
@@ -465,19 +792,19 @@
             }
             else return NO; // invalid option
         }
-
         
-        else if ([[self accountType] isEqualToString:@"WordPress"]) {
+        
+        else if ([[(Asset *)self accountType] isEqualToString:@"WordPress"]) {
             
             if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionAccount) {
-                [self loadWordPressAccountData:data];
+                [(Asset *)self loadWordPressAccountData:data];
                 if (controller.reloadAll) {
                     [controller reloadAsset:self option:PRAXReloadOptionSite];
                 }
                 else [controller reset];
             }
             else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionSite) {
-                [self loadWordPressSiteData:data];
+                [(Asset *)self loadWordPressSiteData:data];
                 if (controller.reloadAll) {
                     [controller reloadAsset:self option:PRAXReloadOptionPosts];
                 }
@@ -496,7 +823,7 @@
                         asset.batchPosition = [NSNumber numberWithInt:-1];
                     }
                     else asset = matchingItems[0];
-                    asset.account = self;
+                    asset.account = (Asset *)self;
                     
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
@@ -566,25 +893,25 @@
     
     
     for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
-         @"favoritings_count", @"playback_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+                            @"favoritings_count", @"playback_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
         if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[key] forKey:key];
     }
-/*    if (self.isTrack) {
-        for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
-             @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
-            if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
-            else [self setValue:data[key] forKey:key];
-        }
-    }
-    if (self.isPlaylist) {
-        for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
-             @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
-            if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
-            else [self setValue:data[key] forKey:key];
-        }
-    }
-  */  
+    /*    if (self.isTrack) {
+     for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
+     @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+     if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
+     else [self setValue:data[key] forKey:key];
+     }
+     }
+     if (self.isPlaylist) {
+     for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
+     @"favoritings_count", @"play_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+     if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
+     else [self setValue:data[key] forKey:key];
+     }
+     }
+     */
     
     
     NSDictionary *keys = @{@"date":@"created_at", @"contents":@"description"};
@@ -759,139 +1086,6 @@
  //    [self.changedAssetsController rearrangeObjects];
  
  } */
-
-
-
-- (BOOL)oauthReady:(Document *)document {
-    
-    if (!self.oauthAccount) {
-        NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.accountType];
-        if ([oauthAccounts count] > 0) {
-            self.oauthAccount = oauthAccounts[0];
-        } else {
-            
-            [self removeAccessForAccountType:self.accountType];
-            
-            [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:self.accountType
-                                           withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
-                                               [document.authorizationWindow makeKeyAndOrderFront:self];
-                                               [[document.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
-                                           }];
-            return FALSE;
-        }
-    }
-    return TRUE;
-    
-}
-
-- (void)removeAccessForAccountType:(NSString *)accountType {
-    NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:accountType];
-    for (NXOAuth2Account *account in accounts) {
-        [[NXOAuth2AccountStore sharedStore] removeAccount:account];
-    }
-}
-
-
--(void)loadWordPressPageCount:(NSDictionary *)data {
-    NSLog(@"loadWordPressPageCount: %@", data);
-    
-    self.playlist_count = data[@"found"];
-    int posts = [self.track_count intValue];
-    int pages = [self.playlist_count intValue];
-    posts -= pages;
-    self.track_count = [NSNumber numberWithInt:posts];
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
-}
-
-
--(void)loadWordPressAccountData:(NSDictionary *)data {
-    NSLog(@"loadWordPressAccountData: %@", data);
-    [self setValue:data forKey:@"metadata"];
-    NSDictionary *meta = data[@"meta"];
-    self.uri = meta[@"links"][@"site"];
-    
-    NSDictionary *keys = @{
-                           @"user_id":@"ID",
-                           @"username":@"username",
-                           @"asset_id":@"primary_blog",
-                           @"city":@"email",
-                           @"title":@"display_name",
-                           @"country":@"profile_URL",
-                           @"purchase_title":@"display_name"};
-    for (NSString *key in keys) {
-        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
-        else [self setValue:data[[keys objectForKey:key]] forKey:key];
-    }
-    
-    if (data[@"avatar_URL"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_URL"];
-        //     NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        //     artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        self.artwork_url = artwork_url;
-        
-        //     artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        self.image =  [NSArchiver archivedDataWithRootObject:image];
-    }
-}
--(void)loadWordPressSiteData:(NSDictionary *)data {
-    NSLog(@"loadWordPressSiteData: %@", data);
-    
-    NSMutableDictionary *metadata = [NSMutableDictionary dictionaryWithDictionary:self.metadata];
-    [metadata addEntriesFromDictionary:data];
-    [self setValue:metadata forKey:@"metadata"];
-    
-    NSDictionary *keys = @{
-                           @"itemCount":@"post_count",
-                           @"contents":@"description",
-                           @"purchase_url":@"URL",
-                           @"purchase_title":@"name" };
-    for (NSString *key in keys) {
-        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
-        else [self setValue:data[[keys objectForKey:key]] forKey:key];
-    }
-    
-}
--(void)loadSoundCloudAccountData:(NSDictionary *)data {
-    
-    [self setValue:data forKey:@"metadata"];
-    
-    NSDictionary *keys = @{
-                           @"title":@"full_name",
-                           @"asset_id":@"id",
-                           @"uri":@"uri",
-                           @"username":@"username",
-                           @"permalink":@"permalink",
-                           @"playlist_count":@"playlist_count",
-                           @"track_count":@"track_count",
-                           @"contents":@"description",
-                           @"city":@"city",
-                           @"country":@"country",
-                           @"purchase_url":@"website",
-                           @"purchase_title":@"website_title"};
-    for (NSString *key in keys) {
-        if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
-        else [self setValue:data[[keys objectForKey:key]] forKey:key];
-    }
-    
-    if (data[@"avatar_url"] != [NSNull null]) {
-        NSString *artwork_url = data[@"avatar_url"];
-        NSArray *a = [artwork_url componentsSeparatedByString:@"-large.jpg"];
-        artwork_url = [NSString stringWithString:(NSString *)a[0]];
-        self.artwork_url = artwork_url;
-        
-        artwork_url = [artwork_url stringByAppendingString:@"-large.jpg"]; //t500x500
-        //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        NSURL *url = [NSURL URLWithString:artwork_url];
-        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
-        self.image =  [NSArchiver archivedDataWithRootObject:image];
-        //       });
-    }
-    self.sync_mode = [NSNumber numberWithBool:FALSE];
-    
-}
-
 
 
 

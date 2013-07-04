@@ -14,20 +14,28 @@
 
 #import "PraxTransformers.h"
 #import "Asset.h"
+#import "Source.h"
+#import "SourceController.h"
 #import "TagController.h"
 #import "AccountViewController.h"
-#import "UpdateController.h"
+#import "RequestController.h"
 #import "AssetMetadataPopover.h"
 #import "TemplateViewController.h"
 
-@interface Document : NSPersistentDocument
+@class SourceController;
+@class RequestController;
 
+@interface Document : NSPersistentDocument
+@property (strong) IBOutlet NSTreeController *sourceTreeController;
+@property (weak) IBOutlet NSOutlineView *sourceOutlineView;
+
+@property (strong) IBOutlet SourceController *sourceController;
 @property (weak) IBOutlet NSSplitView *leftSplitView;
 @property (weak) IBOutlet NSView *assetsView;
 @property (weak) IBOutlet NSView *changedAssetsView;
 
 @property (strong) IBOutlet TagController *tagController;
-@property (strong) IBOutlet UpdateController *updateController;
+@property (strong) IBOutlet RequestController *requestController;
 @property (weak) IBOutlet NSToolbarItem *accountsToolbarButton;
 @property (weak) IBOutlet NSPopover *accountViewPopover;
 @property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
@@ -55,13 +63,14 @@
 @property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;
 
--(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem;
+//-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem;
 - (IBAction)selectAccount:(id)sender;
 
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
 
+- (IBAction)praxButtonPressed:(id)sender;
 
 @end
 

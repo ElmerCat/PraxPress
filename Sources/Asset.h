@@ -6,11 +6,16 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
+
+
 #import "Document.h"
+
+#import "PraxPredicateEditorRowTemplate.h"
+
 @class Document;
+@class Source;
+@class RequestController;
 
-
-@class UpdateController;
 @interface Asset : NSManagedObject
 
 enum {
@@ -59,14 +64,6 @@ typedef NSUInteger PRAXReloadOption;
 
 @property (nonatomic, retain) Asset *account;
 
-@property (readonly) BOOL isSoundCloudAsset;
-@property (readonly) BOOL isTrack;
-@property (readonly) BOOL isPlaylist;
-@property (readonly) BOOL isWordPressAsset;
-@property (readonly) BOOL isPage;
-@property (readonly) BOOL isPost;
-@property (readonly) BOOL isAccount;
-
 @property (nonatomic, retain) NSString * accountType;
 @property (nonatomic, retain) NSString * city;
 @property (nonatomic, retain) NSString * country;
@@ -80,6 +77,32 @@ typedef NSUInteger PRAXReloadOption;
 
 @property (nonatomic, retain) NSNumber * user_id;
 @property (nonatomic, retain) id oauthAccount;
+@property (nonatomic, retain) Source *source;
+
+
+
+
+@property (readonly) BOOL isSoundCloudAsset;
+@property (readonly) BOOL isTrack;
+@property (readonly) BOOL isPlaylist;
+@property (readonly) BOOL isWordPressAsset;
+@property (readonly) BOOL isPage;
+@property (readonly) BOOL isPost;
+@property (readonly) BOOL isAccount;
+
++(NSDictionary *)assetKeyLabels;
++(NSArray *)assetKeysWithStringAttributeType;
++(NSArray *)assetKeysWithNumberAttributeType;
++(NSDictionary *)assetKeysAndChoicesWithMultipleChoiceAttributeType;
++(NSArray *)assetKeysWithDateAttributeType;
++(NSArray *)assetKeysWithOtherAttributeType;
+
++(PraxPredicateEditorRowTemplate *)predicateEditorRowTemplateWithKeys:(NSArray *)keys forAttributeType:(NSAttributeType)attributeType;
++(PraxPredicateEditorRowTemplate *)predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:(NSArray *)keys;
+
+-(NXOAuth2Request *)requestForUploadController:(RequestController *)controller;
+-(NXOAuth2Request *)requestForReloadController:(RequestController *)controller option:(PRAXReloadOption)option;
+-(BOOL)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller;
 
 
 -(BOOL)oauthReady:(Document *)document;
@@ -88,15 +111,11 @@ typedef NSUInteger PRAXReloadOption;
 -(void)loadWordPressPageCount:(NSDictionary *)data;
 -(void)loadSoundCloudAccountData:(NSDictionary *)data;
 
-
-
--(NXOAuth2Request *)requestForUploadController:(UpdateController *)controller;
--(NXOAuth2Request *)requestForReloadController:(UpdateController *)controller option:(PRAXReloadOption)option;
--(BOOL)handleReloadResponseData:(NSData *)responseData forController:(UpdateController *)controller;
-
 -(void)loadWordPressPostData:(NSDictionary *)data;
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
+
+
 
 @property (nonatomic, retain) NSSet *tags;
 @property (nonatomic, retain) NSSet *associatedItems;

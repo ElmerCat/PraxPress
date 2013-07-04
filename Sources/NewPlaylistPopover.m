@@ -92,7 +92,7 @@
     
     [TagController setAssetTagList:self.asset];
     
-    [self.filesOwner.updateController uploadAsset:self.asset];
+    [self.filesOwner.requestController uploadAsset:self.asset];
     
 
 }
