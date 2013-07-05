@@ -10,7 +10,7 @@
 #import "Source.h"
 #import "SourceTableRowView.h"
 #import "AssetListViewController.h"
-#import "AssetListView.h"
+//#import "AssetListView.h"
 #import "SourcePopovers.h"
 @class SourcePopovers;
 
@@ -18,8 +18,12 @@
 @property BOOL awake;
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSToolbar *documentToolbar;
+
 @property (weak) IBOutlet NSSplitView *sourceSplitView;
 @property (weak) IBOutlet NSView *sourceListSubView;
+@property NSMutableArray *assetListViewControllers;
+@property NSInteger selectedAssetListIndex;
+@property BOOL hasMoreThanOneTab;
 @property (weak) IBOutlet NSPopover *sourcePopover;
 @property (unsafe_unretained) IBOutlet SourcePopovers *sourcePopovers;
 @property NSMapTable *sourceListCellControllers;
@@ -31,5 +35,9 @@
 - (IBAction)toolbarItemSelected:(id)sender;
 - (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
 - (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
+
+- (void)addAssetListTabForSource:(Source *)source afterTab:(NSView *)tab;
+- (void)closeAssetListTab:(NSView *)tab;
+- (void)selectAssetListTab:(NSView *)tab;
 
 @end

@@ -90,6 +90,30 @@
 }
 @end
 
+@implementation PraxNumberIsGreaterThanOneTransformer
+
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    float number = 0;
+    
+    if (value == nil) return nil;
+    if ([value respondsToSelector: @selector(floatValue)]) {
+        number = [value floatValue];
+    }
+    if (number > 1.0f) {
+        return [NSNumber numberWithBool:YES];
+    }
+    else {
+        return [NSNumber numberWithBool:NO];
+        
+    }
+}
+@end
+
 @implementation PraxAssetStringTransformer
 
 + (Class)transformedValueClass {

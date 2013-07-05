@@ -76,7 +76,7 @@
    // [self removeObserver:self forKeyPath:@"self.source"];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+/*- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"self.source"]) {
         if (!self.source) return;
@@ -104,7 +104,7 @@
         }
         
     }
-}
+}*/
 
 
 

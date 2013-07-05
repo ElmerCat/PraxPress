@@ -52,6 +52,7 @@
     </entity>
     <entity name="BatchSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="FolderSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
+    <entity name="Image" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="LibrarySource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="playlist_type" optional="YES" attributeType="String" syncable="YES"/>
@@ -59,6 +60,8 @@
         <attribute name="trackListSaved" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
+    <entity name="PraxAsset" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
+    <entity name="PraxAssetSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="SearchSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Source" representedClassName="Source" syncable="YES">
         <attribute name="fetchEntity" optional="YES" attributeType="String" syncable="YES"/>
@@ -84,20 +87,25 @@
     <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="Video" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <elements>
         <element name="Account" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="AccountSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="AccountSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

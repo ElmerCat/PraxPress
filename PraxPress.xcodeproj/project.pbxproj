@@ -17,25 +17,21 @@
 		E642A03417862F13003FF23C /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A032178628CD003FF23C /* SourceController.m */; };
 		E642A03517862F1D003FF23C /* RequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A030178628CD003FF23C /* RequestController.m */; };
 		E642A03617862F5D003FF23C /* Source.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A02A17862096003FF23C /* Source.m */; };
-		E642A04117862FF6003FF23C /* AssetListView.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A03817862FF6003FF23C /* AssetListView.m */; };
 		E642A04217862FF6003FF23C /* AssetListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A03A17862FF6003FF23C /* AssetListViewController.m */; };
 		E642A04317862FF6003FF23C /* SourcePopovers.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A03C17862FF6003FF23C /* SourcePopovers.m */; };
 		E642A04417862FF6003FF23C /* SourceTableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A03E17862FF6003FF23C /* SourceTableRowView.m */; };
 		E642A04817863934003FF23C /* PraxPress.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A04617863934003FF23C /* PraxPress.xib */; };
-		E642A04A178639A3003FF23C /* AssetListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A049178639A3003FF23C /* AssetListViewController.xib */; };
+		E642A04A178639A3003FF23C /* AssetListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A049178639A3003FF23C /* AssetListView.xib */; };
 		E642A04C178639FA003FF23C /* SourceListCellViews.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A04B178639FA003FF23C /* SourceListCellViews.xib */; };
 		E642A05017863A87003FF23C /* greenlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04D17863A87003FF23C /* greenlight.tiff */; };
 		E642A05117863A87003FF23C /* orangelight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04E17863A87003FF23C /* orangelight.tiff */; };
 		E642A05217863A87003FF23C /* redlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04F17863A87003FF23C /* redlight.tiff */; };
 		E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A05317863E53003FF23C /* SourcePopovers.xib */; };
 		E642A056178643CE003FF23C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E642A055178643CE003FF23C /* WebKit.framework */; };
-		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
-		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
-		E661E62D1626182400EFD83A /* AccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E661E62B1626182400EFD83A /* AccountViewController.m */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
 		E664659516A4D94E004E3448 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E664659316A4D94E004E3448 /* Document.xcdatamodeld */; };
 		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
@@ -125,8 +121,6 @@
 		E642A030178628CD003FF23C /* RequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestController.m; sourceTree = "<group>"; };
 		E642A031178628CD003FF23C /* SourceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceController.h; sourceTree = "<group>"; };
 		E642A032178628CD003FF23C /* SourceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SourceController.m; sourceTree = "<group>"; };
-		E642A03717862FF6003FF23C /* AssetListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetListView.h; sourceTree = "<group>"; };
-		E642A03817862FF6003FF23C /* AssetListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetListView.m; sourceTree = "<group>"; };
 		E642A03917862FF6003FF23C /* AssetListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetListViewController.h; sourceTree = "<group>"; };
 		E642A03A17862FF6003FF23C /* AssetListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetListViewController.m; sourceTree = "<group>"; };
 		E642A03B17862FF6003FF23C /* SourcePopovers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourcePopovers.h; sourceTree = "<group>"; };
@@ -134,16 +128,13 @@
 		E642A03D17862FF6003FF23C /* SourceTableRowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceTableRowView.h; sourceTree = "<group>"; };
 		E642A03E17862FF6003FF23C /* SourceTableRowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceTableRowView.m; sourceTree = "<group>"; };
 		E642A04717863934003FF23C /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PraxPress.xib; sourceTree = "<group>"; };
-		E642A049178639A3003FF23C /* AssetListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetListViewController.xib; sourceTree = "<group>"; };
+		E642A049178639A3003FF23C /* AssetListView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetListView.xib; sourceTree = "<group>"; };
 		E642A04B178639FA003FF23C /* SourceListCellViews.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourceListCellViews.xib; sourceTree = "<group>"; };
 		E642A04D17863A87003FF23C /* greenlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = greenlight.tiff; sourceTree = "<group>"; };
 		E642A04E17863A87003FF23C /* orangelight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = orangelight.tiff; sourceTree = "<group>"; };
 		E642A04F17863A87003FF23C /* redlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = redlight.tiff; sourceTree = "<group>"; };
 		E642A05317863E53003FF23C /* SourcePopovers.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourcePopovers.xib; sourceTree = "<group>"; };
 		E642A055178643CE003FF23C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
-		E644B176168F67190001CE52 /* SourceSelectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceSelectionController.m; sourceTree = "<group>"; };
-		E644B177168F67190001CE52 /* SourceSelectionController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourceSelectionController.xib; sourceTree = "<group>"; };
 		E64555A716A76F6900740F45 /* TagController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagController.h; sourceTree = "<group>"; };
 		E64555A816A76F6900740F45 /* TagController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TagController.m; sourceTree = "<group>"; };
 		E64555AA16A773BF00740F45 /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
@@ -153,8 +144,6 @@
 		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
-		E661E62A1626182300EFD83A /* AccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccountViewController.h; sourceTree = "<group>"; };
-		E661E62B1626182400EFD83A /* AccountViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountViewController.m; sourceTree = "<group>"; };
 		E661E62C1626182400EFD83A /* AccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
 		E664659416A4D94E004E3448 /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
 		E664659616A4D9B0004E3448 /* Document1.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document1.0.xcdatamodel; sourceTree = "<group>"; };
@@ -268,18 +257,12 @@
 		E661E63316279D5C00EFD83A /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E642A03717862FF6003FF23C /* AssetListView.h */,
-				E642A03817862FF6003FF23C /* AssetListView.m */,
-				E642A03917862FF6003FF23C /* AssetListViewController.h */,
-				E642A03A17862FF6003FF23C /* AssetListViewController.m */,
 				E642A03B17862FF6003FF23C /* SourcePopovers.h */,
 				E642A03C17862FF6003FF23C /* SourcePopovers.m */,
 				E642A03D17862FF6003FF23C /* SourceTableRowView.h */,
 				E642A03E17862FF6003FF23C /* SourceTableRowView.m */,
 				E642A02D1786283C003FF23C /* PraxPredicateEditorRowTemplate.h */,
 				E642A02E1786283C003FF23C /* PraxPredicateEditorRowTemplate.m */,
-				E661E62A1626182300EFD83A /* AccountViewController.h */,
-				E661E62B1626182400EFD83A /* AccountViewController.m */,
 				E66E6BFE169F1252006F07D1 /* AssetDetailController.h */,
 				E66E6BFF169F1252006F07D1 /* AssetDetailController.m */,
 				E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */,
@@ -292,8 +275,6 @@
 				E6F80B281623969100828086 /* ChangeValuesController.m */,
 				E6EA109F16AB22DD0004800F /* NewPlaylistPopover.h */,
 				E6EA10A016AB22DD0004800F /* NewPlaylistPopover.m */,
-				E644B175168F67190001CE52 /* SourceSelectionController.h */,
-				E644B176168F67190001CE52 /* SourceSelectionController.m */,
 				E64774AA16067BA0003BD981 /* TemplateViewController.h */,
 				E64774AB16067BA0003BD981 /* TemplateViewController.m */,
 			);
@@ -305,7 +286,6 @@
 			children = (
 				E642A05317863E53003FF23C /* SourcePopovers.xib */,
 				E642A04B178639FA003FF23C /* SourceListCellViews.xib */,
-				E642A049178639A3003FF23C /* AssetListViewController.xib */,
 				E661E62C1626182400EFD83A /* AccountViewController.xib */,
 				E66E6C00169F1252006F07D1 /* AssetDetailController.xib */,
 				E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */,
@@ -313,7 +293,6 @@
 				E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */,
 				E6F80B291623969100828086 /* ChangeValuesController.xib */,
 				E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */,
-				E644B177168F67190001CE52 /* SourceSelectionController.xib */,
 				E665634315E9744400DFC7C9 /* TemplateView.xib */,
 				E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */,
 			);
@@ -323,6 +302,8 @@
 		E661E63516279DF200EFD83A /* Object Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E642A03917862FF6003FF23C /* AssetListViewController.h */,
+				E642A03A17862FF6003FF23C /* AssetListViewController.m */,
 				E642A02F178628CD003FF23C /* RequestController.h */,
 				E642A030178628CD003FF23C /* RequestController.m */,
 				E642A031178628CD003FF23C /* SourceController.h */,
@@ -375,6 +356,7 @@
 				E6BC79AF15C4759800080762 /* Document.h */,
 				E6BC79B015C4759800080762 /* Document.m */,
 				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
+				E642A049178639A3003FF23C /* AssetListView.xib */,
 				E661E63516279DF200EFD83A /* Object Controllers */,
 				E661E63316279D5C00EFD83A /* View Controllers */,
 				E661E63216279D3600EFD83A /* Entities */,
@@ -535,7 +517,6 @@
 				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
 				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
-				E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */,
 				E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */,
 				E66E6C0B169F78DF006F07D1 /* AssetPredicateController.xib in Resources */,
 				E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */,
@@ -554,7 +535,7 @@
 				E642A05017863A87003FF23C /* greenlight.tiff in Resources */,
 				E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */,
 				E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */,
-				E642A04A178639A3003FF23C /* AssetListViewController.xib in Resources */,
+				E642A04A178639A3003FF23C /* AssetListView.xib in Resources */,
 				E642A04C178639FA003FF23C /* SourceListCellViews.xib in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
@@ -583,9 +564,7 @@
 				E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */,
 				E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */,
 				E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */,
-				E661E62D1626182400EFD83A /* AccountViewController.m in Sources */,
 				E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */,
-				E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */,
 				E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */,
 				E66E6C0A169F78DF006F07D1 /* AssetPredicateController.m in Sources */,
 				E642A03617862F5D003FF23C /* Source.m in Sources */,
@@ -597,7 +576,6 @@
 				E64555A916A76F6900740F45 /* TagController.m in Sources */,
 				E64555AC16A773C000740F45 /* Tag.m in Sources */,
 				E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */,
-				E642A04117862FF6003FF23C /* AssetListView.m in Sources */,
 				E6EA10A216AB22DD0004800F /* NewPlaylistPopover.m in Sources */,
 				E642A04217862FF6003FF23C /* AssetListViewController.m in Sources */,
 			);

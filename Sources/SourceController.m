@@ -47,7 +47,15 @@
     grandChild = [Source addFolderSource:@"Batch Sub Folder" toParent:child inManagedObjectContext:moc];
     grandChild = [Source addFolderSource:@"Batch Sub Folder" toParent:child inManagedObjectContext:moc];
     
-    parent = [Source addLibrarySource:@"Changed Items" withSortOrder:@3 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Prax Assets" withSortOrder:@3 inManagedObjectContext:moc];
+    
+    child = [Source addPraxAssetSource:@"New Prax Asset" toParent:parent inManagedObjectContext:moc];
+    child = [Source addFolderSource:@"Prax Folder" toParent:parent inManagedObjectContext:moc];
+    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
+    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
+    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
+    
+    parent = [Source addLibrarySource:@"Changed Items" withSortOrder:@4 inManagedObjectContext:moc];
     
 }
 
@@ -69,14 +77,65 @@
         for (NSString *identifier in @[@"LibrarySource", @"AccountSource", @"SubAccountSource", @"WordPress", @"SearchSource", @"BatchSource", @"FolderSource", @"ChangedSource"]) {
             [self.sourceListOutlineView registerNib:nib forIdentifier:identifier];
         }
-
-        AssetListViewController *viewController = [[AssetListViewController alloc] initWithNibName:@"AssetListViewController" bundle:nil];
-        AssetListView *view = (AssetListView *)viewController.view;
-        view.tag = 1;
-        view.assetListViewController = viewController;
-        [self.sourceSplitView addSubview:viewController.view positioned:NSWindowAbove relativeTo:self.sourceListSubView];
+        self.assetListViewControllers = [@[] mutableCopy];
+        [self addAssetListTabForSource:nil afterTab:self.sourceListSubView];
         
+        NSRect frame = self.sourceListSubView.frame;
+        frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
+        if (frame.size.width < 50) {
+            frame.size.width = 150;
+        }
+        [self.sourceListSubView setFrame:frame];
     }
+}
+
+- (void)selectAssetListTab:(NSView *)tab {
+    NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
+    if (index > 0) {
+        index -= 1;
+        for (AssetListViewController *controller in self.assetListViewControllers) {
+            if (controller.view == tab) controller.selected = TRUE;
+            else controller.selected = FALSE;
+            
+        }
+        self.selectedAssetListIndex = index;
+    }
+    
+    
+}
+
+- (void)closeAssetListTab:(NSView *)tab {
+    if (self.assetListViewControllers.count > 1) {
+        NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
+        if (index > 0) {
+            index -= 1;
+            BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] selected];
+            [tab removeFromSuperview];
+            [self.assetListViewControllers removeObjectAtIndex:index];
+            if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
+            if (wasSelected) {
+                if (index > 0) index -= 1;
+                NSView *tabView = [(AssetListViewController *)self.assetListViewControllers[index] view];
+                [self selectAssetListTab:tabView];
+            }
+        }
+    }
+}
+
+
+
+- (void)addAssetListTabForSource:(Source *)source afterTab:(NSView *)tab {
+    
+    NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
+    AssetListViewController *viewController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
+    [self.assetListViewControllers insertObject:viewController atIndex:index];
+    viewController.document = self.document;
+    index += 1;
+    [self.sourceSplitView addSubview:viewController.view positioned:NSWindowAbove relativeTo:tab];
+    [self selectAssetListTab:viewController.view];
+    viewController.source = source;
+    if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
+
 }
 
 - (NSArray *)assetsForSource:(Source *)source {
@@ -170,13 +229,13 @@
     
     NSTableCellView *view = [self.document.sourceOutlineView viewAtColumn:0 row:row makeIfNecessary:FALSE];
     Source *source = view.objectValue;
-    NSArray *assets = [self assetsForSource:source];
     
-    AssetListView *assetListView = [self.sourceSplitView viewWithTag:1];
+    AssetListViewController *controller = self.assetListViewControllers[self.selectedAssetListIndex];
+    controller.source = source;
     
-    AssetListViewController *assetListViewController = assetListView.assetListViewController;
+//    NSView *assetListView = [self.sourceSplitView viewWithTag:1];
     
-    assetListViewController.assets = assets;
+ //   assetListView.assetListViewController.source = source;
     
     
  //   Source *soure = [[self.document.sourceOutlineView viewAtColumn:0 row:[self.document.sourceOutlineView selectedRow] makeIfNecessary:FALSE] representedObject];

@@ -18,11 +18,42 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        NSLog(@"AssetListViewController initWithNibName: %@", nibNameOrNil);
+
+        [self addObserver:self forKeyPath:@"self.source" options:NSKeyValueObservingOptionNew context:0];
+
         // Initialization code here.
     }
     
     return self;
 }
+
+
+
+- (void)dealloc {
+    NSLog(@"AssetListViewController dealloc");
+    [self removeObserver:self forKeyPath:@"self.source"];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    NSLog(@"AssetListViewController observeValueForKeyPath: %@", keyPath);
+    if ([keyPath isEqualToString:@"self.source"]) {
+        if (!self.source) return;
+        
+        [self.assetArrayController setFetchPredicate:self.source.fetchPredicate];
+        NSString *entityName = self.source.fetchEntity;
+        if (!entityName.length) entityName = @"Asset";
+        
+        [self.assetArrayController setEntityName:entityName];
+        [self.assetArrayController fetch:self];
+        
+        
+    }
+}
+
+
+
 - (id)init {
     self = [super init];
     if (self) {
@@ -41,4 +72,17 @@
 
 
 
+- (IBAction)addAssetListTab:(id)sender {
+    
+    [self.document.sourceController addAssetListTabForSource:self.source afterTab:[(NSView *)sender superview]];
+    
+}
+- (IBAction)closeAssetListTab:(id)sender {
+    [self.document.sourceController closeAssetListTab:[(NSView *)sender superview]];
+    
+}
+- (IBAction)selectAssetListTab:(id)sender {
+    [self.document.sourceController selectAssetListTab:[(NSView *)sender superview]];
+    
+}
 @end

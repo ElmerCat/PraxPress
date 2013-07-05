@@ -89,6 +89,14 @@
     return child;
 }
 
++(Source *)addPraxAssetSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc{
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"PraxAssetSource" inManagedObjectContext:moc];
+    child.name = name;
+    child.parent = parent;
+    child.rowHeight = @30;
+    return child;
+}
+
 +(Source *)addBatchSource:(NSString*)name toParent:(Source*)parent withArrangedAssets:(NSArray*)assets inManagedObjectContext:(NSManagedObjectContext*)moc{
     Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"BatchSource" inManagedObjectContext:moc];
     child.name = name;

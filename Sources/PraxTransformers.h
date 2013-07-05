@@ -26,6 +26,9 @@
 @interface PraxNumberIsNotZeroTransformer : NSValueTransformer
 @end
 
+@interface PraxNumberIsGreaterThanOneTransformer : NSValueTransformer
+@end
+
 @interface PraxAssetStringTransformer : NSValueTransformer
 @end
 

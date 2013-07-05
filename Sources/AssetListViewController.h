@@ -6,11 +6,17 @@
 //  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Document.h"
+
 
 @interface AssetListViewController : NSViewController
 @property BOOL awake;
-@property (nonatomic, retain) NSArray *assets;
-@property (strong) IBOutlet NSArrayController *assetListArrayController;
+@property Document *document;
+@property BOOL selected;
+@property Source *source;
+@property (strong) IBOutlet NSArrayController *assetArrayController;
+- (IBAction)addAssetListTab:(id)sender;
+- (IBAction)closeAssetListTab:(id)sender;
+- (IBAction)selectAssetListTab:(id)sender;
 
 @end

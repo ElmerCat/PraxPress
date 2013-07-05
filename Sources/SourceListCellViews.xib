@@ -307,7 +307,7 @@
                         <constraint firstAttribute="height" constant="29" id="Iun-cf-w27"/>
                         <constraint firstAttribute="width" constant="127" id="TnP-Hu-WLd"/>
                     </constraints>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="WordPressName127x29" id="Kdq-8f-pNF"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="WordPressName127x29" id="Kdq-8f-pNF"/>
                 </imageView>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cRc-qy-ygJ">
                     <rect key="frame" x="135" y="9" width="216" height="17"/>
@@ -455,6 +455,50 @@
             <connections>
                 <outlet property="textField" destination="pui-cq-fV0" id="Ud6-ei-c3z"/>
             </connections>
+        </tableCellView>
+        <tableCellView identifier="PraxAssetSource" id="Jll-xx-D8l" userLabel="PraxAssetSource">
+            <rect key="frame" x="0.0" y="0.0" width="344" height="34"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YGH-mP-3fR">
+                    <rect key="frame" x="0.0" y="14" width="107" height="17"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="PraxAssetSource" id="Bzx-52-ihJ">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="Jll-xx-D8l" name="value" keyPath="objectValue.name" id="d2y-wu-sdr"/>
+                    </connections>
+                </textField>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gpy-v2-IsC">
+                    <rect key="frame" x="0.0" y="3" width="314" height="11"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="Vh0-V4-hHA">
+                        <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nqk-NM-WLL">
+                    <rect key="frame" x="319" y="7" width="22" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSFolderSmart" imagePosition="above" alignment="left" controlSize="mini" imageScaling="proportionallyDown" id="Ql9-gK-Og7">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Gpy-v2-IsC" firstAttribute="top" secondItem="YGH-mP-3fR" secondAttribute="bottom" id="9CX-ww-9ON"/>
+                <constraint firstAttribute="trailing" secondItem="nqk-NM-WLL" secondAttribute="trailing" constant="3" id="F09-OZ-zIC"/>
+                <constraint firstItem="YGH-mP-3fR" firstAttribute="top" secondItem="Jll-xx-D8l" secondAttribute="top" constant="3" id="IFP-oJ-pUU"/>
+                <constraint firstItem="nqk-NM-WLL" firstAttribute="top" secondItem="Jll-xx-D8l" secondAttribute="top" constant="6" id="SkI-6H-cDu"/>
+                <constraint firstItem="nqk-NM-WLL" firstAttribute="leading" secondItem="Gpy-v2-IsC" secondAttribute="trailing" constant="8" id="c1l-xE-WmQ"/>
+                <constraint firstItem="YGH-mP-3fR" firstAttribute="leading" secondItem="Jll-xx-D8l" secondAttribute="leading" constant="3" id="lLa-0d-IYK"/>
+                <constraint firstItem="Gpy-v2-IsC" firstAttribute="leading" secondItem="Jll-xx-D8l" secondAttribute="leading" constant="3" id="wQu-mf-ZrR"/>
+            </constraints>
         </tableCellView>
     </objects>
     <resources>
