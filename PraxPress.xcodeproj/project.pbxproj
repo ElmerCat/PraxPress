@@ -27,6 +27,8 @@
 		E642A05017863A87003FF23C /* greenlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04D17863A87003FF23C /* greenlight.tiff */; };
 		E642A05117863A87003FF23C /* orangelight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04E17863A87003FF23C /* orangelight.tiff */; };
 		E642A05217863A87003FF23C /* redlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04F17863A87003FF23C /* redlight.tiff */; };
+		E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A05317863E53003FF23C /* SourcePopovers.xib */; };
+		E642A056178643CE003FF23C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E642A055178643CE003FF23C /* WebKit.framework */; };
 		E644B178168F671A0001CE52 /* SourceSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E644B176168F67190001CE52 /* SourceSelectionController.m */; };
 		E644B179168F671A0001CE52 /* SourceSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E644B177168F67190001CE52 /* SourceSelectionController.xib */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
@@ -137,6 +139,8 @@
 		E642A04D17863A87003FF23C /* greenlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = greenlight.tiff; sourceTree = "<group>"; };
 		E642A04E17863A87003FF23C /* orangelight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = orangelight.tiff; sourceTree = "<group>"; };
 		E642A04F17863A87003FF23C /* redlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = redlight.tiff; sourceTree = "<group>"; };
+		E642A05317863E53003FF23C /* SourcePopovers.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourcePopovers.xib; sourceTree = "<group>"; };
+		E642A055178643CE003FF23C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E644B175168F67190001CE52 /* SourceSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceSelectionController.h; sourceTree = "<group>"; };
 		E644B176168F67190001CE52 /* SourceSelectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceSelectionController.m; sourceTree = "<group>"; };
 		E644B177168F67190001CE52 /* SourceSelectionController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourceSelectionController.xib; sourceTree = "<group>"; };
@@ -216,6 +220,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E642A056178643CE003FF23C /* WebKit.framework in Frameworks */,
 				E6C05D801772277B004F09EA /* OAuth2Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -226,6 +231,7 @@
 		E61CF8FD177189300038A502 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E642A055178643CE003FF23C /* WebKit.framework */,
 				E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */,
 			);
 			name = Frameworks;
@@ -297,6 +303,7 @@
 		E661E63416279DB500EFD83A /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				E642A05317863E53003FF23C /* SourcePopovers.xib */,
 				E642A04B178639FA003FF23C /* SourceListCellViews.xib */,
 				E642A049178639A3003FF23C /* AssetListViewController.xib */,
 				E661E62C1626182400EFD83A /* AccountViewController.xib */,
@@ -535,6 +542,7 @@
 				E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */,
 				E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */,
 				E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */,
+				E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */,
 				E6EA108616A9CB090004800F /* icon-network-drive.tiff in Resources */,
 				E6EA108716A9CB090004800F /* page_Arrow_Down_hi.tiff in Resources */,
 				E642A05117863A87003FF23C /* orangelight.tiff in Resources */,

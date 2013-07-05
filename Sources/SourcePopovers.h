@@ -6,7 +6,10 @@
 //  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+@import Foundation;
+@import Cocoa;
+@import WebKit;
+
 #import "Source.h"
 @class Source;
 @interface SourcePopovers : NSViewController

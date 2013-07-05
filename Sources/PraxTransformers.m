@@ -11,9 +11,11 @@
 @implementation PraxTransformers
 
 +(void)loadForDocument:(Document *)document {
-
+    
     id transformer = [[PraxNumberIsZeroTransformer alloc] init];
-    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsZeroTransformer"];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxPredicateToStringTransformer"];
+    transformer = [[PraxNumberIsNotZeroTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
     transformer = [[PraxNumberIsNotZeroTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
     transformer = [[PraxAssetStringTransformer alloc] init];
@@ -25,6 +27,19 @@
     
 }
 
+@end
+
+@implementation PraxPredicateToStringTransformer
+
++ (Class)transformedValueClass {
+    return [NSString class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSString *)transformedValue:(id)value {
+    
+    return [(NSPredicate*)value description];
+}
 @end
 
 @implementation PraxNumberIsZeroTransformer

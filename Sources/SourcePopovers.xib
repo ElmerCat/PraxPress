@@ -1,0 +1,1645 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment version="1070" defaultVersion="1080" identifier="macosx"/>
+        <development version="5000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="3330"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SourcePopovers">
+            <connections>
+                <action selector="doneButtonPressed:" destination="6hg-Og-1aV" id="IYS-Xv-2eH"/>
+                <action selector="doneButtonPressed:" destination="Vl8-Qc-7Rp" id="Muf-1L-HFL"/>
+                <action selector="loginButtonPressed:" destination="NzP-g3-7th" id="AeF-Nb-KmA"/>
+                <outlet property="authorizationPanel" destination="5qm-X5-tk8" id="rAR-bD-UKV"/>
+                <outlet property="authorizationWebView" destination="66n-W6-321" id="HfL-NM-rtK"/>
+                <outlet property="searchPredicateEditor" destination="DvL-S4-CBA" id="Ujl-CI-0wg"/>
+                <outlet property="sourceAccountPopoverView" destination="S4R-M9-xuK" id="aDC-Te-118"/>
+                <outlet property="sourcePopoverScrollView" destination="3x1-hu-qFx" id="dK7-oM-xcZ"/>
+                <outlet property="view" destination="1" id="2"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <customView id="1" userLabel="Source Account Popover">
+            <rect key="frame" x="0.0" y="0.0" width="259" height="160"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3x1-hu-qFx">
+                    <rect key="frame" x="10" y="10" width="239" height="140"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <clipView key="contentView" copiesOnScroll="NO" id="q4o-Di-hYE">
+                        <rect key="frame" x="1" y="1" width="237" height="138"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view appearanceType="lightContent" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S4R-M9-xuK">
+                                <rect key="frame" x="0.0" y="0.0" width="237" height="138"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
+                    </clipView>
+                    <scroller key="horizontalScroller" verticalHuggingPriority="750" id="U2A-s4-944">
+                        <rect key="frame" x="1" y="123" width="237" height="16"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" id="z27-vS-Q0x">
+                        <rect key="frame" x="223" y="1" width="15" height="138"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                </scrollView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="3x1-hu-qFx" firstAttribute="top" secondItem="1" secondAttribute="top" constant="10" id="8ie-Eh-ZhH"/>
+                <constraint firstItem="3x1-hu-qFx" firstAttribute="leading" secondItem="1" secondAttribute="leading" constant="10" id="8wd-L5-xwR"/>
+                <constraint firstAttribute="trailing" secondItem="3x1-hu-qFx" secondAttribute="trailing" constant="10" id="FfS-hv-n2o"/>
+                <constraint firstAttribute="bottom" secondItem="3x1-hu-qFx" secondAttribute="bottom" constant="10" id="jsD-uR-QU9"/>
+            </constraints>
+        </customView>
+        <customView identifier="WordPress" wantsLayer="YES" appearanceType="lightContent" id="fGN-VX-E9G" userLabel="WordPress">
+            <rect key="frame" x="0.0" y="0.0" width="646" height="371"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <customView wantsLayer="YES" canDrawConcurrently="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ie9-IU-Bi6">
+                    <rect key="frame" x="20" y="20" width="606" height="331"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <subviews>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Wy6-w3-sMV">
+                            <rect key="frame" x="17" y="189" width="76" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="70" id="mG1-gB-0Qf"/>
+                            </constraints>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Website Title:" id="cda-vC-Mxo">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cs1-68-x7K">
+                            <rect key="frame" x="17" y="241" width="124" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="WordPress Username:" id="hdE-uJ-Snr">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="al3-7Z-XUq">
+                            <rect key="frame" x="17" y="163" width="76" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Website URL:" id="9Es-LG-39q">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uEy-Ff-A5c">
+                            <rect key="frame" x="17" y="215" width="39" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Name:" id="oAX-ev-Uvx">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7Ws-MH-MZ2">
+                            <rect key="frame" x="14" y="13" width="312" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="300" id="8A7-VS-pR8"/>
+                                <constraint firstAttribute="height" constant="21" id="ekR-kV-9UG"/>
+                            </constraints>
+                            <buttonCell key="cell" type="push" title="Reload All Data From Server" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wsJ-ZK-rgn">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <binding destination="-2" name="target" keyPath="document.requestController" previousBinding="81f-06-vU6" id="TYp-Hh-7t4">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">reloadAllAssetData:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="enabled" keyPath="self.document.requestController.busy" id="GUM-oK-JQ2">
+                                    <dictionary key="options">
+                                        <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="argument" keyPath="source.account" id="81f-06-vU6">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">reloadAllAssetData:</string>
+                                    </dictionary>
+                                </binding>
+                            </connections>
+                        </button>
+                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="sv6-oC-JUY">
+                            <rect key="frame" x="0.0" y="283" width="196" height="48"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="48" id="CaJ-x5-UBh"/>
+                                <constraint firstAttribute="width" constant="196" id="mHO-aZ-Zf6"/>
+                            </constraints>
+                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="WordPressName127x29" id="fDz-fE-sBZ"/>
+                        </imageView>
+                        <imageView translatesAutoresizingMaskIntoConstraints="NO" id="MfX-v9-RYm">
+                            <rect key="frame" x="506" y="231" width="100" height="100"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="100" id="ZZF-ci-ozN"/>
+                                <constraint firstAttribute="height" constant="100" id="g5E-ZJ-VyU"/>
+                            </constraints>
+                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="VDX-Ev-TAa">
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.source.account.image" id="sbA-7x-uRf">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSUnarchiveFromData</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </imageCell>
+                        </imageView>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="u7W-eB-taa">
+                            <rect key="frame" x="95" y="189" width="494" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Website Title" id="u0c-3L-3rg">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="6QS-8v-SCC"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.purchase_title" id="9Mx-dy-YcU"/>
+                            </connections>
+                        </textField>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="w6s-9q-zsF">
+                            <rect key="frame" x="95" y="163" width="494" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Website URL" id="1iA-fW-Krp">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="dNr-tx-zyV"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.purchase_url" id="WKB-9C-rRP"/>
+                            </connections>
+                        </textField>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8Ma-qY-6ox">
+                            <rect key="frame" x="17" y="137" width="91" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="City Placename:" id="8pw-zI-NXX">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="3ib-Fq-KhO">
+                            <rect key="frame" x="110" y="137" width="479" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="City Placename" id="rAK-S9-j2v">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="dEW-52-RVu"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.city" id="2JT-xS-pth"/>
+                            </connections>
+                        </textField>
+                        <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ydc-2S-CV8">
+                            <rect key="frame" x="17" y="111" width="85" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Country Name:" id="08x-3d-FGe">
+                                <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                                <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="pph-WY-64Z">
+                            <rect key="frame" x="104" y="111" width="485" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Country Name" id="w1N-vn-Mo3">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="kmr-rJ-57Z"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.country" id="CA3-xp-wKD"/>
+                            </connections>
+                        </textField>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="idA-IU-dZz">
+                            <rect key="frame" x="58" y="215" width="443" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Full Name" id="YYc-tL-5ND">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="hyX-A1-JcU"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.title" id="M9X-ud-MiI"/>
+                            </connections>
+                        </textField>
+                        <progressIndicator appearanceType="lightContent" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="gJ6-AZ-ek2">
+                            <rect key="frame" x="328" y="20" width="16" height="16"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <connections>
+                                <binding destination="-2" name="animate" keyPath="self.document.requestController.busy" id="A1X-Fs-aa5"/>
+                            </connections>
+                        </progressIndicator>
+                        <button hidden="YES" appearanceType="lightContent" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="frB-QW-Tl7">
+                            <rect key="frame" x="346" y="13" width="62" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="21" id="9K6-sf-bPd"/>
+                                <constraint firstAttribute="width" constant="50" id="oTI-E2-Sk7"/>
+                            </constraints>
+                            <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Vgg-ao-YFS">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <binding destination="-2" name="target" keyPath="document.requestController" previousBinding="M7s-7c-a6D" id="127-AW-PBh">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">stop:</string>
+                                        <bool key="NSConditionallySetsHidden" value="YES"/>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="argument" keyPath="self" id="M7s-7c-a6D">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">stop:</string>
+                                        <bool key="NSConditionallySetsHidden" value="YES"/>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" previousBinding="dAC-KB-Q7q" id="wHt-FO-15f">
+                                    <dictionary key="options">
+                                        <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="enabled" keyPath="self.document.requestController.stop" id="dAC-KB-Q7q">
+                                    <dictionary key="options">
+                                        <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                    </dictionary>
+                                </binding>
+                            </connections>
+                        </button>
+                        <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="FeU-xO-NHm">
+                            <rect key="frame" x="143" y="241" width="358" height="18"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Username" id="BDk-ws-TB6">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="source.account.username" id="QEN-x6-HAz"/>
+                                </connections>
+                            </textFieldCell>
+                            <connections>
+                                <binding destination="-2" name="value" keyPath="self.source.account.username" id="JMK-yW-pn4"/>
+                            </connections>
+                        </textField>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="al3-7Z-XUq" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="0kl-uj-9H8"/>
+                        <constraint firstItem="3ib-Fq-KhO" firstAttribute="trailing" secondItem="pph-WY-64Z" secondAttribute="trailing" id="1Bz-O5-BPi"/>
+                        <constraint firstItem="FeU-xO-NHm" firstAttribute="leading" secondItem="cs1-68-x7K" secondAttribute="trailing" constant="8" id="1qA-NX-vK5"/>
+                        <constraint firstItem="sv6-oC-JUY" firstAttribute="top" secondItem="Ie9-IU-Bi6" secondAttribute="top" id="22r-i0-gG8"/>
+                        <constraint firstAttribute="bottom" secondItem="7Ws-MH-MZ2" secondAttribute="bottom" constant="20" id="2Ok-zJ-AMO"/>
+                        <constraint firstAttribute="trailing" secondItem="idA-IU-dZz" secondAttribute="trailing" constant="108" id="6eT-EN-nPp"/>
+                        <constraint firstItem="8Ma-qY-6ox" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="6ex-rc-kZd"/>
+                        <constraint firstItem="8Ma-qY-6ox" firstAttribute="top" secondItem="3ib-Fq-KhO" secondAttribute="top" id="6yQ-YS-5X3"/>
+                        <constraint firstItem="u7W-eB-taa" firstAttribute="leading" secondItem="Wy6-w3-sMV" secondAttribute="trailing" constant="8" symbolic="YES" id="8hS-ec-x1V"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="leading" secondItem="Ydc-2S-CV8" secondAttribute="trailing" constant="8" id="9T6-Lb-KM3"/>
+                        <constraint firstItem="FeU-xO-NHm" firstAttribute="top" secondItem="cs1-68-x7K" secondAttribute="top" id="9UZ-zS-d0g"/>
+                        <constraint firstItem="cs1-68-x7K" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="Axf-XX-w27"/>
+                        <constraint firstItem="gJ6-AZ-ek2" firstAttribute="leading" secondItem="7Ws-MH-MZ2" secondAttribute="trailing" constant="8" id="BFN-8d-d6q"/>
+                        <constraint firstItem="MfX-v9-RYm" firstAttribute="trailing" secondItem="Ie9-IU-Bi6" secondAttribute="trailing" id="CPf-aB-RxN"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="top" secondItem="Ydc-2S-CV8" secondAttribute="top" id="DjL-e3-X8a"/>
+                        <constraint firstAttribute="bottom" secondItem="frB-QW-Tl7" secondAttribute="bottom" constant="20" id="Eed-l8-fQr"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="leading" secondItem="Ydc-2S-CV8" secondAttribute="trailing" constant="8" id="FYJ-jO-BxE"/>
+                        <constraint firstItem="Ydc-2S-CV8" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="HbR-Yx-Wbu"/>
+                        <constraint firstItem="Ydc-2S-CV8" firstAttribute="top" secondItem="8Ma-qY-6ox" secondAttribute="bottom" constant="8" id="Hs4-h1-Fe6"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="leading" secondItem="Ydc-2S-CV8" secondAttribute="trailing" constant="8" id="Htz-uQ-od5"/>
+                        <constraint firstItem="MfX-v9-RYm" firstAttribute="leading" secondItem="FeU-xO-NHm" secondAttribute="trailing" constant="8" id="Jng-5K-uwz"/>
+                        <constraint firstItem="uEy-Ff-A5c" firstAttribute="top" secondItem="cs1-68-x7K" secondAttribute="bottom" constant="8" id="JvL-rz-cDr"/>
+                        <constraint firstItem="w6s-9q-zsF" firstAttribute="trailing" secondItem="3ib-Fq-KhO" secondAttribute="trailing" id="Su2-hr-2bq"/>
+                        <constraint firstAttribute="bottom" secondItem="sv6-oC-JUY" secondAttribute="bottom" constant="283" id="T0q-Ao-zV7"/>
+                        <constraint firstAttribute="bottom" secondItem="gJ6-AZ-ek2" secondAttribute="bottom" constant="20" id="T6f-EB-0Sm"/>
+                        <constraint firstItem="cs1-68-x7K" firstAttribute="top" secondItem="sv6-oC-JUY" secondAttribute="bottom" constant="24" id="TqM-DU-aQF"/>
+                        <constraint firstItem="8Ma-qY-6ox" firstAttribute="top" secondItem="w6s-9q-zsF" secondAttribute="bottom" constant="8" id="VQg-s6-Izz"/>
+                        <constraint firstAttribute="trailing" secondItem="w6s-9q-zsF" secondAttribute="trailing" constant="20" id="Vos-xR-l8U"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="top" secondItem="3ib-Fq-KhO" secondAttribute="bottom" constant="8" id="Y4L-Si-bfU"/>
+                        <constraint firstItem="Wy6-w3-sMV" firstAttribute="top" secondItem="uEy-Ff-A5c" secondAttribute="bottom" constant="8" symbolic="YES" id="aHb-sT-1AM"/>
+                        <constraint firstAttribute="trailing" secondItem="u7W-eB-taa" secondAttribute="trailing" constant="20" id="dqf-za-sFS"/>
+                        <constraint firstItem="3ib-Fq-KhO" firstAttribute="leading" secondItem="8Ma-qY-6ox" secondAttribute="trailing" constant="8" id="gAx-Q4-7un"/>
+                        <constraint firstItem="frB-QW-Tl7" firstAttribute="leading" secondItem="gJ6-AZ-ek2" secondAttribute="trailing" constant="8" id="gYd-C6-Anb"/>
+                        <constraint firstItem="uEy-Ff-A5c" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="h5Y-lN-wuD"/>
+                        <constraint firstItem="7Ws-MH-MZ2" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="h72-h4-SNO"/>
+                        <constraint firstItem="Wy6-w3-sMV" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" constant="20" id="hDh-jr-dUT"/>
+                        <constraint firstItem="sv6-oC-JUY" firstAttribute="leading" secondItem="Ie9-IU-Bi6" secondAttribute="leading" id="ijK-ik-Z8w"/>
+                        <constraint firstItem="sv6-oC-JUY" firstAttribute="top" secondItem="MfX-v9-RYm" secondAttribute="top" id="lDe-Hy-lVB"/>
+                        <constraint firstItem="Wy6-w3-sMV" firstAttribute="top" secondItem="u7W-eB-taa" secondAttribute="top" id="muc-6f-RmH"/>
+                        <constraint firstItem="w6s-9q-zsF" firstAttribute="top" secondItem="al3-7Z-XUq" secondAttribute="top" id="n3M-ZE-voo"/>
+                        <constraint firstItem="idA-IU-dZz" firstAttribute="top" secondItem="uEy-Ff-A5c" secondAttribute="top" id="oh2-6h-pwM"/>
+                        <constraint firstItem="w6s-9q-zsF" firstAttribute="leading" secondItem="al3-7Z-XUq" secondAttribute="trailing" constant="8" symbolic="YES" id="orJ-Zu-UmU"/>
+                        <constraint firstItem="pph-WY-64Z" firstAttribute="leading" secondItem="Ydc-2S-CV8" secondAttribute="trailing" constant="8" id="sA6-OC-5nn"/>
+                        <constraint firstItem="idA-IU-dZz" firstAttribute="leading" secondItem="uEy-Ff-A5c" secondAttribute="trailing" constant="8" id="wLs-oA-FE8"/>
+                        <constraint firstItem="al3-7Z-XUq" firstAttribute="top" secondItem="Wy6-w3-sMV" secondAttribute="bottom" constant="8" id="xQt-w5-SvN"/>
+                        <constraint firstItem="u7W-eB-taa" firstAttribute="leading" secondItem="w6s-9q-zsF" secondAttribute="leading" id="y9G-rS-afk"/>
+                    </constraints>
+                    <backgroundFilters>
+                        <ciFilter name="CIColorMonochrome">
+                            <configuration>
+                                <ciColor key="inputColor" red="0.59999999999999998" green="0.28444214398615569" blue="0.21408122003063118" alpha="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputIntensity" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </backgroundFilters>
+                </customView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Ie9-IU-Bi6" firstAttribute="top" secondItem="fGN-VX-E9G" secondAttribute="top" constant="20" symbolic="YES" id="2Cj-GG-XeO"/>
+                <constraint firstAttribute="trailing" secondItem="Ie9-IU-Bi6" secondAttribute="trailing" constant="20" symbolic="YES" id="DRs-oZ-3X9"/>
+                <constraint firstItem="Ie9-IU-Bi6" firstAttribute="leading" secondItem="fGN-VX-E9G" secondAttribute="leading" constant="20" symbolic="YES" id="s3j-xC-6WU"/>
+            </constraints>
+        </customView>
+        <customView identifier="SoundCloud" id="Pab-fg-NZ8" userLabel="SoundCloud">
+            <rect key="frame" x="0.0" y="0.0" width="797" height="746"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="utT-hU-ghN">
+                    <rect key="frame" x="27" y="388" width="76" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Website Title:" id="r3K-Nh-i0V">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Lt7-At-5ES">
+                    <rect key="frame" x="26" y="362" width="77" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Website URL:" id="zqO-7a-ptX">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jQx-sA-uW5">
+                    <rect key="frame" x="280" y="606" width="62" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Full Name:" id="Aau-X6-cMw">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="N3d-Ke-RRk">
+                    <rect key="frame" x="38" y="678" width="196" height="48"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="196" id="TP2-QA-X8g"/>
+                        <constraint firstAttribute="height" constant="48" id="eSK-kK-dEa"/>
+                    </constraints>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="SoundCloudName138x29" id="FWx-uv-9kJ"/>
+                </imageView>
+                <imageView translatesAutoresizingMaskIntoConstraints="NO" id="CE8-Xi-luq">
+                    <rect key="frame" x="20" y="470" width="200" height="200"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="200" id="GO4-Rv-xFM"/>
+                        <constraint firstAttribute="height" constant="200" id="Ves-u6-5kS"/>
+                    </constraints>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="YDD-zj-Cua">
+                        <connections>
+                            <binding destination="-2" name="value" keyPath="self.source.account.image" id="QLF-21-nfh">
+                                <dictionary key="options">
+                                    <string key="NSValueTransformerName">NSUnarchiveFromData</string>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </imageCell>
+                </imageView>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="nDM-1V-vsv">
+                    <rect key="frame" x="105" y="388" width="90" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Website Title" id="YR0-lj-rz8">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.purchase_title" id="Tqe-J0-Knk"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZgF-gp-EsR">
+                    <rect key="frame" x="317" y="519" width="49" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Tracks:" id="UGn-7v-r4n">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p2h-OR-s7H">
+                    <rect key="frame" x="270" y="494" width="96" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Playlists (Sets):" id="7dr-4F-WpJ">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xeV-6R-ABX">
+                    <rect key="frame" x="283" y="469" width="83" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Followed By:" id="25Q-5n-eqE">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TZw-xD-FEs">
+                    <rect key="frame" x="297" y="444" width="69" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Following:" id="1eG-U8-NwJ">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bcb-x8-0p8">
+                    <rect key="frame" x="302" y="419" width="64" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Favorites:" id="2nb-Q1-6R8">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="3wz-9c-OTJ">
+                    <rect key="frame" x="368" y="518" width="40" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="0000" id="sSh-r8-APi">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.track_count" id="AxC-W4-TEi"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uUM-LG-cGv">
+                    <rect key="frame" x="34" y="336" width="69" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Description:" id="gtE-MT-m75">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ZV3-aI-Dg8">
+                    <rect key="frame" x="368" y="493" width="40" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="0000" id="QRY-ZR-Lqi">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.playlist_count" id="L8v-op-y2h"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="1YY-Gf-0kO">
+                    <rect key="frame" x="368" y="468" width="40" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="0000" id="Wv5-sH-biS">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.followers_count" id="xvo-QG-k2w"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="7pT-gw-9VF">
+                    <rect key="frame" x="368" y="443" width="40" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="0000" id="XGC-Jf-hMW">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.followings_count" id="G54-cu-snf"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Sy4-hI-Xhs">
+                    <rect key="frame" x="368" y="418" width="40" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="0000" id="qpm-zh-O5M">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.favoritings_count" id="j3w-fU-BdI"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Tud-32-oDy">
+                    <rect key="frame" x="105" y="362" width="87" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Website URL" id="ffq-gz-ire">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.purchase_url" id="Y5k-W3-h4m"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rbu-el-0Ki">
+                    <rect key="frame" x="251" y="580" width="91" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="City Placename:" id="B7p-RK-rj7">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="eoi-dw-ynb">
+                    <rect key="frame" x="351" y="580" width="107" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="City Placename" id="f5d-d6-qP4">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.city" id="m9t-wI-sXS"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JB2-vr-3xT">
+                    <rect key="frame" x="257" y="554" width="85" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Country Name:" id="rsj-eZ-f9j">
+                        <font key="font" size="12" name="HelveticaNeue-Italic"/>
+                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="dSr-7S-oOq">
+                    <rect key="frame" x="351" y="554" width="102" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Country Name" id="iAP-vq-h1p">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.country" id="Kxd-es-9RY"/>
+                    </connections>
+                </textField>
+                <textField appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Rqf-tB-Mz5">
+                    <rect key="frame" x="351" y="606" width="72" height="18"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Full Name" id="q8U-8c-FjF">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.title" id="ZKe-i1-iEi"/>
+                    </connections>
+                </textField>
+                <textField toolTip="SoundCloud Username" appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="LCj-Tm-uYM">
+                    <rect key="frame" x="251" y="632" width="190" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="Username" id="YtR-Ff-Buw">
+                        <font key="font" size="36" name="LucidaGrande-Bold"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="deviceRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.username" id="6YD-z2-eCP"/>
+                    </connections>
+                </textField>
+                <textField toolTip="SoundCloud Username" appearanceType="lightContent" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="K8s-ub-FSY">
+                    <rect key="frame" x="239" y="690" width="338" height="24"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" title="http://soundcloud.com/username" id="brf-P2-OG7">
+                        <font key="font" size="20" name="LucidaGrande"/>
+                        <color key="textColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.account.permalink" id="p9s-Ng-vs6"/>
+                    </connections>
+                </textField>
+                <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7VY-qs-Fce">
+                    <rect key="frame" x="108" y="168" width="640" height="186"/>
+                    <autoresizingMask key="autoresizingMask"/>
+                    <clipView key="contentView" id="b4k-6C-y3t">
+                        <rect key="frame" x="1" y="1" width="638" height="184"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView editable="NO" selectable="NO" drawsBackground="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" id="H1e-Gm-qEe">
+                                <rect key="frame" x="0.0" y="0.0" width="638" height="184"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="minSize" width="638" height="184"/>
+                                <size key="maxSize" width="816" height="10000000"/>
+                                <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="minSize" width="638" height="184"/>
+                                <size key="maxSize" width="816" height="10000000"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.source.account.contents" id="vHH-Iz-T0S"/>
+                                </connections>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </clipView>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="186" id="fZB-hs-Bi8"/>
+                    </constraints>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="x7f-dI-0tn">
+                        <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" id="XNA-hy-QXc">
+                        <rect key="frame" x="623" y="1" width="16" height="184"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                </scrollView>
+                <box autoresizesSubviews="NO" title="Box" borderType="bezel" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="JTx-Dr-8iI">
+                    <rect key="frame" x="17" y="10" width="763" height="68"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <view key="contentView">
+                        <rect key="frame" x="3" y="3" width="757" height="62"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NzP-g3-7th">
+                                <rect key="frame" x="84" y="19" width="75" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Login" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" sound="Connect" inset="2" id="T8O-iv-Akx">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="-2" name="enabled" keyPath="self.document.requestController.busy" id="29M-ZD-hBE">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden" keyPath="self.source.account.oauthAccount" previousBinding="29M-ZD-hBE" id="dgs-Rn-dSN">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="g9t-nO-3kJ">
+                                <rect key="frame" x="153" y="19" width="236" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Download All Data From Server" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" sound="Start" inset="2" id="xWw-zE-ofr">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="-2" name="target" keyPath="document.requestController" previousBinding="7fS-GW-nWt" id="yuS-P9-ccC">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">reloadAllAssetData:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" previousBinding="3GJ-fj-HgW" id="geN-e8-1dh"/>
+                                    <binding destination="-2" name="enabled" keyPath="self.source.account.oauthAccount" id="3GJ-fj-HgW">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="argument" keyPath="source.account" id="7fS-GW-nWt">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">reloadAllAssetData:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PLb-j8-faE">
+                                <rect key="frame" x="192" y="29" width="69" height="14"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" alignment="center" title="Connecting" id="NgA-wc-LAf">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" id="mGd-7t-tSf">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden2" keyPath="self.document.requestController.determinate" previousBinding="mGd-7t-tSf" id="l5T-og-G8k">
+                                        <dictionary key="options">
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="d3C-jN-0Fy">
+                                <rect key="frame" x="656" y="19" width="91" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="79" id="NP5-Kf-Cdw"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Log Out" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" sound="Error" inset="2" id="xz3-OR-zjE">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="-2" name="target" keyPath="document.requestController" previousBinding="Nwa-DT-j1c" id="4QD-lI-uwP">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">logoutAccount:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" id="n5T-vV-738"/>
+                                    <binding destination="-2" name="hidden2" keyPath="self.source.account.oauthAccount" previousBinding="n5T-vV-738" id="6Eq-Ok-oNZ">
+                                        <dictionary key="options">
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="argument" keyPath="source.account" id="Nwa-DT-j1c">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">logoutAccount:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vl8-Qc-7Rp">
+                                <rect key="frame" x="10" y="19" width="74" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="62" id="Jf8-3H-jxp"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Done" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Q1Z-MS-GEx">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vxg-pH-umr">
+                                <rect key="frame" x="84" y="19" width="69" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="57" id="1sA-fA-uc1"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0rB-hz-4Cd">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="-2" name="target" keyPath="document.requestController" previousBinding="Rha-dA-3UZ" id="qMP-KH-pIx">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">stop:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="argument" keyPath="self" id="Rha-dA-3UZ">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">stop:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" previousBinding="23s-aj-I5P" id="Y2z-de-uGf">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="enabled" keyPath="self.document.requestController.stop" id="23s-aj-I5P">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <progressIndicator appearanceType="lightContent" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="cWf-C9-abt">
+                                <rect key="frame" x="155" y="20" width="32" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <connections>
+                                    <binding destination="-2" name="animate" keyPath="self.document.requestController.busy" id="PnC-WK-Hcj"/>
+                                </connections>
+                            </progressIndicator>
+                            <progressIndicator maxValue="100" displayedWhenStopped="NO" indeterminate="YES" controlSize="small" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="Bby-ku-YWq">
+                                <rect key="frame" x="5" y="6" width="747" height="12"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <connections>
+                                    <binding destination="-2" name="animate" keyPath="self.document.requestController.busy" id="3nH-76-cak"/>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" id="anN-zZ-cw5">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="isIndeterminate" keyPath="self.document.requestController.determinate" previousBinding="3nH-76-cak" id="oD5-3F-vp5">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="maxValue" keyPath="self.document.requestController.targetCount" id="U9m-gc-dir"/>
+                                    <binding destination="-2" name="value" keyPath="self.document.requestController.updateCount" previousBinding="U9m-gc-dir" id="vbA-Ok-ke6"/>
+                                </connections>
+                            </progressIndicator>
+                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gjh-bW-Vrg">
+                                <rect key="frame" x="192" y="29" width="82" height="14"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" alignment="center" title="0000 of 0000" id="VET-BC-8wb">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" id="hg2-TE-EPq">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="hidden2" keyPath="self.document.requestController.determinate" previousBinding="hg2-TE-EPq" id="Geg-nV-g6n">
+                                        <dictionary key="options">
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="displayPatternValue2" keyPath="self.document.requestController.targetCount" previousBinding="NqI-QF-hzF" id="XR8-cp-VL8">
+                                        <dictionary key="options">
+                                            <string key="NSDisplayPattern">%{value1}@ of %{value2}@</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="displayPatternValue1" keyPath="self.document.requestController.updateCount" id="NqI-QF-hzF">
+                                        <dictionary key="options">
+                                            <string key="NSDisplayPattern">%{value1}@ of %{value2}@</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AWS-lk-JU9">
+                                <rect key="frame" x="276" y="29" width="381" height="14"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="375" id="ZYD-r9-EDK"/>
+                                </constraints>
+                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Status Text" id="Oh7-L5-F8F">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.document.requestController.statusText" id="C1x-ZV-nJs"/>
+                                </connections>
+                            </textField>
+                        </subviews>
+                    </view>
+                    <constraints>
+                        <constraint firstItem="AWS-lk-JU9" firstAttribute="baseline" secondItem="gjh-bW-Vrg" secondAttribute="baseline" id="2Ol-Ya-IUx"/>
+                        <constraint firstItem="g9t-nO-3kJ" firstAttribute="leading" secondItem="vxg-pH-umr" secondAttribute="trailing" constant="12" symbolic="YES" id="76k-w3-czk"/>
+                        <constraint firstItem="g9t-nO-3kJ" firstAttribute="baseline" secondItem="gjh-bW-Vrg" secondAttribute="baseline" id="7Ft-ue-Eyv"/>
+                        <constraint firstAttribute="bottom" secondItem="Bby-ku-YWq" secondAttribute="bottom" constant="5" id="Ag9-hl-Nm9"/>
+                        <constraint firstAttribute="trailing" secondItem="Bby-ku-YWq" secondAttribute="trailing" constant="5" id="ESE-vx-qNo"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="leading" secondItem="JTx-Dr-8iI" secondAttribute="leading" constant="5" id="FHV-zV-j9V"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="PLb-j8-faE" secondAttribute="bottom" constant="11" id="HTu-Yf-ADZ"/>
+                        <constraint firstAttribute="trailing" secondItem="d3C-jN-0Fy" secondAttribute="trailing" constant="16" id="JeB-QK-Nkg"/>
+                        <constraint firstItem="Vl8-Qc-7Rp" firstAttribute="leading" secondItem="JTx-Dr-8iI" secondAttribute="leading" constant="16" id="M5W-fB-vvW"/>
+                        <constraint firstAttribute="height" constant="62" id="Ouz-UM-V8q"/>
+                        <constraint firstItem="gjh-bW-Vrg" firstAttribute="leading" secondItem="cWf-C9-abt" secondAttribute="trailing" constant="8" id="Ozv-wj-b0F"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="vxg-pH-umr" secondAttribute="bottom" constant="8" id="SHT-NS-rmK"/>
+                        <constraint firstItem="NzP-g3-7th" firstAttribute="leading" secondItem="Vl8-Qc-7Rp" secondAttribute="trailing" constant="12" symbolic="YES" id="ctg-Qu-Nak"/>
+                        <constraint firstItem="cWf-C9-abt" firstAttribute="leading" secondItem="vxg-pH-umr" secondAttribute="trailing" constant="8" id="fXE-9a-ewN"/>
+                        <constraint firstItem="NzP-g3-7th" firstAttribute="baseline" secondItem="vxg-pH-umr" secondAttribute="baseline" id="iT7-su-Je7"/>
+                        <constraint firstItem="d3C-jN-0Fy" firstAttribute="leading" secondItem="AWS-lk-JU9" secondAttribute="trailing" constant="8" id="kzz-ok-4we"/>
+                        <constraint firstItem="vxg-pH-umr" firstAttribute="leading" secondItem="Vl8-Qc-7Rp" secondAttribute="trailing" constant="12" id="oWt-WD-RE7"/>
+                        <constraint firstItem="PLb-j8-faE" firstAttribute="leading" secondItem="cWf-C9-abt" secondAttribute="trailing" constant="8" id="per-JV-rin"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="gjh-bW-Vrg" secondAttribute="bottom" constant="11" id="qck-SI-hxW"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="d3C-jN-0Fy" secondAttribute="bottom" constant="8" id="qyh-ZE-rMs"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="cWf-C9-abt" secondAttribute="bottom" constant="2" id="tko-l4-2Qx"/>
+                        <constraint firstItem="Bby-ku-YWq" firstAttribute="top" secondItem="Vl8-Qc-7Rp" secondAttribute="bottom" constant="8" id="xgW-JF-XuJ"/>
+                        <constraint firstItem="AWS-lk-JU9" firstAttribute="leading" secondItem="gjh-bW-Vrg" secondAttribute="trailing" constant="8" id="yLx-F0-sh8"/>
+                    </constraints>
+                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                    <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                </box>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6hg-Og-1aV">
+                    <rect key="frame" x="0.0" y="717" width="30" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="round" bezelStyle="circular" image="NSStopProgressFreestandingTemplate" imagePosition="above" alignment="left" controlSize="mini" borderStyle="border" imageScaling="proportionallyUpOrDown" id="IVP-Xb-DYY">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Lt7-At-5ES" firstAttribute="top" secondItem="utT-hU-ghN" secondAttribute="bottom" constant="8" id="0VZ-ND-AR4"/>
+                <constraint firstItem="nDM-1V-vsv" firstAttribute="leading" secondItem="utT-hU-ghN" secondAttribute="trailing" constant="8" id="1N0-10-qHi"/>
+                <constraint firstItem="Lt7-At-5ES" firstAttribute="trailing" secondItem="utT-hU-ghN" secondAttribute="trailing" id="2Qx-DK-9fR"/>
+                <constraint firstItem="jQx-sA-uW5" firstAttribute="top" secondItem="LCj-Tm-uYM" secondAttribute="bottom" constant="8" id="3aS-x1-Wh9"/>
+                <constraint firstItem="7pT-gw-9VF" firstAttribute="leading" secondItem="TZw-xD-FEs" secondAttribute="trailing" constant="8" id="3pN-Iy-eiF"/>
+                <constraint firstItem="ZV3-aI-Dg8" firstAttribute="leading" secondItem="p2h-OR-s7H" secondAttribute="trailing" constant="8" id="4JW-fB-YiA"/>
+                <constraint firstItem="p2h-OR-s7H" firstAttribute="trailing" secondItem="TZw-xD-FEs" secondAttribute="trailing" id="4a7-nt-dyl"/>
+                <constraint firstItem="eoi-dw-ynb" firstAttribute="leading" secondItem="rbu-el-0Ki" secondAttribute="trailing" constant="15" id="4mG-Gu-XBd"/>
+                <constraint firstItem="utT-hU-ghN" firstAttribute="leading" secondItem="Pab-fg-NZ8" secondAttribute="leading" constant="30" id="5OR-Ed-KSN"/>
+                <constraint firstItem="CE8-Xi-luq" firstAttribute="leading" secondItem="Pab-fg-NZ8" secondAttribute="leading" constant="20" id="5t1-1A-hAZ"/>
+                <constraint firstItem="jQx-sA-uW5" firstAttribute="leading" secondItem="CE8-Xi-luq" secondAttribute="trailing" constant="63" id="5vB-er-OPm"/>
+                <constraint firstItem="Sy4-hI-Xhs" firstAttribute="leading" secondItem="bcb-x8-0p8" secondAttribute="trailing" constant="8" id="6xy-w3-Jxf"/>
+                <constraint firstItem="utT-hU-ghN" firstAttribute="top" secondItem="nDM-1V-vsv" secondAttribute="top" id="8bX-48-f5b"/>
+                <constraint firstItem="K8s-ub-FSY" firstAttribute="leading" secondItem="N3d-Ke-RRk" secondAttribute="trailing" constant="8" id="98f-GG-J6N"/>
+                <constraint firstItem="ZgF-gp-EsR" firstAttribute="top" secondItem="3wz-9c-OTJ" secondAttribute="top" id="9oV-hb-zkS"/>
+                <constraint firstItem="7VY-qs-Fce" firstAttribute="leading" secondItem="uUM-LG-cGv" secondAttribute="trailing" constant="8" id="AEn-yL-Zvc"/>
+                <constraint firstItem="dSr-7S-oOq" firstAttribute="top" secondItem="eoi-dw-ynb" secondAttribute="bottom" constant="8" id="BKa-dL-R0i"/>
+                <constraint firstItem="p2h-OR-s7H" firstAttribute="top" secondItem="ZgF-gp-EsR" secondAttribute="bottom" constant="8" id="Be6-0p-5CT"/>
+                <constraint firstAttribute="trailing" secondItem="7VY-qs-Fce" secondAttribute="trailing" constant="49" id="CUw-Ye-pVM"/>
+                <constraint firstItem="1YY-Gf-0kO" firstAttribute="top" secondItem="ZV3-aI-Dg8" secondAttribute="bottom" constant="7" id="DBQ-Py-QyW"/>
+                <constraint firstAttribute="trailing" secondItem="JTx-Dr-8iI" secondAttribute="trailing" constant="20" id="DYq-Nk-fqg"/>
+                <constraint firstItem="xeV-6R-ABX" firstAttribute="top" secondItem="p2h-OR-s7H" secondAttribute="bottom" constant="8" id="EQv-dw-ra0"/>
+                <constraint firstItem="LCj-Tm-uYM" firstAttribute="top" secondItem="K8s-ub-FSY" secondAttribute="bottom" constant="14" id="Hvy-c7-9zi"/>
+                <constraint firstItem="JTx-Dr-8iI" firstAttribute="leading" secondItem="Pab-fg-NZ8" secondAttribute="leading" constant="20" id="IS2-ia-Ci5"/>
+                <constraint firstItem="p2h-OR-s7H" firstAttribute="trailing" secondItem="bcb-x8-0p8" secondAttribute="trailing" id="Knv-Kt-uRO"/>
+                <constraint firstItem="N3d-Ke-RRk" firstAttribute="top" secondItem="Pab-fg-NZ8" secondAttribute="top" constant="20" id="Lro-zv-ro0"/>
+                <constraint firstItem="K8s-ub-FSY" firstAttribute="top" secondItem="Pab-fg-NZ8" secondAttribute="top" constant="32" id="Qyf-9C-0so"/>
+                <constraint firstItem="uUM-LG-cGv" firstAttribute="top" secondItem="Lt7-At-5ES" secondAttribute="bottom" constant="8" id="SNl-sd-IoI"/>
+                <constraint firstItem="6hg-Og-1aV" firstAttribute="leading" secondItem="Pab-fg-NZ8" secondAttribute="leading" constant="6" id="UnH-F3-ERY"/>
+                <constraint firstItem="TZw-xD-FEs" firstAttribute="top" secondItem="xeV-6R-ABX" secondAttribute="bottom" constant="8" id="WFG-t6-CwD"/>
+                <constraint firstItem="1YY-Gf-0kO" firstAttribute="leading" secondItem="xeV-6R-ABX" secondAttribute="trailing" constant="8" id="XUZ-Fx-HT2"/>
+                <constraint firstItem="utT-hU-ghN" firstAttribute="top" secondItem="CE8-Xi-luq" secondAttribute="bottom" constant="64" id="YEV-4k-WR2"/>
+                <constraint firstItem="ZV3-aI-Dg8" firstAttribute="top" secondItem="3wz-9c-OTJ" secondAttribute="bottom" constant="7" id="YkE-sU-VFd"/>
+                <constraint firstItem="LCj-Tm-uYM" firstAttribute="leading" secondItem="CE8-Xi-luq" secondAttribute="trailing" constant="34" id="aJC-uO-1qQ"/>
+                <constraint firstItem="Rqf-tB-Mz5" firstAttribute="top" secondItem="LCj-Tm-uYM" secondAttribute="bottom" constant="8" id="azU-ca-yCS"/>
+                <constraint firstItem="rbu-el-0Ki" firstAttribute="top" secondItem="jQx-sA-uW5" secondAttribute="bottom" constant="8" id="bRh-6g-OWO"/>
+                <constraint firstAttribute="bottom" secondItem="JTx-Dr-8iI" secondAttribute="bottom" constant="14" id="bdb-qO-FnD"/>
+                <constraint firstItem="p2h-OR-s7H" firstAttribute="trailing" secondItem="ZgF-gp-EsR" secondAttribute="trailing" id="d4b-0A-UQY"/>
+                <constraint firstItem="7pT-gw-9VF" firstAttribute="top" secondItem="1YY-Gf-0kO" secondAttribute="bottom" constant="7" id="dSX-ZX-ywz"/>
+                <constraint firstItem="6hg-Og-1aV" firstAttribute="top" secondItem="Pab-fg-NZ8" secondAttribute="top" constant="2" id="e9f-Nu-umZ"/>
+                <constraint firstItem="N3d-Ke-RRk" firstAttribute="leading" secondItem="Pab-fg-NZ8" secondAttribute="leading" constant="38" id="f1C-Nk-dek"/>
+                <constraint firstItem="Tud-32-oDy" firstAttribute="leading" secondItem="Lt7-At-5ES" secondAttribute="trailing" constant="8" id="fmT-JE-sOq"/>
+                <constraint firstItem="p2h-OR-s7H" firstAttribute="trailing" secondItem="xeV-6R-ABX" secondAttribute="trailing" id="ggL-i7-5Lo"/>
+                <constraint firstItem="uUM-LG-cGv" firstAttribute="trailing" secondItem="Lt7-At-5ES" secondAttribute="trailing" id="hXC-0r-g8q"/>
+                <constraint firstItem="bcb-x8-0p8" firstAttribute="top" secondItem="TZw-xD-FEs" secondAttribute="bottom" constant="8" id="hv4-Sg-Wo1"/>
+                <constraint firstItem="dSr-7S-oOq" firstAttribute="leading" secondItem="JB2-vr-3xT" secondAttribute="trailing" constant="15" id="iZU-Vz-OSm"/>
+                <constraint firstItem="Rqf-tB-Mz5" firstAttribute="leading" secondItem="jQx-sA-uW5" secondAttribute="trailing" constant="15" id="ihJ-gb-1Fj"/>
+                <constraint firstItem="7VY-qs-Fce" firstAttribute="top" secondItem="Tud-32-oDy" secondAttribute="bottom" constant="8" id="jNs-ts-2zI"/>
+                <constraint firstItem="ZgF-gp-EsR" firstAttribute="top" secondItem="JB2-vr-3xT" secondAttribute="bottom" constant="18" id="lKU-oK-D9U"/>
+                <constraint firstItem="CE8-Xi-luq" firstAttribute="top" secondItem="N3d-Ke-RRk" secondAttribute="bottom" constant="8" id="qLk-CP-h7j"/>
+                <constraint firstItem="ZgF-gp-EsR" firstAttribute="leading" secondItem="CE8-Xi-luq" secondAttribute="trailing" constant="100" id="rlX-8c-hA5"/>
+                <constraint firstItem="Sy4-hI-Xhs" firstAttribute="top" secondItem="7pT-gw-9VF" secondAttribute="bottom" constant="7" id="sAM-BE-aOa"/>
+                <constraint firstItem="jQx-sA-uW5" firstAttribute="trailing" secondItem="JB2-vr-3xT" secondAttribute="trailing" id="wIB-To-wyJ"/>
+                <constraint firstItem="3wz-9c-OTJ" firstAttribute="leading" secondItem="ZgF-gp-EsR" secondAttribute="trailing" constant="8" id="wXr-B6-rEw"/>
+                <constraint firstItem="Tud-32-oDy" firstAttribute="top" secondItem="Lt7-At-5ES" secondAttribute="top" id="wzq-3o-4mu"/>
+                <constraint firstItem="eoi-dw-ynb" firstAttribute="top" secondItem="Rqf-tB-Mz5" secondAttribute="bottom" constant="8" id="y0n-ip-hGQ"/>
+                <constraint firstItem="JB2-vr-3xT" firstAttribute="top" secondItem="rbu-el-0Ki" secondAttribute="bottom" constant="8" id="zKE-ph-X4B"/>
+                <constraint firstItem="jQx-sA-uW5" firstAttribute="trailing" secondItem="rbu-el-0Ki" secondAttribute="trailing" id="zY9-TJ-EKF"/>
+            </constraints>
+            <animations/>
+        </customView>
+        <customView identifier="Default" id="vr6-gV-Hm7" userLabel="Default">
+            <rect key="frame" x="0.0" y="0.0" width="163" height="96"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vCs-CA-6OV">
+                    <rect key="frame" x="17" y="59" width="50" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Default" id="DO2-Hs-qgo">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+        </customView>
+        <userDefaultsController id="KHY-uu-iH6"/>
+        <userDefaultsController id="svd-9c-AMh"/>
+        <window title="PraxPress Authorization" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="5qm-X5-tk8" customClass="NSPanel">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES" HUD="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="113" y="157" width="832" height="574"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <view key="contentView" wantsLayer="YES" id="LBK-5j-heM">
+                <rect key="frame" x="0.0" y="0.0" width="832" height="574"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <subviews>
+                    <scrollView borderType="line" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h7D-JB-4jh">
+                        <rect key="frame" x="191" y="439" width="391" height="94"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="kVW-Qd-uw7">
+                            <rect key="frame" x="1" y="1" width="389" height="92"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textView editable="NO" importsGraphics="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="cQD-En-f3Q">
+                                    <rect key="frame" x="0.0" y="0.0" width="389" height="375"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <color key="textColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="backgroundColor" red="0.098039217293262482" green="0.098039217293262482" blue="0.098039217293262482" alpha="0.71999999999999997" colorSpace="calibratedRGB"/>
+                                    <size key="minSize" width="389" height="92"/>
+                                    <size key="maxSize" width="623" height="10000000"/>
+                                    <attributedString key="textStorage">
+                                        <fragment>
+                                            <string key="content">If you're not already logged in to this particular service via Safari, the window below will present the service login screen. Otherwise, it should know who you are, and be asking for permission to connect your account with </string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment>
+                                            <string key="content">.
+
+</string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress doesn't save your password for this service; it only saves a unique access token granted by the service in this step.">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment>
+                                            <string key="content"> This authorization will be stored in your User Keychain on this computer, so Keychain Access will ask for your approval to save the credentials. It authorizes </string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content=" to access this one specific online user account. If you log out or change users on Safari, it won't affect this connection of ">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content=" to this account. To do that, log off of the account through ">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment>
+                                            <string key="content">, and optionally, log in as a different user on the service.
+
+</string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment>
+                                            <string key="content"> will start, by downloading metadata from the account,  including all the details about each of the individual assets you have hosted on the service. All of this information is saved in a </string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content=" Document file that you can interact with offline. ">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment content="PraxPress">
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                        <fragment>
+                                            <string key="content"> will help you make changes to the metadata, and then only when you're ready, upload those changes directly to the service.
+
+</string>
+                                            <attributes>
+                                                <color key="NSColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="12" name="LucidaGrande"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural">
+                                                    <tabStops>
+                                                        <textTab alignment="left" location="36"/>
+                                                        <textTab alignment="left" location="72"/>
+                                                        <textTab alignment="left" location="108"/>
+                                                        <textTab alignment="left" location="144"/>
+                                                        <textTab alignment="left" location="180"/>
+                                                        <textTab alignment="left" location="216"/>
+                                                        <textTab alignment="left" location="252"/>
+                                                        <textTab alignment="left" location="288"/>
+                                                        <textTab alignment="left" location="324"/>
+                                                        <textTab alignment="left" location="360"/>
+                                                        <textTab alignment="left" location="396"/>
+                                                        <textTab alignment="left" location="432"/>
+                                                    </tabStops>
+                                                </paragraphStyle>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                    <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <size key="minSize" width="389" height="92"/>
+                                    <size key="maxSize" width="623" height="10000000"/>
+                                </textView>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </clipView>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="94" id="A4o-BC-0Eo"/>
+                        </constraints>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="ELO-Rz-cA0">
+                            <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.68904593639575973" id="NYh-la-WeE">
+                            <rect key="frame" x="374" y="1" width="16" height="92"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <imageView translatesAutoresizingMaskIntoConstraints="NO" id="c3L-zt-a34">
+                        <rect key="frame" x="77" y="453" width="64" height="64"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="64" id="MtG-Gr-maW"/>
+                            <constraint firstAttribute="height" constant="64" id="boi-d7-oFQ"/>
+                        </constraints>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="PraxPress" id="H8T-rF-lJC"/>
+                    </imageView>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Fl-xY-sJh">
+                        <rect key="frame" x="671" y="446" width="112" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="100" id="rdR-b5-h9m"/>
+                        </constraints>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="al1-Af-4GN">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UXL-L6-wl3">
+                        <rect key="frame" x="46" y="536" width="126" height="29"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="PraxPress" id="22a-c6-5vo">
+                            <font key="font" metaFont="systemBold" size="24"/>
+                            <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0iw-TE-9hn">
+                        <rect key="frame" x="178" y="541" width="457" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="needs your authorization to interact with this online account..." id="9yQ-Gp-dyZ">
+                            <font key="font" metaFont="systemBold" size="14"/>
+                            <color key="textColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <webView translatesAutoresizingMaskIntoConstraints="NO" id="66n-W6-321">
+                        <rect key="frame" x="20" y="20" width="792" height="406"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12"/>
+                    </webView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="c3L-zt-a34" firstAttribute="top" secondItem="UXL-L6-wl3" secondAttribute="bottom" constant="19" id="7bK-B3-UYp"/>
+                    <constraint firstItem="66n-W6-321" firstAttribute="top" secondItem="h7D-JB-4jh" secondAttribute="bottom" constant="13" id="DNB-hs-i94"/>
+                    <constraint firstItem="h7D-JB-4jh" firstAttribute="top" secondItem="0iw-TE-9hn" secondAttribute="bottom" constant="8" id="Fqh-8H-pgT"/>
+                    <constraint firstAttribute="trailing" secondItem="66n-W6-321" secondAttribute="trailing" constant="20" id="Qu0-EY-rDi"/>
+                    <constraint firstAttribute="trailing" secondItem="1Fl-xY-sJh" secondAttribute="trailing" constant="55" id="RTF-MQ-x7I"/>
+                    <constraint firstItem="0iw-TE-9hn" firstAttribute="top" secondItem="LBK-5j-heM" secondAttribute="top" constant="15" id="UG6-PE-6SO"/>
+                    <constraint firstItem="UXL-L6-wl3" firstAttribute="top" secondItem="LBK-5j-heM" secondAttribute="top" constant="9" id="aie-XC-whK"/>
+                    <constraint firstItem="1Fl-xY-sJh" firstAttribute="leading" secondItem="h7D-JB-4jh" secondAttribute="trailing" constant="95" id="apj-qa-yzA"/>
+                    <constraint firstItem="66n-W6-321" firstAttribute="leading" secondItem="LBK-5j-heM" secondAttribute="leading" constant="20" id="eQh-mT-LA7"/>
+                    <constraint firstItem="UXL-L6-wl3" firstAttribute="leading" secondItem="LBK-5j-heM" secondAttribute="leading" constant="49" id="lOf-zv-iVU"/>
+                    <constraint firstItem="1Fl-xY-sJh" firstAttribute="top" secondItem="LBK-5j-heM" secondAttribute="top" constant="100" id="mkK-sV-wx3"/>
+                    <constraint firstAttribute="bottom" secondItem="66n-W6-321" secondAttribute="bottom" constant="20" id="p8H-MI-wLL"/>
+                    <constraint firstItem="c3L-zt-a34" firstAttribute="leading" secondItem="LBK-5j-heM" secondAttribute="leading" constant="77" id="pXs-7j-Ohw"/>
+                    <constraint firstItem="0iw-TE-9hn" firstAttribute="leading" secondItem="UXL-L6-wl3" secondAttribute="trailing" constant="12" id="saG-jp-IJ8"/>
+                    <constraint firstItem="h7D-JB-4jh" firstAttribute="leading" secondItem="c3L-zt-a34" secondAttribute="trailing" constant="50" id="wq2-hB-VoS"/>
+                </constraints>
+            </view>
+            <connections>
+                <action selector="performClose:" destination="1Fl-xY-sJh" id="XC5-RB-rsr"/>
+            </connections>
+        </window>
+        <customView identifier="SearchSource" id="Aw6-60-e95" userLabel="SearchSource">
+            <rect key="frame" x="0.0" y="0.0" width="508" height="353"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gnc-nX-LGH">
+                    <rect key="frame" x="17" y="311" width="96" height="22"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="96" id="Ko4-Qc-rXq"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Search Source" id="4zF-zf-X4J">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.name" id="5ka-X8-EIT"/>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XJq-8c-bUB">
+                    <rect key="frame" x="14" y="10" width="71" height="11"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Fetch Predicate" id="qIi-9G-K5K">
+                        <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.fetchPredicate" id="OMW-jl-2va">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">PraxPredicateToStringTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <scrollView autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G25-jt-2zK">
+                    <rect key="frame" x="17" y="66" width="471" height="238"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <clipView key="contentView" id="yBX-Oz-Bjz">
+                        <rect key="frame" x="1" y="1" width="469" height="236"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <predicateEditor verticalHuggingPriority="750" nestingMode="compound" canRemoveAllRows="YES" rowHeight="25" id="DvL-S4-CBA">
+                                <rect key="frame" x="0.0" y="0.0" width="469" height="236"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <rowTemplates>
+                                    <predicateEditorRowTemplate rowType="compound" id="Wiq-sa-1zG">
+                                        <popUpMenus>
+                                            <menu id="vt6-ls-pcd">
+                                                <items>
+                                                    <menuItem title="Any" state="on" id="ebu-tl-m2R">
+                                                        <integer key="representedObject" value="2"/>
+                                                    </menuItem>
+                                                    <menuItem title="All" id="yld-Qv-bb2">
+                                                        <integer key="representedObject" value="1"/>
+                                                    </menuItem>
+                                                    <menuItem title="None" id="0WE-4q-xAL">
+                                                        <integer key="representedObject" value="0"/>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                            <menu id="nbx-KN-QeU">
+                                                <items>
+                                                    <menuItem title="of the following are true" state="on" id="MQy-r8-f3I"/>
+                                                </items>
+                                            </menu>
+                                        </popUpMenus>
+                                    </predicateEditorRowTemplate>
+                                </rowTemplates>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.source.fetchPredicate" id="VEt-uj-Njv"/>
+                                </connections>
+                            </predicateEditor>
+                        </subviews>
+                        <color key="backgroundColor" white="0.91000002619999998" alpha="1" colorSpace="calibratedWhite"/>
+                    </clipView>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" id="RzH-zD-rvR">
+                        <rect key="frame" x="-100" y="-100" width="360" height="15"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" id="EgT-ib-0lf">
+                        <rect key="frame" x="454" y="1" width="16" height="90"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                </scrollView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Gnc-nX-LGH" firstAttribute="leading" secondItem="XJq-8c-bUB" secondAttribute="leading" id="AcL-ii-DQN"/>
+                <constraint firstItem="XJq-8c-bUB" firstAttribute="top" secondItem="G25-jt-2zK" secondAttribute="bottom" constant="45" id="ArR-WO-ULP"/>
+                <constraint firstAttribute="trailing" secondItem="G25-jt-2zK" secondAttribute="trailing" constant="20" symbolic="YES" id="L6W-3X-lWV"/>
+                <constraint firstItem="G25-jt-2zK" firstAttribute="top" secondItem="Gnc-nX-LGH" secondAttribute="bottom" constant="7" id="O6x-yY-PWa"/>
+                <constraint firstItem="Gnc-nX-LGH" firstAttribute="top" secondItem="Aw6-60-e95" secondAttribute="top" constant="20" symbolic="YES" id="XFU-g2-WDo"/>
+                <constraint firstItem="XJq-8c-bUB" firstAttribute="leading" secondItem="Aw6-60-e95" secondAttribute="leading" constant="17" id="clq-qK-pn6"/>
+                <constraint firstItem="G25-jt-2zK" firstAttribute="leading" secondItem="Gnc-nX-LGH" secondAttribute="leading" id="tVx-oW-eG9"/>
+                <constraint firstAttribute="bottom" secondItem="XJq-8c-bUB" secondAttribute="bottom" constant="10" id="wkn-aY-gQe"/>
+            </constraints>
+        </customView>
+        <userDefaultsController id="PXi-A3-OGn"/>
+        <userDefaultsController id="E6V-bD-1lg"/>
+        <userDefaultsController id="5QE-4Z-GIw"/>
+    </objects>
+    <resources>
+        <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSStopProgressFreestandingTemplate" width="12" height="12"/>
+        <image name="PraxPress" width="512" height="512"/>
+        <image name="SoundCloudName138x29" width="138" height="29"/>
+        <image name="WordPressName127x29" width="127" height="29"/>
+        <sound name="Connect"/>
+        <sound name="Error"/>
+        <sound name="Start"/>
+    </resources>
+</document>

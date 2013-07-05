@@ -17,6 +17,9 @@
 +(void)loadForDocument:(Document *)document;
 @end
 
+@interface PraxPredicateToStringTransformer : NSValueTransformer
+@end
+
 @interface PraxNumberIsZeroTransformer : NSValueTransformer
 @end
 
@@ -27,7 +30,7 @@
 @end
 
 @interface PraxAssetTagStringTransformer : NSValueTransformer {
-   Document *_document;
+    Document *_document;
 }
 @property Document *document;
 @end
