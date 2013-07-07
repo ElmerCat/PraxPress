@@ -16,5 +16,6 @@ profile
 *.moved-aside
 DerivedData
 .idea/
-
 *.xcuserstate
+
+PraxPress.xcodeproj/xcuserdata/canfield.xcuserdatad/xcschemes/PraxPress.xcscheme
