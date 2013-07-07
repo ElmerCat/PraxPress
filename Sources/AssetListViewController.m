@@ -70,19 +70,4 @@
     }
 }
 
-
-
-- (IBAction)addAssetListTab:(id)sender {
-    
-    [self.document.sourceController addAssetListTabForSource:self.source afterTab:[(NSView *)sender superview]];
-    
-}
-- (IBAction)closeAssetListTab:(id)sender {
-    [self.document.sourceController closeAssetListTab:[(NSView *)sender superview]];
-    
-}
-- (IBAction)selectAssetListTab:(id)sender {
-    [self.document.sourceController selectAssetListTab:[(NSView *)sender superview]];
-    
-}
 @end

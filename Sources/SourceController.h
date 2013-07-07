@@ -13,6 +13,7 @@
 //#import "AssetListView.h"
 #import "SourcePopovers.h"
 @class SourcePopovers;
+@class AssetListViewController;
 
 @interface SourceController : NSObject
 @property BOOL awake;
@@ -36,8 +37,8 @@
 - (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
 - (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
 
-- (void)addAssetListTabForSource:(Source *)source afterTab:(NSView *)tab;
-- (void)closeAssetListTab:(NSView *)tab;
-- (void)selectAssetListTab:(NSView *)tab;
+- (void)addAssetListPane:(AssetListViewController *)controller;
+- (void)closeAssetListPane:(AssetListViewController *)controller;
+- (void)selectAssetListPane:(AssetListViewController *)controller;
 
 @end

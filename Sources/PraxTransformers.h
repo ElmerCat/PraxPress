@@ -29,6 +29,9 @@
 @interface PraxNumberIsGreaterThanOneTransformer : NSValueTransformer
 @end
 
+@interface PraxIsSelectedImageTransformer : NSValueTransformer
+@end
+
 @interface PraxAssetStringTransformer : NSValueTransformer
 @end
 

@@ -7,9 +7,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AssetListViewController">
             <connections>
-                <action selector="addAssetListTab:" destination="QBu-B1-rST" id="p1X-gE-2Pn"/>
-                <action selector="closeAssetListTab:" destination="eP8-aZ-JeA" id="t2D-ak-a35"/>
-                <action selector="selectAssetListTab:" destination="5hL-n3-1zV" id="jXE-3p-sKK"/>
                 <outlet property="assetArrayController" destination="HP1-Ea-oP1" id="EVq-9a-4nC"/>
                 <outlet property="view" destination="1" id="2"/>
             </connections>
@@ -21,14 +18,14 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aLs-aw-1wC">
-                    <rect key="frame" x="0.0" y="0.0" width="551" height="575"/>
+                    <rect key="frame" x="0.0" y="0.0" width="551" height="496"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" id="lPb-vU-wMV">
-                        <rect key="frame" x="1" y="17" width="549" height="557"/>
+                        <rect key="frame" x="1" y="1" width="549" height="494"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="i38-3e-FFY" id="CWk-xy-0pj">
-                                <rect key="frame" x="0.0" y="0.0" width="549" height="557"/>
+                            <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" id="CWk-xy-0pj">
+                                <rect key="frame" x="0.0" y="0.0" width="549" height="494"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -62,63 +59,118 @@
                         <rect key="frame" x="1" y="119" width="223" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="jnL-cL-XIp">
-                        <rect key="frame" x="224" y="17" width="15" height="102"/>
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" id="jnL-cL-XIp">
+                        <rect key="frame" x="534" y="1" width="16" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <tableHeaderView key="headerView" id="i38-3e-FFY">
-                        <rect key="frame" x="0.0" y="0.0" width="549" height="17"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </tableHeaderView>
                 </scrollView>
-                <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5hL-n3-1zV">
-                    <rect key="frame" x="28" y="567" width="478" height="32"/>
+                <box autoresizesSubviews="NO" title="Box" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Q5a-iH-qc3">
+                    <rect key="frame" x="17" y="502" width="517" height="75"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Selected" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZgU-Wt-F3f">
-                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="-2" name="title" keyPath="self.source.name" id="NzF-le-dy7"/>
-                        <binding destination="-2" name="value" keyPath="self.selected" id="JIc-Po-Not"/>
-                    </connections>
-                </button>
-                <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QBu-B1-rST">
-                    <rect key="frame" x="506" y="567" width="51" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="+" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tww-Xr-CeD">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                </button>
-                <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eP8-aZ-JeA">
-                    <rect key="frame" x="-6" y="567" width="40" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSStopProgressFreestandingTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="leZ-fZ-Dcj">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.document.sourceController.hasMoreThanOneTab" id="hTq-sK-Guw">
-                            <dictionary key="options">
-                                <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </button>
+                    <view key="contentView">
+                        <rect key="frame" x="1" y="1" width="515" height="73"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9x1-G2-rfN">
+                                <rect key="frame" x="15" y="37" width="50" height="26"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="iW8-P8-Rfa"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" pullsDown="YES" selectedItem="JrD-6g-G5q" id="3Oi-qW-dds">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <menu key="menu" title="OtherViews" id="h8p-No-ZlP">
+                                        <items>
+                                            <menuItem image="NSActionTemplate" hidden="YES" id="JrD-6g-G5q"/>
+                                            <menuItem title="New List Pane" id="0h0-5H-9J8">
+                                                <connections>
+                                                    <binding destination="-2" name="argument" keyPath="self" id="k8D-hL-Ar8">
+                                                        <dictionary key="options">
+                                                            <string key="NSSelectorName">addAssetListPane:</string>
+                                                        </dictionary>
+                                                    </binding>
+                                                    <binding destination="-2" name="target" keyPath="self.document.sourceController" previousBinding="k8D-hL-Ar8" id="CzI-C9-POH">
+                                                        <dictionary key="options">
+                                                            <string key="NSSelectorName">addAssetListPane:</string>
+                                                        </dictionary>
+                                                    </binding>
+                                                </connections>
+                                            </menuItem>
+                                            <menuItem title="Close List Pane" id="y7K-a3-d9N">
+                                                <connections>
+                                                    <binding destination="-2" name="argument" keyPath="self" id="lnQ-3W-a4E">
+                                                        <dictionary key="options">
+                                                            <string key="NSSelectorName">closeAssetListPane:</string>
+                                                        </dictionary>
+                                                    </binding>
+                                                    <binding destination="-2" name="enabled" keyPath="self.document.sourceController.hasMoreThanOneTab" id="hGU-OU-h2V"/>
+                                                    <binding destination="-2" name="target" keyPath="self.document.sourceController" previousBinding="lnQ-3W-a4E" id="heM-GH-q6E">
+                                                        <dictionary key="options">
+                                                            <string key="NSSelectorName">closeAssetListPane:</string>
+                                                        </dictionary>
+                                                    </binding>
+                                                </connections>
+                                            </menuItem>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                            </popUpButton>
+                            <searchField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wis-b6-OqT">
+                                <rect key="frame" x="70" y="40" width="427" height="19"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <searchFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" id="iov-Yo-r6p">
+                                    <font key="font" metaFont="miniSystem"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </searchFieldCell>
+                            </searchField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="5hL-n3-1zV">
+                                <rect key="frame" x="12" y="7" width="491" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="square" title="Selected" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="ZgU-Wt-F3f">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="-2" name="argument" keyPath="self" id="miW-Sh-AQu">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">selectAssetListPane:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="title" keyPath="self.source.name" id="NzF-le-dy7"/>
+                                    <binding destination="-2" name="target" keyPath="self.document.sourceController" previousBinding="miW-Sh-AQu" id="vE3-0Z-F40">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">selectAssetListPane:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                    <constraints>
+                        <constraint firstItem="9x1-G2-rfN" firstAttribute="top" secondItem="Q5a-iH-qc3" secondAttribute="top" constant="11" id="7Fj-gK-Txq"/>
+                        <constraint firstItem="wis-b6-OqT" firstAttribute="top" secondItem="Q5a-iH-qc3" secondAttribute="top" constant="13" id="9ia-66-k6h"/>
+                        <constraint firstItem="9x1-G2-rfN" firstAttribute="leading" secondItem="Q5a-iH-qc3" secondAttribute="leading" constant="16" id="M7e-Q0-CDg"/>
+                        <constraint firstItem="5hL-n3-1zV" firstAttribute="leading" secondItem="Q5a-iH-qc3" secondAttribute="leading" constant="16" id="RA2-yq-GmR"/>
+                        <constraint firstItem="wis-b6-OqT" firstAttribute="leading" secondItem="9x1-G2-rfN" secondAttribute="trailing" constant="8" id="bZs-Qb-HqY"/>
+                        <constraint firstAttribute="height" constant="69" id="jhw-kE-62h"/>
+                        <constraint firstAttribute="trailing" secondItem="5hL-n3-1zV" secondAttribute="trailing" constant="16" id="qZy-33-iTD"/>
+                        <constraint firstAttribute="bottom" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="11" id="u9w-9e-fGO"/>
+                        <constraint firstAttribute="trailing" secondItem="wis-b6-OqT" secondAttribute="trailing" constant="16" id="vvu-QT-i5j"/>
+                    </constraints>
+                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                    <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                </box>
             </subviews>
             <constraints>
-                <constraint firstItem="eP8-aZ-JeA" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="4NU-nj-HSP"/>
-                <constraint firstItem="5hL-n3-1zV" firstAttribute="top" secondItem="1" secondAttribute="top" id="DyQ-C3-WIG"/>
-                <constraint firstItem="QBu-B1-rST" firstAttribute="trailing" secondItem="1" secondAttribute="trailing" id="GHe-ts-mvV"/>
-                <constraint firstItem="eP8-aZ-JeA" firstAttribute="top" secondItem="1" secondAttribute="top" id="L3v-T1-KIR"/>
-                <constraint firstItem="5hL-n3-1zV" firstAttribute="leading" secondItem="eP8-aZ-JeA" secondAttribute="trailing" constant="6" id="b2V-qx-wFw"/>
-                <constraint firstItem="aLs-aw-1wC" firstAttribute="bottom" secondItem="1" secondAttribute="bottom" id="jFC-Is-saA"/>
-                <constraint firstItem="QBu-B1-rST" firstAttribute="leading" secondItem="5hL-n3-1zV" secondAttribute="trailing" constant="12" id="kzn-9t-nNL"/>
-                <constraint firstItem="QBu-B1-rST" firstAttribute="top" secondItem="1" secondAttribute="top" id="mwn-Br-kWA"/>
-                <constraint firstItem="aLs-aw-1wC" firstAttribute="top" secondItem="1" secondAttribute="top" constant="20" id="mwo-MX-t1P"/>
-                <constraint firstItem="aLs-aw-1wC" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="vax-oO-Npi"/>
-                <constraint firstItem="aLs-aw-1wC" firstAttribute="trailing" secondItem="1" secondAttribute="trailing" id="vch-BP-c7f"/>
+                <constraint firstItem="aLs-aw-1wC" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="3XG-ZS-6zf"/>
+                <constraint firstItem="aLs-aw-1wC" firstAttribute="bottom" secondItem="1" secondAttribute="bottom" id="Bgl-SV-Mgu"/>
+                <constraint firstItem="aLs-aw-1wC" firstAttribute="top" secondItem="Q5a-iH-qc3" secondAttribute="bottom" constant="10" id="Ecc-xa-QsH"/>
+                <constraint firstItem="Q5a-iH-qc3" firstAttribute="leading" secondItem="1" secondAttribute="leading" constant="20" id="HZh-fG-mA8"/>
+                <constraint firstItem="Q5a-iH-qc3" firstAttribute="top" secondItem="1" secondAttribute="top" constant="20" id="L8N-Vb-04x"/>
+                <constraint firstAttribute="trailing" secondItem="Q5a-iH-qc3" secondAttribute="trailing" constant="20" id="MPx-i9-qKV"/>
+                <constraint firstItem="aLs-aw-1wC" firstAttribute="trailing" secondItem="1" secondAttribute="trailing" id="McB-vk-pnW"/>
             </constraints>
         </customView>
         <arrayController mode="entity" entityName="Asset" automaticallyPreparesContent="YES" id="HP1-Ea-oP1">
@@ -128,15 +180,12 @@
         </arrayController>
     </objects>
     <resources>
-        <image name="NSStopProgressFreestandingTemplate" width="12" height="12"/>
+        <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
     <classes>
         <class className="AssetListViewController" superclassName="NSViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/AssetListViewController.h"/>
             <relationships>
-                <relationship kind="action" name="addAssetListTab:"/>
-                <relationship kind="action" name="closeAssetListTab:"/>
-                <relationship kind="action" name="selectAssetListTab:"/>
                 <relationship kind="outlet" name="assetArrayController" candidateClass="NSArrayController"/>
             </relationships>
         </class>

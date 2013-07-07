@@ -78,7 +78,7 @@
             [self.sourceListOutlineView registerNib:nib forIdentifier:identifier];
         }
         self.assetListViewControllers = [@[] mutableCopy];
-        [self addAssetListTabForSource:nil afterTab:self.sourceListSubView];
+        [self addAssetListPane:nil];
         
         NSRect frame = self.sourceListSubView.frame;
         frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
@@ -89,51 +89,38 @@
     }
 }
 
-- (void)selectAssetListTab:(NSView *)tab {
-    NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
-    if (index > 0) {
-        index -= 1;
-        for (AssetListViewController *controller in self.assetListViewControllers) {
-            if (controller.view == tab) controller.selected = TRUE;
-            else controller.selected = FALSE;
-            
-        }
-        self.selectedAssetListIndex = index;
+- (void)selectAssetListPane:(AssetListViewController *)controller {
+    NSInteger index = [self.assetListViewControllers indexOfObject:controller];
+    for (AssetListViewController *aController in self.assetListViewControllers) {
+        if (aController == controller) controller.selected = TRUE;
+        else controller.selected = FALSE;
     }
-    
-    
+    self.selectedAssetListIndex = index;
 }
 
-- (void)closeAssetListTab:(NSView *)tab {
+- (void)closeAssetListPane:(AssetListViewController *)controller {
     if (self.assetListViewControllers.count > 1) {
-        NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
-        if (index > 0) {
-            index -= 1;
+        NSInteger index = [self.assetListViewControllers indexOfObject:controller];
             BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] selected];
-            [tab removeFromSuperview];
+            [controller.view removeFromSuperview];
             [self.assetListViewControllers removeObjectAtIndex:index];
             if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
             if (wasSelected) {
                 if (index > 0) index -= 1;
-                NSView *tabView = [(AssetListViewController *)self.assetListViewControllers[index] view];
-                [self selectAssetListTab:tabView];
+                [self selectAssetListPane:self.assetListViewControllers[index]];
             }
-        }
     }
 }
 
-
-
-- (void)addAssetListTabForSource:(Source *)source afterTab:(NSView *)tab {
-    
-    NSInteger index = [self.sourceSplitView.subviews indexOfObject:tab];
-    AssetListViewController *viewController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
-    [self.assetListViewControllers insertObject:viewController atIndex:index];
-    viewController.document = self.document;
-    index += 1;
-    [self.sourceSplitView addSubview:viewController.view positioned:NSWindowAbove relativeTo:tab];
-    [self selectAssetListTab:viewController.view];
-    viewController.source = source;
+- (void)addAssetListPane:(AssetListViewController *)controller {
+    NSInteger index = 0;
+    if (controller) index = ([self.assetListViewControllers indexOfObject:controller] + 1);
+    AssetListViewController *newController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
+    [self.assetListViewControllers insertObject:newController atIndex:index];
+    newController.document = self.document;
+    [self.sourceSplitView addSubview:newController.view positioned:NSWindowAbove relativeTo:self.sourceSplitView.subviews[index]];
+    [self selectAssetListPane:newController];
+    if (controller) newController.source = controller.source;
     if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
 
 }

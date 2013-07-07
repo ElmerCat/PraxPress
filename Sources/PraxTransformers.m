@@ -114,6 +114,27 @@
 }
 @end
 
+@implementation PraxIsSelectedImageTransformer
+
++ (Class)transformedValueClass {
+    return [NSImage class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSImage *)transformedValue:(id)value {
+    NSImage *image;
+    
+    if (value) {
+        image = [[NSBundle mainBundle] imageForResource:@"isSelectedImage"];
+    }
+    else {
+        image = [[NSBundle mainBundle] imageForResource:@"isNotSelectedImage"];
+    }
+
+    return image;
+}
+@end
+
 @implementation PraxAssetStringTransformer
 
 + (Class)transformedValueClass {

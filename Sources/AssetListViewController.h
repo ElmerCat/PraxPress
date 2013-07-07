@@ -15,8 +15,5 @@
 @property BOOL selected;
 @property Source *source;
 @property (strong) IBOutlet NSArrayController *assetArrayController;
-- (IBAction)addAssetListTab:(id)sender;
-- (IBAction)closeAssetListTab:(id)sender;
-- (IBAction)selectAssetListTab:(id)sender;
 
 @end
