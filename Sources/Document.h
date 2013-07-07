@@ -71,6 +71,7 @@
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
 
 - (IBAction)praxButtonPressed:(id)sender;
+- (IBAction)filterSelectedPane:(id)sender;
 
 @end
 

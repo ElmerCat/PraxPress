@@ -71,6 +71,7 @@
     NSLog(@"SourceController awakeFromNib");
     if (!self.awake) {
         self.awake = TRUE;
+        self.selectedAssetListIndex = -1;
         
         self.sourceListCellControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"SourceListCellViews" bundle:[NSBundle mainBundle]];
@@ -91,17 +92,21 @@
 
 - (void)selectAssetListPane:(AssetListViewController *)controller {
     NSInteger index = [self.assetListViewControllers indexOfObject:controller];
-    for (AssetListViewController *aController in self.assetListViewControllers) {
-        if (aController == controller) controller.selected = TRUE;
-        else controller.selected = FALSE;
+    if (index != self.selectedAssetListIndex) {
+        self.selectedAssetListIndex = index;
     }
-    self.selectedAssetListIndex = index;
+    else [self toggleSourceList:self];
+    
+    for (int i = 0; (i < self.assetListViewControllers.count); i++) {
+        if (i == self.selectedAssetListIndex) [self.assetListViewControllers[i] setIsSelectedPane:YES];
+        else [self.assetListViewControllers[i] setIsSelectedPane:NO];
+    }
 }
 
 - (void)closeAssetListPane:(AssetListViewController *)controller {
     if (self.assetListViewControllers.count > 1) {
         NSInteger index = [self.assetListViewControllers indexOfObject:controller];
-            BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] selected];
+            BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] isSelectedPane];
             [controller.view removeFromSuperview];
             [self.assetListViewControllers removeObjectAtIndex:index];
             if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
@@ -113,15 +118,17 @@
 }
 
 - (void)addAssetListPane:(AssetListViewController *)controller {
-    NSInteger index = 0;
+    NSUInteger index = 0;
     if (controller) index = ([self.assetListViewControllers indexOfObject:controller] + 1);
+    [self adjustSplitViewForNewPaneAtIndex:index];
+
     AssetListViewController *newController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
     [self.assetListViewControllers insertObject:newController atIndex:index];
     newController.document = self.document;
     [self.sourceSplitView addSubview:newController.view positioned:NSWindowAbove relativeTo:self.sourceSplitView.subviews[index]];
-    [self selectAssetListPane:newController];
     if (controller) newController.source = controller.source;
     if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
+    [self selectAssetListPane:newController];
 
 }
 
@@ -266,18 +273,23 @@
 - (void)toggleSourceList:(id)sender {
     NSRect frame = self.sourceListSubView.frame;
     
-    if (frame.size.width < 10) {
-        
-        frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
+    if ([self.sourceSplitView isSubviewCollapsed:self.sourceListSubView]) {
+        [self.sourceSplitView.animator setPosition:frame.size.width ofDividerAtIndex:0];
     }
-    
     else {
-        if (frame.size.width > 150) {
-            [[NSUserDefaults standardUserDefaults] setValue:@(frame.size.width) forKey:@"sourceListWidth"];
+        if (frame.size.width < 10) {
+            
+            frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
         }
-        frame.size.width = 0;
+        
+        else {
+            if (frame.size.width > 150) {
+                [[NSUserDefaults standardUserDefaults] setValue:@(frame.size.width) forKey:@"sourceListWidth"];
+            }
+            frame.size.width = 0;
+        }
+        [self.sourceListSubView.animator setFrame:frame];
     }
-    [self.sourceListSubView.animator setFrame:frame];
     
 }
 
@@ -295,39 +307,118 @@
     
     
 }
+- (IBAction)filterSelectedPane:(id)sender {
+    AssetListViewController *controller = self.assetListViewControllers[self.selectedAssetListIndex];
+    [controller filterPane];
+    
+}
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)aNotification {
-    NSRect frame = self.sourceListSubView.frame;
-    if (frame.size.width < 10) {
+    if ([self.sourceSplitView isSubviewCollapsed:self.sourceListSubView]) {
+        [self.documentToolbar setSelectedItemIdentifier:nil];
+    }
+    else if (self.sourceListSubView.frame.size.width < 10) {
         [self.documentToolbar setSelectedItemIdentifier:nil];
     }
     else {
         [self.documentToolbar setSelectedItemIdentifier:@"Sources"];
     }
-
-    
-    
 }
 
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex {
-    NSLog(@"splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:%ld", (long)dividerIndex);
+//    NSLog(@"splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:%ld", (long)dividerIndex);
     [self toggleSourceList:splitView];
     return NO;
 }
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return NO;}
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
+    if ([subview isEqual:self.sourceListSubView]) return NO;
+    else if (subview.frame.size.width <= self.assetListMinWidth) return NO;
+    else return YES;
+}
 
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return YES;}
+- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {
+    if ([subview isEqual:self.sourceListSubView]) return YES;
+    else return NO;
+}
+
+- (BOOL)adjustSplitViewForNewPaneAtIndex:(NSUInteger)index {
+    NSUInteger panes = self.sourceSplitView.subviews.count;
+
+    
+    CGFloat width = ((self.assetListMinWidth * panes) + self.sourceListMinWidth);
+    if (width > self.documentWindow.frame.size.width) {
+        NSRect frame = self.documentWindow.frame;
+        frame.size.width = width;
+        [self.documentWindow setFrame:frame display:YES];
+        return YES;
+    }
+    else return NO;
+}
+
+
+- (CGFloat)sourceListMinWidth {return 150;}
+- (CGFloat)assetListMinWidth {return 150;}
+
+- (CGFloat)assetListMinWidthForDividerIndex:(NSInteger)dividerIndex {
+    CGFloat width = 0;
+    if (![self.sourceSplitView isSubviewCollapsed:self.sourceListSubView]) {
+        width += self.sourceListSubView.frame.size.width;
+    }
+    width += (self.assetListMinWidth * dividerIndex);
+    return width;
+}
+
+- (CGFloat)assetListMaxWidthForDividerIndex:(NSInteger)dividerIndex {
+    NSUInteger panes = self.sourceSplitView.subviews.count;
+    CGFloat maxWidth = self.sourceSplitView.frame.size.width;
+    for (NSUInteger i = (panes - 1); i > dividerIndex; i--) {
+        maxWidth -= self.assetListMinWidth;
+    }
+    return maxWidth;
+}
+
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex {
+    CGFloat max = [self assetListMaxWidthForDividerIndex:dividerIndex];
+//    NSLog(@"constrainMaxCoordinate max:%f proposedMax:%f dividerIndex:%ld", max, proposedMax, (long)dividerIndex);
+    if (proposedMax > max) return max;
+    else return proposedMax;
+    
+}
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex {
+    CGFloat min = 0;
+    if (dividerIndex == 0) min = self.sourceListMinWidth;
+    else min = [self assetListMinWidthForDividerIndex:dividerIndex];
+//    NSLog(@"constrainMinCoordinate min:%f proposedMin:%f dividerIndex:%ld", min, proposedMin, (long)dividerIndex);
+    if (proposedMin < min) return min;
+    else return proposedMin;
+    
+}
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {
-    if (proposedPosition < 50) {
-        return 0;
+//    NSLog(@"constrainSplitPosition dividerIndex %ld", (long)dividerIndex);
+    NSUInteger panes = self.sourceSplitView.subviews.count;
+    CGFloat maxWidth = self.sourceSplitView.frame.size.width;
+    for (NSUInteger i = (panes - 2); i > dividerIndex; i--) {
+        maxWidth -= self.assetListMinWidth;
     }
-    else {
-        return proposedPosition;
-    }
+
+/*    for (NSUInteger i = (panes - 2); i > dividerIndex; i--) {
+        NSView *view = self.sourceSplitView.subviews[i+1];
+        maxWidth -= view.frame.size.width;
+    }*/
     
+    maxWidth -= self.assetListMinWidth;
+    CGFloat minWidth = 0;
+    if (dividerIndex == 0) minWidth = self.sourceListMinWidth;
+    else minWidth = [self assetListMinWidthForDividerIndex:dividerIndex];
+    if (proposedPosition < minWidth) return minWidth;
+    if (proposedPosition > maxWidth) return maxWidth;
+    else return proposedPosition;
+
 }
 
 - (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {

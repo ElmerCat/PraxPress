@@ -122,17 +122,11 @@
 
 + (BOOL)allowsReverseTransformation { return NO; }
 - (NSImage *)transformedValue:(id)value {
-    NSImage *image;
-    
-    if (value) {
-        image = [[NSBundle mainBundle] imageForResource:@"isSelectedImage"];
-    }
-    else {
-        image = [[NSBundle mainBundle] imageForResource:@"isNotSelectedImage"];
-    }
-
-    return image;
+    if (([value respondsToSelector: @selector(boolValue)]) && ([value boolValue]))
+        return [[NSBundle mainBundle] imageForResource:@"isSelectedImage"];
+    else return [[NSBundle mainBundle] imageForResource:@"isNotSelectedImage"];
 }
+
 @end
 
 @implementation PraxAssetStringTransformer

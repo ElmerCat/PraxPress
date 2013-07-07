@@ -4,6 +4,7 @@
         <deployment defaultVersion="1080" identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="3330"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
@@ -20,9 +21,11 @@
         <customObject id="-3" userLabel="Application"/>
         <window title="PraxPress" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" wantsToBeColor="NO" frameAutosaveName="PraxPress" animationBehavior="default" id="1">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES" unifiedTitleAndToolbar="YES"/>
+            <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="712" height="573"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <value key="minSize" type="size" width="712" height="573"/>
             <view key="contentView" id="2">
                 <rect key="frame" x="0.0" y="0.0" width="712" height="573"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -31,7 +34,7 @@
                         <rect key="frame" x="0.0" y="20" width="712" height="553"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <subviews>
-                            <customView id="6c4-Ge-Ev2">
+                            <customView horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" id="6c4-Ge-Ev2">
                                 <rect key="frame" x="0.0" y="0.0" width="712" height="553"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
@@ -192,7 +195,7 @@
                             </customView>
                         </subviews>
                         <holdingPriorities>
-                            <real value="250"/>
+                            <real value="251"/>
                         </holdingPriorities>
                         <connections>
                             <outlet property="delegate" destination="Kkg-l9-pUZ" id="SUY-Te-wUI"/>
@@ -393,6 +396,37 @@
                     <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="n0S-aQ-ddk"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="s88-Ji-mfJ"/>
                     <toolbarItem implicitItemIdentifier="0C9E8525-2C17-4F65-983A-F8B5334B4DDE" explicitItemIdentifier="PraxButton" label="Prax" paletteLabel="Prax" tag="-1" id="n10-ME-A13"/>
+                    <toolbarItem implicitItemIdentifier="811886DB-1584-4C21-BBC9-53291B1A3E7F" label="Asset WebView" paletteLabel="Asset WebView" tag="-1" id="Yq1-fW-eAI">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="123" height="16"/>
+                        <size key="maxSize" width="123" height="16"/>
+                        <box key="view" autoresizesSubviews="NO" borderWidth="0.0" title="Box" boxType="custom" borderType="none" titlePosition="noTitle" id="YlK-DE-zJF">
+                            <rect key="frame" x="0.0" y="14" width="154" height="17"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <view key="contentView">
+                                <rect key="frame" x="0.0" y="0.0" width="154" height="17"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <webView translatesAutoresizingMaskIntoConstraints="NO" id="2bL-Tc-YXA">
+                                        <rect key="frame" x="-10" y="-10" width="163" height="26"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="26" id="4ZM-do-1b8"/>
+                                        </constraints>
+                                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12"/>
+                                    </webView>
+                                </subviews>
+                            </view>
+                            <constraints>
+                                <constraint firstItem="2bL-Tc-YXA" firstAttribute="top" secondItem="YlK-DE-zJF" secondAttribute="top" constant="1" id="9GK-bQ-gmv"/>
+                                <constraint firstAttribute="trailing" secondItem="2bL-Tc-YXA" secondAttribute="trailing" constant="1" id="Vjn-P1-ovP"/>
+                                <constraint firstItem="2bL-Tc-YXA" firstAttribute="leading" secondItem="YlK-DE-zJF" secondAttribute="leading" constant="-10" id="f1u-f1-Uep"/>
+                                <constraint firstAttribute="bottom" secondItem="2bL-Tc-YXA" secondAttribute="bottom" constant="-10" id="zb4-q5-4sZ"/>
+                            </constraints>
+                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                            <color key="fillColor" red="0.40000000596046448" green="0.80000001192092896" blue="1" alpha="0.63" colorSpace="calibratedRGB"/>
+                        </box>
+                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="898EEE94-6678-4AAE-9106-76E8B7EF2B7D" label="" paletteLabel="Update Controls" tag="-1" id="K5f-XR-1VI">
                         <nil key="toolTip"/>
                         <size key="minSize" width="123" height="22"/>
@@ -464,15 +498,17 @@
                     <toolbarItem reference="qV5-yQ-ewS"/>
                     <toolbarItem reference="lBU-6f-UVt"/>
                     <toolbarItem reference="n10-ME-A13"/>
+                    <toolbarItem reference="Yq1-fW-eAI"/>
                     <toolbarItem reference="s88-Ji-mfJ"/>
-                    <toolbarItem reference="9vP-O5-umc"/>
                     <toolbarItem reference="Esi-dL-yBa"/>
+                    <toolbarItem reference="9vP-O5-umc"/>
                     <toolbarItem reference="GAm-hm-3rc"/>
                 </defaultToolbarItems>
                 <connections>
                     <outlet property="delegate" destination="-2" id="KAE-eb-1f6"/>
                 </connections>
             </toolbar>
+            <contentBorderThickness minY="22"/>
         </window>
         <treeController mode="entity" entityName="Source" fetchPredicateFormat="parent == nil" automaticallyPreparesContent="YES" childrenKeyPath="childrenArray" id="xgM-YB-T0f">
             <connections>
@@ -490,6 +526,7 @@
                 <action selector="toolbarItemSelected:" destination="2mx-wb-fUE" id="xfx-rb-ub0"/>
                 <outlet property="document" destination="-2" id="D6A-mg-wdq"/>
                 <outlet property="documentToolbar" destination="WQb-nU-6sx" id="xJF-ZI-uRb"/>
+                <outlet property="documentWindow" destination="1" id="dF0-ZY-5DZ"/>
                 <outlet property="sourceListOutlineView" destination="kOk-Wn-zik" id="Qfh-07-U27"/>
                 <outlet property="sourceListSubView" destination="6c4-Ge-Ev2" id="lD2-3Y-u7f"/>
                 <outlet property="sourcePopover" destination="ynH-G3-TSb" id="Llz-PA-pbH"/>
@@ -538,6 +575,7 @@
         <class className="Document" superclassName="NSPersistentDocument">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/Document.h"/>
             <relationships>
+                <relationship kind="action" name="filterSelectedPane:"/>
                 <relationship kind="action" name="praxButtonPressed:"/>
                 <relationship kind="action" name="selectAccount:"/>
                 <relationship kind="outlet" name="accountViewPopover" candidateClass="NSPopover"/>
@@ -604,11 +642,13 @@
         <class className="SourceController" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/SourceController.h"/>
             <relationships>
+                <relationship kind="action" name="filterSelectedPane:"/>
                 <relationship kind="action" name="sourceDetailsButtonPressedBottomEdge:"/>
                 <relationship kind="action" name="sourceDetailsButtonPressedRightEdge:"/>
                 <relationship kind="action" name="toolbarItemSelected:"/>
                 <relationship kind="outlet" name="document" candidateClass="Document"/>
                 <relationship kind="outlet" name="documentToolbar" candidateClass="NSToolbar"/>
+                <relationship kind="outlet" name="documentWindow" candidateClass="NSWindow"/>
                 <relationship kind="outlet" name="sourceListOutlineView" candidateClass="NSOutlineView"/>
                 <relationship kind="outlet" name="sourceListSubView" candidateClass="NSView"/>
                 <relationship kind="outlet" name="sourcePopover" candidateClass="NSPopover"/>

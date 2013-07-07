@@ -173,7 +173,24 @@
 - (IBAction)praxButtonPressed:(id)sender {
     NSLog(@"praxButtonPressed");
     
+    NSSavePanel *panel = [NSSavePanel savePanel];
+    [panel setAllowedFileTypes:@[@"plist"]];
+    [panel setMessage:@"Export PraxPress User Defaults to File"];
+    [panel setNameFieldStringValue:@"PraxPress-Defaults"];
+    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] persistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            [dictionary writeToURL:panel.URL atomically:YES];
+        }
+    }];
 }
+
+- (IBAction)filterSelectedPane:(id)sender {
+    [self.sourceController filterSelectedPane:sender];
+    
+    
+}
+
 
 + (BOOL)autosavesInPlace
 {

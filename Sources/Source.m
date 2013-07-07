@@ -18,6 +18,8 @@
 @dynamic rowHeight;
 
 @dynamic fetchPredicate;
+@dynamic filterString;
+@dynamic filterKey;
 @dynamic account;
 @dynamic batchAssets;
 

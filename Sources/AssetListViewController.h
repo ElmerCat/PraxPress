@@ -9,11 +9,21 @@
 #import "Document.h"
 
 
-@interface AssetListViewController : NSViewController
+@interface AssetListViewController : NSViewController <NSTableViewDelegate>
 @property BOOL awake;
 @property Document *document;
-@property BOOL selected;
+@property BOOL isSelectedPane;
 @property Source *source;
 @property (strong) IBOutlet NSArrayController *assetArrayController;
+@property (weak) IBOutlet NSButton *notSelectedButton;
+@property (weak) IBOutlet NSButton *selectedButton;
+- (IBAction)selectAssetListPane:(id)sender;
+@property (weak) IBOutlet NSSearchField *searchField;
+- (void)filterPane;
+- (IBAction)updateFilter:(id)sender;
+
+@property (weak) IBOutlet NSScrollView *detailScrollView;
+@property (strong) IBOutlet NSView *defaultDetailView;
+@property (strong) IBOutlet NSView *trackDetailView;
 
 @end

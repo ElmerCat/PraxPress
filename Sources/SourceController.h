@@ -19,6 +19,7 @@
 @property BOOL awake;
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSToolbar *documentToolbar;
+@property (unsafe_unretained) IBOutlet NSWindow *documentWindow;
 
 @property (weak) IBOutlet NSSplitView *sourceSplitView;
 @property (weak) IBOutlet NSView *sourceListSubView;
@@ -33,6 +34,7 @@
 + (void)initWithType:(NSString *)typeName inManagedObjectContext:(NSManagedObjectContext *)moc;
 
 -(void)reset;
+- (IBAction)filterSelectedPane:(id)sender;
 - (IBAction)toolbarItemSelected:(id)sender;
 - (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
 - (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;

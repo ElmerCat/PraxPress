@@ -29,5 +29,6 @@
 @property (weak) IBOutlet NSPredicateEditor *searchPredicateEditor;
 
 - (void)showPopoverForSource:(Source *)source sender:(id)sender preferredEdge:(NSRectEdge)preferredEdge;
+- (IBAction)openURLWithButtonTitle:(id)sender;
 
 @end

@@ -152,6 +152,11 @@
     
 }
 
+- (IBAction)openURLWithButtonTitle:(id)sender {
+    NSURL *url = [NSURL URLWithString:[sender title]];
+    [[NSWorkspace sharedWorkspace] openURL:url];
+}
+
 - (IBAction)loginButtonPressed:(id)sender {
     
     NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.source.account.accountType];

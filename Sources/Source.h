@@ -28,6 +28,8 @@
 @property (nonatomic, retain) NSString * iconName;
 @property (nonatomic, retain) NSString * fetchEntity;
 @property (nonatomic, retain) NSPredicate *fetchPredicate;
+@property (nonatomic, retain) NSString *filterString;
+@property (nonatomic, retain) NSString *filterKey;
 @property (nonatomic, retain) NSNumber * sortOrder;
 @property (nonatomic, retain) NSNumber * rowHeight;
 

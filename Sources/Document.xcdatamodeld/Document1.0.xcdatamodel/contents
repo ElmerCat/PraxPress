@@ -66,6 +66,8 @@
     <entity name="Source" representedClassName="Source" syncable="YES">
         <attribute name="fetchEntity" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="fetchPredicate" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="filterKey" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="filterString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="iconName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="rowHeight" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -94,9 +96,12 @@
         <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
         <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
         <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
         <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
@@ -104,8 +109,5 @@
         <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

@@ -196,7 +196,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h5N-No-bGN">
-                    <rect key="frame" x="41" y="9" width="341" height="14"/>
+                    <rect key="frame" x="41" y="9" width="78" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="FolderSource" id="CSP-Nd-4Uj">
                         <font key="font" metaFont="smallSystemBold"/>
@@ -263,7 +263,7 @@
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="SoundCloudName138x29" id="S0R-rr-5QW"/>
                 </imageView>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YQ6-3b-uql">
-                    <rect key="frame" x="135" y="9" width="216" height="17"/>
+                    <rect key="frame" x="135" y="9" width="71" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="center" title="Username" id="qDv-aB-TAa">
                         <font key="font" metaFont="system"/>
@@ -310,7 +310,7 @@
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="WordPressName127x29" id="Kdq-8f-pNF"/>
                 </imageView>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cRc-qy-ygJ">
-                    <rect key="frame" x="135" y="9" width="216" height="17"/>
+                    <rect key="frame" x="135" y="9" width="71" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="center" title="Username" id="hJj-XE-sV8">
                         <font key="font" metaFont="system"/>
@@ -331,7 +331,6 @@
                 </button>
             </subviews>
             <constraints>
-                <constraint firstItem="7I6-cB-ood" firstAttribute="leading" secondItem="cRc-qy-ygJ" secondAttribute="trailing" constant="8" id="8Qs-JT-HsY"/>
                 <constraint firstItem="cRc-qy-ygJ" firstAttribute="top" secondItem="hvZ-m6-D6p" secondAttribute="top" constant="9" id="GVc-nf-QX8"/>
                 <constraint firstItem="7I6-cB-ood" firstAttribute="top" secondItem="hvZ-m6-D6p" secondAttribute="top" constant="7" id="Z9L-gJ-2Uu"/>
                 <constraint firstItem="B3v-mg-msr" firstAttribute="top" secondItem="hvZ-m6-D6p" secondAttribute="top" constant="3" id="aAF-9P-mBS"/>
@@ -348,7 +347,7 @@
             <rect key="frame" x="0.0" y="0.0" width="381" height="35"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZuM-Ce-Ixy">
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZuM-Ce-Ixy">
                     <rect key="frame" x="135" y="9" width="67" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Username" id="rcY-5T-EYb">
@@ -360,8 +359,8 @@
                         <binding destination="3sS-lW-1hb" name="value" keyPath="objectValue.account.username" id="xfe-bj-Sgn"/>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hib-Xv-9x8">
-                    <rect key="frame" x="0.0" y="9" width="67" height="17"/>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Hib-Xv-9x8">
+                    <rect key="frame" x="29" y="9" width="38" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Flickr" id="xrk-Ep-Dxu">
                         <font key="font" metaFont="system"/>
@@ -379,9 +378,12 @@
                 </button>
             </subviews>
             <constraints>
+                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="leading" secondItem="Hib-Xv-9x8" secondAttribute="trailing" constant="74" id="1TZ-7V-hky"/>
                 <constraint firstItem="57H-f3-euc" firstAttribute="top" secondItem="3sS-lW-1hb" secondAttribute="top" constant="7" id="bph-Ta-qke"/>
                 <constraint firstAttribute="trailing" secondItem="57H-f3-euc" secondAttribute="trailing" constant="3" id="jIV-Pl-UVD"/>
                 <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="top" secondItem="3sS-lW-1hb" secondAttribute="top" constant="9" id="nLF-jw-gX1"/>
+                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="baseline" secondItem="Hib-Xv-9x8" secondAttribute="baseline" id="pLC-VT-tND"/>
+                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="leading" secondItem="3sS-lW-1hb" secondAttribute="leading" constant="138" id="xhv-Z4-m9D"/>
             </constraints>
             <connections>
                 <outlet property="textField" destination="ZuM-Ce-Ixy" id="oOf-0b-yyW"/>
@@ -391,7 +393,7 @@
             <rect key="frame" x="0.0" y="0.0" width="381" height="35"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aNl-dO-gny">
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aNl-dO-gny">
                     <rect key="frame" x="135" y="9" width="67" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Username" id="0gU-VN-Mbi">
@@ -403,7 +405,7 @@
                         <binding destination="bXo-5E-KiT" name="value" keyPath="objectValue.account.username" id="0TU-dd-Fl8"/>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zK0-hS-MNn">
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zK0-hS-MNn">
                     <rect key="frame" x="5" y="9" width="59" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="YouTube" id="1hY-Ib-dWk">
@@ -422,9 +424,12 @@
                 </button>
             </subviews>
             <constraints>
+                <constraint firstItem="aNl-dO-gny" firstAttribute="leading" secondItem="zK0-hS-MNn" secondAttribute="trailing" constant="77" id="3ec-PL-pDX"/>
+                <constraint firstItem="aNl-dO-gny" firstAttribute="leading" secondItem="bXo-5E-KiT" secondAttribute="leading" constant="138" id="7Bj-U8-Rv4"/>
                 <constraint firstAttribute="trailing" secondItem="DrV-Uy-vG2" secondAttribute="trailing" constant="3" id="A8n-eE-PC8"/>
                 <constraint firstItem="aNl-dO-gny" firstAttribute="top" secondItem="bXo-5E-KiT" secondAttribute="top" constant="9" id="CFf-SN-br9"/>
                 <constraint firstItem="DrV-Uy-vG2" firstAttribute="top" secondItem="bXo-5E-KiT" secondAttribute="top" constant="7" id="EQe-TM-wZE"/>
+                <constraint firstItem="aNl-dO-gny" firstAttribute="baseline" secondItem="zK0-hS-MNn" secondAttribute="baseline" id="SUm-MU-CVs"/>
             </constraints>
             <connections>
                 <outlet property="textField" destination="aNl-dO-gny" id="z5K-hz-wc1"/>
