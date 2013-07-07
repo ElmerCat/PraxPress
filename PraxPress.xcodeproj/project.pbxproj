@@ -43,6 +43,8 @@
 		E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */; };
 		E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */; };
 		E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */; };
+		E67007C217873A2B0052FC2B /* isNotSelectedImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */; };
+		E67007C317873A2B0052FC2B /* isSelectedImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E67007C117873A2B0052FC2B /* isSelectedImage.tiff */; };
 		E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = E673D1AA16A9A05C002B060D /* PlaylistController.m */; };
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E682EF5417723E540008642C /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
@@ -160,6 +162,8 @@
 		E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetMetadataPopover.h; sourceTree = "<group>"; };
 		E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetMetadataPopover.m; sourceTree = "<group>"; };
 		E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetMetadataPopover.xib; sourceTree = "<group>"; };
+		E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = isNotSelectedImage.tiff; sourceTree = "<group>"; };
+		E67007C117873A2B0052FC2B /* isSelectedImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = isSelectedImage.tiff; sourceTree = "<group>"; };
 		E673D1A916A9A05C002B060D /* PlaylistController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
 		E673D1AA16A9A05C002B060D /* PlaylistController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
 		E6775E4616A4BF4C00CDA34B /* Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Template.h; sourceTree = "<group>"; };
@@ -242,6 +246,7 @@
 		E661E63216279D3600EFD83A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
 				E642A02917862096003FF23C /* Source.h */,
 				E642A02A17862096003FF23C /* Source.m */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
@@ -284,6 +289,8 @@
 		E661E63416279DB500EFD83A /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				E642A049178639A3003FF23C /* AssetListView.xib */,
+				E642A04617863934003FF23C /* PraxPress.xib */,
 				E642A05317863E53003FF23C /* SourcePopovers.xib */,
 				E642A04B178639FA003FF23C /* SourceListCellViews.xib */,
 				E661E62C1626182400EFD83A /* AccountViewController.xib */,
@@ -295,6 +302,7 @@
 				E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */,
 				E665634315E9744400DFC7C9 /* TemplateView.xib */,
 				E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */,
+				E6BC79B515C4759800080762 /* MainMenu.xib */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -351,12 +359,8 @@
 		E6BC79A315C4759800080762 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				E642A04617863934003FF23C /* PraxPress.xib */,
-				E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */,
 				E6BC79AF15C4759800080762 /* Document.h */,
 				E6BC79B015C4759800080762 /* Document.m */,
-				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
-				E642A049178639A3003FF23C /* AssetListView.xib */,
 				E661E63516279DF200EFD83A /* Object Controllers */,
 				E661E63316279D5C00EFD83A /* View Controllers */,
 				E661E63216279D3600EFD83A /* Entities */,
@@ -370,7 +374,7 @@
 		E6BC79A415C4759800080762 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				E6BC79B515C4759800080762 /* MainMenu.xib */,
+				E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */,
 				E6BC79A515C4759800080762 /* PraxPress-Info.plist */,
 				E6BC79A615C4759800080762 /* InfoPlist.strings */,
 				E6BC79A915C4759800080762 /* main.m */,
@@ -395,6 +399,8 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */,
+				E67007C117873A2B0052FC2B /* isSelectedImage.tiff */,
 				E642A04D17863A87003FF23C /* greenlight.tiff */,
 				E642A04E17863A87003FF23C /* orangelight.tiff */,
 				E642A04F17863A87003FF23C /* redlight.tiff */,
@@ -514,7 +520,9 @@
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
 				E642A05217863A87003FF23C /* redlight.tiff in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
+				E67007C317873A2B0052FC2B /* isSelectedImage.tiff in Resources */,
 				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
+				E67007C217873A2B0052FC2B /* isNotSelectedImage.tiff in Resources */,
 				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
 				E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */,
