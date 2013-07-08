@@ -243,7 +243,7 @@
 			name = Helpers;
 			sourceTree = "<group>";
 		};
-		E661E63216279D3600EFD83A /* Entities */ = {
+		E661E63216279D3600EFD83A /* Entities/Objects */ = {
 			isa = PBXGroup;
 			children = (
 				E664659316A4D94E004E3448 /* Document.xcdatamodeld */,
@@ -256,7 +256,7 @@
 				E6775E4616A4BF4C00CDA34B /* Template.h */,
 				E6775E4716A4BF4C00CDA34B /* Template.m */,
 			);
-			name = Entities;
+			name = Entities/Objects;
 			sourceTree = "<group>";
 		};
 		E661E63316279D5C00EFD83A /* View Controllers */ = {
@@ -363,7 +363,7 @@
 				E6BC79B015C4759800080762 /* Document.m */,
 				E661E63516279DF200EFD83A /* Object Controllers */,
 				E661E63316279D5C00EFD83A /* View Controllers */,
-				E661E63216279D3600EFD83A /* Entities */,
+				E661E63216279D3600EFD83A /* Entities/Objects */,
 				E661E63416279DB500EFD83A /* Interface */,
 				E624D84A15EAEC570066D7D7 /* Helpers */,
 				E6BC79A415C4759800080762 /* Supporting Files */,

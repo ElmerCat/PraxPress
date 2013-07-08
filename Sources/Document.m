@@ -49,6 +49,12 @@
                                   @{@"name":@"Showcase", @"value":@"showcase"}];
         
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"NSUserDefaultsDidChangeNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
+        self.accountsSettings = [[NSUserDefaults standardUserDefaults] valueForKey:@"accounts"];
+    }];
+     
+
     return self;
 }
 
@@ -124,6 +130,21 @@
 /*- (void)windowDidBecomeMain:(NSNotification *)notification {
  
  }*/
+
+- (NSDictionary *)settingsForAccount:(NSString *)name {
+    if (!self.accountsSettings) self.accountsSettings = [[NSUserDefaults standardUserDefaults] valueForKey:@"accounts"];
+    
+    NSUInteger idx = [self.accountsSettings indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj[@"name"] isEqualToString:name]) {
+            return YES;
+        }
+        else return NO;
+    }];
+    if (idx == NSNotFound) return nil;
+    else return self.accountsSettings[idx];
+}
+
+
 
 
 /* Called just before a webView attempts to load a resource.  Here, we look at the

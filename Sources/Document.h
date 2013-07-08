@@ -63,6 +63,9 @@
 @property (strong) IBOutlet NSWindow *authorizationWindow;
 @property (weak) IBOutlet WebView *webView;
 
+@property NSArray *accountsSettings;
+- (NSDictionary *)settingsForAccount:(NSString *)name;
+
 //-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem;
 - (IBAction)selectAccount:(id)sender;
 

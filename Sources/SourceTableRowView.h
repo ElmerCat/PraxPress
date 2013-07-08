@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Document.h"
 
 @interface SourceTableRowView : NSTableRowView
 

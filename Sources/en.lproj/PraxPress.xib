@@ -509,6 +509,9 @@
                 </connections>
             </toolbar>
             <contentBorderThickness minY="22"/>
+            <connections>
+                <outlet property="delegate" destination="-2" id="Yuu-tq-pKF"/>
+            </connections>
         </window>
         <treeController mode="entity" entityName="Source" fetchPredicateFormat="parent == nil" automaticallyPreparesContent="YES" childrenKeyPath="childrenArray" id="xgM-YB-T0f">
             <connections>
@@ -661,6 +664,7 @@
             <relationships>
                 <relationship kind="action" name="doneButtonPressed:"/>
                 <relationship kind="action" name="loginButtonPressed:"/>
+                <relationship kind="action" name="openURLWithButtonTitle:"/>
                 <relationship kind="outlet" name="authorizationPanel" candidateClass="NSPanel"/>
                 <relationship kind="outlet" name="authorizationWebView" candidateClass="WebView"/>
                 <relationship kind="outlet" name="document" candidateClass="Document"/>
