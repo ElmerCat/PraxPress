@@ -20,42 +20,31 @@
     Source *child;
     Source *grandChild;
     
-    parent = [Source addLibrarySource:@"Accounts" withSortOrder:@0 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Accounts" withSortOrder:@0 forType:@"AccountSource" inManagedObjectContext:moc];
     
     child = [Source addAccountSource:@"WordPress" rowHeight:@35 toParent:parent forEntity:@"Post" withPredicateString:@"" inManagedObjectContext:moc];
     grandChild = [Source addSubAccountSource:@"Posts" toParent:child forEntity:@"Post" withPredicateString:@"type == \"post\"" inManagedObjectContext:moc];
     grandChild = [Source addSubAccountSource:@"Pages" toParent:child forEntity:@"Post" withPredicateString:@"type == \"page\"" inManagedObjectContext:moc];
-    child = [Source addAccountSource:@"SoundCloud" rowHeight:@35 toParent:parent forEntity:@"Asset" withPredicateString:@"type BEGINSWITH[c] \"SoundCloud\"" inManagedObjectContext:moc];
+    child = [Source addAccountSource:@"SoundCloud" rowHeight:@35 toParent:parent forEntity:@"Asset" withPredicateString:@"(type == \"track\") OR (type == \"playlist\")" inManagedObjectContext:moc];
     grandChild = [Source addSubAccountSource:@"Tracks" toParent:child forEntity:@"Track" withPredicateString:@"" inManagedObjectContext:moc];
     grandChild = [Source addSubAccountSource:@"Playlists (Sets)" toParent:child forEntity:@"Playlist" withPredicateString:@"" inManagedObjectContext:moc];
-    child = [Source addAccountSource:@"YouTube" rowHeight:@35 toParent:parent forEntity:@"Video" withPredicateString:@"" inManagedObjectContext:moc];
-    child = [Source addAccountSource:@"Flickr" rowHeight:@35 toParent:parent forEntity:@"Image" withPredicateString:@"" inManagedObjectContext:moc];
+//    child = [Source addAccountSource:@"YouTube" rowHeight:@35 toParent:parent forEntity:@"Video" withPredicateString:@"" inManagedObjectContext:moc];
+//    child = [Source addAccountSource:@"Flickr" rowHeight:@35 toParent:parent forEntity:@"Image" withPredicateString:@"" inManagedObjectContext:moc];
     
-    parent = [Source addLibrarySource:@"Searches" withSortOrder:@1 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Searches" withSortOrder:@1 forType:@"SearchSource" inManagedObjectContext:moc];
 
     child = [Source addSearchSource:@"New Search" toParent:parent forEntity:@"Asset" withPredicateString:@"title BEGINSWITH[c] \"j\"" inManagedObjectContext:moc];
-    child = [Source addFolderSource:@"Search Folder" toParent:parent inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Search Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Search Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Search Sub Folder" toParent:child inManagedObjectContext:moc];
     
-    parent = [Source addLibrarySource:@"Batches" withSortOrder:@2 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Batches" withSortOrder:@2 forType:@"BatchSource" inManagedObjectContext:moc];
     
     child = [Source addBatchSource:@"New Batch" toParent:parent withArrangedAssets:@[] inManagedObjectContext:moc];
-    child = [Source addFolderSource:@"Batch Folder" toParent:parent inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Batch Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Batch Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Batch Sub Folder" toParent:child inManagedObjectContext:moc];
     
-    parent = [Source addLibrarySource:@"Prax Assets" withSortOrder:@3 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Prax Assets" withSortOrder:@3 forType:@"PraxAssetSource" inManagedObjectContext:moc];
     
     child = [Source addPraxAssetSource:@"New Prax Asset" toParent:parent inManagedObjectContext:moc];
-    child = [Source addFolderSource:@"Prax Folder" toParent:parent inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
-    grandChild = [Source addFolderSource:@"Prax Sub Folder" toParent:child inManagedObjectContext:moc];
     
-    parent = [Source addLibrarySource:@"Changed Items" withSortOrder:@4 inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"Folders" withSortOrder:@4 forType:@"FolderSource" inManagedObjectContext:moc];
+    child = [Source addFolderSource:@"New Folder" toParent:parent inManagedObjectContext:moc];
     
 }
 
@@ -73,13 +62,15 @@
         self.awake = TRUE;
         self.selectedAssetListIndex = -1;
         
+        [self.sourceListOutlineView registerForDraggedTypes:@[@"org.ElmerCat.PraxPress.Source"]];
+
         self.sourceListCellControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"SourceListCellViews" bundle:[NSBundle mainBundle]];
-        for (NSString *identifier in @[@"LibrarySource", @"AccountSource", @"SubAccountSource", @"WordPress", @"SearchSource", @"BatchSource", @"FolderSource", @"ChangedSource"]) {
+        for (NSString *identifier in @[@"LibrarySource", @"AccountSource", @"SubAccountSource", @"WordPress", @"SearchSource", @"BatchSource", @"FolderSource"]) {
             [self.sourceListOutlineView registerNib:nib forIdentifier:identifier];
         }
         self.assetListViewControllers = [@[] mutableCopy];
-        [self addAssetListPane:nil];
+        [self addAssetListPane:nil withSource:nil];
         
         NSRect frame = self.sourceListSubView.frame;
         frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
@@ -87,6 +78,21 @@
             frame.size.width = 150;
         }
         [self.sourceListSubView setFrame:frame];
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+      //      NSTreeNode *item = [self.document.sourceTreeController nodeOfObject:parent];
+            [self.sourceListOutlineView.animator expandItem:nil expandChildren:YES];
+        });
+    }
+}
+
+- (void)windowWillClose:(NSNotification *)notification {
+    NSLog(@"SourceController windowWillClose notification: %@", notification);
+    for (AssetListViewController *controller in self.assetListViewControllers) {
+        if (controller.assetListViewer) {
+            [controller.assetListViewer close];
+            controller.assetListViewer = nil;
+        }
     }
 }
 
@@ -101,23 +107,60 @@
         if (i == self.selectedAssetListIndex) [self.assetListViewControllers[i] setIsSelectedPane:YES];
         else [self.assetListViewControllers[i] setIsSelectedPane:NO];
     }
+//    self.selectedSource = controller.source;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self.document.sourceTreeController setSelectionIndexPath:[self.document.sourceTreeController indexPathOfObject:controller.source]];
+        
+    });
+
+
 }
 
 - (void)closeAssetListPane:(AssetListViewController *)controller {
     if (self.assetListViewControllers.count > 1) {
         NSInteger index = [self.assetListViewControllers indexOfObject:controller];
-            BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] isSelectedPane];
-            [controller.view removeFromSuperview];
-            [self.assetListViewControllers removeObjectAtIndex:index];
-            if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
-            if (wasSelected) {
-                if (index > 0) index -= 1;
-                [self selectAssetListPane:self.assetListViewControllers[index]];
-            }
+        BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] isSelectedPane];
+        if (controller.assetListViewer) {
+            [controller.assetListViewer close];
+            controller.assetListViewer = nil;
+        }
+        [controller.view removeFromSuperview];
+        [self.assetListViewControllers removeObjectAtIndex:index];
+        if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
+        if (wasSelected) {
+            if (index > 0) index -= 1;
+            [self selectAssetListPane:self.assetListViewControllers[index]];
+        }
     }
 }
 
-- (void)addAssetListPane:(AssetListViewController *)controller {
+- (void)addBatchSource:(AssetListViewController *)controller withSource:(Source *)source {
+    Source *batches = [[self.document.sourceTreeController.arrangedObjects descendantNodeAtIndexPath:[NSIndexPath indexPathWithIndex:2]] representedObject];
+    NSArray *assets = @[];
+    NSString *name = @"New Empty Batch";
+    if (controller) {
+        name = [NSString stringWithFormat:@"New Batch from %@", controller.source.name];
+        assets = controller.assetArrayController.arrangedObjects;
+        if (controller.assetArrayController.filterPredicate) assets = [assets filteredArrayUsingPredicate:controller.assetArrayController.filterPredicate];
+    }
+    Source *newBatch = [Source addBatchSource:name toParent:batches withArrangedAssets:assets inManagedObjectContext:self.document.managedObjectContext];
+    [self addAssetListPane:controller withSource:newBatch];
+    [self.document.managedObjectContext processPendingChanges];
+    [self.document.sourceTreeController rearrangeObjects];
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        NSTreeNode *item = [self.document.sourceTreeController nodeOfObject:batches];
+        [self.sourceListOutlineView.animator expandItem:item expandChildren:NO];
+        NSIndexPath *indexPath = [self.document.sourceTreeController indexPathOfObject:newBatch];
+        [self.document.sourceTreeController setSelectionIndexPath:indexPath];
+
+    });
+    
+}
+
+
+- (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source {
     NSUInteger index = 0;
     if (controller) index = ([self.assetListViewControllers indexOfObject:controller] + 1);
     [self adjustSplitViewForNewPaneAtIndex:index];
@@ -126,13 +169,18 @@
     [self.assetListViewControllers insertObject:newController atIndex:index];
     newController.document = self.document;
     [self.sourceSplitView addSubview:newController.view positioned:NSWindowAbove relativeTo:self.sourceSplitView.subviews[index]];
-    if (controller) newController.source = controller.source;
+    if (source) newController.source = source;
+    else if (controller) newController.source = controller.source;
     if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
     [self selectAssetListPane:newController];
 
 }
 
-- (NSArray *)assetsForSource:(Source *)source {
+/*- (NSArray *)assetsForSource:(Source *)source {
+    
+    if ([source.entity.name isEqualToString:@"BatchSource"]) {
+        return [source.batchAssets array];
+    }
     
     NSString *entityName = source.fetchEntity;
     if (!entityName.length) entityName = @"Asset";
@@ -152,7 +200,7 @@
 
     return matchingItems;
     
-}
+}*/
 
 - (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender {
     Source *source = (Source *)[(NSTableCellView *)[sender superview] objectValue];
@@ -205,8 +253,8 @@
     
     if([self.sourcePopover isShown]) [self.sourcePopover close];
     
-    if (![outlineView isItemExpanded:item]) [outlineView expandItem:item];
-    else if ([[item representedObject] parent] == nil) [outlineView collapseItem:item];
+    if (![outlineView isItemExpanded:item]) [outlineView.animator expandItem:item];
+    else if ([[item representedObject] parent] == nil) [outlineView.animator collapseItem:item];
     return (!([[item representedObject] parent] == nil));
     
 }
@@ -220,12 +268,14 @@
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     NSInteger row = [self.document.sourceOutlineView selectedRow];
     if (row < 0) return;
-    
     NSTableCellView *view = [self.document.sourceOutlineView viewAtColumn:0 row:row makeIfNecessary:FALSE];
-    Source *source = view.objectValue;
+    
+    if (!view) return;
+
+    //    self.selectedSource = view.objectValue;
     
     AssetListViewController *controller = self.assetListViewControllers[self.selectedAssetListIndex];
-    controller.source = source;
+    controller.source = view.objectValue;
     
 //    NSView *assetListView = [self.sourceSplitView viewWithTag:1];
     
@@ -270,7 +320,210 @@
     
 }
 
-- (void)toggleSourceList:(id)sender {
+- (IBAction)newListPaneWithSource:(id)sender {
+    Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+    [self addAssetListPane:nil withSource:source];
+}
+
+- (IBAction)newSourceItem:(id)sender {
+    Source *clickedSource = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+    Source *parent;
+    NSString *entityName;
+    
+    if (clickedSource.folderType) {
+        entityName = clickedSource.folderType;
+        parent = clickedSource;
+    }
+    else {
+        entityName = clickedSource.entity.name;
+        parent = clickedSource.parent;
+    }
+    if ([entityName isEqualToString:@"BatchSource"]) {
+        [self addBatchSource:nil withSource:nil];
+        
+    }
+    else {
+        Source *newSource = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.document.managedObjectContext];
+        
+        if ([entityName isEqualToString:@"SearchSource"]) newSource.name = @"New Search";
+        else if ([entityName isEqualToString:@"PraxAssetSource"]) newSource.name = @"New Prax Asset";
+        else newSource.name = [NSString stringWithFormat:@"New %@", entityName];
+        newSource.parent = parent;
+        newSource.rowHeight = @30;
+        
+        [self.document.managedObjectContext processPendingChanges];
+        [self.document.sourceTreeController rearrangeObjects];
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            NSTreeNode *item = [self.document.sourceTreeController nodeOfObject:parent];
+            [self.sourceListOutlineView.animator expandItem:item expandChildren:YES];
+        });
+    }
+}
+
+
+
+- (IBAction)newSourceFolder:(id)sender {
+    Source *clickedSource = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+    Source *parent;
+    if ([clickedSource.entity.name isEqualToString:@"FolderSource"]) parent = clickedSource.parent;
+    else {
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"LibrarySource"];
+        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", @"Folders"]];
+        NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:nil];
+        if ([matchingItems count] > 0) parent = matchingItems[0];
+    }
+    
+    Source *newFolder = [NSEntityDescription insertNewObjectForEntityForName:@"FolderSource" inManagedObjectContext:self.document.managedObjectContext];
+    
+    newFolder.name = [NSString stringWithFormat:@"Folder with %@", clickedSource.name];
+    newFolder.parent = parent;
+    clickedSource.parent = newFolder;
+    newFolder.rowHeight = @30;
+    
+    [self.document.managedObjectContext processPendingChanges];
+    [self.document.sourceTreeController rearrangeObjects];
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        NSIndexPath *indexPath = [self.document.sourceTreeController indexPathOfObject:newFolder];
+        [self.document.sourceTreeController setSelectionIndexPath:indexPath];
+        NSTreeNode *item = [self.document.sourceTreeController nodeOfObject:parent];
+        [self.sourceListOutlineView.animator expandItem:item];
+        item = [self.document.sourceTreeController nodeOfObject:newFolder];
+        [self.sourceListOutlineView.animator expandItem:item];
+    });
+
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    
+    SEL action = [item action];
+    
+    if (action == @selector(delete:)) {
+        Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+        NSArray *dontDelete = @[@"LibrarySource", @"AccountSource", @"SubAccountSource"];
+        for (NSString *entityName in dontDelete) {
+            if ((!source) || ([entityName isEqualToString:source.entity.name])) {
+                [item setHidden:YES];
+                return NO;
+            }
+        }
+        [item setTitle:[NSString stringWithFormat:@"Delete %@", source.name]];
+        [item setHidden:NO];
+        return YES;
+    }
+    
+    else if (action == @selector(newListPaneWithSource:)) {
+        Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+        if ((!source) || ([source.entity.name isEqualToString:@"LibrarySource"])) {
+            [item setHidden:YES];
+            return NO;
+        }
+        
+        [item setTitle:[NSString stringWithFormat:@"Open New List Pane with %@", source.name]];
+        [item setHidden:NO];
+        return YES;
+    }
+    
+    else if (action == @selector(newSourceItem:)) {
+        Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+        
+        if ((!source) || ([source.name isEqualToString:@"Accounts"])) {
+            [item setHidden:YES];
+            return NO;
+        }
+
+        NSArray *dontShow = @[@"FolderSource", @"AccountSource", @"SubAccountSource"];
+        for (NSString *entityName in dontShow) {
+            if ([entityName isEqualToString:source.entity.name]) {
+                [item setHidden:YES];
+                return NO;
+            }
+        }
+        NSString *title;
+        if (source.folderType) title = source.folderType;
+        else title = source.entity.name;
+        if ([title isEqualToString:@"SearchSource"]) title = @"Search";
+        else if ([title isEqualToString:@"BatchSource"]) title = @"Batch";
+        else if ([title isEqualToString:@"PraxAssetSource"]) title = @"Prax Asset";
+        else if ([title isEqualToString:@"FolderSource"]) title = @"Folder";
+        title = [NSString stringWithFormat:@"New %@", title];
+        [item setTitle:title];
+        [item setHidden:NO];
+        return YES;
+    }
+    
+    else if (action == @selector(newSourceFolder:)) {
+        Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+
+        if ((!source) || ([source.name isEqualToString:@"Accounts"])) {
+            [item setHidden:YES];
+            return NO;
+        }
+        
+        NSArray *dontShow = @[@"LibrarySource", @"FolderSource", @"AccountSource", @"SubAccountSource"];
+        for (NSString *entityName in dontShow) {
+            if ([entityName isEqualToString:source.entity.name]) {
+                [item setHidden:YES];
+                return NO;
+            }
+        }
+        [item setTitle:[NSString stringWithFormat:@"New Folder with %@", source.name]];
+        [item setHidden:NO];
+        return YES;
+    }
+    
+    else {
+        [item setHidden:NO];
+        return YES;
+    }
+}
+
+
+
+- (IBAction)delete:(id)sender {
+    
+    Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
+    
+    NSAlert *alert = [NSAlert alertWithMessageText:@"Are you sure you want to delete this Source item?" defaultButton:@"Cancel" alternateButton:@"Delete" otherButton:nil informativeTextWithFormat:@"The Source item: %@ will be deleted if you press Delete!", source.name];
+    if (![alert runModal]) {
+        
+        [self.document.managedObjectContext deleteObject:source];
+        [self.document.managedObjectContext processPendingChanges];
+        [self.document.sourceTreeController rearrangeObjects];
+        
+    }
+}
+
+- (IBAction)newPraxAsset:(id)sender {
+
+    NSString *folderType = @"PraxAssetSource";
+    NSArray *librarySources = (NSArray *)[self.document.sourceTreeController.arrangedObjects childNodes];
+    
+    NSUInteger index = [librarySources indexOfObjectPassingTest:^BOOL(NSTreeNode *obj, NSUInteger idx, BOOL *stop) {
+        if ([[(Source *)obj.representedObject entity].name isEqualToString:@"LibrarySource"] && [[(Source *)obj.representedObject folderType] isEqualToString:folderType]) return YES;
+        else return NO;
+    }];
+    if (index != NSNotFound) {
+        Source *parent = [(NSTreeNode *)librarySources[index] representedObject];
+        [Source addPraxAssetSource:@"New Prax Asset" toParent:parent inManagedObjectContext:self.document.managedObjectContext];
+        [self.document.sourceTreeController rearrangeObjects];
+    }
+}
+
+
+
+
+-(BOOL)sourceListVisible {
+    if ([self.sourceSplitView isSubviewCollapsed:self.sourceListSubView]) return NO;
+    else if (self.sourceListSubView.frame.size.width < 10) return NO;
+    else return YES;
+    
+    
+    
+}
+
+- (IBAction)toggleSourceList:(id)sender {
     NSRect frame = self.sourceListSubView.frame;
     
     if ([self.sourceSplitView isSubviewCollapsed:self.sourceListSubView]) {
@@ -439,4 +692,137 @@
  }
 
 
+- (id <NSPasteboardWriting>)outlineView:(NSOutlineView *)outlineView pasteboardWriterForItem:(id)item
+{
+    Source *source = [item representedObject];
+    if (!source.parent) return nil;
+    if (([source.entity.name isEqualToString:@"AccountSource"] || [source.parent.entity.name isEqualToString:@"AccountSource"])) return nil;
+
+    if (!([source.parent.entity.name isEqualToString:@"FolderSource"] || [source.parent.entity.name isEqualToString:@"LibrarySource"])) return nil;
+
+    
+    NSURL *sourceURL = [source.objectID URIRepresentation];
+ 	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:sourceURL];
+    NSPasteboardItem *pasteboardItem = [[NSPasteboardItem alloc] init];
+	[pasteboardItem setData:data forType:@"org.ElmerCat.PraxPress.Source"];
+    return pasteboardItem;
+}
+
+
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id < NSDraggingInfo >)info proposedItem:(id)item proposedChildIndex:(NSInteger)index {
+    
+	if (![[info draggingSource] isEqualTo:self.sourceListOutlineView]) return NSDragOperationNone;
+
+    Source *proposedParent = [item representedObject];
+    if (!([proposedParent.entity.name isEqualToString:@"FolderSource"] || [proposedParent.entity.name isEqualToString:@"LibrarySource"])) return NSDragOperationNone;
+        
+    NSData *data = [[info draggingPasteboard] dataForType:@"org.ElmerCat.PraxPress.Source"];
+    NSURL *objectURL;
+    @try {
+        objectURL = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"NSKeyedUnarchiver exception %@", exception);
+        return NSDragOperationNone;
+    }
+    NSManagedObjectID *objectID = [self.document.managedObjectContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:objectURL];
+    Source *source = (Source *)[self.document.managedObjectContext existingObjectWithID:objectID error:NULL];
+    
+    if ([source isEqualTo:proposedParent]) return NSDragOperationNone;
+    if ([source.parent isEqualTo:proposedParent]) return NSDragOperationNone;
+    
+    if ([source.entity.name isEqualToString:@"FolderSource"]) {
+        
+        //   if (![source.folderType isEqualToString:proposedParent.folderType]) return NSDragOperationNone;
+        if (!([source.parent.entity.name isEqualToString:@"FolderSource"] || [source.parent.entity.name isEqualToString:@"LibrarySource"])) return NSDragOperationNone;
+    }
+    if ([proposedParent.entity.name isEqualToString:@"LibrarySource"]) {
+        if (![proposedParent.folderType isEqualToString:source.entity.name]) return NSDragOperationNone;
+    }
+//    else if (![source.entity.name isEqualToString:proposedParent.folderType]) return NSDragOperationNone;
+    
+    return (NSDragOperationEvery);
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id < NSDraggingInfo >)info item:(id)item childIndex:(NSInteger)index {
+    Source *destination = [item representedObject];
+    
+    if ([destination.entity.name isEqualToString:@"FolderSource"] || [destination.entity.name isEqualToString:@"LibrarySource"]) {
+        
+        NSURL *objectURL = [NSKeyedUnarchiver unarchiveObjectWithData:[[info draggingPasteboard] dataForType:@"org.ElmerCat.PraxPress.Source"]];
+        
+        NSManagedObjectID *objectID = [self.document.managedObjectContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:objectURL];
+        Source *source = (Source *)[self.document.managedObjectContext existingObjectWithID:objectID error:NULL];
+
+        
+        if ([source isEqualTo:destination]) return NO;
+
+//        if ([source.entity.name isEqualToString:@"FolderSource"] || [source.entity.name isEqualToString:@"LibrarySource"]) {
+//            if (![source.folderType isEqualToString:destination.folderType]) return NO;
+//        }
+//        else if (![source.entity.name isEqualToString:destination.folderType]) return NO;
+        
+        
+        Source *destinationParent = destination.parent;
+        while (destinationParent) {
+            if ([destinationParent isEqualTo:source]) {
+                return NO;
+            }
+            destinationParent = destinationParent.parent;
+        }
+        
+        source.parent = destination;
+        [self.document.sourceTreeController rearrangeObjects];
+        return YES;
+    
+    }
+  	return NO;
+}
+
+
+@end
+
+@implementation NSTreeController (Additions)
+
+- (NSTreeNode*)nodeOfObject:(id)anObject
+{
+    return [self nodeOfObject:anObject inNodes:(NSArray *)[[self arrangedObjects] childNodes]];
+}
+
+- (NSTreeNode*)nodeOfObject:(id)anObject inNodes:(NSArray*)nodes
+{
+    for(NSTreeNode* node in nodes)
+    {
+        if([[node representedObject] isEqual:anObject])
+            return node;
+        if([[node childNodes] count])
+        {
+            NSTreeNode* childNode = [self nodeOfObject:anObject inNodes:[node childNodes]];
+            if(childNode)
+                return childNode;
+        }
+    }
+    return nil;
+}
+
+- (NSIndexPath*)indexPathOfObject:(id)anObject
+{
+    return [self indexPathOfObject:anObject inNodes:(NSArray *)[[self arrangedObjects] childNodes]];
+}
+
+- (NSIndexPath*)indexPathOfObject:(id)anObject inNodes:(NSArray*)nodes
+{
+    for(NSTreeNode* node in nodes)
+    {
+        if([[node representedObject] isEqual:anObject])
+            return [node indexPath];
+        if([[node childNodes] count])
+        {
+            NSIndexPath* path = [self indexPathOfObject:anObject inNodes:[node childNodes]];
+            if(path)
+                return path;
+        }
+    }
+    return nil;
+}
 @end

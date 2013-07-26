@@ -8,10 +8,11 @@
 
 #import "Document.h"
 @class Asset;
+@class Template;
 
 @interface Source : NSManagedObject
 
-+(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder inManagedObjectContext:(NSManagedObjectContext*)moc;
++(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber*)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addSubAccountSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addSearchSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
@@ -32,11 +33,13 @@
 @property (nonatomic, retain) NSString *filterKey;
 @property (nonatomic, retain) NSNumber * sortOrder;
 @property (nonatomic, retain) NSNumber * rowHeight;
+@property (nonatomic, retain) NSString * folderType;
 
 @property (nonatomic, retain) Asset *account;
 @property (nonatomic, retain) Source *parent;
 @property (nonatomic, retain) NSOrderedSet *children;
 @property (nonatomic, retain) NSOrderedSet *batchAssets;
+@property (nonatomic, retain) Template *template;
 
 @end
 

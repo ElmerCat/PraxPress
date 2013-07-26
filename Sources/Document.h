@@ -9,6 +9,8 @@
 @import Foundation;
 @import Cocoa;
 @import WebKit;
+@import ScriptingBridge;
+#import "Safari.h"
 
 #import <OAuth2Client/NXOAuth2.h>
 
@@ -21,14 +23,19 @@
 #import "RequestController.h"
 #import "AssetMetadataPopover.h"
 #import "TemplateViewController.h"
+#import "TemplateController.h"
 
+@class TemplateController;
 @class SourceController;
 @class RequestController;
 
 @interface Document : NSPersistentDocument
 @property (strong) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
+@property (strong) IBOutlet NSPanel *templatesPanel;
+@property SafariDocument *safariDocument;
 
+@property (strong) IBOutlet TemplateController *templateController;
 @property (strong) IBOutlet SourceController *sourceController;
 @property (weak) IBOutlet NSSplitView *leftSplitView;
 @property (weak) IBOutlet NSView *assetsView;
@@ -72,9 +79,6 @@
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;
-
-- (IBAction)praxButtonPressed:(id)sender;
-- (IBAction)filterSelectedPane:(id)sender;
 
 @end
 

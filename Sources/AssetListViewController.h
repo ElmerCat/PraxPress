@@ -17,10 +17,18 @@
 @property (strong) IBOutlet NSArrayController *assetArrayController;
 @property (weak) IBOutlet NSButton *notSelectedButton;
 @property (weak) IBOutlet NSButton *selectedButton;
-- (IBAction)selectAssetListPane:(id)sender;
 @property (weak) IBOutlet NSSearchField *searchField;
 - (void)filterPane;
 - (IBAction)updateFilter:(id)sender;
+- (IBAction)viewerButtonPressed:(id)sender;
+- (IBAction)selectAssetListPane:(id)sender;
+@property (strong) IBOutlet NSWindow *assetListViewer;
+@property NSInteger viewerMode;
+@property (weak) IBOutlet WebView *webView;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+
+@property NSString *formattedCode;
+- (IBAction)templatesButtonPressed:(id)sender;
 
 @property (weak) IBOutlet NSScrollView *detailScrollView;
 @property (strong) IBOutlet NSView *defaultDetailView;

@@ -11,5 +11,6 @@
 @implementation Template
 @dynamic formatText;
 @dynamic name;
+@dynamic sources;
 
 @end

@@ -66,6 +66,54 @@
 }
 @end
 
+@implementation PraxNumberIsOneTransformer
+
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    float number = 0;
+    
+    if (value == nil) return nil;
+    if ([value respondsToSelector: @selector(floatValue)]) {
+        number = [value floatValue];
+    }
+    if (number == 1.0f) {
+        return [NSNumber numberWithBool:YES];
+    }
+    else {
+        return [NSNumber numberWithBool:NO];
+        
+    }
+}
+@end
+
+@implementation PraxNumberIsNotOneTransformer
+
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    float number = 0;
+    
+    if (value == nil) return nil;
+    if ([value respondsToSelector: @selector(floatValue)]) {
+        number = [value floatValue];
+    }
+    if (number == 1.0f) {
+        return [NSNumber numberWithBool:NO];
+    }
+    else {
+        return [NSNumber numberWithBool:YES];
+        
+    }
+}
+@end
+
 @implementation PraxNumberIsNotZeroTransformer
 
 + (Class)transformedValueClass {
@@ -145,7 +193,7 @@
 @end
 
 @implementation PraxAssetTagStringTransformer
-
+ 
 - (id)init {
     self = [super init];
     if (self) {

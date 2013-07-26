@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A510d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
@@ -78,7 +78,9 @@ Gw
                                                                 <constraint firstAttribute="height" priority="1" constant="230" id="473"/>
                                                                 <constraint firstAttribute="width" priority="1" constant="660" id="474"/>
                                                             </constraints>
-                                                            <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12"/>
+                                                            <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
+                                                                <nil key="identifier"/>
+                                                            </webPreferences>
                                                         </webView>
                                                     </subviews>
                                                     <constraints>

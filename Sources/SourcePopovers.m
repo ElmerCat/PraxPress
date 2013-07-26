@@ -44,16 +44,13 @@
 
         NSMutableArray *rowTemplates = [@[[[PraxPredicateEditorRowTemplate alloc] initWithCompoundTypes:@[@2, @1, @0]]] mutableCopy];
         
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"accountType"]]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"type"]]];
         [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithStringAttributeType] forAttributeType:NSStringAttributeType]];
-        
-        [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithNumberAttributeType] forAttributeType:NSInteger64AttributeType]];
-        
         [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"sharing"]]];
         [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"track_type"]]];
-        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"accountType"]]];
-        
         [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithDateAttributeType] forAttributeType:NSDateAttributeType]];
-        
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithNumberAttributeType] forAttributeType:NSInteger64AttributeType]];
         
         self.searchPredicateEditor.rowTemplates = rowTemplates;
         
@@ -61,10 +58,48 @@
                                                           object:[NXOAuth2AccountStore sharedStore]
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
-                                                          NSLog(@"UpdateController NXOAuth2AccountStoreAccountsDidChangeNotification");
+                                                          NSLog(@"SourcePopovers NXOAuth2AccountStoreAccountsDidChangeNotification");
                                                           if (self.authorizationPanel.isVisible) {
                                                               [self.authorizationPanel close];
                                                           }
+                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSRuleEditorRowsDidChangeNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *aNotification){
+                                                          
+                                                          NSLog(@"SourcePopovers NSRuleEditorRowsDidChangeNotification");
+                                                          
+                                                          /*         NSArray *rows = self.predicateEditor.rowTemplates;
+                                                           
+                                                           NSLog(@"self.predicateEditor.rowTemplates %@", rows);
+                                                           
+                                                           for (NSPredicateEditorRowTemplate *row in rows) {
+                                                           NSArray *views = row.templateViews;
+                                                           NSLog(@"row.templateViews %@", views);
+                                                           
+                                                           for (NSView *view in views) {
+                                                           if ([view isKindOfClass:[NSTextField class]]) {
+                                                           NSRect bounds = view.bounds;
+                                                           bounds.size.width = 40;
+                                                           [view setBounds:bounds];
+                                                           NSTextField *textfield = (NSTextField *)view;
+                                                           [textfield setBackgroundColor:[NSColor greenColor]];
+                                                           
+                                                           }
+                                                           }
+                                                           
+                                                           
+                                                           }
+                                                           */
+                                                          if (!self.predicateEditor.numberOfRows) [self.sourcePopover close];
+                                                          
+                                                          //   if ([aNotification object] == self.postEditorPanel) {
+                                                          //      [self.postEditor loadWebView];
+                                                          // }
+                                                          //        else NSLog(@"UpdateController NSWindowDidResignKeyNotification aNotification: %@", aNotification);
+                                                          
+                                                          
                                                       }];
 
      //   [self addObserver:self forKeyPath:@"self.source" options:NSKeyValueObservingOptionNew context:0];

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="Version0" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3381.3" systemVersion="13A497d" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="Version0" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2061" systemVersion="13A510d" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Account" representedClassName="Asset" parentEntity="Asset" syncable="YES">
-        <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="followers_count" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -17,6 +16,7 @@
     </entity>
     <entity name="AccountSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Asset" representedClassName="Asset" syncable="YES">
+        <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="artwork_url" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="asset_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="batchPosition" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -68,14 +68,16 @@
         <attribute name="fetchPredicate" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="filterKey" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="filterString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="folderType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="iconName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="rowHeight" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="sortOrder" optional="YES" attributeType="Integer 64" minValueString="0" defaultValueString="0" syncable="YES"/>
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="source" inverseEntity="Account" syncable="YES"/>
         <relationship name="batchAssets" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Asset" inverseName="batchSources" inverseEntity="Asset" syncable="YES"/>
-        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
+        <relationship name="template" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Template" inverseName="sources" inverseEntity="Template" syncable="YES"/>
     </entity>
     <entity name="SubAccountSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
@@ -85,29 +87,30 @@
     <entity name="Template" representedClassName="Template" syncable="YES">
         <attribute name="formatText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="sources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="template" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Track" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Video" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <elements>
-        <element name="Account" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="AccountSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
+        <element name="AccountSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Asset" positionX="0" positionY="0" width="128" height="540"/>
+        <element name="BatchSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="FolderSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Image" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="LibrarySource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Playlist" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="PraxAsset" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="PraxAssetSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="SearchSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Source" positionX="0" positionY="0" width="128" height="255"/>
+        <element name="SubAccountSource" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Tag" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="Template" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="Video" positionX="0" positionY="0" width="128" height="45"/>
     </elements>
 </model>

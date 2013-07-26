@@ -20,6 +20,12 @@
 @interface PraxPredicateToStringTransformer : NSValueTransformer
 @end
 
+@interface PraxNumberIsOneTransformer : NSValueTransformer
+@end
+
+@interface PraxNumberIsNotOneTransformer : NSValueTransformer
+@end
+
 @interface PraxNumberIsZeroTransformer : NSValueTransformer
 @end
 

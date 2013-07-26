@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A510d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="1070" defaultVersion="1080" identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
@@ -15,6 +15,7 @@
                 <action selector="openURLWithButtonTitle:" destination="dRM-C6-ntS" id="18Z-Cx-Er9"/>
                 <outlet property="authorizationPanel" destination="5qm-X5-tk8" id="rAR-bD-UKV"/>
                 <outlet property="authorizationWebView" destination="66n-W6-321" id="HfL-NM-rtK"/>
+                <outlet property="predicateEditor" destination="DvL-S4-CBA" id="xeI-Us-Zx4"/>
                 <outlet property="searchPredicateEditor" destination="DvL-S4-CBA" id="Ujl-CI-0wg"/>
                 <outlet property="sourceAccountPopoverView" destination="S4R-M9-xuK" id="aDC-Te-118"/>
                 <outlet property="sourcePopoverScrollView" destination="3x1-hu-qFx" id="dK7-oM-xcZ"/>
@@ -753,10 +754,10 @@
                                     <binding destination="-2" name="hidden" keyPath="self.document.requestController.busy" id="n5T-vV-738"/>
                                     <binding destination="-2" name="hidden2" keyPath="self.source.account.oauthAccount" previousBinding="n5T-vV-738" id="6Eq-Ok-oNZ">
                                         <dictionary key="options">
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">NSIsNil</string>
                                         </dictionary>
                                     </binding>
@@ -847,10 +848,10 @@
                                     </binding>
                                     <binding destination="-2" name="hidden2" keyPath="self.document.requestController.determinate" previousBinding="hg2-TE-EPq" id="Geg-nV-g6n">
                                         <dictionary key="options">
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">NSNegateBoolean</string>
                                         </dictionary>
                                     </binding>
@@ -1025,7 +1026,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView editable="NO" importsGraphics="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="cQD-En-f3Q">
-                                    <rect key="frame" x="0.0" y="0.0" width="389" height="375"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="389" height="337"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="textColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="backgroundColor" red="0.098039217293262482" green="0.098039217293262482" blue="0.098039217293262482" alpha="0.71999999999999997" colorSpace="calibratedRGB"/>
@@ -1513,37 +1514,6 @@ Gw
             <rect key="frame" x="0.0" y="0.0" width="508" height="353"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gnc-nX-LGH">
-                    <rect key="frame" x="17" y="311" width="96" height="22"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="96" id="Ko4-Qc-rXq"/>
-                    </constraints>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Search Source" id="4zF-zf-X4J">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="-2" name="value" keyPath="self.source.name" id="5ka-X8-EIT"/>
-                    </connections>
-                </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XJq-8c-bUB">
-                    <rect key="frame" x="14" y="10" width="71" height="11"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Fetch Predicate" id="qIi-9G-K5K">
-                        <font key="font" metaFont="miniSystem"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="-2" name="value" keyPath="self.source.fetchPredicate" id="OMW-jl-2va">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxPredicateToStringTransformer</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </textField>
                 <scrollView autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G25-jt-2zK">
                     <rect key="frame" x="17" y="66" width="471" height="238"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1594,22 +1564,55 @@ Gw
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gnc-nX-LGH">
+                    <rect key="frame" x="14" y="311" width="471" height="22"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="22" id="aSN-Ex-kXQ"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" alignment="center" title="Search Source" id="4zF-zf-X4J">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.name" id="5ka-X8-EIT"/>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XJq-8c-bUB">
+                    <rect key="frame" x="14" y="10" width="477" height="11"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" controlSize="mini" selectable="YES" sendsActionOnEndEditing="YES" title="Fetch Predicate" id="qIi-9G-K5K">
+                        <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.source.fetchPredicate" id="OMW-jl-2va">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">PraxPredicateToStringTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
             </subviews>
             <constraints>
-                <constraint firstItem="Gnc-nX-LGH" firstAttribute="leading" secondItem="XJq-8c-bUB" secondAttribute="leading" id="AcL-ii-DQN"/>
-                <constraint firstItem="XJq-8c-bUB" firstAttribute="top" secondItem="G25-jt-2zK" secondAttribute="bottom" constant="45" id="ArR-WO-ULP"/>
-                <constraint firstAttribute="trailing" secondItem="G25-jt-2zK" secondAttribute="trailing" constant="20" symbolic="YES" id="L6W-3X-lWV"/>
-                <constraint firstItem="G25-jt-2zK" firstAttribute="top" secondItem="Gnc-nX-LGH" secondAttribute="bottom" constant="7" id="O6x-yY-PWa"/>
-                <constraint firstItem="Gnc-nX-LGH" firstAttribute="top" secondItem="Aw6-60-e95" secondAttribute="top" constant="20" symbolic="YES" id="XFU-g2-WDo"/>
-                <constraint firstItem="XJq-8c-bUB" firstAttribute="leading" secondItem="Aw6-60-e95" secondAttribute="leading" constant="17" id="clq-qK-pn6"/>
-                <constraint firstItem="G25-jt-2zK" firstAttribute="leading" secondItem="Gnc-nX-LGH" secondAttribute="leading" id="tVx-oW-eG9"/>
-                <constraint firstAttribute="bottom" secondItem="XJq-8c-bUB" secondAttribute="bottom" constant="10" id="wkn-aY-gQe"/>
+                <constraint firstItem="G25-jt-2zK" firstAttribute="leading" secondItem="XJq-8c-bUB" secondAttribute="leading" id="5Fq-0Z-6Kc"/>
+                <constraint firstAttribute="trailing" secondItem="Gnc-nX-LGH" secondAttribute="trailing" constant="26" id="Hv0-yO-6qj"/>
+                <constraint firstItem="G25-jt-2zK" firstAttribute="trailing" secondItem="XJq-8c-bUB" secondAttribute="trailing" id="I0u-xc-grz"/>
+                <constraint firstItem="Gnc-nX-LGH" firstAttribute="leading" secondItem="Aw6-60-e95" secondAttribute="leading" constant="17" id="Lae-gO-w6b"/>
+                <constraint firstAttribute="trailing" secondItem="G25-jt-2zK" secondAttribute="trailing" constant="20" symbolic="YES" id="Vy7-Xh-IO1"/>
+                <constraint firstItem="G25-jt-2zK" firstAttribute="top" secondItem="Gnc-nX-LGH" secondAttribute="bottom" constant="7" id="es2-oH-X5U"/>
+                <constraint firstItem="XJq-8c-bUB" firstAttribute="top" secondItem="G25-jt-2zK" secondAttribute="bottom" constant="45" id="fTf-bJ-mBk"/>
+                <constraint firstItem="Gnc-nX-LGH" firstAttribute="top" secondItem="Aw6-60-e95" secondAttribute="top" constant="20" symbolic="YES" id="lIj-bw-yM6"/>
+                <constraint firstItem="Gnc-nX-LGH" firstAttribute="leading" secondItem="G25-jt-2zK" secondAttribute="leading" id="oUo-r1-xEu"/>
+                <constraint firstAttribute="bottom" secondItem="XJq-8c-bUB" secondAttribute="bottom" constant="10" id="ouN-Lh-ngj"/>
             </constraints>
         </customView>
     </objects>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
-        <image name="NSStopProgressFreestandingTemplate" width="12" height="12"/>
+        <image name="NSStopProgressFreestandingTemplate" width="83" height="83"/>
         <image name="NSUserAccounts" width="32" height="32"/>
         <image name="PraxPress" width="512" height="512"/>
         <image name="SoundCloudName138x29" width="138" height="29"/>

@@ -2,89 +2,85 @@
 //  TemplateController.m
 //  PraxPress
 //
-//  Created by John Canfield on 9/16/12.
-//  Copyright (c) 2012 ElmerCat. All rights reserved.
+//  Created by Elmer on 7/21/13.
+//  Copyright (c) 2013 ElmerCat. All rights reserved.
 //
 
-#import "TemplateViewController.h"
+#import "TemplateController.h"
 
-@implementation TemplateViewController
-+ (NSSet *)keyPathsForValuesAffectingGeneratedCode {
-    return [NSSet setWithObjects:@"self.assetBatchEditController.arrangedObjects", @"self.assetsController.selectedObjects", @"formatText", nil];
-}
+@implementation TemplateController
+
+
+- (NSArray *)keyPathsToObserve {return @[@"self.templatesController.selectionIndexes", @"self.assetListView", @"self.assetListView.source", @"self.assetListView.source.template"];}
 
 - (id)init {
     self = [super init];
     if (self) {
         NSLog(@"TemplateController init");
+        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
-        
-        //       [[NSSound soundNamed:@"Start"] play];
-        
-        //        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-        //       [notificationCenter addObserver:self
-        //                              selector:@selector(tracksNotification:)
-        //                                  name:tracksNotificationName object:nil];
-        //     [notificationCenter addObserver:self
-        //                          selector:@selector(undoNotification:)
-        //                            name:NSUndoManagerCheckpointNotification
-        //                        object:[[filesOwner managedObjectContext] undoManager]];
     }
     return self;
 }
 
-
-
 - (void)awakeFromNib {
-    
+    NSLog(@"TemplateController awakeFromNib");
     if (!self.awake) {
         self.awake = TRUE;
         
-        NSLog(@"TemplateController awakeFromNib");
-        
-        [[NSNotificationCenter defaultCenter] addObserverForName:@"ShowTemplatesNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
-            [self show:[aNotification object]];
-        }];
     }
 }
 
--(void)dealloc {
-    NSLog(@"dealloc TemplateController");
-    [self removeObserver:self forKeyPath:@"self.assetsController.selectedObjects"];
-    [self removeObserver:self forKeyPath:@"self.assetBatchEditController.arrangedObjects"];
+- (void)windowWillClose:(NSNotification *)notification {
+    self.assetListView = nil;
     
 }
-
-- (void)controlTextDidChange:(NSNotification *)aNotification {
-    NSLog(@"controlTextDidChange TemplateController");
-//        if( amDoingAutoComplete ){
-  //          return;
-    //    } else {
-      //      amDoingAutoComplete = YES;
-      //      [[[aNotification userInfo] objectForKey:@"NSFieldEditor"] complete:nil];
-        //}
+- (void)dealloc {
+    NSLog(@"TemplateController dealloc");
+    for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
 }
 
-
-- (IBAction)show:(id)sender {
-    [self.popover showRelativeToRect:[[sender superview] bounds] ofView:[sender superview] preferredEdge:NSMinYEdge];
-}
-
-- (NSArray *)control:(NSControl *)control textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {  
+    NSLog(@"TemplateController observeValueForKeyPath: %@", keyPath);
     
-    NSArray *completions = @[@"$$$title$$$", @"$$$uri$$$"];
+    if ([keyPath isEqualToString:@"self.templatesController.selectionIndexes"]) {
+        if (self.assetListView) {
+            if (self.assetListView.source) {
+                if ([self.templatesController.selectionIndexes count] > 0) {
+                    Template *selectedTemplate = self.templatesController.selectedObjects[0];
+                    if ([selectedTemplate isNotEqualTo:self.assetListView.source.template]) {
+                        self.assetListView.source.template = selectedTemplate;
+                    }
+                        
 
-    return completions;
-    
+                }
+            }
+        }
+    }
+    else {
+        if (self.assetListView) {
+            if (self.assetListView.source) {
+                if (self.assetListView.source.template) {
+                    Template *selectedTemplate = self.templatesController.selectedObjects[0];
+                    if ([selectedTemplate isNotEqualTo:self.assetListView.source.template]) {
+                        [self.templatesController setSelectedObjects:@[self.assetListView.source.template]];
+                    }
+
+                }
+            }
+        }
+    }
 }
+
+
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets {
     
     NSMutableString *code = [[NSMutableString alloc] initWithCapacity:1024];
     if (([assets count] > 0) &&  ([formatText length] > 0)){
-                for (Asset *asset in assets) {
-                    [code appendString:[TemplateViewController stringWithTemplate:formatText forAsset:asset]];
-                }
+        for (Asset *asset in assets) {
+            [code appendString:[TemplateController stringWithTemplate:formatText forAsset:asset]];
+        }
     }
     //   NSLog(@"code: %@", code);
     return code;
@@ -119,7 +115,7 @@
             sourceRange.length = (foundRange.location - sourceRange.location);
             
             NSString *key = [template substringWithRange:sourceRange];
-            NSString *value = [TemplateViewController valueOfItem:asset asStringForKey:key];
+            NSString *value = [TemplateController valueOfItem:asset asStringForKey:key];
             if ([value length] > 0) [string appendString:value];
             sourceRange.location = (foundRange.location + 3);
             sourceRange.length = ([template length] - sourceRange.location);
@@ -152,7 +148,10 @@
     }
 }
 
+
+
 - (IBAction)importTemplates:(id)sender {
+    
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     [panel setAllowedFileTypes:@[@"prax-templates"]];
     [panel setExtensionHidden:YES];
@@ -170,7 +169,7 @@
             for (NSDictionary *importTemplate in importTemplates) {
                 NSString *text = templates[importTemplate[@"name"]];
                 if (text.length <= 0) {
-                    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.document.managedObjectContext];
+                    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
                     template.name = importTemplate[@"name"];
                     template.formatText = importTemplate[@"formatText"];
                     [self.templatesController rearrangeObjects];
@@ -197,21 +196,8 @@
     }];
 }
 
-- (IBAction)duplicate:(id)sender {
-    if (self.templatesController.selectedObjects.count > 0) {
-        Template *selectedTemplate = self.templatesController.selectedObjects[0];
-        
-        Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.document.managedObjectContext];
-
-        template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
-        template.formatText = selectedTemplate.formatText;
-        [self.templatesController rearrangeObjects];
-        [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
-    }
-}
-
 - (IBAction)addTemplate:(id)sender {
-    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.filesOwner.document.managedObjectContext];
+    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
     template.name = @"NEW Template";
     template.formatText = @"<div>$$$title$$$</div>";
     [self.templatesController rearrangeObjects];
@@ -219,5 +205,17 @@
     
 }
 
+- (IBAction)duplicate:(id)sender {
+    if (self.templatesController.selectedObjects.count > 0) {
+        Template *selectedTemplate = self.templatesController.selectedObjects[0];
+        
+        Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
+        
+        template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
+        template.formatText = selectedTemplate.formatText;
+        [self.templatesController rearrangeObjects];
+        [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
+    }
+}
 
 @end

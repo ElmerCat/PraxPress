@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A510d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
@@ -25,7 +25,7 @@
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ypb-e1-rPA" userLabel="BatchSource">
                     <rect key="frame" x="0.0" y="1" width="382" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="BatchSource" id="pRL-h1-IPd">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="BatchSource" id="pRL-h1-IPd">
                         <font key="font" metaFont="smallSystemBold"/>
                         <color key="textColor" red="0.43921568630000002" green="0.4941176471" blue="0.54901960780000003" alpha="1" colorSpace="calibratedRGB"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -151,7 +151,7 @@
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WIk-F4-uAx">
                     <rect key="frame" x="0.0" y="14" width="88" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="SearchSource" id="sz7-Ua-2fO">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="SearchSource" id="sz7-Ua-2fO">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -192,13 +192,16 @@
             </constraints>
         </tableCellView>
         <tableCellView identifier="FolderSource" id="bCg-rm-sls" userLabel="FolderSource">
-            <rect key="frame" x="0.0" y="0.0" width="382" height="35"/>
+            <rect key="frame" x="0.0" y="0.0" width="382" height="26"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h5N-No-bGN">
-                    <rect key="frame" x="41" y="9" width="78" height="14"/>
+                    <rect key="frame" x="28" y="6" width="354" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="FolderSource" id="CSP-Nd-4Uj">
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="2Qk-WN-RtR"/>
+                    </constraints>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="FolderSource" id="CSP-Nd-4Uj">
                         <font key="font" metaFont="smallSystemBold"/>
                         <color key="textColor" red="0.43921568630000002" green="0.4941176471" blue="0.54901960780000003" alpha="1" colorSpace="calibratedRGB"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -208,16 +211,21 @@
                     </connections>
                 </textField>
                 <imageView translatesAutoresizingMaskIntoConstraints="NO" id="RPv-UM-C1g">
-                    <rect key="frame" x="3" y="0.0" width="32" height="32"/>
+                    <rect key="frame" x="3" y="3" width="20" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="4LA-rt-Tmt"/>
+                        <constraint firstAttribute="height" constant="20" id="5FB-OR-W51"/>
+                    </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSFolder" id="5VJ-cn-go3"/>
                 </imageView>
             </subviews>
             <constraints>
-                <constraint firstItem="h5N-No-bGN" firstAttribute="top" secondItem="bCg-rm-sls" secondAttribute="top" constant="12" id="IGP-V9-E2Q"/>
-                <constraint firstItem="RPv-UM-C1g" firstAttribute="top" secondItem="bCg-rm-sls" secondAttribute="top" constant="3" id="KA3-Sk-ogv"/>
-                <constraint firstItem="RPv-UM-C1g" firstAttribute="leading" secondItem="bCg-rm-sls" secondAttribute="leading" constant="3" id="iJZ-Tv-YaE"/>
-                <constraint firstItem="h5N-No-bGN" firstAttribute="leading" secondItem="RPv-UM-C1g" secondAttribute="trailing" constant="9" id="rhW-YF-dnT"/>
+                <constraint firstAttribute="trailing" secondItem="h5N-No-bGN" secondAttribute="trailing" constant="3" id="Qqg-48-7VP"/>
+                <constraint firstItem="RPv-UM-C1g" firstAttribute="leading" secondItem="bCg-rm-sls" secondAttribute="leading" constant="3" id="lqq-bX-moE"/>
+                <constraint firstItem="RPv-UM-C1g" firstAttribute="top" secondItem="bCg-rm-sls" secondAttribute="top" constant="3" id="tL5-Jd-r2x"/>
+                <constraint firstItem="h5N-No-bGN" firstAttribute="top" secondItem="bCg-rm-sls" secondAttribute="top" constant="6" id="uVb-Su-hSr"/>
+                <constraint firstItem="h5N-No-bGN" firstAttribute="leading" secondItem="RPv-UM-C1g" secondAttribute="trailing" constant="8" id="vgY-i5-aOO"/>
             </constraints>
             <connections>
                 <outlet property="textField" destination="h5N-No-bGN" id="xgH-My-JtP"/>
@@ -485,7 +493,7 @@
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YGH-mP-3fR">
                     <rect key="frame" x="0.0" y="14" width="107" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="PraxAssetSource" id="Bzx-52-ihJ">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="PraxAssetSource" id="Bzx-52-ihJ">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

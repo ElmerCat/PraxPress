@@ -10,8 +10,9 @@
 @import Cocoa;
 @import WebKit;
 
-#import "Source.h"
+#import "Document.h"
 @class Source;
+@class Document;
 @interface SourcePopovers : NSViewController
 
 @property BOOL awake;
@@ -30,5 +31,6 @@
 
 - (void)showPopoverForSource:(Source *)source sender:(id)sender preferredEdge:(NSRectEdge)preferredEdge;
 - (IBAction)openURLWithButtonTitle:(id)sender;
+@property (weak) IBOutlet NSPredicateEditor *predicateEditor;
 
 @end

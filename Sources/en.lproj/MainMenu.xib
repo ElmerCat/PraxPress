@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A510d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
@@ -16,12 +16,12 @@
                 <action selector="copy:" destination="197" id="224"/>
                 <action selector="cut:" destination="199" id="228"/>
                 <action selector="delete:" destination="202" id="235"/>
-                <action selector="download:" destination="541" id="542"/>
                 <action selector="filterSelectedPane:" destination="cSW-DL-0Fq" id="HDE-gj-DMe"/>
                 <action selector="hide:" destination="134" id="367"/>
                 <action selector="hideOtherApplications:" destination="145" id="368"/>
                 <action selector="lowercaseWord:" destination="452" id="455"/>
                 <action selector="newDocument:" destination="82" id="371"/>
+                <action selector="newPraxAsset:" destination="s6D-zn-Vn2" id="7hH-bJ-W2q"/>
                 <action selector="openDocument:" destination="72" id="372"/>
                 <action selector="orderFrontStandardAboutPanel:" destination="58" id="543"/>
                 <action selector="orderFrontSubstitutionsPanel:" destination="458" id="461"/>
@@ -39,6 +39,7 @@
                 <action selector="redo:" destination="215" id="231"/>
                 <action selector="revertDocumentToSaved:" destination="112" id="364"/>
                 <action selector="runPageLayout:" destination="77" id="87"/>
+                <action selector="runToolbarCustomizationPalette:" destination="saW-Dg-UUZ" id="AHb-w7-Gao"/>
                 <action selector="saveDocument:" destination="75" id="362"/>
                 <action selector="selectAll:" destination="198" id="232"/>
                 <action selector="showGuessPanel:" destination="204" id="230"/>
@@ -51,8 +52,14 @@
                 <action selector="toggleAutomaticSpellingCorrection:" destination="465" id="466"/>
                 <action selector="toggleAutomaticTextReplacement:" destination="462" id="463"/>
                 <action selector="toggleContinuousSpellChecking:" destination="219" id="222"/>
+                <action selector="toggleFullScreen:" destination="Nvi-bd-uso" id="8su-eP-NuV"/>
                 <action selector="toggleGrammarChecking:" destination="346" id="347"/>
                 <action selector="toggleSmartInsertDelete:" destination="350" id="355"/>
+                <action selector="toggleSourceList:" destination="Hsg-BR-ZGa" id="WkG-oM-BT8"/>
+                <action selector="toggleSourceList:" destination="G1b-r5-Xym" id="kOC-pq-qHR"/>
+                <action selector="toggleToolbarShown:" destination="P9W-Kh-xIm" id="1hM-Aw-PXU"/>
+                <action selector="toggleToolbarShown:" destination="Ccj-RA-mvZ" id="ITC-Gq-cp9"/>
+                <action selector="toggleToolbarShown:" destination="get-BB-h1P" id="a9E-L9-XXZ"/>
                 <action selector="undo:" destination="207" id="223"/>
                 <action selector="unhideAllApplications:" destination="150" id="370"/>
                 <action selector="uppercaseWord:" destination="451" id="456"/>
@@ -99,8 +106,32 @@
                 <menuItem title="File" id="83">
                     <menu key="submenu" title="File" id="81">
                         <items>
-                            <menuItem title="New" keyEquivalent="n" id="82"/>
-                            <menuItem title="Open…" keyEquivalent="o" id="72"/>
+                            <menuItem title="New Prax Asset..." keyEquivalent="n" id="s6D-zn-Vn2"/>
+                            <menuItem title="New Folder" id="bwO-hS-a8y">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="New Folder" id="qAS-ch-VHm">
+                                    <items>
+                                        <menuItem title="🔎 New Search Folder" keyEquivalent="N" id="QvC-4G-oGB"/>
+                                        <menuItem title="📒 New Batch Folder" keyEquivalent="n" id="5EQ-E5-jcJ">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                        </menuItem>
+                                        <menuItem title="☔️ New Prax Asset Folder" keyEquivalent="n" id="zN6-xF-cDK">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="New List Pane" keyEquivalent="t" id="Eal-1R-M7N"/>
+                            <menuItem title="Close List Pane" keyEquivalent="w" id="6Rc-aG-TfV"/>
+                            <menuItem isSeparatorItem="YES" id="79">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="New PraxPress Document" keyEquivalent="N" id="82">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                            </menuItem>
+                            <menuItem title="Open Document…" keyEquivalent="O" id="72">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                            </menuItem>
                             <menuItem title="Open Recent" id="124">
                                 <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="125">
                                     <items>
@@ -108,12 +139,11 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="79">
-                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            <menuItem title="Close Document" keyEquivalent="W" id="73">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                             </menuItem>
-                            <menuItem title="Close" keyEquivalent="w" id="73"/>
-                            <menuItem title="Save…" keyEquivalent="s" id="75"/>
-                            <menuItem title="Revert to Saved" id="112">
+                            <menuItem title="Save Document…" keyEquivalent="s" id="75"/>
+                            <menuItem title="Revert to Saved Document" id="112">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="74">
@@ -227,22 +257,25 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Server" id="534">
+                <menuItem title="View" id="GEN-Vj-wce">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Server" id="535">
+                    <menu key="submenu" title="View" id="qpH-lh-tWV">
                         <items>
-                            <menuItem title="Refresh User Data" id="536">
+                            <menuItem title="Show Source List" alternate="YES" keyEquivalent="o" id="G1b-r5-Xym"/>
+                            <menuItem title="Hide Source List" keyEquivalent="o" id="Hsg-BR-ZGa"/>
+                            <menuItem isSeparatorItem="YES" id="hdX-OT-z9X"/>
+                            <menuItem title="Show Toolbar" id="P9W-Kh-xIm">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Refresh Tracks" id="539">
+                            <menuItem title="Hide Toolbar" alternate="YES" id="get-BB-h1P">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Refresh Playlists" id="537">
+                            <menuItem title="Customize Toolbar..." id="saW-Dg-UUZ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="540"/>
-                            <menuItem title="Refresh All Data from Server" id="541">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem isSeparatorItem="YES" id="snt-X4-1bv"/>
+                            <menuItem title="Enter Full Screen" keyEquivalent="f" id="Nvi-bd-uso">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                             </menuItem>
                         </items>
                     </menu>
@@ -263,7 +296,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="492">
                         <items>
-                            <menuItem title="PraxPress Help" keyEquivalent="?" id="493"/>
+                            <menuItem title="PraxPress Help" enabled="NO" keyEquivalent="?" id="493"/>
                         </items>
                     </menu>
                 </menuItem>
@@ -273,20 +306,20 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="544" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES" utility="YES" texturedBackground="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="167" y="107" width="569" height="475"/>
+            <rect key="contentRect" x="167" y="107" width="652" height="475"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
             <view key="contentView" id="545">
-                <rect key="frame" x="0.0" y="0.0" width="569" height="475"/>
+                <rect key="frame" x="0.0" y="0.0" width="652" height="475"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <tabView type="noTabsBezelBorder" initialItem="653" translatesAutoresizingMaskIntoConstraints="NO" id="652">
-                        <rect key="frame" x="16" y="16" width="537" height="400"/>
+                        <rect key="frame" x="16" y="16" width="620" height="400"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="General" identifier="1" id="653">
                                 <view key="view" id="656">
-                                    <rect key="frame" x="10" y="7" width="517" height="380"/>
+                                    <rect key="frame" x="10" y="7" width="600" height="380"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="548">
@@ -325,6 +358,22 @@
                                                 </binding>
                                             </connections>
                                         </colorWell>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="X8O-gG-Ggv">
+                                            <rect key="frame" x="26" y="180" width="72" height="16"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EW2-7K-tmb">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="miniSystem"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="E1c-Fh-h92">
+                                            <rect key="frame" x="139" y="180" width="72" height="16"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="push" title="Revert" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5X7-aD-Mwo">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="miniSystem"/>
+                                            </buttonCell>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="548" firstAttribute="leading" secondItem="656" secondAttribute="leading" constant="14" id="692"/>
@@ -336,37 +385,96 @@
                             </tabViewItem>
                             <tabViewItem label="Accounts" identifier="2" id="654">
                                 <view key="view" id="655">
-                                    <rect key="frame" x="10" y="7" width="517" height="380"/>
+                                    <rect key="frame" x="10" y="7" width="600" height="380"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="577">
-                                            <rect key="frame" x="14" y="41" width="200" height="281"/>
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sae-Kn-Zx5">
+                                            <rect key="frame" x="222" y="323" width="96" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <clipView key="contentView" id="ijf-cA-z6i">
-                                                <rect key="frame" x="1" y="17" width="198" height="263"/>
+                                            <color key="color" red="1" green="0.0" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.sourceListRowPrimaryColor" id="1D9-0t-SNu">
+                                                    <dictionary key="options">
+                                                        <string key="NSValueTransformerName">NSUnarchiveFromData</string>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
+                                        </colorWell>
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QRl-ut-KXQ">
+                                            <rect key="frame" x="326" y="323" width="96" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="0.54000000000000004" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.sourceListRowSecondaryColor" id="vGj-DQ-e5G">
+                                                    <dictionary key="options">
+                                                        <string key="NSValueTransformerName">NSUnarchiveFromData</string>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
+                                        </colorWell>
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j03-vk-KbX">
+                                            <rect key="frame" x="430" y="323" width="96" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <color key="color" red="0.0" green="0.50196081399917603" blue="0.0" alpha="0.48999999999999999" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.sourceListRowBackgroundColor" id="GRt-wj-ATf">
+                                                    <dictionary key="options">
+                                                        <string key="NSValueTransformerName">NSUnarchiveFromData</string>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
+                                        </colorWell>
+                                        <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="577">
+                                            <rect key="frame" x="14" y="41" width="186" height="291"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <clipView key="contentView" ambiguous="YES" id="ijf-cA-z6i">
+                                                <rect key="frame" x="1" y="17" width="184" height="273"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="580" id="578">
-                                                        <rect key="frame" x="0.0" y="0.0" width="198" height="263"/>
+                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" rowSizeStyle="automatic" headerView="580" viewBased="YES" id="578">
+                                                        <rect key="frame" x="0.0" y="0.0" width="184" height="273"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                         <tableColumns>
-                                                            <tableColumn width="195.46875" minWidth="40" maxWidth="1000" id="582">
+                                                            <tableColumn width="181" minWidth="40" maxWidth="1000" id="582">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Service Name">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
-                                                                <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Name" placeholderString="Name" id="585">
+                                                                <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" continuous="YES" alignment="left" title="Name" placeholderString="Name" id="585">
                                                                     <font key="font" metaFont="system"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                                <prototypeCellViews>
+                                                                    <tableCellView id="Geg-KY-Ogm">
+                                                                        <rect key="frame" x="1" y="1" width="181" height="17"/>
+                                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                        <subviews>
+                                                                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yDv-3P-07R">
+                                                                                <rect key="frame" x="0.0" y="0.0" width="181" height="17"/>
+                                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="t8A-Pj-A05">
+                                                                                    <font key="font" metaFont="system"/>
+                                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                </textFieldCell>
+                                                                                <connections>
+                                                                                    <binding destination="Geg-KY-Ogm" name="value" keyPath="objectValue.name" id="4HT-Di-JTa"/>
+                                                                                </connections>
+                                                                            </textField>
+                                                                        </subviews>
+                                                                        <connections>
+                                                                            <outlet property="textField" destination="yDv-3P-07R" id="w5G-gT-lE6"/>
+                                                                        </connections>
+                                                                    </tableCellView>
+                                                                </prototypeCellViews>
                                                                 <connections>
-                                                                    <binding destination="6Zv-xe-Ll6" name="value" keyPath="arrangedObjects.name" id="KdT-Bv-mlz"/>
+                                                                    <binding destination="6Zv-xe-Ll6" name="value" keyPath="arrangedObjects.self" id="BF0-Jz-yfY"/>
                                                                 </connections>
                                                             </tableColumn>
                                                         </tableColumns>
@@ -379,8 +487,8 @@
                                                 </subviews>
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
-                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="579">
-                                                <rect key="frame" x="1" y="283" width="198" height="16"/>
+                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" id="579">
+                                                <rect key="frame" x="1" y="337" width="360" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="581">
@@ -388,7 +496,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="580">
-                                                <rect key="frame" x="0.0" y="0.0" width="198" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="184" height="17"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
@@ -423,8 +531,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="999">
-                                            <rect key="frame" x="222" y="301" width="281" height="22"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="999">
+                                            <rect key="frame" x="222" y="258" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="281" id="1006"/>
@@ -438,8 +546,8 @@
                                                 <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.name" id="foX-ix-I1Z"/>
                                             </connections>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1007">
-                                            <rect key="frame" x="219" y="331" width="89" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1007">
+                                            <rect key="frame" x="219" y="283" width="89" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="83" id="1012"/>
@@ -450,8 +558,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1014">
-                                            <rect key="frame" x="222" y="249" width="281" height="22"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1014">
+                                            <rect key="frame" x="222" y="220" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1016">
                                                 <font key="font" metaFont="system"/>
@@ -459,8 +567,8 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1024">
-                                            <rect key="frame" x="219" y="279" width="89" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1024">
+                                            <rect key="frame" x="219" y="241" width="89" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Client ID:" id="1026">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -468,8 +576,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1032">
-                                            <rect key="frame" x="222" y="197" width="281" height="22"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1032">
+                                            <rect key="frame" x="222" y="175" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1033">
                                                 <font key="font" metaFont="system"/>
@@ -477,8 +585,8 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1037">
-                                            <rect key="frame" x="219" y="227" width="89" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1037">
+                                            <rect key="frame" x="219" y="198" width="89" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Secret:" id="1039">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -486,8 +594,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1046">
-                                            <rect key="frame" x="222" y="145" width="281" height="22"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1046">
+                                            <rect key="frame" x="222" y="130" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="authorizationURL" drawsBackground="YES" id="1047">
                                                 <font key="font" metaFont="system"/>
@@ -495,8 +603,8 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1051">
-                                            <rect key="frame" x="222" y="93" width="281" height="22"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1051">
+                                            <rect key="frame" x="222" y="86" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1052">
                                                 <font key="font" metaFont="system"/>
@@ -504,7 +612,7 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1056">
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1056">
                                             <rect key="frame" x="222" y="41" width="281" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1057">
@@ -513,8 +621,8 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1062">
-                                            <rect key="frame" x="219" y="71" width="89" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1062">
+                                            <rect key="frame" x="219" y="64" width="89" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Redirect URL:" id="1064">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -522,8 +630,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1071">
-                                            <rect key="frame" x="219" y="123" width="89" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1071">
+                                            <rect key="frame" x="219" y="108" width="89" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Token URL:" id="1073">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -531,8 +639,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1081">
-                                            <rect key="frame" x="219" y="175" width="105" height="14"/>
+                                        <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1081">
+                                            <rect key="frame" x="219" y="153" width="105" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Authorization URL:" id="1083">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -545,53 +653,37 @@
                                         <constraint firstItem="597" firstAttribute="leading" secondItem="592" secondAttribute="trailing" constant="8" symbolic="YES" id="700"/>
                                         <constraint firstItem="896" firstAttribute="top" secondItem="655" secondAttribute="top" constant="23" id="901"/>
                                         <constraint firstItem="896" firstAttribute="leading" secondItem="655" secondAttribute="leading" constant="14" id="902"/>
-                                        <constraint firstItem="577" firstAttribute="leading" secondItem="655" secondAttribute="leading" constant="14" id="978"/>
                                         <constraint firstItem="592" firstAttribute="leading" secondItem="655" secondAttribute="leading" constant="14" id="982"/>
                                         <constraint firstAttribute="bottom" secondItem="597" secondAttribute="bottom" constant="11" id="983"/>
                                         <constraint firstAttribute="bottom" secondItem="592" secondAttribute="bottom" constant="11" id="984"/>
-                                        <constraint firstItem="592" firstAttribute="top" secondItem="577" secondAttribute="bottom" constant="8" symbolic="YES" id="993"/>
-                                        <constraint firstItem="999" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1003"/>
                                         <constraint firstAttribute="trailing" secondItem="999" secondAttribute="trailing" constant="14" id="1005"/>
                                         <constraint firstAttribute="trailing" secondItem="1014" secondAttribute="trailing" constant="14" id="1017"/>
-                                        <constraint firstItem="1014" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1019"/>
-                                        <constraint firstItem="1024" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1029"/>
                                         <constraint firstItem="1024" firstAttribute="trailing" secondItem="1007" secondAttribute="trailing" id="1030"/>
-                                        <constraint firstItem="1032" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1034"/>
                                         <constraint firstAttribute="trailing" secondItem="1032" secondAttribute="trailing" constant="14" id="1035"/>
-                                        <constraint firstItem="1037" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1042"/>
                                         <constraint firstItem="1037" firstAttribute="trailing" secondItem="1024" secondAttribute="trailing" id="1045"/>
-                                        <constraint firstItem="1046" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1048"/>
                                         <constraint firstAttribute="trailing" secondItem="1046" secondAttribute="trailing" constant="14" id="1050"/>
                                         <constraint firstAttribute="trailing" secondItem="1051" secondAttribute="trailing" constant="14" id="1053"/>
-                                        <constraint firstItem="1051" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1055"/>
-                                        <constraint firstItem="1056" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1058"/>
                                         <constraint firstAttribute="trailing" secondItem="1056" secondAttribute="trailing" constant="14" id="1060"/>
-                                        <constraint firstItem="577" firstAttribute="bottom" secondItem="1056" secondAttribute="bottom" id="1061"/>
-                                        <constraint firstItem="1062" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1067"/>
                                         <constraint firstItem="1056" firstAttribute="top" secondItem="1062" secondAttribute="bottom" constant="8" symbolic="YES" id="1068"/>
                                         <constraint firstItem="1062" firstAttribute="top" secondItem="1051" secondAttribute="bottom" constant="8" symbolic="YES" id="1070"/>
-                                        <constraint firstItem="1071" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1076"/>
                                         <constraint firstItem="1071" firstAttribute="trailing" secondItem="1037" secondAttribute="trailing" id="1077"/>
                                         <constraint firstItem="1051" firstAttribute="top" secondItem="1071" secondAttribute="bottom" constant="8" symbolic="YES" id="1078"/>
                                         <constraint firstItem="1071" firstAttribute="trailing" secondItem="1062" secondAttribute="trailing" id="1079"/>
                                         <constraint firstItem="1071" firstAttribute="top" secondItem="1046" secondAttribute="bottom" constant="8" symbolic="YES" id="1080"/>
                                         <constraint firstItem="1046" firstAttribute="top" secondItem="1081" secondAttribute="bottom" constant="8" symbolic="YES" id="1086"/>
-                                        <constraint firstItem="1081" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1087"/>
                                         <constraint firstItem="1081" firstAttribute="top" secondItem="1032" secondAttribute="bottom" constant="8" symbolic="YES" id="1088"/>
                                         <constraint firstItem="1032" firstAttribute="top" secondItem="1037" secondAttribute="bottom" constant="8" symbolic="YES" id="1089"/>
                                         <constraint firstItem="1037" firstAttribute="top" secondItem="1014" secondAttribute="bottom" constant="8" symbolic="YES" id="1090"/>
                                         <constraint firstItem="1014" firstAttribute="top" secondItem="1024" secondAttribute="bottom" constant="8" symbolic="YES" id="1091"/>
                                         <constraint firstItem="1024" firstAttribute="top" secondItem="999" secondAttribute="bottom" constant="8" symbolic="YES" id="1092"/>
-                                        <constraint firstItem="577" firstAttribute="top" secondItem="655" secondAttribute="top" constant="58" id="1093"/>
                                         <constraint firstItem="999" firstAttribute="top" secondItem="1007" secondAttribute="bottom" constant="8" symbolic="YES" id="1094"/>
-                                        <constraint firstItem="1007" firstAttribute="leading" secondItem="577" secondAttribute="trailing" constant="8" symbolic="YES" id="1095"/>
                                     </constraints>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Item 3" identifier="3" id="668">
                                 <view key="view" id="669">
                                     <rect key="frame" x="10" y="7" width="517" height="380"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="701">
                                             <rect key="frame" x="269" y="221" width="13" height="17"/>
@@ -632,105 +724,8 @@
                             </tabViewItem>
                             <tabViewItem label="Colors" identifier="5" id="672">
                                 <view key="view" id="673">
-                                    <rect key="frame" x="10" y="7" width="517" height="380"/>
+                                    <rect key="frame" x="10" y="7" width="600" height="380"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sae-Kn-Zx5">
-                                            <rect key="frame" x="407" y="331" width="96" height="34"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <color key="color" red="1" green="0.0" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
-                                            <connections>
-                                                <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.sourceListRowPrimaryColor" id="1D9-0t-SNu">
-                                                    <dictionary key="options">
-                                                        <string key="NSValueTransformerName">NSUnarchiveFromData</string>
-                                                    </dictionary>
-                                                </binding>
-                                            </connections>
-                                        </colorWell>
-                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QRl-ut-KXQ">
-                                            <rect key="frame" x="407" y="289" width="96" height="34"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="0.54000000000000004" colorSpace="calibratedRGB"/>
-                                            <connections>
-                                                <binding destination="6Zv-xe-Ll6" name="value" keyPath="selection.sourceListRowSecondaryColor" id="vGj-DQ-e5G">
-                                                    <dictionary key="options">
-                                                        <string key="NSValueTransformerName">NSUnarchiveFromData</string>
-                                                    </dictionary>
-                                                </binding>
-                                            </connections>
-                                        </colorWell>
-                                        <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFu-SQ-FD2">
-                                            <rect key="frame" x="14" y="84" width="200" height="281"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <clipView key="contentView" ambiguous="YES" id="Rlq-GT-S1R">
-                                                <rect key="frame" x="1" y="17" width="198" height="263"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="voW-Ii-tD9" id="srj-d9-mGr">
-                                                        <rect key="frame" x="0.0" y="0.0" width="198" height="263"/>
-                                                        <autoresizingMask key="autoresizingMask"/>
-                                                        <size key="intercellSpacing" width="3" height="2"/>
-                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
-                                                        <tableColumns>
-                                                            <tableColumn width="195.46875" minWidth="40" maxWidth="1000" id="IUN-4V-X1I">
-                                                                <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Service Name">
-                                                                    <font key="font" metaFont="smallSystem"/>
-                                                                    <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                                    <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
-                                                                </tableHeaderCell>
-                                                                <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Name" placeholderString="Name" id="Zdo-nk-S0i">
-                                                                    <font key="font" metaFont="system"/>
-                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                                </textFieldCell>
-                                                                <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                                <connections>
-                                                                    <binding destination="6Zv-xe-Ll6" name="value" keyPath="arrangedObjects.name" id="rJB-gq-bUK"/>
-                                                                </connections>
-                                                            </tableColumn>
-                                                        </tableColumns>
-                                                        <connections>
-                                                            <binding destination="6Zv-xe-Ll6" name="content" keyPath="arrangedObjects" id="Tqi-gF-HXY"/>
-                                                            <binding destination="6Zv-xe-Ll6" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="Tqi-gF-HXY" id="MsG-xG-teE"/>
-                                                            <binding destination="6Zv-xe-Ll6" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="MsG-xG-teE" id="gKE-26-qlF"/>
-                                                        </connections>
-                                                    </tableView>
-                                                </subviews>
-                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </clipView>
-                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="zTF-3L-4xR">
-                                                <rect key="frame" x="1" y="283" width="198" height="16"/>
-                                                <autoresizingMask key="autoresizingMask"/>
-                                            </scroller>
-                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" id="p0Q-xo-yaN">
-                                                <rect key="frame" x="224" y="17" width="15" height="102"/>
-                                                <autoresizingMask key="autoresizingMask"/>
-                                            </scroller>
-                                            <tableHeaderView key="headerView" id="voW-Ii-tD9">
-                                                <rect key="frame" x="0.0" y="0.0" width="198" height="17"/>
-                                                <autoresizingMask key="autoresizingMask"/>
-                                            </tableHeaderView>
-                                        </scrollView>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ltk-ai-A00">
-                                            <rect key="frame" x="264" y="343" width="138" height="11"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Source List Row Primary Color:" id="bAV-aE-2Wr">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kQZ-ob-4ch">
-                                            <rect key="frame" x="253" y="301" width="149" height="11"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Source List Row Secondary Color:" id="EYg-fH-dlY">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                    </subviews>
                                 </view>
                             </tabViewItem>
                         </tabViewItems>
@@ -795,18 +790,30 @@
                 <action selector="makeKeyAndOrderFront:" destination="129" id="555"/>
             </connections>
         </window>
-        <userDefaultsController id="552"/>
+        <userDefaultsController id="552">
+            <connections>
+                <action selector="revert:" destination="E1c-Fh-h92" id="b8L-0a-jPw"/>
+                <action selector="save:" destination="X8O-gG-Ggv" id="fPC-9L-XVv"/>
+            </connections>
+        </userDefaultsController>
         <arrayController automaticallyPreparesContent="YES" id="6Zv-xe-Ll6">
             <connections>
                 <action selector="insert:" destination="592" id="kJK-tS-CAl"/>
                 <action selector="remove:" destination="597" id="zMR-Xw-RXb"/>
-                <binding destination="552" name="contentArray" keyPath="values.accounts" id="B7v-cH-KBS">
+                <binding destination="hXE-yy-m3W" name="contentArray" keyPath="values.accounts" id="2M1-Ro-aF6">
                     <dictionary key="options">
                         <bool key="NSHandlesContentAsCompoundValue" value="YES"/>
                     </dictionary>
                 </binding>
             </connections>
         </arrayController>
+        <userDefaultsController id="hXE-yy-m3W"/>
+        <menuItem title="Item" id="4P6-9r-3JF">
+            <modifierMask key="keyEquivalentModifierMask"/>
+        </menuItem>
+        <menuItem title="Toolbar" id="Ccj-RA-mvZ">
+            <modifierMask key="keyEquivalentModifierMask"/>
+        </menuItem>
     </objects>
     <resources>
         <image name="NSAdvanced" width="32" height="32"/>
@@ -816,126 +823,10 @@
         <image name="NSUserAccounts" width="32" height="32"/>
     </resources>
     <classes>
-        <class className="AssetMetadataPopover" superclassName="NSViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/AssetMetadataPopover.h"/>
-            <relationships>
-                <relationship kind="outlet" name="dictionaryController" candidateClass="NSDictionaryController"/>
-                <relationship kind="outlet" name="popover" candidateClass="NSPopover"/>
-            </relationships>
-        </class>
-        <class className="ChangeValuesController" superclassName="NSViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ChangeValuesController.h"/>
-            <relationships>
-                <relationship kind="action" name="cancel:"/>
-                <relationship kind="action" name="change:"/>
-                <relationship kind="action" name="changeOptionSelected:"/>
-                <relationship kind="action" name="copy:"/>
-                <relationship kind="action" name="show:"/>
-                <relationship kind="action" name="tagSelected:"/>
-                <relationship kind="outlet" name="changeOptionsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="changeOptionsPopUpButton" candidateClass="NSPopUpButton"/>
-                <relationship kind="outlet" name="document" candidateClass="Document"/>
-                <relationship kind="outlet" name="keyField" candidateClass="NSComboBox"/>
-                <relationship kind="outlet" name="playlistSubTypesController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="popover" candidateClass="NSPopover"/>
-                <relationship kind="outlet" name="sharingTypesController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="trackSubTypesController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="valueCopyButton" candidateClass="NSButton"/>
-                <relationship kind="outlet" name="valueField" candidateClass="NSTextField"/>
-            </relationships>
-        </class>
-        <class className="Document" superclassName="NSPersistentDocument">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/Document.h"/>
-            <relationships>
-                <relationship kind="action" name="filterSelectedPane:"/>
-                <relationship kind="action" name="praxButtonPressed:"/>
-                <relationship kind="action" name="selectAccount:"/>
-                <relationship kind="outlet" name="accountViewPopover" candidateClass="NSPopover"/>
-                <relationship kind="outlet" name="accountsToolbarButton" candidateClass="NSToolbarItem"/>
-                <relationship kind="outlet" name="assetMetadataPopover" candidateClass="AssetMetadataPopover"/>
-                <relationship kind="outlet" name="assetsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="assetsTableView" candidateClass="NSTableView"/>
-                <relationship kind="outlet" name="assetsView" candidateClass="NSView"/>
-                <relationship kind="outlet" name="associatedAssetsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="associatedAssetsTableView" candidateClass="NSTableView"/>
-                <relationship kind="outlet" name="authorizationWindow" candidateClass="NSWindow"/>
-                <relationship kind="outlet" name="batchAssetsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="batchAssetsTableView" candidateClass="NSTableView"/>
-                <relationship kind="outlet" name="changedAssetsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="changedAssetsTableView" candidateClass="NSTableView"/>
-                <relationship kind="outlet" name="changedAssetsView" candidateClass="NSView"/>
-                <relationship kind="outlet" name="leftSplitView" candidateClass="NSSplitView"/>
-                <relationship kind="outlet" name="requestController" candidateClass="RequestController"/>
-                <relationship kind="outlet" name="sourceController" candidateClass="SourceController"/>
-                <relationship kind="outlet" name="sourceOutlineView" candidateClass="NSOutlineView"/>
-                <relationship kind="outlet" name="sourceTreeController" candidateClass="NSTreeController"/>
-                <relationship kind="outlet" name="tagController" candidateClass="TagController"/>
-                <relationship kind="outlet" name="tagsController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="templatesController" candidateClass="NSArrayController"/>
-                <relationship kind="outlet" name="webView" candidateClass="WebView"/>
-            </relationships>
-        </class>
         <class className="FirstResponder">
             <source key="sourceIdentifier" type="user"/>
             <relationships>
                 <relationship kind="action" name="duplicateDocument:"/>
-            </relationships>
-        </class>
-        <class className="RequestController" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RequestController.h"/>
-            <relationships>
-                <relationship kind="action" name="reloadChangedItems:"/>
-                <relationship kind="action" name="stop:"/>
-                <relationship kind="action" name="uploadChangedItems:"/>
-                <relationship kind="outlet" name="document" candidateClass="Document"/>
-                <relationship kind="outlet" name="progressBar" candidateClass="NSProgressIndicator"/>
-                <relationship kind="outlet" name="progressImageWell" candidateClass="NSImageView"/>
-                <relationship kind="outlet" name="synchronizePanel" candidateClass="NSPanel"/>
-                <relationship kind="outlet" name="tagController" candidateClass="TagController"/>
-                <relationship kind="outlet" name="updateControlsToolbarItem" candidateClass="NSToolbarItem"/>
-            </relationships>
-        </class>
-        <class className="SourceController" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/SourceController.h"/>
-            <relationships>
-                <relationship kind="action" name="filterSelectedPane:"/>
-                <relationship kind="action" name="sourceDetailsButtonPressedBottomEdge:"/>
-                <relationship kind="action" name="sourceDetailsButtonPressedRightEdge:"/>
-                <relationship kind="action" name="toolbarItemSelected:"/>
-                <relationship kind="outlet" name="document" candidateClass="Document"/>
-                <relationship kind="outlet" name="documentToolbar" candidateClass="NSToolbar"/>
-                <relationship kind="outlet" name="documentWindow" candidateClass="NSWindow"/>
-                <relationship kind="outlet" name="sourceListOutlineView" candidateClass="NSOutlineView"/>
-                <relationship kind="outlet" name="sourceListSubView" candidateClass="NSView"/>
-                <relationship kind="outlet" name="sourcePopover" candidateClass="NSPopover"/>
-                <relationship kind="outlet" name="sourcePopovers" candidateClass="SourcePopovers"/>
-                <relationship kind="outlet" name="sourceSplitView" candidateClass="NSSplitView"/>
-            </relationships>
-        </class>
-        <class className="SourcePopovers" superclassName="NSViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/SourcePopovers.h"/>
-            <relationships>
-                <relationship kind="action" name="doneButtonPressed:"/>
-                <relationship kind="action" name="loginButtonPressed:"/>
-                <relationship kind="action" name="openURLWithButtonTitle:"/>
-                <relationship kind="outlet" name="authorizationPanel" candidateClass="NSPanel"/>
-                <relationship kind="outlet" name="authorizationWebView" candidateClass="WebView"/>
-                <relationship kind="outlet" name="document" candidateClass="Document"/>
-                <relationship kind="outlet" name="searchPredicateEditor" candidateClass="NSPredicateEditor"/>
-                <relationship kind="outlet" name="sourcePopover" candidateClass="NSPopover"/>
-                <relationship kind="outlet" name="sourcePopoverScrollView" candidateClass="NSScrollView"/>
-            </relationships>
-        </class>
-        <class className="TagController" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TagController.h"/>
-            <relationships>
-                <relationship kind="outlet" name="document" candidateClass="Document"/>
-            </relationships>
-        </class>
-        <class className="WebView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/WebView.h"/>
-            <relationships>
-                <relationship kind="action" name="reloadFromOrigin:"/>
             </relationships>
         </class>
     </classes>

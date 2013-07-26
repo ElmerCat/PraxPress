@@ -12,12 +12,13 @@
 #import "Asset.h"
 #import "Template.h"
 #import "AssetController.h"
+#import "AssetListViewController.h"
 @class AssetController;
 
 @interface TemplateViewController : NSViewController
 
 @property BOOL awake;
-@property (weak) IBOutlet Document *filesOwner;
+@property (weak) IBOutlet AssetListViewController *filesOwner;
 @property (weak) IBOutlet NSPopover *popover;
 @property (weak) IBOutlet NSTableView *tableView;
 

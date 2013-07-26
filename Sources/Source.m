@@ -16,12 +16,14 @@
 @dynamic sortOrder;
 @dynamic fetchEntity;
 @dynamic rowHeight;
+@dynamic folderType;
 
 @dynamic fetchPredicate;
 @dynamic filterString;
 @dynamic filterKey;
 @dynamic account;
 @dynamic batchAssets;
+@dynamic template;
 
 
 - (NSArray *)childrenArray {
@@ -41,10 +43,11 @@
     
 }
 
-+(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder inManagedObjectContext:(NSManagedObjectContext*)moc{
++(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc{
     Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"LibrarySource" inManagedObjectContext:moc];
     child.name = name;
     child.sortOrder = sortOrder;
+    child.folderType = folderType;
     child.rowHeight = @20;
     return child;
 }

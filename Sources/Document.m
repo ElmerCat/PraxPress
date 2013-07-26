@@ -123,7 +123,7 @@
 - (void)windowWillClose:(NSNotification *)notification {
     NSLog(@"Document windowWillClose notification: %@", notification);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
+    [self.sourceController windowWillClose:notification];
     //  [self.tagController windowWillClose:notification];
 }
 
@@ -191,51 +191,11 @@
 	NSLog(@"callbackFromSpecialRequest %@ received %@", self, NSStringFromSelector(_cmd));
 }
 
-- (IBAction)praxButtonPressed:(id)sender {
-    NSLog(@"praxButtonPressed");
-    
-    NSSavePanel *panel = [NSSavePanel savePanel];
-    [panel setAllowedFileTypes:@[@"plist"]];
-    [panel setMessage:@"Export PraxPress User Defaults to File"];
-    [panel setNameFieldStringValue:@"PraxPress-Defaults"];
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] persistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            [dictionary writeToURL:panel.URL atomically:YES];
-        }
-    }];
-}
-
-- (IBAction)filterSelectedPane:(id)sender {
-    [self.sourceController filterSelectedPane:sender];
-    
-    
-}
-
 
 + (BOOL)autosavesInPlace
 {
     return YES;
 }
-
-/*-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem {
- NSLog(@"validateToolbarItem: %@", toolbarItem);
- 
- BOOL enable = NO;
- if ([[toolbarItem itemIdentifier] isEqual:NSToolbarShowColorsItemIdentifier]) {
- // We will return YES (enable the save item)
- // only when the document is dirty and needs saving
- enable = [self isDocumentEdited];
- } else if ([[toolbarItem itemIdentifier] isEqual:NSToolbarPrintItemIdentifier]) {
- // always enable print for this window
- enable = NO;
- }
- else if ([[toolbarItem itemIdentifier] isEqual:@"PraxButton"]) {
- enable = YES;
- }
- 
- return enable;
- }*/
 
 - (IBAction)selectAccount:(id)sender {
     NSLog(@"selectAccount sender.tag: %ld", [(NSMenuItem *)sender tag]);
@@ -300,5 +260,11 @@
  
  return effectiveRect;
  }*/
+
+
+- (NSPrintOperation *)printOperationWithSettings:(NSDictionary *)printSettings error:(NSError **)outError {
+    *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSServiceMiscellaneousError userInfo:@{NSLocalizedFailureReasonErrorKey:@"\n\nI'm sorry, but that feature is Not In Service at this time."}];
+    return nil;
+}
 
 @end

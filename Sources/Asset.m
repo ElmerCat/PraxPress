@@ -91,7 +91,7 @@
              @"track_count": @"Track Count",
              @"trackList": @"Track List",
              @"track_type": @"Track Type",
-             @"type": @"Type",
+             @"type": @"Asset Type",
              @"uri": @"Resource URI",
              @"user_id": @"User ID",
              @"username": @"Username"};
@@ -195,6 +195,17 @@
         if (item) [item setTitle:[Asset assetKeyLabels][key]];
         
     }
+    
+    NSControl *control = [[rowTemplate templateViews] lastObject];
+    NSRect controlFrame = control.frame;
+    if (attributeType == NSInteger64AttributeType) {
+        controlFrame.size.width = 60.0f;
+    }
+    else if (attributeType == NSStringAttributeType) {
+        controlFrame.size.width = 260.0f;
+    }
+    control.frame = controlFrame;
+    [control setContinuous:YES];
     return rowTemplate;
 }
 
@@ -214,7 +225,6 @@
              @"tag_list",
              @"title",
              @"trackList",
-             @"type",
              @"uri",
              @"user_id",
              @"username"];
@@ -234,7 +244,8 @@
 }
 
 +(NSDictionary *)assetKeysAndChoicesWithMultipleChoiceAttributeType {
-    return @{@"sharing": @[@"Public", @"Private"],
+    return @{@"type": @[@"post", @"page", @"track", @"playlist", @"image", @"video"],
+             @"sharing": @[@"Public", @"Private"],
              @"accountType":@[@"SoundCloud", @"WordPress", @"Flickr", @"YouTube"],
              @"track_type":@[@"one", @"two", @"three", @"four"]};
 }

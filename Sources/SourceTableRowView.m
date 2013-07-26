@@ -23,26 +23,27 @@
 - (void)drawBackgroundInRect:(NSRect)dirtyRect {
     
     
-    NSColor *primaryColor = [[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.5];
-    NSColor *secondarySelectedControlColor = [[NSColor secondarySelectedControlColor] colorWithAlphaComponent:0.5];
+    NSColor *backgroundColor = [[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.5];
     
     Source *source = [[self viewAtColumn:0] objectValue];
     NSDictionary *accountSettings = [(Document *)self.window.delegate settingsForAccount:source.name];
-    if (!accountSettings) accountSettings = [(Document *)self.window.delegate settingsForAccount:source.parent.name];
-    
+    if (!accountSettings) {
+        Source *parent = source.parent;
+        while (parent) {
+            accountSettings = [(Document *)self.window.delegate settingsForAccount:parent.name];
+            if (accountSettings) break;
+            parent = parent.parent;
+        }
+    }
     if (accountSettings) {
         NSData *data;
-        data = accountSettings[@"sourceListRowPrimaryColor"];
+        data = accountSettings[@"sourceListRowBackgroundColor"];
         if (data) {
-            primaryColor = [NSUnarchiver unarchiveObjectWithData:data];
-        }
-        data = accountSettings[@"sourceListRowSecondaryColor"];
-        if (data) {
-            secondarySelectedControlColor = [NSUnarchiver unarchiveObjectWithData:data];
+            backgroundColor = [NSUnarchiver unarchiveObjectWithData:data];
         }
     }
     
-    [secondarySelectedControlColor set];
+    [backgroundColor set];
     NSRect bounds = self.bounds;
     const NSRect *rects = NULL;
     NSInteger count = 0;
@@ -61,6 +62,14 @@
     
     Source *source = [[self viewAtColumn:0] objectValue];
     NSDictionary *accountSettings = [(Document *)self.window.delegate settingsForAccount:source.name];
+    if (!accountSettings) {
+        Source *parent = source.parent;
+        while (parent) {
+            accountSettings = [(Document *)self.window.delegate settingsForAccount:parent.name];
+            if (accountSettings) break;
+            parent = parent.parent;
+        }
+    }
     
     if (accountSettings) {
         NSData *data;

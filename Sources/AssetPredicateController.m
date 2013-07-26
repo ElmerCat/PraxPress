@@ -25,9 +25,9 @@
                                                            queue:nil
                                                       usingBlock:^(NSNotification *aNotification){
                                                           
-                                                 /*         NSLog(@"AssetPredicateController NSRuleEditorRowsDidChangeNotification");
+                                                          NSLog(@"AssetPredicateController NSRuleEditorRowsDidChangeNotification");
                                                           
-                                                          NSArray *rows = self.predicateEditor.rowTemplates;
+                                                 /*         NSArray *rows = self.predicateEditor.rowTemplates;
                                                           
                                                           NSLog(@"self.predicateEditor.rowTemplates %@", rows);
                                                           
