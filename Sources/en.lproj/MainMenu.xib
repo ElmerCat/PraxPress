@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A510d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A524d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
@@ -388,7 +388,7 @@
                                     <rect key="frame" x="10" y="7" width="600" height="380"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sae-Kn-Zx5">
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sae-Kn-Zx5" customClass="AlphaColorWell">
                                             <rect key="frame" x="222" y="323" width="96" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <color key="color" red="1" green="0.0" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
@@ -400,7 +400,7 @@
                                                 </binding>
                                             </connections>
                                         </colorWell>
-                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QRl-ut-KXQ">
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QRl-ut-KXQ" customClass="AlphaColorWell">
                                             <rect key="frame" x="326" y="323" width="96" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="0.54000000000000004" colorSpace="calibratedRGB"/>
@@ -412,7 +412,7 @@
                                                 </binding>
                                             </connections>
                                         </colorWell>
-                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j03-vk-KbX">
+                                        <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j03-vk-KbX" customClass="AlphaColorWell">
                                             <rect key="frame" x="430" y="323" width="96" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <color key="color" red="0.0" green="0.50196081399917603" blue="0.0" alpha="0.48999999999999999" colorSpace="calibratedRGB"/>
@@ -823,10 +823,150 @@
         <image name="NSUserAccounts" width="32" height="32"/>
     </resources>
     <classes>
+        <class className="AlphaColorWell" superclassName="NSColorWell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/AlphaColorWell.h"/>
+        </class>
+        <class className="AssetMetadataPopover" superclassName="NSViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/AssetMetadataPopover.h"/>
+            <relationships>
+                <relationship kind="outlet" name="dictionaryController" candidateClass="NSDictionaryController"/>
+                <relationship kind="outlet" name="popover" candidateClass="NSPopover"/>
+            </relationships>
+        </class>
+        <class className="ChangeValuesController" superclassName="NSViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/ChangeValuesController.h"/>
+            <relationships>
+                <relationship kind="action" name="cancel:"/>
+                <relationship kind="action" name="change:"/>
+                <relationship kind="action" name="changeOptionSelected:"/>
+                <relationship kind="action" name="copy:"/>
+                <relationship kind="action" name="show:"/>
+                <relationship kind="action" name="tagSelected:"/>
+                <relationship kind="outlet" name="changeOptionsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="changeOptionsPopUpButton" candidateClass="NSPopUpButton"/>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+                <relationship kind="outlet" name="keyField" candidateClass="NSComboBox"/>
+                <relationship kind="outlet" name="playlistSubTypesController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="popover" candidateClass="NSPopover"/>
+                <relationship kind="outlet" name="sharingTypesController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="trackSubTypesController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="valueCopyButton" candidateClass="NSButton"/>
+                <relationship kind="outlet" name="valueField" candidateClass="NSTextField"/>
+            </relationships>
+        </class>
+        <class className="Document" superclassName="NSPersistentDocument">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Document.h"/>
+            <relationships>
+                <relationship kind="action" name="praxButtonPressed:"/>
+                <relationship kind="action" name="selectAccount:"/>
+                <relationship kind="outlet" name="accountViewPopover" candidateClass="NSPopover"/>
+                <relationship kind="outlet" name="accountsToolbarButton" candidateClass="NSToolbarItem"/>
+                <relationship kind="outlet" name="assetMetadataPopover" candidateClass="AssetMetadataPopover"/>
+                <relationship kind="outlet" name="assetsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="assetsTableView" candidateClass="NSTableView"/>
+                <relationship kind="outlet" name="assetsView" candidateClass="NSView"/>
+                <relationship kind="outlet" name="associatedAssetsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="associatedAssetsTableView" candidateClass="NSTableView"/>
+                <relationship kind="outlet" name="authorizationWindow" candidateClass="NSWindow"/>
+                <relationship kind="outlet" name="batchAssetsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="batchAssetsTableView" candidateClass="NSTableView"/>
+                <relationship kind="outlet" name="changedAssetsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="changedAssetsTableView" candidateClass="NSTableView"/>
+                <relationship kind="outlet" name="changedAssetsView" candidateClass="NSView"/>
+                <relationship kind="outlet" name="leftSplitView" candidateClass="NSSplitView"/>
+                <relationship kind="outlet" name="requestController" candidateClass="RequestController"/>
+                <relationship kind="outlet" name="sourceController" candidateClass="SourceController"/>
+                <relationship kind="outlet" name="sourceOutlineView" candidateClass="NSOutlineView"/>
+                <relationship kind="outlet" name="sourceTreeController" candidateClass="NSTreeController"/>
+                <relationship kind="outlet" name="tagController" candidateClass="TagController"/>
+                <relationship kind="outlet" name="tagsController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="templateController" candidateClass="TemplateController"/>
+                <relationship kind="outlet" name="templatesController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="templatesPanel" candidateClass="NSPanel"/>
+                <relationship kind="outlet" name="webView" candidateClass="WebView"/>
+            </relationships>
+        </class>
         <class className="FirstResponder">
             <source key="sourceIdentifier" type="user"/>
             <relationships>
                 <relationship kind="action" name="duplicateDocument:"/>
+            </relationships>
+        </class>
+        <class className="RequestController" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RequestController.h"/>
+            <relationships>
+                <relationship kind="action" name="reloadChangedItems:"/>
+                <relationship kind="action" name="stop:"/>
+                <relationship kind="action" name="uploadChangedItems:"/>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+                <relationship kind="outlet" name="progressBar" candidateClass="NSProgressIndicator"/>
+                <relationship kind="outlet" name="progressImageWell" candidateClass="NSImageView"/>
+                <relationship kind="outlet" name="synchronizePanel" candidateClass="NSPanel"/>
+                <relationship kind="outlet" name="tagController" candidateClass="TagController"/>
+                <relationship kind="outlet" name="updateControlsToolbarItem" candidateClass="NSToolbarItem"/>
+            </relationships>
+        </class>
+        <class className="SourceController" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/SourceController.h"/>
+            <relationships>
+                <relationship kind="action" name="delete:"/>
+                <relationship kind="action" name="filterSelectedPane:"/>
+                <relationship kind="action" name="newListPaneWithSource:"/>
+                <relationship kind="action" name="newPraxAsset:"/>
+                <relationship kind="action" name="newSourceFolder:"/>
+                <relationship kind="action" name="newSourceItem:"/>
+                <relationship kind="action" name="sourceDetailsButtonPressedBottomEdge:"/>
+                <relationship kind="action" name="sourceDetailsButtonPressedRightEdge:"/>
+                <relationship kind="action" name="toggleSourceList:"/>
+                <relationship kind="action" name="toolbarItemSelected:"/>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+                <relationship kind="outlet" name="documentToolbar" candidateClass="NSToolbar"/>
+                <relationship kind="outlet" name="documentWindow" candidateClass="NSWindow"/>
+                <relationship kind="outlet" name="sourceListOutlineView" candidateClass="NSOutlineView"/>
+                <relationship kind="outlet" name="sourceListSubView" candidateClass="NSView"/>
+                <relationship kind="outlet" name="sourcePopover" candidateClass="NSPopover"/>
+                <relationship kind="outlet" name="sourcePopovers" candidateClass="SourcePopovers"/>
+                <relationship kind="outlet" name="sourceSplitView" candidateClass="NSSplitView"/>
+            </relationships>
+        </class>
+        <class className="SourcePopovers" superclassName="NSViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/SourcePopovers.h"/>
+            <relationships>
+                <relationship kind="action" name="doneButtonPressed:"/>
+                <relationship kind="action" name="loginButtonPressed:"/>
+                <relationship kind="action" name="openURLWithButtonTitle:"/>
+                <relationship kind="outlet" name="authorizationPanel" candidateClass="NSPanel"/>
+                <relationship kind="outlet" name="authorizationWebView" candidateClass="WebView"/>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+                <relationship kind="outlet" name="predicateEditor" candidateClass="NSPredicateEditor"/>
+                <relationship kind="outlet" name="searchPredicateEditor" candidateClass="NSPredicateEditor"/>
+                <relationship kind="outlet" name="sourcePopover" candidateClass="NSPopover"/>
+                <relationship kind="outlet" name="sourcePopoverScrollView" candidateClass="NSScrollView"/>
+            </relationships>
+        </class>
+        <class className="TagController" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TagController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+            </relationships>
+        </class>
+        <class className="TemplateController" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TemplateController.h"/>
+            <relationships>
+                <relationship kind="action" name="addTemplate:"/>
+                <relationship kind="action" name="duplicate:"/>
+                <relationship kind="action" name="exportTemplates:"/>
+                <relationship kind="action" name="importTemplates:"/>
+                <relationship kind="outlet" name="document" candidateClass="Document"/>
+                <relationship kind="outlet" name="tableView" candidateClass="NSTableView"/>
+                <relationship kind="outlet" name="templatesController" candidateClass="NSArrayController"/>
+                <relationship kind="outlet" name="textView" candidateClass="NSTextView"/>
+            </relationships>
+        </class>
+        <class className="WebView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/WebView.h"/>
+            <relationships>
+                <relationship kind="action" name="reloadFromOrigin:"/>
             </relationships>
         </class>
     </classes>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="Version0" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2061" systemVersion="13A510d" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="Version0" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3381.3" systemVersion="13A524d" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Account" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
@@ -62,6 +62,9 @@
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="PraxAsset" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="PraxAssetSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
+    <entity name="PraxPressDocument" representedClassName="PraxPressDocument" syncable="YES">
+        <attribute name="rootCodeDirectory" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="SearchSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Source" representedClassName="Source" syncable="YES">
         <attribute name="fetchEntity" optional="YES" attributeType="String" syncable="YES"/>
@@ -69,6 +72,7 @@
         <attribute name="filterKey" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="filterString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="folderType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="formattedCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="iconName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="rowHeight" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -94,23 +98,24 @@
     </entity>
     <entity name="Video" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <elements>
-        <element name="Account" positionX="0" positionY="0" width="128" height="225"/>
-        <element name="AccountSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Asset" positionX="0" positionY="0" width="128" height="540"/>
-        <element name="BatchSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="FolderSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Image" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="LibrarySource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Playlist" positionX="0" positionY="0" width="128" height="90"/>
-        <element name="Post" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="PraxAsset" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="PraxAssetSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="SearchSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Source" positionX="0" positionY="0" width="128" height="255"/>
-        <element name="SubAccountSource" positionX="0" positionY="0" width="128" height="45"/>
-        <element name="Tag" positionX="0" positionY="0" width="128" height="75"/>
-        <element name="Template" positionX="0" positionY="0" width="128" height="90"/>
-        <element name="Track" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="Video" positionX="0" positionY="0" width="128" height="45"/>
+        <element name="Account" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="AccountSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PraxPressDocument" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

@@ -17,6 +17,7 @@
 @dynamic fetchEntity;
 @dynamic rowHeight;
 @dynamic folderType;
+@dynamic formattedCode;
 
 @dynamic fetchPredicate;
 @dynamic filterString;

@@ -289,10 +289,19 @@
     return ([[item representedObject] parent] == nil);
 }
 
+- (NSDictionary *)sourceRowHeights {
+    return @{@"LibrarySource":@20, @"AccountSource":@40, @"SubAccountSource":@20, @"SearchSource":@50, @"BatchSource":@40, @"FolderSource":@30, @"PraxAssetSource":@100};
+    
+}
+
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
+    
     Source *source = [item representedObject];
     
-    return source.rowHeight.doubleValue;
+    NSNumber *height = self.sourceRowHeights[source.entity.name];
+    
+    if (!height) return 50;
+    else return height.doubleValue;
     
 /*    if (source.parent == nil) {
         
@@ -300,9 +309,10 @@
         
     }
     else {
-        return 40;
+        return source.rowHeight.doubleValue;
         
-    }*/
+    }
+*/
 }
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {

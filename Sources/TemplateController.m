@@ -218,4 +218,11 @@
     }
 }
 
+- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {
+    if (proposedPosition < 100) return 100;
+    else if (proposedPosition > (splitView.frame.size.width - 100)) return splitView.frame.size.width - 100;
+    else return proposedPosition;
+}
+
+
 @end

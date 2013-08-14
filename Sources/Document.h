@@ -14,7 +14,9 @@
 
 #import <OAuth2Client/NXOAuth2.h>
 
+#import "PraxCategories.h"
 #import "PraxTransformers.h"
+#import "PraxPressDocument.h"
 #import "Asset.h"
 #import "Source.h"
 #import "SourceController.h"
@@ -30,6 +32,7 @@
 @class RequestController;
 
 @interface Document : NSPersistentDocument
+@property PraxPressDocument *praxPressDocument;
 @property (strong) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
 @property (strong) IBOutlet NSPanel *templatesPanel;

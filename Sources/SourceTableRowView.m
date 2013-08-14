@@ -20,46 +20,52 @@
     return self;
 }
 
-- (void)drawBackgroundInRect:(NSRect)dirtyRect {
+/*- (void)drawBackgroundInRect:(NSRect)dirtyRect {
     
     
     NSColor *backgroundColor = [[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.5];
     
     Source *source = [[self viewAtColumn:0] objectValue];
-    NSDictionary *accountSettings = [(Document *)self.window.delegate settingsForAccount:source.name];
-    if (!accountSettings) {
-        Source *parent = source.parent;
-        while (parent) {
-            accountSettings = [(Document *)self.window.delegate settingsForAccount:parent.name];
-            if (accountSettings) break;
-            parent = parent.parent;
+    if (source.parent) {
+        
+        NSDictionary *accountSettings = [(Document *)self.window.delegate settingsForAccount:source.name];
+        if (!accountSettings) {
+            Source *parent = source.parent;
+            while (parent) {
+                accountSettings = [(Document *)self.window.delegate settingsForAccount:parent.name];
+                if (accountSettings) break;
+                parent = parent.parent;
+            }
         }
-    }
-    if (accountSettings) {
-        NSData *data;
-        data = accountSettings[@"sourceListRowBackgroundColor"];
-        if (data) {
-            backgroundColor = [NSUnarchiver unarchiveObjectWithData:data];
+        if (accountSettings) {
+            NSData *data;
+            data = accountSettings[@"sourceListRowBackgroundColor"];
+            if (data) {
+                backgroundColor = [NSUnarchiver unarchiveObjectWithData:data];
+            }
         }
-    }
-    
-    [backgroundColor set];
-    NSRect bounds = self.bounds;
-    const NSRect *rects = NULL;
-    NSInteger count = 0;
-    [self getRectsBeingDrawn:&rects count:&count];
-    for (NSInteger i = 0; i < count; i++) {
-        NSRect rect = NSIntersectionRect(bounds, rects[i]);
-        NSRectFillUsingOperation(rect, NSCompositeSourceOver);
+        
+        [backgroundColor set];
+        NSRect bounds = self.bounds;
+        bounds.origin.x += 18;
+        bounds.size.width -=18;
+        const NSRect *rects = NULL;
+        NSInteger count = 0;
+        [self getRectsBeingDrawn:&rects count:&count];
+        for (NSInteger i = 0; i < count; i++) {
+            NSRect rect = NSIntersectionRect(bounds, rects[i]);
+            NSRectFillUsingOperation(rect, NSCompositeSourceOver);
+        }
     }
 }
+*/
 
-- (void)drawSelectionInRect:(NSRect)dirtyRect {
+/*- (void)drawSelectionInRect:(NSRect)dirtyRect {
     
     
-    NSColor *primaryColor = [[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.5];
-    NSColor *secondarySelectedControlColor = [[NSColor secondarySelectedControlColor] colorWithAlphaComponent:0.5];
-    
+    NSColor *primaryColor = [[NSColor alternateSelectedControlColor] colorWithAlphaComponent:1.0];
+    NSColor *secondarySelectedControlColor = [[NSColor secondarySelectedControlColor] colorWithAlphaComponent:1.0];
+
     Source *source = [[self viewAtColumn:0] objectValue];
     NSDictionary *accountSettings = [(Document *)self.window.delegate settingsForAccount:source.name];
     if (!accountSettings) {
@@ -83,6 +89,7 @@
         }
     }
     
+ 
     switch (self.selectionHighlightStyle) {
         case NSTableViewSelectionHighlightStyleSourceList: {
             if (self.selected) {
@@ -92,6 +99,8 @@
                     [secondarySelectedControlColor set];
                 }
                 NSRect bounds = self.bounds;
+                bounds.origin.x += 15;
+                bounds.size.width -=25;
                 const NSRect *rects = NULL;
                 NSInteger count = 0;
                 [self getRectsBeingDrawn:&rects count:&count];
@@ -108,6 +117,6 @@
             break;
         }
     }
-}
+}*/
 
 @end

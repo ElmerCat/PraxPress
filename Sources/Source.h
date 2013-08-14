@@ -34,6 +34,7 @@
 @property (nonatomic, retain) NSNumber * sortOrder;
 @property (nonatomic, retain) NSNumber * rowHeight;
 @property (nonatomic, retain) NSString * folderType;
+@property (nonatomic, retain) NSString * formattedCode;
 
 @property (nonatomic, retain) Asset *account;
 @property (nonatomic, retain) Source *parent;

@@ -66,6 +66,7 @@
     [self.managedObjectContext processPendingChanges];
     [[self.managedObjectContext undoManager] disableUndoRegistration];
     
+    self.praxPressDocument = [NSEntityDescription insertNewObjectForEntityForName:@"PraxPressDocument" inManagedObjectContext:self.managedObjectContext];
     
     [SourceController initWithType:typeName inManagedObjectContext:self.managedObjectContext];
     
@@ -134,14 +135,8 @@
 - (NSDictionary *)settingsForAccount:(NSString *)name {
     if (!self.accountsSettings) self.accountsSettings = [[NSUserDefaults standardUserDefaults] valueForKey:@"accounts"];
     
-    NSUInteger idx = [self.accountsSettings indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj[@"name"] isEqualToString:name]) {
-            return YES;
-        }
-        else return NO;
-    }];
-    if (idx == NSNotFound) return nil;
-    else return self.accountsSettings[idx];
+    return [self.accountsSettings firstObjectWithKey:@"name" equalToString:name];
+    
 }
 
 

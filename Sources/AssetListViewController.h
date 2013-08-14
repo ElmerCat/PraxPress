@@ -27,7 +27,6 @@
 @property (weak) IBOutlet WebView *webView;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
-@property NSString *formattedCode;
 - (IBAction)templatesButtonPressed:(id)sender;
 
 @property (weak) IBOutlet NSScrollView *detailScrollView;

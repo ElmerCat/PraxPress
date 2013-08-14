@@ -147,11 +147,11 @@
     NSArray *operators;
     if (choices.count > 2) {
         rightExpressions = [self predicateRightExpressionsWithKeys:choices];
-        operators = @[[NSNumber numberWithInt:NSMatchesPredicateOperatorType]];
+        operators = @[[NSNumber numberWithInt:NSEqualToPredicateOperatorType], [NSNumber numberWithInt:NSNotEqualToPredicateOperatorType]];
     }
     else {
         rightExpressions = @[[NSExpression expressionWithFormat:@"0"],[NSExpression expressionWithFormat:@"1"]];
-        operators = @[[NSNumber numberWithInt:NSEqualToPredicateOperatorType]];
+        operators = @[[NSNumber numberWithInt:NSEqualToPredicateOperatorType], [NSNumber numberWithInt:NSNotEqualToPredicateOperatorType]];
     }
     
     PraxPredicateEditorRowTemplate *rowTemplate = [[PraxPredicateEditorRowTemplate alloc] initWithLeftExpressions:leftExpressions rightExpressions:rightExpressions modifier:0 operators:operators options:0];

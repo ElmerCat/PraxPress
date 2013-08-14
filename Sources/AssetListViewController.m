@@ -14,7 +14,7 @@
 
 @implementation AssetListViewController
 
-- (NSArray *)keyPathsToObserve {return @[@"self.assetArrayController.selectionIndexes", @"self.isSelectedPane", @"self.source", @"self.source.fetchPredicate", @"self.source.template", @"self.source.template.formatText", @"self.viewerMode", @"self.formattedCode", @"self.webView.estimatedProgress"];}
+- (NSArray *)keyPathsToObserve {return @[@"self.assetArrayController.selectionIndexes", @"self.isSelectedPane", @"self.source", @"self.source.fetchPredicate", @"self.source.template", @"self.source.template.formatText", @"self.viewerMode", @"self.source.formattedCode", @"self.webView.estimatedProgress"];}
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -67,9 +67,9 @@
   //      [self.progressIndicator setDoubleValue:self.webView.estimatedProgress];
         
     }
-    else if ([keyPath isEqualToString:@"self.formattedCode"]) {
+    else if ([keyPath isEqualToString:@"self.source.formattedCode"]) {
         if ([self.assetListViewer isVisible]) {
-            [[self.webView mainFrame] loadHTMLString:self.formattedCode baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
+            [[self.webView mainFrame] loadHTMLString:self.source.formattedCode baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
         }
         
     }
@@ -109,11 +109,11 @@
         if ((([keyPath isEqualToString:@"self.source"]) || ([keyPath isEqualToString:@"self.source.template"])) || ([keyPath isEqualToString:@"self.source.template.formatText"])) {
             if (!self.source) return;
             if ([self.assetArrayController.arrangedObjects count] > 0) {
-                self.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.arrangedObjects];
+                self.source.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.arrangedObjects];
                 //       [[self.webView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
             }
             else {
-                self.formattedCode = @"";
+                self.source.formattedCode = @"";
                 //       [[self.webView mainFrame] loadHTMLString:html baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
             }
             
@@ -206,14 +206,14 @@
         if (self.viewerMode) {
             if ([self.assetArrayController.selectedObjects count] > 0) {
 
-                self.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.selectedObjects];
+                self.source.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.selectedObjects];
             }
-            else self.formattedCode = @"";
+            else self.source.formattedCode = @"";
         }
-        else self.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.arrangedObjects];
+        else self.source.formattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.arrangedObjects];
     }
     else {
-        self.formattedCode = @"";
+        self.source.formattedCode = @"";
     }
     
 }

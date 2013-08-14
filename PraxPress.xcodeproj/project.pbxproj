@@ -10,6 +10,11 @@
 		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
+		E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A117BADFC0001E0ED3 /* SoundCloud.png */; };
+		E61021A617BAE22E001E0ED3 /* WordPress.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A517BAE22E001E0ED3 /* WordPress.png */; };
+		E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A817BAF2D2001E0ED3 /* playlist.png */; };
+		E61021AB17BAF2D2001E0ED3 /* track.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A917BAF2D2001E0ED3 /* track.png */; };
+		E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */; };
 		E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61CF90217718A6F0038A502 /* PraxPress.icns */; };
 		E61F38ED17962EEA00728A24 /* Document+DocumentUserInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
@@ -77,6 +82,8 @@
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
 		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
 		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
+		E6FA7CC917A5AE34005CA002 /* PraxPressDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */; };
+		E6FA7CCE17A5B201005CA002 /* PraxCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FA7CCD17A5B201005CA002 /* PraxCategories.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,6 +121,12 @@
 		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
+		E61021A117BADFC0001E0ED3 /* SoundCloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloud.png; sourceTree = "<group>"; };
+		E61021A517BAE22E001E0ED3 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
+		E61021A717BAE5EA001E0ED3 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
+		E61021A817BAF2D2001E0ED3 /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist.png; sourceTree = "<group>"; };
+		E61021A917BAF2D2001E0ED3 /* track.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = track.png; sourceTree = "<group>"; };
+		E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaylistFrame.png; sourceTree = "<group>"; };
 		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
 		E61F38EB17962EEA00728A24 /* Document+DocumentUserInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Document+DocumentUserInterface.h"; sourceTree = "<group>"; };
 		E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Document+DocumentUserInterface.m"; sourceTree = "<group>"; };
@@ -214,6 +227,10 @@
 		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
 		E6F80B281623969100828086 /* ChangeValuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeValuesController.m; sourceTree = "<group>"; };
 		E6F80B291623969100828086 /* ChangeValuesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeValuesController.xib; sourceTree = "<group>"; };
+		E6FA7CC717A5AE34005CA002 /* PraxPressDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxPressDocument.h; sourceTree = "<group>"; };
+		E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxPressDocument.m; sourceTree = "<group>"; };
+		E6FA7CCC17A5B201005CA002 /* PraxCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxCategories.h; sourceTree = "<group>"; };
+		E6FA7CCD17A5B201005CA002 /* PraxCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxCategories.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,6 +258,8 @@
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E6FA7CCC17A5B201005CA002 /* PraxCategories.h */,
+				E6FA7CCD17A5B201005CA002 /* PraxCategories.m */,
 				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
 				E6BC79F615C48FE300080762 /* SpecialProtocol.m */,
 				E6EDDE2715E021FB0039BEFD /* PraxTextFieldFormatter.h */,
@@ -264,6 +283,8 @@
 			isa = PBXGroup;
 			children = (
 				E6709A541793267C00A1A59F /* Document.xcdatamodeld */,
+				E6FA7CC717A5AE34005CA002 /* PraxPressDocument.h */,
+				E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */,
 				E642A02917862096003FF23C /* Source.h */,
 				E642A02A17862096003FF23C /* Source.m */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
@@ -421,6 +442,12 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */,
+				E61021A817BAF2D2001E0ED3 /* playlist.png */,
+				E61021A917BAF2D2001E0ED3 /* track.png */,
+				E61021A517BAE22E001E0ED3 /* WordPress.png */,
+				E61021A717BAE5EA001E0ED3 /* WordPress.png */,
+				E61021A117BADFC0001E0ED3 /* SoundCloud.png */,
 				E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */,
 				E67007C117873A2B0052FC2B /* isSelectedImage.tiff */,
 				E642A04D17863A87003FF23C /* greenlight.tiff */,
@@ -534,6 +561,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */,
+				E61021A617BAE22E001E0ED3 /* WordPress.png in Resources */,
 				E6BC79AE15C4759800080762 /* Credits.rtf in Resources */,
 				E6BC79B715C4759800080762 /* MainMenu.xib in Resources */,
 				E6EE3F2615C773D10025C04B /* Connect.wav in Resources */,
@@ -549,6 +577,7 @@
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
 				E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */,
 				E66E6C0B169F78DF006F07D1 /* AssetPredicateController.xib in Resources */,
+				E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */,
 				E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */,
 				E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */,
 				E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */,
@@ -566,10 +595,13 @@
 				E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */,
 				E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */,
 				E642A04A178639A3003FF23C /* AssetListView.xib in Resources */,
+				E61021AB17BAF2D2001E0ED3 /* track.png in Resources */,
 				E642A04C178639FA003FF23C /* SourceListCellViews.xib in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
+				E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */,
 				E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */,
+				E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */,
 				E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -600,12 +632,14 @@
 				E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */,
 				E66E6C0A169F78DF006F07D1 /* AssetPredicateController.m in Sources */,
 				E642A03617862F5D003FF23C /* Source.m in Sources */,
+				E6FA7CCE17A5B201005CA002 /* PraxCategories.m in Sources */,
 				E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */,
 				E642A03517862F1D003FF23C /* RequestController.m in Sources */,
 				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
 				E642A03417862F13003FF23C /* SourceController.m in Sources */,
 				E64555A916A76F6900740F45 /* TagController.m in Sources */,
 				E64555AC16A773C000740F45 /* Tag.m in Sources */,
+				E6FA7CC917A5AE34005CA002 /* PraxPressDocument.m in Sources */,
 				E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */,
 				E6709A571793267C00A1A59F /* Document.xcdatamodeld in Sources */,
 				E6EA10A216AB22DD0004800F /* NewPlaylistPopover.m in Sources */,
