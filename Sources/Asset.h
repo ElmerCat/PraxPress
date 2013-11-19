@@ -49,6 +49,7 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) NSNumber * playlistPosition;
 @property (nonatomic, retain) NSString * purchase_title;
 @property (nonatomic, retain) NSString * purchase_url;
+@property (nonatomic, retain) NSString * permalink_url;
 @property (nonatomic, retain) NSString * sharing;
 @property (nonatomic, retain) NSNumber * sync_mode;
 @property (nonatomic, retain) NSString * tag_list;
@@ -115,19 +116,22 @@ typedef NSUInteger PRAXReloadOption;
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
 
-
-
 @property (nonatomic, retain) NSSet *tags;
-@property (nonatomic, retain) NSSet *associatedItems;
-
+@property (nonatomic, retain) NSOrderedSet *associatedItems;
 @end
 
 @interface Asset (CoreDataGeneratedAccessors)
 
+- (void)insertObject:(Asset *)value inAssociatedItemsAtIndex:(NSUInteger)idx;
+- (void)removeObjectFromAssociatedItemsAtIndex:(NSUInteger)idx;
+- (void)insertAssociatedItems:(NSArray *)value atIndexes:(NSIndexSet *)indexes;
+- (void)removeAssociatedItemsAtIndexes:(NSIndexSet *)indexes;
+- (void)replaceObjectInAssociatedItemsAtIndex:(NSUInteger)idx withObject:(Asset *)value;
+- (void)replaceAssociatedItemsAtIndexes:(NSIndexSet *)indexes withAssociatedItems:(NSArray *)values;
 - (void)addAssociatedItemsObject:(Asset *)value;
 - (void)removeAssociatedItemsObject:(Asset *)value;
-- (void)addAssociatedItems:(NSSet *)values;
-- (void)removeAssociatedItems:(NSSet *)values;
+- (void)addAssociatedItems:(NSOrderedSet *)values;
+- (void)removeAssociatedItems:(NSOrderedSet *)values;
 
 - (void)addTagsObject:(NSManagedObject *)value;
 - (void)removeTagsObject:(NSManagedObject *)value;

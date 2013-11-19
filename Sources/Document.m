@@ -49,6 +49,7 @@
                                   @{@"name":@"Showcase", @"value":@"showcase"}];
         
     }
+    self.changedAssetFilterPredicate = [NSPredicate predicateWithFormat:@"sync_mode != 0"];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:@"NSUserDefaultsDidChangeNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
         self.accountsSettings = [[NSUserDefaults standardUserDefaults] valueForKey:@"accounts"];
@@ -99,7 +100,8 @@
 {
     [super windowControllerDidLoadNib:aController];
     
-    [PraxTransformers loadForDocument:self];
+    [PraxTransformers load];
+    self.patsTransformer = [PraxAssetTagStringTransformer loadForDocument:self];
     
     [self.assetsTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
     

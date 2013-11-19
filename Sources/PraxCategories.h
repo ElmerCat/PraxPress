@@ -7,11 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Asset.h"
 
 @interface NSArray (PraxCategories)
 
--(id)firstObjectWithKey:(NSString *)key equalToString:(NSString *)string;
-
+- (id)firstObjectWithKey:(NSString *)key equalToString:(NSString *)string;
+- (NSString *)praxPressListType;
 @end
 
 

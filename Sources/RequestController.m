@@ -10,16 +10,44 @@
 
 @implementation RequestController
 
+- (NSArray *)keyPathsToObserve {return @[@"self.document.changedAssetsController.arrangedObjects", @"self.statusText"];}
+
 - (id)init {
     self = [super init];
     if (self) {
     NSLog(@"RequestController init");
         
-        self.responseDataProcessingQueue = [[NSOperationQueue alloc] init];
+        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
-        [self addObserver:self forKeyPath:@"self.document.changedAssetsController.arrangedObjects" options:NSKeyValueObservingOptionNew context:0];
-        [self addObserver:self forKeyPath:@"self.statusText" options:NSKeyValueObservingOptionNew context:0];
+        self.responseDataProcessingQueue = [[NSOperationQueue alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"PraxDownloadResponseNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
+            Asset *responseAsset = (Asset *)[aNotification object];
+
+            NSLog(@"RequestController PraxDownloadResponseNotification: %@", responseAsset.title);
+            
+            Asset *uploadAsset = nil;
+            Asset *downloadAsset = nil;
+            @synchronized(self) {
+                if (self.assetsToUpload.count > 0) {
+                    self.busy = TRUE;
+                    uploadAsset = self.assetsToUpload.anyObject;
+                    [self.assetsToUpload removeObject:uploadAsset];
+                }
+                else if (self.assetsToReload.count > 0) {
+                    self.busy = TRUE;
+                    downloadAsset = self.assetsToReload.anyObject;
+                    [self.assetsToReload removeObject:downloadAsset];
+                }
+                else self.busy = FALSE;
                 
+            } // @synchronized(self)
+            
+            if (uploadAsset) [self uploadAsset:uploadAsset];
+            else if (downloadAsset) [self downloadAsset:downloadAsset];
+            
+        }];
+
+        
         [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification
                                                           object:[NXOAuth2AccountStore sharedStore]
                                                            queue:nil
@@ -76,6 +104,8 @@
   */
         
     }
+
+    [self reset];
     return self;
 }
 
@@ -106,8 +136,7 @@
 
 - (void)dealloc {
     NSLog(@"RequestController dealloc");
-    [self removeObserver:self forKeyPath:@"self.document.changedAssetsController.arrangedObjects"];
-    [self removeObserver:self forKeyPath:@"self.statusText"];
+    for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -152,6 +181,10 @@
             [NSAnimationContext endGrouping];
             
         }       
+    }
+    else if ([keyPath isEqualToString:@"self.pendingAssetsToReload"]) {
+
+    
     }
     else {
         NSLog(@"RequestController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
@@ -211,6 +244,11 @@
 
 
 - (void)reset {
+    if (!self.assetsToReload) self.assetsToReload = [NSMutableSet setWithCapacity:1];
+    else [self.assetsToReload removeAllObjects];
+    if (!self.assetsToUpload) self.assetsToUpload = [NSMutableSet setWithCapacity:1];
+    else [self.assetsToUpload removeAllObjects];
+    
     self.determinate = NO;
     self.uploadAll = NO;
     self.reloadAll = NO;
@@ -248,6 +286,36 @@
     [self reloadAsset:asset option:0];
 }
 
+- (void)downloadAsset:(Asset *)asset {
+    if (self.stop) {
+        [self reset];
+        return;
+    }
+    NXOAuth2Request *request = [asset requestForReloadController:self option:0];
+    if (!request) return;
+    self.busy = TRUE;
+    [self.updateControlsToolbarItem setLabel:@"Downloading"];
+    
+    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, self.resource);
+    [request performRequestWithSendingProgressHandler:nil
+                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+  
+                                          if (error) {
+                                              NSLog(@"NXOAuth2Request GET error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, nil);
+                                              [[NSSound soundNamed:@"Error"] play];
+                                              [self reset];
+                                          }
+                                          [self.responseDataProcessingQueue addOperationWithBlock:^{
+                                              if (![asset handleReloadResponseData:data forController:self]) {
+                                                  [[NSSound soundNamed:@"Error"] play];
+                                                  [self reset];
+                                              }
+                                          }];
+                                          [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
+
+                                      }];
+}
+
 - (void)reloadAsset:(Asset *)asset option:(PRAXReloadOption)option {
     if (self.stop) {
         [self reset];
@@ -257,8 +325,8 @@
     if (!request) return;
     self.busy = TRUE;
     [self.updateControlsToolbarItem setLabel:@"Downloading"];
-
-//    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, self.resource);
+    
+    //    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, self.resource);
     [request performRequestWithSendingProgressHandler:nil
                                       responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                                           if (error) {
@@ -324,7 +392,9 @@
                                               
                                               else {
                                                   
-                                                  [self reloadAsset:asset];
+                                          //        [self reloadAsset:asset];
+                                                  [self.assetsToReload addObject:asset];
+                                                  [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
                                               }
                                               
                                                
@@ -338,5 +408,63 @@
     account.oauthAccount = nil;
 }
 
+- (void)start {
+    if (self.stop) {
+        [self reset];
+        return;
+    }
+    Asset *uploadAsset = nil;
+    Asset *downloadAsset = nil;
+    @synchronized(self) {
+        if(self.busy) return;
+        
+        if (self.assetsToUpload.count > 0) {
+            self.busy = TRUE;
+            uploadAsset = self.assetsToUpload.anyObject;
+            [self.assetsToUpload removeObject:uploadAsset];
+        }
+        else if (self.assetsToReload.count > 0) {
+            self.busy = TRUE;
+            downloadAsset = self.assetsToReload.anyObject;
+            [self.assetsToReload removeObject:downloadAsset];
+        }
+        
+    } // @synchronized(self)
+    
+    if (uploadAsset) [self uploadAsset:uploadAsset];
+    else if (downloadAsset) [self downloadAsset:downloadAsset];
+    else [self reset];
+}
+
+
+- (void)uploadAssetsForClient:(id)client {
+    if ([client isKindOfClass:[AssetListViewController class]]) {
+        
+        for (Asset *asset in [[(AssetListViewController *)client assetArrayController] selectedObjects]) {
+            if (asset.sync_mode.boolValue) [self.assetsToUpload addObject:asset];
+        }
+        
+    }
+    else {
+        [[NSSound soundNamed:@"Error"] play];
+    }
+    if (self.assetsToUpload.count > 0) [self start];
+    
+}
+
+- (void)reloadAssetsForClient:(id)client {
+    if ([client isKindOfClass:[AssetListViewController class]]) {
+        
+        for (Asset *asset in [[(AssetListViewController *)client assetArrayController] selectedObjects]) {
+            if (asset.sync_mode.boolValue) [self.assetsToReload addObject:asset];
+        }
+        
+    }
+    else {
+        [[NSSound soundNamed:@"Error"] play];
+    }
+    if (self.assetsToReload.count > 0) [self start];
+    
+}
 
 @end

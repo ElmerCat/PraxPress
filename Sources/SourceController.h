@@ -22,10 +22,12 @@
 @property (unsafe_unretained) IBOutlet NSWindow *documentWindow;
 
 //@property Source *selectedSource;
+
 @property (weak) IBOutlet NSSplitView *sourceSplitView;
 @property (weak) IBOutlet NSView *sourceListSubView;
 @property NSMutableArray *assetListViewControllers;
 @property NSInteger selectedAssetListIndex;
+@property Source *selectedSource;
 @property BOOL hasMoreThanOneTab;
 @property (readonly) BOOL sourceListVisible;
 @property (weak) IBOutlet NSPopover *sourcePopover;
@@ -37,6 +39,7 @@
 - (void)windowWillClose:(NSNotification *)notification;
 
 -(void)reset;
+- (IBAction)clearTags:(id)sender;
 
 - (IBAction)newListPaneWithSource:(id)sender;
 - (IBAction)newSourceItem:(id)sender;
@@ -50,9 +53,11 @@
 - (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
 - (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
 
+- (void)addBatchSource:(AssetListViewController *)controller withAssets:(NSArray *)assets;
 - (void)addBatchSource:(AssetListViewController *)controller withSource:(Source *)source;
 - (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source;
 - (void)closeAssetListPane:(AssetListViewController *)controller;
+- (void)showAssociatedItems:(AssetListViewController *)controller;
 - (void)selectAssetListPane:(AssetListViewController *)controller;
 
 @end

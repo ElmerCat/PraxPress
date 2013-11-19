@@ -7,30 +7,68 @@
 //
 
 #import "Document.h"
+#import "NSSplitView+DMAdditions.h"
+#import "AssetMetadataPopover.h"
 
 
 @interface AssetListViewController : NSViewController <NSTableViewDelegate>
+@property (weak) IBOutlet NSTableView *assetsTableView;
 @property BOOL awake;
 @property Document *document;
+@property AssetListViewController *associatedController;
+@property BOOL isAssociatedPane;
+@property BOOL isPlaylist;
 @property BOOL isSelectedPane;
 @property Source *source;
-@property (strong) IBOutlet NSArrayController *assetArrayController;
+@property NSOrderedSet *assets;
+
+@property NSString *appleScriptSource;
+@property NSAppleScript *appleScript;
+- (NSDictionary *)toolTips;
+@property int playback_count, favoritings_count, download_count, comment_count, duration;
+
+
 @property (weak) IBOutlet NSButton *notSelectedButton;
 @property (weak) IBOutlet NSButton *selectedButton;
 @property (weak) IBOutlet NSSearchField *searchField;
+@property (strong) IBOutlet NSArrayController *assetArrayController;
+@property (strong) IBOutlet NSArrayController *changedAssetArrayController;
 - (void)filterPane;
 - (IBAction)updateFilter:(id)sender;
-- (IBAction)viewerButtonPressed:(id)sender;
 - (IBAction)selectAssetListPane:(id)sender;
-@property (strong) IBOutlet NSWindow *assetListViewer;
-@property NSInteger viewerMode;
+- (IBAction)exportFormattedCode:(id)sender;
+- (IBAction)writeFormattedCode:(id)sender;
+@property (weak) IBOutlet NSBox *detailViewBox;
+@property (strong) IBOutlet NSView *trackDetailView;
+@property (strong) IBOutlet NSView *playlistDetailView;
+@property (strong) IBOutlet NSView *soundCloudDetailView;
+@property (strong) IBOutlet NSView *wordPressDetailView;
+@property (strong) IBOutlet NSView *defaultDetailView;
+@property (strong) IBOutlet NSView *noSelectionView;
+
+@property (weak) IBOutlet NSSplitView *splitView;
+@property (weak) IBOutlet NSScrollView *assetListPane;
+@property (weak) IBOutlet NSView *detailViewPane;
+@property (weak) IBOutlet NSView *codeViewPane;
+@property (weak) IBOutlet NSView *webViewPane;
+@property (weak) IBOutlet NSPopUpButton *popUpButton;
+
+@property BOOL showDetailView;
+@property BOOL showCodeView;
+@property BOOL showWebView;
+@property BOOL showSafariView;
+@property NSString *formattedCode;
+@property NSMutableArray *tags;
+
 @property (weak) IBOutlet WebView *webView;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
-- (IBAction)templatesButtonPressed:(id)sender;
+- (void)doubleClickedArrayObjects:(NSArray *)arrayObjects;
 
-@property (weak) IBOutlet NSScrollView *detailScrollView;
-@property (strong) IBOutlet NSView *defaultDetailView;
-@property (strong) IBOutlet NSView *trackDetailView;
+- (IBAction)templatesButtonPressed:(id)sender;
+@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
+- (void)openBrowserWithURLString:(NSString *)string;
+- (void)showMetadataPopover:(NSDictionary *)metadata sender:(id)sender;
+- (void)showTags:(NSSet *)tags sender:(id)sender;
 
 @end

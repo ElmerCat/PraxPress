@@ -30,6 +30,7 @@
 @dynamic playlistPosition;
 @dynamic purchase_title;
 @dynamic purchase_url;
+@dynamic permalink_url;
 @dynamic sharing;
 @dynamic sync_mode;
 @dynamic tag_list;
@@ -60,6 +61,11 @@
 @dynamic source;
 
 @dynamic associatedItems;
+- (void)addAssociatedItemsObject:(Asset *)value {
+    NSMutableOrderedSet* tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.associatedItems];
+    [tempSet addObject:value];
+    self.associatedItems = tempSet;
+}
 
 +(NSDictionary *)assetKeyLabels {
     return @{@"accountType": @"Account Type",
@@ -83,7 +89,9 @@
              @"playlistType": @"Playlist Type",
              @"purchase_title": @"Purchase Link Title",
              @"purchase_url": @"Purchase Link URL",
+             @"permalink_url": @"Permalink URL",
              @"sharing": @"Sharing Mode",
+             @"sync_mode": @"Sync Mode",
              @"sub_type": @"Sub Type",
              @"tags": @"Tags",
              @"tag_list": @"Tag List",
@@ -221,6 +229,7 @@
              @"permalink",
              @"purchase_title",
              @"purchase_url",
+             @"permalink_url",
              @"sub_type",
              @"tag_list",
              @"title",
@@ -240,6 +249,7 @@
              @"itemCount",
              @"playback_count",
              @"playlist_count",
+             @"sync_mode",
              @"track_count"];
 }
 
@@ -306,33 +316,10 @@
     //    NSLog(@"Asset dealloc");
     if (self.awake) {
         self.awake = FALSE;
-        
-        [self removeObserver:self forKeyPath:@"self.edit_mode"];
-        [self removeObserver:self forKeyPath:@"self.title"];
-        [self removeObserver:self forKeyPath:@"self.purchase_title"];
-        [self removeObserver:self forKeyPath:@"self.purchase_url"];
-        [self removeObserver:self forKeyPath:@"self.sub_type"];
-        [self removeObserver:self forKeyPath:@"self.sharing"];
-        [self removeObserver:self forKeyPath:@"self.genre"];
-        [self removeObserver:self forKeyPath:@"self.permalink"];
-        [self removeObserver:self forKeyPath:@"self.tag_list"];
-        [self removeObserver:self forKeyPath:@"self.trackList"];
-        [self removeObserver:self forKeyPath:@"self.tags"];
-        [self removeObserver:self forKeyPath:@"self.contents"];
+        for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
         
     }
-    
-    
-    //    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
-
-/*
- - (void)awakeFromNib {
- NSLog(@"Asset awakeFromNib");
- 
- 
- }
- */
 
 - (void)awakeFromFetch {
     
@@ -340,7 +327,7 @@
         self.awake = TRUE;
         //        NSLog(@"Asset awakeFromFetch");
         
-        [self addObservers];
+        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
     }
     
@@ -351,28 +338,26 @@
     if (!self.awake) {
         self.awake = TRUE;
         NSLog(@"Asset awakeFromInsert");
-        [self addObservers];
+        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
     }
     
 }
-
-- (void) addObservers {
-    
-    [self addObserver:self forKeyPath:@"self.edit_mode" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.title" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.purchase_title" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.purchase_url" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.sub_type" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.sharing" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.genre" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.permalink" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.tag_list" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.trackList" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.tags" options:NSKeyValueObservingOptionNew context:NULL];
-    [self addObserver:self forKeyPath:@"self.contents" options:NSKeyValueObservingOptionNew context:NULL];
-    
-}
+- (NSArray *)keyPathsToObserve {return @[@"self.edit_mode",
+                                         @"self.title",
+                                         @"self.purchase_title",
+                                         @"self.purchase_url",
+                                         @"self.permalink_url",
+                                         @"self.sub_type",
+                                         @"self.sharing",
+                                         @"self.genre",
+                                         @"self.permalink",
+                                         @"self.tag_list",
+                                         @"self.trackList",
+                                         @"self.tags",
+                                         @"self.associatedItems",
+                                         @"self.contents"
+                                         ];}
 
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -382,6 +367,12 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:@"BatchAssetChangedNotification" object:self];
     }
     else {
+        if ([keyPath isEqualToString:@"self.associatedItems"]) {
+            if (![self.type isEqualToString:@"playlist"]) {
+                return;
+            }
+        }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
         if ([keyPath isEqualToString:@"self.tags"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetTagsChangedNotification" object:self];
@@ -476,7 +467,7 @@
     NSDictionary *keys = @{
                            @"itemCount":@"post_count",
                            @"contents":@"description",
-                           @"purchase_url":@"URL",
+                           @"permalink_url":@"URL",
                            @"purchase_title":@"name" };
     for (NSString *key in keys) {
         if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
@@ -668,7 +659,13 @@
         else {
             [parameters setObject:[self valueForKey:@"sub_type"] forKey:@"playlist[playlist_type]"];
             
-            NSArray *tracks = [self.trackList componentsSeparatedByString:@","];
+            
+            NSMutableArray *tracks = [NSMutableArray array];
+            
+            for (Asset *track in self.associatedItems) {
+                [tracks addObject:track.asset_id.stringValue];
+            }
+            
             [parameters setObject:tracks forKey:@"playlist[tracks][][id]"];
             controller.statusText = [NSString stringWithFormat:@"Uploading SoundCloud Playlist ---- %@", self.title];
         }
@@ -698,6 +695,8 @@
         
         [parameters setObject:self.title forKey:@"title"];
         [parameters setObject:self.contents forKey:@"content"];
+        [parameters setObject:self.sub_type forKey:@"format"];
+        [parameters setObject:self.sharing forKey:@"status"];
         
         
         controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
@@ -721,7 +720,7 @@
     
     
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:0];
-    NSLog(@"data: %@", data);
+//    NSLog(@"data: %@", data);
     
     
     if ([self.entity.name isEqualToString:@"Account"]) {
@@ -749,11 +748,12 @@
                     }
                     else asset = matchingItems[0];
                     asset.account = (Asset *)self;
+                    asset.accountType = [(Asset *)self accountType];
                     
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
                     [asset loadSoundCloudItemData:item];
-                    [controller.document.tagController loadAssetTags:asset];
+                    [controller.document.tagController loadAssetTags:asset data:item];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
                     [controller.document.changedAssetsController fetch:self];
                     
@@ -786,12 +786,13 @@
                     }
                     else asset = matchingItems[0];
                     asset.account = (Asset *)self;
-                    
+                    asset.accountType = [(Asset *)self accountType];
+
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
                     [asset loadSoundCloudItemData:item];
                     [asset loadPlaylistsAsset:asset data:item];
-                    [controller.tagController loadAssetTags:asset];
+                    [controller.document.tagController loadAssetTags:asset data:item];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
                     [controller.document.changedAssetsController fetch:self];
                     
@@ -835,11 +836,12 @@
                     }
                     else asset = matchingItems[0];
                     asset.account = (Asset *)self;
-                    
+                    asset.accountType = [(Asset *)self accountType];
+
                     controller.determinate = YES;
                     controller.updateCount = controller.updateCount + 1;
                     [asset loadWordPressPostData:item];
-                    [controller.document.tagController loadAssetTags:asset];
+                    [controller.document.tagController loadAssetTags:asset data:item];
                     asset.sync_mode = [NSNumber numberWithBool:FALSE];
                     [controller.document.changedAssetsController fetch:self];
                     
@@ -861,7 +863,7 @@
         else if (self.isWordPressAsset)[self loadWordPressPostData:data];
         else return NO; // invalid option
         
-        [controller.tagController loadAssetTags:self];
+        [controller.document.tagController loadAssetTags:self data:data];
         self.sync_mode = [NSNumber numberWithBool:FALSE];
         [controller.document.changedAssetsController fetch:self];
         
@@ -878,7 +880,7 @@
             });
         }
         else {
-            [controller reset];
+//            [controller reset];
         }
     }
     return YES;
@@ -888,13 +890,23 @@
 -(void)loadWordPressPostData:(NSDictionary *)data {
     [self setValue:data forKey:@"metadata"];
     
-    NSDictionary *keys = @{@"title":@"title", @"purchase_url":@"URL", @"type":@"type", @"permalink":@"slug", @"contents":@"content"};
+    NSDictionary *keys = @{@"title":@"title", @"date":@"modified", @"artwork_url":@"featured_image", @"permalink_url":@"URL", @"type":@"type", @"permalink":@"slug", @"contents":@"content", @"sub_type":@"format", @"sharing":@"status"};
     for (NSString *key in keys) {
         if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[[keys objectForKey:key]] forKey:key];
     }
+    if (self.date.length > 16) {
+        self.date = [self.date stringByReplacingOccurrencesOfString:@"-" withString:@"/"];
+        self.date = [self.date substringToIndex:16];
+    }
     
     self.uri = data[@"meta"][@"links"][@"site"];
+    
+    if (![self.artwork_url isEqualToString:@""]) {
+        NSURL *url = [NSURL URLWithString:self.artwork_url];
+        NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
+        self.image = [NSArchiver archivedDataWithRootObject:image];
+    }
     
 }
 
@@ -903,8 +915,8 @@
     [self setValue:data forKey:@"metadata"];
     
     
-    for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"sharing", @"uri", @"genre",
-                            @"favoritings_count", @"playback_count", @"comment_count", @"download_count", @"tag_list", @"duration"]) {
+    for (NSString *key in @[@"title", @"purchase_url", @"purchase_title", @"permalink", @"permalink_url", @"sharing", @"uri", @"genre",
+                            @"favoritings_count", @"playback_count", @"comment_count", @"download_count", @"duration"]) {
         if (data[key] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[key] forKey:key];
     }
@@ -929,6 +941,9 @@
     for (NSString *key in keys) {
         if (data[[keys objectForKey:key]] == [NSNull null]) [self setValue:@"" forKey:key];
         else [self setValue:data[[keys objectForKey:key]] forKey:key];
+    }
+    if (self.date.length > 16) {
+        self.date = [self.date substringToIndex:16];
     }
     
     if (self.isPlaylist) {
@@ -958,6 +973,7 @@
         self.image = [NSArchiver archivedDataWithRootObject:image];
         return image;
     }
+    
     else return nil;
 }
 

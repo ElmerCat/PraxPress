@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AssetTableCellView"/>
@@ -44,19 +44,19 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="2" name="hidden" keyPath="self.selected" id="1182">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="2" name="value" keyPath="objectValue.title" id="2712">
                                         <dictionary key="options">
                                             <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2" name="hidden" keyPath="self.selected" id="1182">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="TitleField" verticalHuggingPriority="750" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="1518" userLabel="TitleField">
+                            <textField identifier="TitleField" verticalHuggingPriority="750" misplaced="YES" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="1518" userLabel="TitleField">
                                 <rect key="frame" x="105" y="350" width="558" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -71,7 +71,7 @@
                                     <binding destination="2" name="value" keyPath="objectValue.title" id="1523"/>
                                 </connections>
                             </textField>
-                            <textField identifier="GenreTypeSharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" verticalCompressionResistancePriority="221" tag="252" translatesAutoresizingMaskIntoConstraints="NO" id="2169" userLabel="GenreTypeSharing">
+                            <textField identifier="GenreTypeSharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" verticalCompressionResistancePriority="221" misplaced="YES" tag="252" translatesAutoresizingMaskIntoConstraints="NO" id="2169" userLabel="GenreTypeSharing">
                                 <rect key="frame" x="105" y="334" width="355" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -89,19 +89,19 @@
                                             <string key="NSDisplayPattern">Genre: %{value1}@    Type: %{value2}@    Sharing: %{value3}@</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="2" name="displayPatternValue2" keyPath="objectValue.sub_type" previousBinding="2189" id="2193">
+                                    <binding destination="2" name="displayPatternValue3" keyPath="objectValue.sharing" previousBinding="2193" id="2196">
                                         <dictionary key="options">
                                             <string key="NSDisplayPattern">Genre: %{value1}@    Type: %{value2}@    Sharing: %{value3}@</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="2" name="displayPatternValue3" keyPath="objectValue.sharing" previousBinding="2193" id="2196">
+                                    <binding destination="2" name="displayPatternValue2" keyPath="objectValue.sub_type" previousBinding="2189" id="2193">
                                         <dictionary key="options">
                                             <string key="NSDisplayPattern">Genre: %{value1}@    Type: %{value2}@    Sharing: %{value3}@</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="PlaysFavsDownsComs" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" translatesAutoresizingMaskIntoConstraints="NO" id="1057" userLabel="PlaysFavsDownsComs">
+                            <textField identifier="PlaysFavsDownsComs" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1057" userLabel="PlaysFavsDownsComs">
                                 <rect key="frame" x="105" y="265" width="355" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" alignment="left" title="Plays:000000  Favorited: 000000  Downloads: 000000  Comments: 000000" id="1058">
@@ -110,12 +110,7 @@
                                     <color key="backgroundColor" name="windowFrameColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="2" name="displayPatternValue1" keyPath="objectValue.playback_count" id="1073">
-                                        <dictionary key="options">
-                                            <string key="NSDisplayPattern">Plays: %{value1}@    Favorited: %{value2}@    Downloaded: %{value3}@    Comments: %{value4}@  </string>
-                                        </dictionary>
-                                    </binding>
-                                    <binding destination="2" name="displayPatternValue2" keyPath="objectValue.favoritings_count" previousBinding="1073" id="1074">
+                                    <binding destination="2" name="displayPatternValue4" keyPath="objectValue.comment_count" previousBinding="1075" id="1150">
                                         <dictionary key="options">
                                             <string key="NSDisplayPattern">Plays: %{value1}@    Favorited: %{value2}@    Downloaded: %{value3}@    Comments: %{value4}@  </string>
                                         </dictionary>
@@ -125,7 +120,12 @@
                                             <string key="NSDisplayPattern">Plays: %{value1}@    Favorited: %{value2}@    Downloaded: %{value3}@    Comments: %{value4}@  </string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="2" name="displayPatternValue4" keyPath="objectValue.comment_count" previousBinding="1075" id="1150">
+                                    <binding destination="2" name="displayPatternValue2" keyPath="objectValue.favoritings_count" previousBinding="1073" id="1074">
+                                        <dictionary key="options">
+                                            <string key="NSDisplayPattern">Plays: %{value1}@    Favorited: %{value2}@    Downloaded: %{value3}@    Comments: %{value4}@  </string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="2" name="displayPatternValue1" keyPath="objectValue.playback_count" id="1073">
                                         <dictionary key="options">
                                             <string key="NSDisplayPattern">Plays: %{value1}@    Favorited: %{value2}@    Downloaded: %{value3}@    Comments: %{value4}@  </string>
                                         </dictionary>
@@ -160,7 +160,7 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" translatesAutoresizingMaskIntoConstraints="NO" id="19" userLabel="Cancel">
+                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="19" userLabel="Cancel">
                                 <rect key="frame" x="549" y="264" width="42" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -229,13 +229,13 @@
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="2" name="enabled" keyPath="self.selected" id="1971"/>
                                     <binding destination="2" name="selectedValue" keyPath="objectValue.sub_type" id="120">
                                         <dictionary key="options">
                                             <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
                                             <bool key="NSConditionallySetsHidden" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2" name="enabled" keyPath="self.selected" id="1971"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="Genre" toolTip="Genre" verticalHuggingPriority="750" horizontalCompressionResistancePriority="745" tag="202" translatesAutoresizingMaskIntoConstraints="NO" id="16" userLabel="Genre">
@@ -279,24 +279,24 @@
                             <popUpButton toolTip="Sharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="239" tag="204" translatesAutoresizingMaskIntoConstraints="NO" id="12" userLabel="Sharing">
                                 <rect key="frame" x="591" y="350" width="63" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <popUpButtonCell key="cell" type="push" title="public" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="99">
+                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="99">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                     <menu key="menu" title="OtherViews" id="100">
                                         <items>
-                                            <menuItem title="public" state="on" id="102"/>
+                                            <menuItem title="public" id="102"/>
                                             <menuItem title="private" id="101"/>
                                         </items>
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="2" name="enabled" keyPath="self.selected" id="1973"/>
                                     <binding destination="2" name="selectedValue" keyPath="objectValue.sharing" id="125">
                                         <dictionary key="options">
                                             <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
                                             <bool key="NSConditionallySetsHidden" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2" name="enabled" keyPath="self.selected" id="1973"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="ContentsField" toolTip="Description" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1" tag="213" translatesAutoresizingMaskIntoConstraints="NO" id="9" userLabel="ContentsField">
@@ -347,25 +347,25 @@
                                     <font key="font" metaFont="miniSystem"/>
                                 </buttonCell>
                                 <connections>
-                                    <binding destination="2" name="argument2" keyPath="self" previousBinding="474" id="475">
-                                        <dictionary key="options">
-                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="2" name="argument" keyPath="objectValue" id="474">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="2" name="enabled" keyPath="self.selected" id="2660"/>
+                                    <binding destination="2" name="argument2" keyPath="self" previousBinding="474" id="475">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
+                                        </dictionary>
+                                    </binding>
                                     <binding destination="-2" name="target" keyPath="self" previousBinding="475" id="476">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2" name="enabled" keyPath="self.selected" id="2660"/>
                                 </connections>
                             </button>
-                            <textField identifier="Permalink-label" verticalHuggingPriority="750" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="1745" userLabel="Permalink-label">
+                            <textField identifier="Permalink-label" verticalHuggingPriority="750" misplaced="YES" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="1745" userLabel="Permalink-label">
                                 <rect key="frame" x="105" y="334" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Permalink:" id="1746">
@@ -393,7 +393,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="LinkTitle-label" verticalHuggingPriority="750" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="1768" userLabel="LinkTitle-label">
+                            <textField identifier="LinkTitle-label" verticalHuggingPriority="750" misplaced="YES" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="1768" userLabel="LinkTitle-label">
                                 <rect key="frame" x="105" y="316" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="LinkTitle:" id="1769">
@@ -421,7 +421,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="LinkURL-label" verticalHuggingPriority="750" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="1780" userLabel="LinkURL-label">
+                            <textField identifier="LinkURL-label" verticalHuggingPriority="750" misplaced="YES" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="1780" userLabel="LinkURL-label">
                                 <rect key="frame" x="105" y="298" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Link URL:" id="1782">
@@ -430,7 +430,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField identifier="Genre-label" verticalHuggingPriority="750" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="1754" userLabel="Genre-label">
+                            <textField identifier="Genre-label" verticalHuggingPriority="750" misplaced="YES" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="1754" userLabel="Genre-label">
                                 <rect key="frame" x="105" y="352" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -564,19 +564,19 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="2453" name="hidden" keyPath="self.selected" id="2634">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="2453" name="value" keyPath="objectValue.title" id="2711">
                                         <dictionary key="options">
                                             <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2453" name="hidden" keyPath="self.selected" id="2634">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="PlaylistTitleField" verticalHuggingPriority="750" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="2478" userLabel="PlaylistTitleField">
+                            <textField identifier="PlaylistTitleField" verticalHuggingPriority="750" misplaced="YES" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="2478" userLabel="PlaylistTitleField">
                                 <rect key="frame" x="105" y="350" width="558" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -591,7 +591,7 @@
                                     <binding destination="2453" name="value" keyPath="objectValue.title" id="2606"/>
                                 </connections>
                             </textField>
-                            <textField identifier="PlaylistGenreTypeSharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" verticalCompressionResistancePriority="221" tag="252" translatesAutoresizingMaskIntoConstraints="NO" id="2459" userLabel="PlaylistGenreTypeSharing">
+                            <textField identifier="PlaylistGenreTypeSharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" verticalCompressionResistancePriority="221" misplaced="YES" tag="252" translatesAutoresizingMaskIntoConstraints="NO" id="2459" userLabel="PlaylistGenreTypeSharing">
                                 <rect key="frame" x="105" y="334" width="355" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -604,7 +604,7 @@
                                     <color key="backgroundColor" name="windowFrameColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField identifier="PlaylistPlaysFavsDownsComs" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" translatesAutoresizingMaskIntoConstraints="NO" id="2460" userLabel="PlaylistPlaysFavsDownsComs">
+                            <textField identifier="PlaylistPlaysFavsDownsComs" verticalHuggingPriority="750" horizontalCompressionResistancePriority="481" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2460" userLabel="PlaylistPlaysFavsDownsComs">
                                 <rect key="frame" x="105" y="265" width="355" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" alignment="left" title="Plays:000000  Favorited: 000000  Downloads: 000000  Comments: 000000" id="2595">
@@ -641,7 +641,7 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" translatesAutoresizingMaskIntoConstraints="NO" id="2462" userLabel="Cancel">
+                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2462" userLabel="Cancel">
                                 <rect key="frame" x="549" y="264" width="42" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -688,7 +688,7 @@
                             <popUpButton toolTip="Track Type" verticalHuggingPriority="750" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="2467" userLabel="Playlist Type">
                                 <rect key="frame" x="499" y="350" width="87" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <popUpButtonCell key="cell" type="push" title="other" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="2567">
+                                <popUpButtonCell key="cell" type="push" title="other" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="2574" id="2567">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                     <menu key="menu" title="OtherViews" id="2568">
@@ -710,8 +710,8 @@
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2654"/>
                                     <binding destination="2453" name="selectedValue" keyPath="objectValue.sub_type" id="2685"/>
+                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2654"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="PlayllistGenre" toolTip="Genre" verticalHuggingPriority="750" horizontalCompressionResistancePriority="745" tag="202" translatesAutoresizingMaskIntoConstraints="NO" id="2476" userLabel="PlayllistGenre">
@@ -755,19 +755,19 @@
                             <popUpButton toolTip="Sharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="239" tag="204" translatesAutoresizingMaskIntoConstraints="NO" id="2469" userLabel="Sharing">
                                 <rect key="frame" x="591" y="350" width="63" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <popUpButtonCell key="cell" type="push" title="public" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="2561">
+                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="2561">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                     <menu key="menu" title="OtherViews" id="2562">
                                         <items>
-                                            <menuItem title="public" state="on" id="2563"/>
+                                            <menuItem title="public" id="2563"/>
                                             <menuItem title="private" id="2564"/>
                                         </items>
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2656"/>
                                     <binding destination="2453" name="selectedValue" keyPath="objectValue.sharing" id="2683"/>
+                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2656"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="PlaylistContentsField" toolTip="Description" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1" tag="213" translatesAutoresizingMaskIntoConstraints="NO" id="2464" userLabel="PlaylistContentsField">
@@ -818,25 +818,25 @@
                                     <font key="font" metaFont="miniSystem"/>
                                 </buttonCell>
                                 <connections>
-                                    <binding destination="2453" name="argument2" keyPath="self" previousBinding="2714" id="2722">
-                                        <dictionary key="options">
-                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="2453" name="argument" keyPath="objectValue" id="2714">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2658"/>
+                                    <binding destination="2453" name="argument2" keyPath="self" previousBinding="2714" id="2722">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
+                                        </dictionary>
+                                    </binding>
                                     <binding destination="-2" name="target" keyPath="self" previousBinding="2722" id="2723">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="2453" name="enabled" keyPath="self.selected" id="2658"/>
                                 </connections>
                             </button>
-                            <textField verticalHuggingPriority="750" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="2466" userLabel="Permalink-label">
+                            <textField verticalHuggingPriority="750" misplaced="YES" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="2466" userLabel="Permalink-label">
                                 <rect key="frame" x="105" y="334" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Permalink:" id="2582">
@@ -864,7 +864,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField verticalHuggingPriority="750" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="2471" userLabel="LinkTitle-label">
+                            <textField verticalHuggingPriority="750" misplaced="YES" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="2471" userLabel="LinkTitle-label">
                                 <rect key="frame" x="105" y="316" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="LinkTitle:" id="2559">
@@ -892,7 +892,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField verticalHuggingPriority="750" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="2470" userLabel="LinkURL-label">
+                            <textField verticalHuggingPriority="750" misplaced="YES" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="2470" userLabel="LinkURL-label">
                                 <rect key="frame" x="105" y="298" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Link URL:" id="2560">
@@ -901,7 +901,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="2472" userLabel="Genre-label">
+                            <textField verticalHuggingPriority="750" misplaced="YES" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="2472" userLabel="Genre-label">
                                 <rect key="frame" x="105" y="352" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -1028,19 +1028,19 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="255" name="hidden" keyPath="self.selected" id="3370">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="255" name="value" keyPath="objectValue.title" id="3303">
                                         <dictionary key="options">
                                             <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="255" name="hidden" keyPath="self.selected" id="3370">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="TitleField" verticalHuggingPriority="750" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="3138" userLabel="TitleField">
+                            <textField identifier="TitleField" verticalHuggingPriority="750" misplaced="YES" tag="251" translatesAutoresizingMaskIntoConstraints="NO" id="3138" userLabel="TitleField">
                                 <rect key="frame" x="105" y="350" width="558" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -1083,7 +1083,7 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" translatesAutoresizingMaskIntoConstraints="NO" id="3122" userLabel="Cancel">
+                            <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="761" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3122" userLabel="Cancel">
                                 <rect key="frame" x="549" y="264" width="42" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -1130,12 +1130,12 @@
                             <popUpButton toolTip="Track Type" verticalHuggingPriority="750" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="3127" userLabel="Track Type">
                                 <rect key="frame" x="499" y="350" width="87" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <popUpButtonCell key="cell" type="push" title="other" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="3229">
+                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="3229">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                     <menu key="menu" title="OtherViews" id="3230">
                                         <items>
-                                            <menuItem title="other" state="on" id="3236"/>
+                                            <menuItem title="other" id="3236"/>
                                             <menuItem title="sample" id="3235"/>
                                             <menuItem title="sound effect" id="3237"/>
                                             <menuItem title="loop" id="3238"/>
@@ -1152,13 +1152,13 @@
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3365"/>
                                     <binding destination="255" name="selectedValue" keyPath="objectValue.sub_type" id="3313">
                                         <dictionary key="options">
                                             <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
                                             <bool key="NSConditionallySetsHidden" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3365"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="Genre" toolTip="Genre" verticalHuggingPriority="750" horizontalCompressionResistancePriority="745" tag="202" translatesAutoresizingMaskIntoConstraints="NO" id="3136" userLabel="Genre">
@@ -1202,24 +1202,24 @@
                             <popUpButton toolTip="Sharing" verticalHuggingPriority="750" horizontalCompressionResistancePriority="239" tag="204" translatesAutoresizingMaskIntoConstraints="NO" id="3129" userLabel="Sharing">
                                 <rect key="frame" x="591" y="350" width="63" height="15"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <popUpButtonCell key="cell" type="push" title="public" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="3223">
+                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="3223">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                     <menu key="menu" title="OtherViews" id="3224">
                                         <items>
-                                            <menuItem title="public" state="on" id="3225"/>
+                                            <menuItem title="public" id="3225"/>
                                             <menuItem title="private" id="3226"/>
                                         </items>
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
-                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3367"/>
                                     <binding destination="255" name="selectedValue" keyPath="objectValue.sharing" id="3316">
                                         <dictionary key="options">
                                             <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
                                             <bool key="NSConditionallySetsHidden" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3367"/>
                                 </connections>
                             </popUpButton>
                             <textField identifier="ContentsField" toolTip="Description" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1" tag="213" translatesAutoresizingMaskIntoConstraints="NO" id="3124" userLabel="ContentsField">
@@ -1270,25 +1270,25 @@
                                     <font key="font" metaFont="miniSystem"/>
                                 </buttonCell>
                                 <connections>
-                                    <binding destination="255" name="argument2" keyPath="self" previousBinding="3335" id="3340">
-                                        <dictionary key="options">
-                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
-                                        </dictionary>
-                                    </binding>
                                     <binding destination="255" name="argument" keyPath="objectValue" id="3335">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3362"/>
+                                    <binding destination="255" name="argument2" keyPath="self" previousBinding="3335" id="3340">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
+                                        </dictionary>
+                                    </binding>
                                     <binding destination="-2" name="target" keyPath="self" previousBinding="3340" id="3341">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">showMetadataPopoverForAsset:sender:</string>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="255" name="enabled" keyPath="self.selected" id="3362"/>
                                 </connections>
                             </button>
-                            <textField identifier="Permalink-label" verticalHuggingPriority="750" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="3126" userLabel="Permalink-label">
+                            <textField identifier="Permalink-label" verticalHuggingPriority="750" misplaced="YES" tag="210" translatesAutoresizingMaskIntoConstraints="NO" id="3126" userLabel="Permalink-label">
                                 <rect key="frame" x="105" y="334" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Permalink:" id="3244">
@@ -1316,7 +1316,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="LinkTitle-label" verticalHuggingPriority="750" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="3131" userLabel="LinkTitle-label">
+                            <textField identifier="LinkTitle-label" verticalHuggingPriority="750" misplaced="YES" tag="211" translatesAutoresizingMaskIntoConstraints="NO" id="3131" userLabel="LinkTitle-label">
                                 <rect key="frame" x="105" y="316" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="LinkTitle:" id="3221">
@@ -1344,7 +1344,7 @@
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField identifier="LinkURL-label" verticalHuggingPriority="750" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="3130" userLabel="LinkURL-label">
+                            <textField identifier="LinkURL-label" verticalHuggingPriority="750" misplaced="YES" tag="212" translatesAutoresizingMaskIntoConstraints="NO" id="3130" userLabel="LinkURL-label">
                                 <rect key="frame" x="105" y="298" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Link URL:" id="3222">
@@ -1353,7 +1353,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField identifier="Genre-label" verticalHuggingPriority="750" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="3132" userLabel="Genre-label">
+                            <textField identifier="Genre-label" verticalHuggingPriority="750" misplaced="YES" tag="209" translatesAutoresizingMaskIntoConstraints="NO" id="3132" userLabel="Genre-label">
                                 <rect key="frame" x="105" y="352" width="50" height="11"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <constraints>
@@ -1454,7 +1454,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="120"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="309">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="309">
                                 <rect key="frame" x="12" y="103" width="975" height="17"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="title" id="310">
@@ -1466,7 +1466,7 @@
                                     <binding destination="297" name="value" keyPath="objectValue.title" id="313"/>
                                 </connections>
                             </textField>
-                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="308">
+                            <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="308">
                                 <rect key="frame" x="12" y="23" width="30" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Post" id="311">

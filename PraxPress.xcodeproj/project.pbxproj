@@ -37,7 +37,16 @@
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
 		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
+		E6486D2C182AFA1A000D8D73 /* Download.png in Resources */ = {isa = PBXBuildFile; fileRef = E6486D2A182AFA1A000D8D73 /* Download.png */; };
+		E6486D2D182AFA1A000D8D73 /* Upload.png in Resources */ = {isa = PBXBuildFile; fileRef = E6486D2B182AFA1A000D8D73 /* Upload.png */; };
 		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
+		E65F7D5318380159005F9C9F /* tracks.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4C18380159005F9C9F /* tracks.png */; };
+		E65F7D5418380159005F9C9F /* playlists.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4D18380159005F9C9F /* playlists.png */; };
+		E65F7D5518380159005F9C9F /* plays.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4E18380159005F9C9F /* plays.png */; };
+		E65F7D5618380159005F9C9F /* reposts.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4F18380159005F9C9F /* reposts.png */; };
+		E65F7D5718380159005F9C9F /* downloads.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5018380159005F9C9F /* downloads.png */; };
+		E65F7D5818380159005F9C9F /* comments.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5118380159005F9C9F /* comments.png */; };
+		E65F7D5918380159005F9C9F /* favorites.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5218380159005F9C9F /* favorites.png */; };
 		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
 		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
 		E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6BFF169F1252006F07D1 /* AssetDetailController.m */; };
@@ -55,6 +64,7 @@
 		E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = E673D1AA16A9A05C002B060D /* PlaylistController.m */; };
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E682EF5417723E540008642C /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
+		E69270C118295AEA00E5B202 /* NSSplitView+DMAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E69270C018295AEA00E5B202 /* NSSplitView+DMAdditions.m */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
 		E6BC79AE15C4759800080762 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79AC15C4759800080762 /* Credits.rtf */; };
@@ -162,9 +172,18 @@
 		E64555AB16A773BF00740F45 /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
 		E64774AA16067BA0003BD981 /* TemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TemplateViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E64774AB16067BA0003BD981 /* TemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TemplateViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		E6486D2A182AFA1A000D8D73 /* Download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Download.png; sourceTree = "<group>"; };
+		E6486D2B182AFA1A000D8D73 /* Upload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Upload.png; sourceTree = "<group>"; };
 		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
 		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
 		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
+		E65F7D4C18380159005F9C9F /* tracks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tracks.png; sourceTree = "<group>"; };
+		E65F7D4D18380159005F9C9F /* playlists.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlists.png; sourceTree = "<group>"; };
+		E65F7D4E18380159005F9C9F /* plays.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = plays.png; sourceTree = "<group>"; };
+		E65F7D4F18380159005F9C9F /* reposts.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reposts.png; sourceTree = "<group>"; };
+		E65F7D5018380159005F9C9F /* downloads.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = downloads.png; sourceTree = "<group>"; };
+		E65F7D5118380159005F9C9F /* comments.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = comments.png; sourceTree = "<group>"; };
+		E65F7D5218380159005F9C9F /* favorites.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = favorites.png; sourceTree = "<group>"; };
 		E661E62C1626182400EFD83A /* AccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
 		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
 		E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PraxPress.entitlements; sourceTree = "<group>"; };
@@ -189,6 +208,8 @@
 		E673D1AA16A9A05C002B060D /* PlaylistController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
 		E6775E4616A4BF4C00CDA34B /* Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Template.h; sourceTree = "<group>"; };
 		E6775E4716A4BF4C00CDA34B /* Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Template.m; sourceTree = "<group>"; };
+		E69270BF18295AEA00E5B202 /* NSSplitView+DMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSSplitView+DMAdditions.h"; sourceTree = "<group>"; };
+		E69270C018295AEA00E5B202 /* NSSplitView+DMAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSplitView+DMAdditions.m"; sourceTree = "<group>"; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC79A515C4759800080762 /* PraxPress-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PraxPress-Info.plist"; sourceTree = "<group>"; };
 		E6BC79A715C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -258,6 +279,7 @@
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E69270BE18295AEA00E5B202 /* NSSplitView+DMAdditions */,
 				E6FA7CCC17A5B201005CA002 /* PraxCategories.h */,
 				E6FA7CCD17A5B201005CA002 /* PraxCategories.m */,
 				E6BC79F515C48FE300080762 /* SpecialProtocol.h */,
@@ -375,6 +397,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E69270BE18295AEA00E5B202 /* NSSplitView+DMAdditions */ = {
+			isa = PBXGroup;
+			children = (
+				E69270BF18295AEA00E5B202 /* NSSplitView+DMAdditions.h */,
+				E69270C018295AEA00E5B202 /* NSSplitView+DMAdditions.m */,
+			);
+			path = "NSSplitView+DMAdditions";
+			sourceTree = "<group>";
+		};
 		E6BC798E15C4759800080762 = {
 			isa = PBXGroup;
 			children = (
@@ -442,6 +473,15 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E65F7D4C18380159005F9C9F /* tracks.png */,
+				E65F7D4D18380159005F9C9F /* playlists.png */,
+				E65F7D4E18380159005F9C9F /* plays.png */,
+				E65F7D4F18380159005F9C9F /* reposts.png */,
+				E65F7D5018380159005F9C9F /* downloads.png */,
+				E65F7D5118380159005F9C9F /* comments.png */,
+				E65F7D5218380159005F9C9F /* favorites.png */,
+				E6486D2A182AFA1A000D8D73 /* Download.png */,
+				E6486D2B182AFA1A000D8D73 /* Upload.png */,
 				E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */,
 				E61021A817BAF2D2001E0ED3 /* playlist.png */,
 				E61021A917BAF2D2001E0ED3 /* track.png */,
@@ -560,11 +600,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E65F7D5618380159005F9C9F /* reposts.png in Resources */,
 				E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */,
 				E61021A617BAE22E001E0ED3 /* WordPress.png in Resources */,
 				E6BC79AE15C4759800080762 /* Credits.rtf in Resources */,
 				E6BC79B715C4759800080762 /* MainMenu.xib in Resources */,
 				E6EE3F2615C773D10025C04B /* Connect.wav in Resources */,
+				E65F7D5518380159005F9C9F /* plays.png in Resources */,
 				E6EE3F2715C773D10025C04B /* Error.wav in Resources */,
 				E642A04817863934003FF23C /* PraxPress.xib in Resources */,
 				E6EE3F2815C773D10025C04B /* Start.wav in Resources */,
@@ -575,12 +617,16 @@
 				E67007C217873A2B0052FC2B /* isNotSelectedImage.tiff in Resources */,
 				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
 				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
+				E6486D2C182AFA1A000D8D73 /* Download.png in Resources */,
+				E65F7D5818380159005F9C9F /* comments.png in Resources */,
 				E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */,
 				E66E6C0B169F78DF006F07D1 /* AssetPredicateController.xib in Resources */,
 				E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */,
 				E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */,
+				E65F7D5918380159005F9C9F /* favorites.png in Resources */,
 				E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */,
 				E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */,
+				E6486D2D182AFA1A000D8D73 /* Upload.png in Resources */,
 				E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */,
 				E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */,
 				E6EA108616A9CB090004800F /* icon-network-drive.tiff in Resources */,
@@ -589,6 +635,7 @@
 				E6EA108816A9CB090004800F /* page_Arrow_Up_hi.tiff in Resources */,
 				E6EA10A316AB22DD0004800F /* NewPlaylistPopover.xib in Resources */,
 				E6EA10A616ACCEB40004800F /* SoundCloudName138x29.png in Resources */,
+				E65F7D5718380159005F9C9F /* downloads.png in Resources */,
 				E6EA10A716ACCEB40004800F /* WordPressName127x29.png in Resources */,
 				E6EA10A916ACD7680004800F /* Umbrella32x32.png in Resources */,
 				E642A05017863A87003FF23C /* greenlight.tiff in Resources */,
@@ -599,6 +646,8 @@
 				E642A04C178639FA003FF23C /* SourceListCellViews.xib in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
+				E65F7D5318380159005F9C9F /* tracks.png in Resources */,
+				E65F7D5418380159005F9C9F /* playlists.png in Resources */,
 				E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */,
 				E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */,
 				E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */,
@@ -636,6 +685,7 @@
 				E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */,
 				E642A03517862F1D003FF23C /* RequestController.m in Sources */,
 				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
+				E69270C118295AEA00E5B202 /* NSSplitView+DMAdditions.m in Sources */,
 				E642A03417862F13003FF23C /* SourceController.m in Sources */,
 				E64555A916A76F6900740F45 /* TagController.m in Sources */,
 				E64555AC16A773C000740F45 /* Tag.m in Sources */,

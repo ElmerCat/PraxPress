@@ -10,7 +10,7 @@
 
 @implementation NSArray (PraxCategories)
 
--(id)firstObjectWithKey:(NSString *)key equalToString:(NSString *)string {
+- (id)firstObjectWithKey:(NSString *)key equalToString:(NSString *)string {
     NSUInteger index = [self indexOfObjectPassingTest:^BOOL(id object, NSUInteger index, BOOL *stop) {
         if ([object[key] isEqualToString:string]) {
             return YES;
@@ -19,6 +19,39 @@
     }];
     if (index == NSNotFound) return nil;
     else return self[index];
+}
+- (NSString *)praxPressListType {
+    NSInteger count = self.count;
+
+    if (count < 1) {
+        return @"no-selection";
+    }
+    else if (count == 1) {
+        Asset *asset = self[0];
+        return asset.type;
+    }
+    else {
+        Asset *asset = self[0];
+        NSString *type = asset.type;
+        NSString *accountType = asset.accountType;
+        
+        while (count > 1) {
+            count--;
+            asset = self[count];
+            if (![[asset valueForKey:@"type"] isEqualToString:type]) {
+
+                while (count > 0) {
+                    asset = self[count];
+                    if (![[asset valueForKey:@"accountType"] isEqualToString:accountType]) {
+                        return @"default";
+                    }
+                    count--;
+                }
+                return accountType;
+            }
+        }
+        return [NSString stringWithFormat:@"%@s", type];
+    }
 }
 
 @end

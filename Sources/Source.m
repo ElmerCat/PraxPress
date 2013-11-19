@@ -17,7 +17,7 @@
 @dynamic fetchEntity;
 @dynamic rowHeight;
 @dynamic folderType;
-@dynamic formattedCode;
+@dynamic exportURL;
 
 @dynamic fetchPredicate;
 @dynamic filterString;
@@ -25,6 +25,9 @@
 @dynamic account;
 @dynamic batchAssets;
 @dynamic template;
+@dynamic excludedTags;
+@dynamic requiredTags;
+@dynamic requireAllTags;
 
 
 - (NSArray *)childrenArray {
@@ -60,6 +63,7 @@
     child.fetchEntity = fetchEntity;
     if (fetchPredicate.length) child.fetchPredicate = [NSPredicate predicateWithFormat:fetchPredicate];
     Asset *account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
+    account.type = @"account";
     account.accountType = child.name;
     child.account = account;
     child.rowHeight = rowHeight;

@@ -12,6 +12,7 @@
 #import "Tag.h"
 #import "BatchController.h"
 #import "TagController.h"
+#import "AssetListViewController.h"
 
 @class Document;
 @class PostEditor;
@@ -27,6 +28,14 @@
 @property NSString *statusText;
 @property NSInteger updateCount;
 @property NSInteger targetCount;
+
+
+- (void)reloadAssetsForClient:(id)client;
+@property NSMutableSet *assetsToReload;
+- (void)uploadAssetsForClient:(id)client;
+@property NSMutableSet *assetsToUpload;
+
+
 @property BOOL stop;
 @property BOOL busy;
 @property BOOL determinate;

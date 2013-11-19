@@ -27,15 +27,24 @@
     }
     return self;
 }
+- (void)awakeFromNib {
+    NSLog(@"TagController awakeFromNib");
+    if (!self.awake) {
+        self.awake = TRUE;
+        [self.excludedTagsTokenField registerForDraggedTypes:[NSArray arrayWithObjects:@"PraxTagsDropType", nil]];
+    }
+}
 
-- (void)loadAssetTags:(Asset *)asset {
-    NSString *tag_list = asset.tag_list;
+- (void)loadAssetTags:(Asset *)asset data:(NSDictionary *)data {
     NSMutableSet *tags = [[NSMutableSet alloc] init];
-    if (tag_list.length > 0) {
-        NSArray *tagArray = [TagController arrayFromTagString:tag_list];
-        NSError *error;
-        Tag *tag;
-        for (NSString *tagString in tagArray) {
+    Tag *tag;
+    NSError *error;
+
+    if ([asset.accountType isEqualToString:@"WordPress"]) {
+        NSDictionary *tagDictionary = data[@"tags" ];
+        
+        
+        for (NSString *tagString in tagDictionary) {
             NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
             [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", tagString]];
             NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
@@ -45,6 +54,26 @@
             }
             else tag = matchingItems[0];
             [tags addObject:tag];
+        }
+        
+    
+    
+    }
+    else {
+        NSString *tag_list = data[@"tag_list"];
+        if (tag_list.length > 0) {
+            NSArray *tagArray = [TagController arrayFromTagString:tag_list];
+            for (NSString *tagString in tagArray) {
+                NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+                [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", tagString]];
+                NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+                if ([matchingItems count] < 1) {
+                    tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+                    tag.name = tagString;
+                }
+                else tag = matchingItems[0];
+                [tags addObject:tag];
+            }
         }
     }
     asset.tags = tags;
@@ -110,6 +139,44 @@
         else [string appendString:substring];
     }
     return string.description;
+}
+
+- (NSString *)tokenField:(NSTokenField *)tokenField displayStringForRepresentedObject:(id)representedObject {
+    return [(Tag *)representedObject name];
+}
+
+- (NSString *)tokenField:(NSTokenField *)tokenField editingStringForRepresentedObject:(id)representedObject {
+    return [(Tag *)representedObject name];
+}
+
+- (id)tokenField:(NSTokenField *)tokenField representedObjectForEditingString:(NSString *)editingString {
+    NSError *error;
+    Tag *tag;
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", editingString]];
+    NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+    if ([matchingItems count] < 1) {
+        tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
+        tag.name = editingString;
+    }
+    else tag = matchingItems[0];
+    return tag;
+    
+}
+
+- (BOOL)tableView:(NSTableView *)table writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pasteboard
+{
+    NSMutableString * tagString = [@"" mutableCopy];
+    NSArray * draggedObjects = [self.tagsArrayController.arrangedObjects objectsAtIndexes:rowIndexes];
+    BOOL multiple;
+    for (Tag * tag in draggedObjects) {
+        if (multiple) [tagString appendString:@","];
+        [tagString appendString:tag.name];
+        multiple = YES;
+    }
+	[pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
+	[pasteboard setString:tagString forType:NSStringPboardType];
+	return YES;
 }
 
 @end

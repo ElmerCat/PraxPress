@@ -8,6 +8,7 @@
 
 #import "Document.h"
 @class Asset;
+@class Tag;
 @class Template;
 
 @interface Source : NSManagedObject
@@ -29,22 +30,35 @@
 @property (nonatomic, retain) NSString * iconName;
 @property (nonatomic, retain) NSString * fetchEntity;
 @property (nonatomic, retain) NSPredicate *fetchPredicate;
+@property (nonatomic, retain) NSURL * exportURL;
 @property (nonatomic, retain) NSString *filterString;
 @property (nonatomic, retain) NSString *filterKey;
 @property (nonatomic, retain) NSNumber * sortOrder;
 @property (nonatomic, retain) NSNumber * rowHeight;
 @property (nonatomic, retain) NSString * folderType;
-@property (nonatomic, retain) NSString * formattedCode;
 
 @property (nonatomic, retain) Asset *account;
 @property (nonatomic, retain) Source *parent;
 @property (nonatomic, retain) NSOrderedSet *children;
 @property (nonatomic, retain) NSOrderedSet *batchAssets;
 @property (nonatomic, retain) Template *template;
+@property (nonatomic, retain) NSSet *excludedTags;
+@property (nonatomic, retain) NSSet *requiredTags;
+@property (nonatomic, retain) NSNumber * requireAllTags;
 
 @end
 
 @interface Source (CoreDataGeneratedAccessors)
+
+- (void)addExcludedTagsObject:(Tag *)value;
+- (void)removeExcludedTagsObject:(Tag *)value;
+- (void)addExcludedTags:(NSSet *)values;
+- (void)removeExcludedTags:(NSSet *)values;
+
+- (void)addRequiredTagsObject:(Tag *)value;
+- (void)removeRequiredTagsObject:(Tag *)value;
+- (void)addRequiredTags:(NSSet *)values;
+- (void)removeRequiredTags:(NSSet *)values;
 
 - (void)insertObject:(Asset *)value inBatchAssetsAtIndex:(NSUInteger)idx;
 - (void)removeObjectFromBatchAssetsAtIndex:(NSUInteger)idx;

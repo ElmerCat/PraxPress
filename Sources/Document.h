@@ -30,9 +30,11 @@
 @class TemplateController;
 @class SourceController;
 @class RequestController;
+@class PraxAssetTagStringTransformer;
 
 @interface Document : NSPersistentDocument
 @property PraxPressDocument *praxPressDocument;
+@property PraxAssetTagStringTransformer *patsTransformer;
 @property (strong) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
 @property (strong) IBOutlet NSPanel *templatesPanel;
@@ -61,6 +63,7 @@
 @property NSArray *sharingTypes;
 @property NSArray *trackSubTypes;
 @property NSArray *playlistSubTypes;
+@property NSPredicate *changedAssetFilterPredicate;
 
 @property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;

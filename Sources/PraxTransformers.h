@@ -14,8 +14,46 @@
 @class Document;
 
 @interface PraxTransformers : NSObject
-+(void)loadForDocument:(Document *)document;
++(void)load;
 @end
+
+@interface PraxMillisecondsToDurationTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsPlaylistTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsNotPlaylistTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayArePlaylistsTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsTrackTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsNotTrackTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayAreTracksTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayAreSoundCloudTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayAreWordPressTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayAreDifferentTypes : NSValueTransformer
+@end
+@interface PraxArrayAreDifferentAccountTypes : NSValueTransformer
+@end
+@interface PraxArrayIsPostTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsPageTransformer : NSValueTransformer
+@end
+
 
 @interface PraxPredicateToStringTransformer : NSValueTransformer
 @end
@@ -41,8 +79,7 @@
 @interface PraxAssetStringTransformer : NSValueTransformer
 @end
 
-@interface PraxAssetTagStringTransformer : NSValueTransformer {
-    Document *_document;
-}
-@property Document *document;
+@interface PraxAssetTagStringTransformer : NSValueTransformer
+@property (strong) Document *document;
++(PraxAssetTagStringTransformer *)loadForDocument:(Document *)document;
 @end
