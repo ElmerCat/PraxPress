@@ -7,17 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */ = {isa = PBXBuildFile; fileRef = E606CDBD1606F1C000D34EDE /* AssetController.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
 		E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A117BADFC0001E0ED3 /* SoundCloud.png */; };
-		E61021A617BAE22E001E0ED3 /* WordPress.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A517BAE22E001E0ED3 /* WordPress.png */; };
 		E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A817BAF2D2001E0ED3 /* playlist.png */; };
 		E61021AB17BAF2D2001E0ED3 /* track.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A917BAF2D2001E0ED3 /* track.png */; };
 		E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */; };
+		E6192A8D18590223001BACD4 /* Widget.m in Sources */ = {isa = PBXBuildFile; fileRef = E6192A8C18590223001BACD4 /* Widget.m */; };
+		E6192A9118595908001BACD4 /* WidgetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6192A8F18595908001BACD4 /* WidgetViewController.m */; };
+		E6192A9218595908001BACD4 /* WidgetViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6192A9018595908001BACD4 /* WidgetViewController.xib */; };
 		E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61CF90217718A6F0038A502 /* PraxPress.icns */; };
 		E61F38ED17962EEA00728A24 /* Document+DocumentUserInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */; };
 		E624D84215EAB03D0066D7D7 /* Asset.m in Sources */ = {isa = PBXBuildFile; fileRef = E6EDDE2615DC0CF60039BEFD /* Asset.m */; };
+		E6297BB4183E8D4B00D58A16 /* SourceInfoPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6297BB3183E8D4B00D58A16 /* SourceInfoPanel.xib */; };
+		E6297BBC183E91DF00D58A16 /* SourceInfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = E6297BBB183E91DF00D58A16 /* SourceInfoPanel.m */; };
 		E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = E63E87C115E05B5900110570 /* PraxTransformers.m */; };
 		E642A03317862F04003FF23C /* PraxPredicateEditorRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A02E1786283C003FF23C /* PraxPredicateEditorRowTemplate.m */; };
 		E642A03417862F13003FF23C /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = E642A032178628CD003FF23C /* SourceController.m */; };
@@ -32,14 +35,13 @@
 		E642A05017863A87003FF23C /* greenlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04D17863A87003FF23C /* greenlight.tiff */; };
 		E642A05117863A87003FF23C /* orangelight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04E17863A87003FF23C /* orangelight.tiff */; };
 		E642A05217863A87003FF23C /* redlight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E642A04F17863A87003FF23C /* redlight.tiff */; };
-		E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */ = {isa = PBXBuildFile; fileRef = E642A05317863E53003FF23C /* SourcePopovers.xib */; };
 		E642A056178643CE003FF23C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E642A055178643CE003FF23C /* WebKit.framework */; };
 		E64555A916A76F6900740F45 /* TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555A816A76F6900740F45 /* TagController.m */; };
 		E64555AC16A773C000740F45 /* Tag.m in Sources */ = {isa = PBXBuildFile; fileRef = E64555AB16A773BF00740F45 /* Tag.m */; };
-		E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E64774AB16067BA0003BD981 /* TemplateViewController.m */; };
 		E6486D2C182AFA1A000D8D73 /* Download.png in Resources */ = {isa = PBXBuildFile; fileRef = E6486D2A182AFA1A000D8D73 /* Download.png */; };
 		E6486D2D182AFA1A000D8D73 /* Upload.png in Resources */ = {isa = PBXBuildFile; fileRef = E6486D2B182AFA1A000D8D73 /* Upload.png */; };
-		E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */ = {isa = PBXBuildFile; fileRef = E65BD6F415E7C63900D9F0A4 /* BatchController.m */; };
+		E656BEC718515445009254BE /* MultipleChangePopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E656BEC518515445009254BE /* MultipleChangePopover.m */; };
+		E656BEC818515445009254BE /* MultipleChangePopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = E656BEC618515445009254BE /* MultipleChangePopover.xib */; };
 		E65F7D5318380159005F9C9F /* tracks.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4C18380159005F9C9F /* tracks.png */; };
 		E65F7D5418380159005F9C9F /* playlists.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4D18380159005F9C9F /* playlists.png */; };
 		E65F7D5518380159005F9C9F /* plays.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D4E18380159005F9C9F /* plays.png */; };
@@ -47,32 +49,28 @@
 		E65F7D5718380159005F9C9F /* downloads.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5018380159005F9C9F /* downloads.png */; };
 		E65F7D5818380159005F9C9F /* comments.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5118380159005F9C9F /* comments.png */; };
 		E65F7D5918380159005F9C9F /* favorites.png in Resources */ = {isa = PBXBuildFile; fileRef = E65F7D5218380159005F9C9F /* favorites.png */; };
-		E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E661E62C1626182400EFD83A /* AccountViewController.xib */; };
-		E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E665634315E9744400DFC7C9 /* TemplateView.xib */; };
-		E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6BFF169F1252006F07D1 /* AssetDetailController.m */; };
-		E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C00169F1252006F07D1 /* AssetDetailController.xib */; };
-		E66E6C0A169F78DF006F07D1 /* AssetPredicateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */; };
-		E66E6C0B169F78DF006F07D1 /* AssetPredicateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */; };
-		E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */; };
-		E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */; };
 		E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */; };
 		E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */; };
 		E67007C217873A2B0052FC2B /* isNotSelectedImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */; };
 		E67007C317873A2B0052FC2B /* isSelectedImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = E67007C117873A2B0052FC2B /* isSelectedImage.tiff */; };
 		E6709A571793267C00A1A59F /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E6709A541793267C00A1A59F /* Document.xcdatamodeld */; };
 		E672B40A179C45750036A106 /* TemplateController.m in Sources */ = {isa = PBXBuildFile; fileRef = E672B409179C45750036A106 /* TemplateController.m */; };
-		E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = E673D1AA16A9A05C002B060D /* PlaylistController.m */; };
 		E6775E4816A4BF4C00CDA34B /* Template.m in Sources */ = {isa = PBXBuildFile; fileRef = E6775E4716A4BF4C00CDA34B /* Template.m */; };
 		E682EF5417723E540008642C /* OAuth2Client.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
+		E68A34D918559898007D8D7B /* PraxTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = E68A34D818559898007D8D7B /* PraxTokenField.m */; };
 		E69270C118295AEA00E5B202 /* NSSplitView+DMAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E69270C018295AEA00E5B202 /* NSSplitView+DMAdditions.m */; };
+		E6A142BA1853CB31001B9F6C /* PraxButton.m in Sources */ = {isa = PBXBuildFile; fileRef = E6A142B91853CB31001B9F6C /* PraxButton.m */; };
+		E6B1DCA9183D66C40089AA21 /* WordPress.png in Resources */ = {isa = PBXBuildFile; fileRef = E6B1DCA8183D66C40089AA21 /* WordPress.png */; };
 		E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79A615C4759800080762 /* InfoPlist.strings */; };
 		E6BC79AA15C4759800080762 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79A915C4759800080762 /* main.m */; };
 		E6BC79AE15C4759800080762 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79AC15C4759800080762 /* Credits.rtf */; };
 		E6BC79B115C4759800080762 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79B015C4759800080762 /* Document.m */; };
 		E6BC79B715C4759800080762 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6BC79B515C4759800080762 /* MainMenu.xib */; };
 		E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BC79F615C48FE300080762 /* SpecialProtocol.m */; };
+		E6BFE3D1185F6EBC001806B7 /* BWTokenAttachmentCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BFE3CC185F6EBC001806B7 /* BWTokenAttachmentCell.m */; };
+		E6BFE3D2185F6EBC001806B7 /* BWTokenFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BFE3CE185F6EBC001806B7 /* BWTokenFieldCell.m */; };
+		E6BFE3D618613977001806B7 /* Interface.m in Sources */ = {isa = PBXBuildFile; fileRef = E6BFE3D518613977001806B7 /* Interface.m */; };
 		E6C05D801772277B004F09EA /* OAuth2Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E676BFCF1772225E007C81B0 /* OAuth2Client.framework */; };
-		E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D19B93168AB11300D068BC /* AssetTableCellView.m */; };
 		E6DECE9716AD26020076BDC4 /* toggleOff.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9516AD26020076BDC4 /* toggleOff.png */; };
 		E6DECE9816AD26020076BDC4 /* toggleOn.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9616AD26020076BDC4 /* toggleOn.png */; };
 		E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = E6DECE9916AD9F830076BDC4 /* toggleLeft.png */; };
@@ -90,10 +88,8 @@
 		E6EE3F2715C773D10025C04B /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2315C773D10025C04B /* Error.wav */; };
 		E6EE3F2815C773D10025C04B /* Start.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2415C773D10025C04B /* Start.wav */; };
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
-		E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6F80B281623969100828086 /* ChangeValuesController.m */; };
-		E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6F80B291623969100828086 /* ChangeValuesController.xib */; };
-		E6FA7CC917A5AE34005CA002 /* PraxPressDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */; };
 		E6FA7CCE17A5B201005CA002 /* PraxCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FA7CCD17A5B201005CA002 /* PraxCategories.m */; };
+		E6FCFE0B186A52EA001E9483 /* CodePopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE0A186A52EA001E9483 /* CodePopover.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,19 +123,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E606CDBC1606F1C000D34EDE /* AssetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetController.h; sourceTree = "<group>"; };
-		E606CDBD1606F1C000D34EDE /* AssetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetController.m; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
 		E61021A117BADFC0001E0ED3 /* SoundCloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloud.png; sourceTree = "<group>"; };
-		E61021A517BAE22E001E0ED3 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
-		E61021A717BAE5EA001E0ED3 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
 		E61021A817BAF2D2001E0ED3 /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist.png; sourceTree = "<group>"; };
 		E61021A917BAF2D2001E0ED3 /* track.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = track.png; sourceTree = "<group>"; };
 		E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaylistFrame.png; sourceTree = "<group>"; };
+		E6192A8B18590223001BACD4 /* Widget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Widget.h; sourceTree = "<group>"; };
+		E6192A8C18590223001BACD4 /* Widget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Widget.m; sourceTree = "<group>"; };
+		E6192A8E18595908001BACD4 /* WidgetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetViewController.h; sourceTree = "<group>"; };
+		E6192A8F18595908001BACD4 /* WidgetViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WidgetViewController.m; sourceTree = "<group>"; };
+		E6192A9018595908001BACD4 /* WidgetViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WidgetViewController.xib; sourceTree = "<group>"; };
 		E61CF90217718A6F0038A502 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
 		E61F38EB17962EEA00728A24 /* Document+DocumentUserInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Document+DocumentUserInterface.h"; sourceTree = "<group>"; };
 		E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Document+DocumentUserInterface.m"; sourceTree = "<group>"; };
+		E6297BB3183E8D4B00D58A16 /* SourceInfoPanel.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourceInfoPanel.xib; sourceTree = "<group>"; };
+		E6297BBA183E91DF00D58A16 /* SourceInfoPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceInfoPanel.h; sourceTree = "<group>"; };
+		E6297BBB183E91DF00D58A16 /* SourceInfoPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SourceInfoPanel.m; sourceTree = "<group>"; };
 		E634DE7C17A1C4CA00D98AE6 /* iTunes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iTunes.h; sourceTree = "<group>"; };
 		E634DE7D17A1C4CA00D98AE6 /* Safari.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Safari.h; sourceTree = "<group>"; };
 		E63E87C015E05B5900110570 /* PraxTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTransformers.h; sourceTree = "<group>"; };
@@ -164,19 +164,17 @@
 		E642A04D17863A87003FF23C /* greenlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = greenlight.tiff; sourceTree = "<group>"; };
 		E642A04E17863A87003FF23C /* orangelight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = orangelight.tiff; sourceTree = "<group>"; };
 		E642A04F17863A87003FF23C /* redlight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = redlight.tiff; sourceTree = "<group>"; };
-		E642A05317863E53003FF23C /* SourcePopovers.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SourcePopovers.xib; sourceTree = "<group>"; };
 		E642A055178643CE003FF23C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E64555A716A76F6900740F45 /* TagController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TagController.h; sourceTree = "<group>"; };
 		E64555A816A76F6900740F45 /* TagController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TagController.m; sourceTree = "<group>"; };
 		E64555AA16A773BF00740F45 /* Tag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tag.h; sourceTree = "<group>"; };
 		E64555AB16A773BF00740F45 /* Tag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tag.m; sourceTree = "<group>"; };
-		E64774AA16067BA0003BD981 /* TemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TemplateViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E64774AB16067BA0003BD981 /* TemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TemplateViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E6486D2A182AFA1A000D8D73 /* Download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Download.png; sourceTree = "<group>"; };
 		E6486D2B182AFA1A000D8D73 /* Upload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Upload.png; sourceTree = "<group>"; };
 		E6533C4517721A000094D84F /* OAuth2Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OAuth2Client.xcodeproj; path = OAuth2Client/OAuth2Client.xcodeproj; sourceTree = "<group>"; };
-		E65BD6F315E7C63900D9F0A4 /* BatchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BatchController.h; sourceTree = "<group>"; };
-		E65BD6F415E7C63900D9F0A4 /* BatchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchController.m; sourceTree = "<group>"; };
+		E656BEC418515445009254BE /* MultipleChangePopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultipleChangePopover.h; sourceTree = "<group>"; };
+		E656BEC518515445009254BE /* MultipleChangePopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MultipleChangePopover.m; sourceTree = "<group>"; };
+		E656BEC618515445009254BE /* MultipleChangePopover.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MultipleChangePopover.xib; sourceTree = "<group>"; };
 		E65F7D4C18380159005F9C9F /* tracks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tracks.png; sourceTree = "<group>"; };
 		E65F7D4D18380159005F9C9F /* playlists.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlists.png; sourceTree = "<group>"; };
 		E65F7D4E18380159005F9C9F /* plays.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = plays.png; sourceTree = "<group>"; };
@@ -184,17 +182,7 @@
 		E65F7D5018380159005F9C9F /* downloads.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = downloads.png; sourceTree = "<group>"; };
 		E65F7D5118380159005F9C9F /* comments.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = comments.png; sourceTree = "<group>"; };
 		E65F7D5218380159005F9C9F /* favorites.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = favorites.png; sourceTree = "<group>"; };
-		E661E62C1626182400EFD83A /* AccountViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
-		E665634315E9744400DFC7C9 /* TemplateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateView.xib; sourceTree = "<group>"; };
 		E66E6BF916951AFE006F07D1 /* PraxPress.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PraxPress.entitlements; sourceTree = "<group>"; };
-		E66E6BFE169F1252006F07D1 /* AssetDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetDetailController.h; sourceTree = "<group>"; };
-		E66E6BFF169F1252006F07D1 /* AssetDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetDetailController.m; sourceTree = "<group>"; };
-		E66E6C00169F1252006F07D1 /* AssetDetailController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetDetailController.xib; sourceTree = "<group>"; };
-		E66E6C07169F78DF006F07D1 /* AssetPredicateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetPredicateController.h; sourceTree = "<group>"; };
-		E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetPredicateController.m; sourceTree = "<group>"; };
-		E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetPredicateController.xib; sourceTree = "<group>"; };
-		E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetTableCellView.xib; sourceTree = "<group>"; };
-		E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TemplateViewController.xib; sourceTree = "<group>"; };
 		E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetMetadataPopover.h; sourceTree = "<group>"; };
 		E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetMetadataPopover.m; sourceTree = "<group>"; };
 		E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetMetadataPopover.xib; sourceTree = "<group>"; };
@@ -204,12 +192,15 @@
 		E6709A561793267C00A1A59F /* Document1.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document1.0.xcdatamodel; sourceTree = "<group>"; };
 		E672B408179C45750036A106 /* TemplateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateController.h; sourceTree = "<group>"; };
 		E672B409179C45750036A106 /* TemplateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TemplateController.m; sourceTree = "<group>"; };
-		E673D1A916A9A05C002B060D /* PlaylistController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
-		E673D1AA16A9A05C002B060D /* PlaylistController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
 		E6775E4616A4BF4C00CDA34B /* Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Template.h; sourceTree = "<group>"; };
 		E6775E4716A4BF4C00CDA34B /* Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Template.m; sourceTree = "<group>"; };
+		E68A34D718559898007D8D7B /* PraxTokenField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTokenField.h; sourceTree = "<group>"; };
+		E68A34D818559898007D8D7B /* PraxTokenField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTokenField.m; sourceTree = "<group>"; };
 		E69270BF18295AEA00E5B202 /* NSSplitView+DMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSSplitView+DMAdditions.h"; sourceTree = "<group>"; };
 		E69270C018295AEA00E5B202 /* NSSplitView+DMAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSplitView+DMAdditions.m"; sourceTree = "<group>"; };
+		E6A142B81853CB31001B9F6C /* PraxButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxButton.h; sourceTree = "<group>"; };
+		E6A142B91853CB31001B9F6C /* PraxButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxButton.m; sourceTree = "<group>"; };
+		E6B1DCA8183D66C40089AA21 /* WordPress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WordPress.png; sourceTree = "<group>"; };
 		E6BC799915C4759800080762 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6BC79A515C4759800080762 /* PraxPress-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PraxPress-Info.plist"; sourceTree = "<group>"; };
 		E6BC79A715C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -221,8 +212,13 @@
 		E6BC79B615C4759800080762 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E6BC79F515C48FE300080762 /* SpecialProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpecialProtocol.h; sourceTree = "<group>"; };
 		E6BC79F615C48FE300080762 /* SpecialProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpecialProtocol.m; sourceTree = "<group>"; };
-		E6D19B92168AB11300D068BC /* AssetTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetTableCellView.h; sourceTree = "<group>"; };
-		E6D19B93168AB11300D068BC /* AssetTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetTableCellView.m; sourceTree = "<group>"; };
+		E6BFE3CB185F6EBC001806B7 /* BWTokenAttachmentCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTokenAttachmentCell.h; sourceTree = "<group>"; };
+		E6BFE3CC185F6EBC001806B7 /* BWTokenAttachmentCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BWTokenAttachmentCell.m; sourceTree = "<group>"; };
+		E6BFE3CD185F6EBC001806B7 /* BWTokenFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTokenFieldCell.h; sourceTree = "<group>"; };
+		E6BFE3CE185F6EBC001806B7 /* BWTokenFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BWTokenFieldCell.m; sourceTree = "<group>"; };
+		E6BFE3CF185F6EBC001806B7 /* NSTokenAttachmentCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTokenAttachmentCell.h; sourceTree = "<group>"; };
+		E6BFE3D418613977001806B7 /* Interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interface.h; sourceTree = "<group>"; };
+		E6BFE3D518613977001806B7 /* Interface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Interface.m; sourceTree = "<group>"; };
 		E6DECE9516AD26020076BDC4 /* toggleOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleOff.png; sourceTree = "<group>"; };
 		E6DECE9616AD26020076BDC4 /* toggleOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleOn.png; sourceTree = "<group>"; };
 		E6DECE9916AD9F830076BDC4 /* toggleLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toggleLeft.png; sourceTree = "<group>"; };
@@ -245,13 +241,10 @@
 		E6EE3F2415C773D10025C04B /* Start.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Start.wav; sourceTree = "<group>"; };
 		E6EE3F2515C773D10025C04B /* Stop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Stop.wav; sourceTree = "<group>"; };
 		E6F6417116C0B77600FD5644 /* PraxPress.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = PraxPress.icns; sourceTree = "<group>"; };
-		E6F80B271623969100828086 /* ChangeValuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeValuesController.h; sourceTree = "<group>"; };
-		E6F80B281623969100828086 /* ChangeValuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeValuesController.m; sourceTree = "<group>"; };
-		E6F80B291623969100828086 /* ChangeValuesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeValuesController.xib; sourceTree = "<group>"; };
-		E6FA7CC717A5AE34005CA002 /* PraxPressDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxPressDocument.h; sourceTree = "<group>"; };
-		E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxPressDocument.m; sourceTree = "<group>"; };
 		E6FA7CCC17A5B201005CA002 /* PraxCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxCategories.h; sourceTree = "<group>"; };
 		E6FA7CCD17A5B201005CA002 /* PraxCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxCategories.m; sourceTree = "<group>"; };
+		E6FCFE09186A52EA001E9483 /* CodePopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodePopover.h; sourceTree = "<group>"; };
+		E6FCFE0A186A52EA001E9483 /* CodePopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CodePopover.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -267,6 +260,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E6192A851858FC8E001BACD4 /* Document */ = {
+			isa = PBXGroup;
+			children = (
+				E6BC79AF15C4759800080762 /* Document.h */,
+				E6BC79B015C4759800080762 /* Document.m */,
+				E61F38EB17962EEA00728A24 /* Document+DocumentUserInterface.h */,
+				E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */,
+			);
+			name = Document;
+			sourceTree = "<group>";
+		};
 		E61CF8FD177189300038A502 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -279,6 +283,11 @@
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E6BFE3CB185F6EBC001806B7 /* BWTokenAttachmentCell.h */,
+				E6BFE3CC185F6EBC001806B7 /* BWTokenAttachmentCell.m */,
+				E6BFE3CD185F6EBC001806B7 /* BWTokenFieldCell.h */,
+				E6BFE3CE185F6EBC001806B7 /* BWTokenFieldCell.m */,
+				E6BFE3CF185F6EBC001806B7 /* NSTokenAttachmentCell.h */,
 				E69270BE18295AEA00E5B202 /* NSSplitView+DMAdditions */,
 				E6FA7CCC17A5B201005CA002 /* PraxCategories.h */,
 				E6FA7CCD17A5B201005CA002 /* PraxCategories.m */,
@@ -288,6 +297,10 @@
 				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
 				E63E87C015E05B5900110570 /* PraxTransformers.h */,
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
+				E6A142B81853CB31001B9F6C /* PraxButton.h */,
+				E6A142B91853CB31001B9F6C /* PraxButton.m */,
+				E68A34D718559898007D8D7B /* PraxTokenField.h */,
+				E68A34D818559898007D8D7B /* PraxTokenField.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -305,8 +318,6 @@
 			isa = PBXGroup;
 			children = (
 				E6709A541793267C00A1A59F /* Document.xcdatamodeld */,
-				E6FA7CC717A5AE34005CA002 /* PraxPressDocument.h */,
-				E6FA7CC817A5AE34005CA002 /* PraxPressDocument.m */,
 				E642A02917862096003FF23C /* Source.h */,
 				E642A02A17862096003FF23C /* Source.m */,
 				E6EDDE2515DC0CF60039BEFD /* Asset.h */,
@@ -315,6 +326,10 @@
 				E64555AB16A773BF00740F45 /* Tag.m */,
 				E6775E4616A4BF4C00CDA34B /* Template.h */,
 				E6775E4716A4BF4C00CDA34B /* Template.m */,
+				E6192A8B18590223001BACD4 /* Widget.h */,
+				E6192A8C18590223001BACD4 /* Widget.m */,
+				E6BFE3D418613977001806B7 /* Interface.h */,
+				E6BFE3D518613977001806B7 /* Interface.m */,
 			);
 			name = Entities/Objects;
 			sourceTree = "<group>";
@@ -328,22 +343,18 @@
 				E642A03E17862FF6003FF23C /* SourceTableRowView.m */,
 				E642A02D1786283C003FF23C /* PraxPredicateEditorRowTemplate.h */,
 				E642A02E1786283C003FF23C /* PraxPredicateEditorRowTemplate.m */,
-				E66E6BFE169F1252006F07D1 /* AssetDetailController.h */,
-				E66E6BFF169F1252006F07D1 /* AssetDetailController.m */,
 				E66E6C1F16A3268F006F07D1 /* AssetMetadataPopover.h */,
 				E66E6C2016A3268F006F07D1 /* AssetMetadataPopover.m */,
-				E66E6C07169F78DF006F07D1 /* AssetPredicateController.h */,
-				E66E6C08169F78DF006F07D1 /* AssetPredicateController.m */,
-				E6D19B92168AB11300D068BC /* AssetTableCellView.h */,
-				E6D19B93168AB11300D068BC /* AssetTableCellView.m */,
-				E6F80B271623969100828086 /* ChangeValuesController.h */,
-				E6F80B281623969100828086 /* ChangeValuesController.m */,
 				E6EA109F16AB22DD0004800F /* NewPlaylistPopover.h */,
 				E6EA10A016AB22DD0004800F /* NewPlaylistPopover.m */,
-				E672B408179C45750036A106 /* TemplateController.h */,
-				E672B409179C45750036A106 /* TemplateController.m */,
-				E64774AA16067BA0003BD981 /* TemplateViewController.h */,
-				E64774AB16067BA0003BD981 /* TemplateViewController.m */,
+				E6297BBA183E91DF00D58A16 /* SourceInfoPanel.h */,
+				E6297BBB183E91DF00D58A16 /* SourceInfoPanel.m */,
+				E656BEC418515445009254BE /* MultipleChangePopover.h */,
+				E656BEC518515445009254BE /* MultipleChangePopover.m */,
+				E6192A8E18595908001BACD4 /* WidgetViewController.h */,
+				E6192A8F18595908001BACD4 /* WidgetViewController.m */,
+				E6FCFE09186A52EA001E9483 /* CodePopover.h */,
+				E6FCFE0A186A52EA001E9483 /* CodePopover.m */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -352,19 +363,14 @@
 			isa = PBXGroup;
 			children = (
 				E642A049178639A3003FF23C /* AssetListView.xib */,
+				E656BEC618515445009254BE /* MultipleChangePopover.xib */,
 				E642A04617863934003FF23C /* PraxPress.xib */,
-				E642A05317863E53003FF23C /* SourcePopovers.xib */,
 				E642A04B178639FA003FF23C /* SourceListCellViews.xib */,
-				E661E62C1626182400EFD83A /* AccountViewController.xib */,
-				E66E6C00169F1252006F07D1 /* AssetDetailController.xib */,
 				E66E6C2116A32690006F07D1 /* AssetMetadataPopover.xib */,
-				E66E6C09169F78DF006F07D1 /* AssetPredicateController.xib */,
-				E66E6C1216A0D998006F07D1 /* AssetTableCellView.xib */,
-				E6F80B291623969100828086 /* ChangeValuesController.xib */,
 				E6EA10A116AB22DD0004800F /* NewPlaylistPopover.xib */,
-				E665634315E9744400DFC7C9 /* TemplateView.xib */,
-				E66E6C1816A1CCEC006F07D1 /* TemplateViewController.xib */,
 				E6BC79B515C4759800080762 /* MainMenu.xib */,
+				E6297BB3183E8D4B00D58A16 /* SourceInfoPanel.xib */,
+				E6192A9018595908001BACD4 /* WidgetViewController.xib */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -376,14 +382,12 @@
 				E642A03A17862FF6003FF23C /* AssetListViewController.m */,
 				E642A02F178628CD003FF23C /* RequestController.h */,
 				E642A030178628CD003FF23C /* RequestController.m */,
-				E606CDBC1606F1C000D34EDE /* AssetController.h */,
-				E606CDBD1606F1C000D34EDE /* AssetController.m */,
-				E65BD6F315E7C63900D9F0A4 /* BatchController.h */,
-				E65BD6F415E7C63900D9F0A4 /* BatchController.m */,
-				E673D1A916A9A05C002B060D /* PlaylistController.h */,
-				E673D1AA16A9A05C002B060D /* PlaylistController.m */,
+				E642A031178628CD003FF23C /* SourceController.h */,
+				E642A032178628CD003FF23C /* SourceController.m */,
 				E64555A716A76F6900740F45 /* TagController.h */,
 				E64555A816A76F6900740F45 /* TagController.m */,
+				E672B408179C45750036A106 /* TemplateController.h */,
+				E672B409179C45750036A106 /* TemplateController.m */,
 			);
 			name = "Object Controllers";
 			sourceTree = "<group>";
@@ -429,12 +433,7 @@
 			isa = PBXGroup;
 			children = (
 				E634DE7917A1C48000D98AE6 /* Headers */,
-				E6BC79AF15C4759800080762 /* Document.h */,
-				E6BC79B015C4759800080762 /* Document.m */,
-				E61F38EB17962EEA00728A24 /* Document+DocumentUserInterface.h */,
-				E61F38EC17962EEA00728A24 /* Document+DocumentUserInterface.m */,
-				E642A031178628CD003FF23C /* SourceController.h */,
-				E642A032178628CD003FF23C /* SourceController.m */,
+				E6192A851858FC8E001BACD4 /* Document */,
 				E661E63516279DF200EFD83A /* Object Controllers */,
 				E661E63316279D5C00EFD83A /* View Controllers */,
 				E661E63216279D3600EFD83A /* Entities/Objects */,
@@ -473,6 +472,7 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E6B1DCA8183D66C40089AA21 /* WordPress.png */,
 				E65F7D4C18380159005F9C9F /* tracks.png */,
 				E65F7D4D18380159005F9C9F /* playlists.png */,
 				E65F7D4E18380159005F9C9F /* plays.png */,
@@ -485,8 +485,6 @@
 				E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */,
 				E61021A817BAF2D2001E0ED3 /* playlist.png */,
 				E61021A917BAF2D2001E0ED3 /* track.png */,
-				E61021A517BAE22E001E0ED3 /* WordPress.png */,
-				E61021A717BAE5EA001E0ED3 /* WordPress.png */,
 				E61021A117BADFC0001E0ED3 /* SoundCloud.png */,
 				E67007C017873A2B0052FC2B /* isNotSelectedImage.tiff */,
 				E67007C117873A2B0052FC2B /* isSelectedImage.tiff */,
@@ -602,7 +600,6 @@
 			files = (
 				E65F7D5618380159005F9C9F /* reposts.png in Resources */,
 				E6BC79A815C4759800080762 /* InfoPlist.strings in Resources */,
-				E61021A617BAE22E001E0ED3 /* WordPress.png in Resources */,
 				E6BC79AE15C4759800080762 /* Credits.rtf in Resources */,
 				E6BC79B715C4759800080762 /* MainMenu.xib in Resources */,
 				E6EE3F2615C773D10025C04B /* Connect.wav in Resources */,
@@ -613,24 +610,19 @@
 				E642A05217863A87003FF23C /* redlight.tiff in Resources */,
 				E6EE3F2915C773D10025C04B /* Stop.wav in Resources */,
 				E67007C317873A2B0052FC2B /* isSelectedImage.tiff in Resources */,
-				E665634415E9744400DFC7C9 /* TemplateView.xib in Resources */,
 				E67007C217873A2B0052FC2B /* isNotSelectedImage.tiff in Resources */,
-				E6F80B2B1623969100828086 /* ChangeValuesController.xib in Resources */,
-				E661E62E1626182400EFD83A /* AccountViewController.xib in Resources */,
 				E6486D2C182AFA1A000D8D73 /* Download.png in Resources */,
 				E65F7D5818380159005F9C9F /* comments.png in Resources */,
-				E66E6C02169F1252006F07D1 /* AssetDetailController.xib in Resources */,
-				E66E6C0B169F78DF006F07D1 /* AssetPredicateController.xib in Resources */,
 				E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */,
-				E66E6C1316A0D998006F07D1 /* AssetTableCellView.xib in Resources */,
 				E65F7D5918380159005F9C9F /* favorites.png in Resources */,
-				E66E6C1916A1CCEC006F07D1 /* TemplateViewController.xib in Resources */,
 				E66E6C2316A32691006F07D1 /* AssetMetadataPopover.xib in Resources */,
+				E6B1DCA9183D66C40089AA21 /* WordPress.png in Resources */,
 				E6486D2D182AFA1A000D8D73 /* Upload.png in Resources */,
 				E61CF90317718A6F0038A502 /* PraxPress.icns in Resources */,
-				E642A05417863E53003FF23C /* SourcePopovers.xib in Resources */,
+				E6192A9218595908001BACD4 /* WidgetViewController.xib in Resources */,
 				E6EA108616A9CB090004800F /* icon-network-drive.tiff in Resources */,
 				E6EA108716A9CB090004800F /* page_Arrow_Down_hi.tiff in Resources */,
+				E656BEC818515445009254BE /* MultipleChangePopover.xib in Resources */,
 				E642A05117863A87003FF23C /* orangelight.tiff in Resources */,
 				E6EA108816A9CB090004800F /* page_Arrow_Up_hi.tiff in Resources */,
 				E6EA10A316AB22DD0004800F /* NewPlaylistPopover.xib in Resources */,
@@ -645,6 +637,7 @@
 				E61021AB17BAF2D2001E0ED3 /* track.png in Resources */,
 				E642A04C178639FA003FF23C /* SourceListCellViews.xib in Resources */,
 				E6DECE9B16AD9F830076BDC4 /* toggleLeft.png in Resources */,
+				E6297BB4183E8D4B00D58A16 /* SourceInfoPanel.xib in Resources */,
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
 				E65F7D5318380159005F9C9F /* tracks.png in Resources */,
 				E65F7D5418380159005F9C9F /* playlists.png in Resources */,
@@ -664,36 +657,37 @@
 			files = (
 				E672B40A179C45750036A106 /* TemplateController.m in Sources */,
 				E6BC79AA15C4759800080762 /* main.m in Sources */,
+				E6BFE3D2185F6EBC001806B7 /* BWTokenFieldCell.m in Sources */,
+				E6192A9118595908001BACD4 /* WidgetViewController.m in Sources */,
+				E68A34D918559898007D8D7B /* PraxTokenField.m in Sources */,
 				E642A03317862F04003FF23C /* PraxPredicateEditorRowTemplate.m in Sources */,
 				E6BC79B115C4759800080762 /* Document.m in Sources */,
 				E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */,
+				E6297BBC183E91DF00D58A16 /* SourceInfoPanel.m in Sources */,
 				E642A04317862FF6003FF23C /* SourcePopovers.m in Sources */,
 				E642A04417862FF6003FF23C /* SourceTableRowView.m in Sources */,
 				E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */,
 				E63E87C215E05B5900110570 /* PraxTransformers.m in Sources */,
 				E61F38ED17962EEA00728A24 /* Document+DocumentUserInterface.m in Sources */,
-				E65BD6F515E7C63900D9F0A4 /* BatchController.m in Sources */,
 				E624D84215EAB03D0066D7D7 /* Asset.m in Sources */,
-				E64774AC16067BA0003BD981 /* TemplateViewController.m in Sources */,
-				E606CDBE1606F1C000D34EDE /* AssetController.m in Sources */,
-				E6F80B2A1623969100828086 /* ChangeValuesController.m in Sources */,
-				E6D19B94168AB11300D068BC /* AssetTableCellView.m in Sources */,
-				E66E6C01169F1252006F07D1 /* AssetDetailController.m in Sources */,
-				E66E6C0A169F78DF006F07D1 /* AssetPredicateController.m in Sources */,
+				E6A142BA1853CB31001B9F6C /* PraxButton.m in Sources */,
 				E642A03617862F5D003FF23C /* Source.m in Sources */,
 				E6FA7CCE17A5B201005CA002 /* PraxCategories.m in Sources */,
+				E6BFE3D1185F6EBC001806B7 /* BWTokenAttachmentCell.m in Sources */,
 				E66E6C2216A32691006F07D1 /* AssetMetadataPopover.m in Sources */,
 				E642A03517862F1D003FF23C /* RequestController.m in Sources */,
 				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
 				E69270C118295AEA00E5B202 /* NSSplitView+DMAdditions.m in Sources */,
+				E6BFE3D618613977001806B7 /* Interface.m in Sources */,
+				E656BEC718515445009254BE /* MultipleChangePopover.m in Sources */,
+				E6FCFE0B186A52EA001E9483 /* CodePopover.m in Sources */,
 				E642A03417862F13003FF23C /* SourceController.m in Sources */,
 				E64555A916A76F6900740F45 /* TagController.m in Sources */,
 				E64555AC16A773C000740F45 /* Tag.m in Sources */,
-				E6FA7CC917A5AE34005CA002 /* PraxPressDocument.m in Sources */,
-				E673D1AB16A9A05D002B060D /* PlaylistController.m in Sources */,
 				E6709A571793267C00A1A59F /* Document.xcdatamodeld in Sources */,
 				E6EA10A216AB22DD0004800F /* NewPlaylistPopover.m in Sources */,
 				E642A04217862FF6003FF23C /* AssetListViewController.m in Sources */,
+				E6192A8D18590223001BACD4 /* Widget.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

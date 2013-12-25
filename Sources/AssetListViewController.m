@@ -14,9 +14,7 @@
 
 @implementation AssetListViewController
 
-- (NSArray *)keyPathsToObserve {return @[@"self.assetArrayController.sortDescriptors", @"self.assetArrayController.selectionIndexes", @"self.associatedController.assetArrayController.selectionIndexes", @"self.isSelectedPane", @"self.source", @"self.tags", @"self.source.fetchPredicate", @"self.source.requiredTags", @"self.source.requireAllTags", @"self.source.excludedTags", @"self.source.template", @"self.source.template.formatText", @"self.showDetailView", @"self.showCodeView", @"self.showWebView", @"self.showSafariView", @"self.formattedCode", @"self.webView.estimatedProgress"];}
-
-- (NSDictionary *)toolTips {return @{@"stats":@"Duration\rPlayback Count\rFavorites\rDownloads\rComments", @"permalink":@"Permalink Slug", @"reload":@"Reload - Cancel changes and re-download data from server", @"upload":@"Upload - Save changes and upload data to server"};}
+- (NSArray *)keyPathsToObserve {return @[@"self.assetArrayController.sortDescriptors", @"self.assetArrayController.selectionIndexes", @"self.associatedController.assetArrayController.selectionIndexes", @"self.isSelectedPane", @"self.source", @"self.source.fetchPredicate", @"self.source.requiredTags", @"self.source.requireAllTags", @"self.source.excludedTags", @"self.source.template", @"self.source.template.formatText", @"self.showDetailView", @"self.showCodeView", @"self.showSafariView", @"self.exportCode", @"self.formattedCode"];}
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -46,17 +44,13 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
+    NSLog(@"AssetListViewController observeValueForKeyPath: %@", keyPath);
+    
     if ([keyPath isEqualToString:@"self.source"]) {
+        self.exportCodeURL = nil;
         self.appleScript = nil;
     }
     
-    if ([keyPath isEqualToString:@"self.tags"]) {
-       
-        
-    }
-    
-    
-//    NSLog(@"AssetListViewController observeValueForKeyPath: %@", keyPath);
     if ([keyPath isEqualToString:@"self.isSelectedPane"]) {
         CGFloat selectedPaneAlpha = 0;
         CGFloat notSelectedPaneAlpha = 1;
@@ -64,45 +58,34 @@
             selectedPaneAlpha = 1;
             notSelectedPaneAlpha = 0;
         }
-        [self.selectedButton.animator setAlphaValue:selectedPaneAlpha];
-        [self.notSelectedButton.animator setAlphaValue:notSelectedPaneAlpha];
-        
     }
     else if ([keyPath isEqualToString:@"self.showDetailView"]) {
-        [self updatePaneSizes:keyPath];
-        
+        CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:0];
+        if (self.showDetailView) newPosition -= 300;
+      //  [[self.splitView animator] setPosition:newPosition ofDividerAtIndex:0];
+      //  [self.splitView setPosition:newPosition ofDividerAtIndex:0 animated:YES];
+        [self.splitView setPosition:newPosition ofDividerAtIndex:0];
     }
     
-    else if (([keyPath isEqualToString:@"self.showCodeView"])||([keyPath isEqualToString:@"self.showWebView"])) {
-        [self updateFormattedCode:self];
-        [self updatePaneSizes:keyPath];
-        
-        
-    }
     else if ([keyPath isEqualToString:@"self.showSafariView"]) {
         if (self.showSafariView) {
-            [self updateFormattedCode:self];
+            [self writeFormattedCode];
         }
     }
     
-    else if ([keyPath isEqualToString:@"self.webView.estimatedProgress"]) {
-        
-        double estimatedProgress = [self.webView estimatedProgress];
-        NSLog(@"AssetListViewController self.webView.estimatedProgress: %f", estimatedProgress);
-        
-        //      [self.progressIndicator setDoubleValue:self.webView.estimatedProgress];
-        
+    else if ([keyPath isEqualToString:@"self.exportCode"]) {
+        if (self.exportCode) {
+            [self updateFormattedCode:self];
+        }
+        else self.showSafariView = NO;
     }
+    
     else if ([keyPath isEqualToString:@"self.formattedCode"]) {
-        if (self.showWebView) {
-            [[self.webView mainFrame] loadHTMLString:self.formattedCode baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
+        if (self.exportCode) {
+            [self writeFormattedCode];
         }
-        else [[self.webView mainFrame] loadHTMLString:@"" baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]]];
-        if (self.showSafariView) {
-            [self writeFormattedCode:self];
-        }
-        
     }
+
     else if ([keyPath isEqualToString:@"self.assetArrayController.sortDescriptors"]) {
         if (self.isPlaylist) {
             if ([self.assetArrayController.sortDescriptors count] > 0) {
@@ -111,7 +94,7 @@
             }
         }
 
-        else if ([self.source.entity.name isEqualToString:@"BatchSource"]) {
+        else if ([self.source.type isEqualToString:@"BatchSource"]) {
             if ([self.assetArrayController.sortDescriptors count] > 0) {
                 self.source.batchAssets = [[NSOrderedSet alloc] initWithArray:self.assetArrayController.arrangedObjects];
             }
@@ -129,60 +112,18 @@
         NSString *listType = [self.assetArrayController.selectedObjects praxPressListType];
         NSView *detailView;
         
-        if (([listType isEqualToString:@"track"]) || ([listType isEqualToString:@"tracks"])){
-            detailView = self.trackDetailView;
-        }
-        else if (([listType isEqualToString:@"playlist"]) || ([listType isEqualToString:@"playlists"])) {
-            detailView = self.playlistDetailView;
-        }
-        else if ([listType isEqualToString:@"SoundCloud"]) {
-            detailView = self.soundCloudDetailView;
-        }
-        else if ((([listType isEqualToString:@"post"]) || ([listType isEqualToString:@"page"])) || ((([listType isEqualToString:@"posts"]) || ([listType isEqualToString:@"pages"])) || ([listType isEqualToString:@"WordPress"]))) {
-            detailView = self.wordPressDetailView;
-        }
-        else if ([listType isEqualToString:@"no-selection"]) {
+        if ([listType isEqualToString:@"no-selection"]) {
             detailView = self.noSelectionView;
         }
         else {
-            detailView = self.defaultDetailView;
+            detailView = self.assetDetailView;
         }
         if (self.detailViewBox.contentView != detailView) {
             [self.detailViewBox setContentView:detailView];
         }
         
-/*        if (self.assetArrayController.selectedObjects.count > 0) {
-            Asset *asset = self.assetArrayController.selectedObjects[0];
-            if ([asset.type isEqualToString:@"track"]) {
-                [self.detailScrollView setDocumentView:self.trackDetailView];
-                
-            }
-            else [self.detailScrollView setDocumentView:self.defaultDetailView];
-            //       [self.trackDetailView setAutoresizingMask:NSViewWidthSizable];
-            
-            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:self.detailScrollView.documentView attribute:NSLayoutAttributeRight
-             relatedBy:NSLayoutRelationEqual
-             toItem:self.view
-             attribute:NSLayoutAttributeRight
-             multiplier:1.0f constant:-20.0f];
-             [self.detailScrollView.contentView addConstraint:constraint]; 
-            
-            NSPoint newScrollOrigin;
-            // assume that the scrollview is an existing variable
-            if ([[self.detailScrollView documentView] isFlipped]) {
-                newScrollOrigin=NSMakePoint(0.0,0.0);
-            } else {
-                newScrollOrigin=NSMakePoint(0.0,NSMaxY([[self.detailScrollView documentView] frame])
-                                            -NSHeight([[self.detailScrollView contentView] bounds]));
-            }
-            CGPoint setOrigin = CGPointMake(newScrollOrigin.x , newScrollOrigin.y + 172.0f);
-            [[self.detailScrollView documentView] scrollPoint:setOrigin];
-            
-        }
-    */
         self.duration = self.playback_count = self.favoritings_count = self.download_count = self.comment_count = 0;
 
-        NSMutableArray *tagArray = [@[] mutableCopy];
         if ((self.source) && ([self.assetArrayController.selectedObjects count] > 0)) {
             for (Asset *asset in self.assetArrayController.selectedObjects) {
                 self.duration += asset.duration.intValue;
@@ -190,18 +131,8 @@
                 self.favoritings_count += asset.favoritings_count.intValue;
                 self.download_count += asset.download_count.intValue;
                 self.comment_count += asset.comment_count.intValue;
-
-            }
-            
-            Asset *asset = self.assetArrayController.selectedObjects[0];
-            NSSet *tags = asset.tags;
-            for (Tag *tag in tags) {
-                [tagArray addObject:tag.name];
             }
         }
-        self.tags = [tagArray mutableCopy];
-
-        
         
         [self updateFormattedCode:self];
         
@@ -209,38 +140,8 @@
     else {
 
         if ((([keyPath isEqualToString:@"self.source.excludedTags"]) || ([keyPath isEqualToString:@"self.source.requiredTags"])) || ([keyPath isEqualToString:@"self.source.requireAllTags"])) {
-            NSMutableSet *excludedAssets = [NSMutableSet setWithCapacity:1];
-            NSMutableSet *requiredAssets = [NSMutableSet setWithCapacity:1];
-            NSMutableOrderedSet *tagFilteredAssets  = self.assets.mutableCopy;
-            if (self.source.requiredTags.count > 0) {
-                
-                if (self.source.requireAllTags.boolValue) {
-                    BOOL multiple;
-                    for (Tag *tag in self.source.requiredTags) {
-                        if (multiple) {
-                            [requiredAssets intersectSet:tag.assets];
-                        }
-                        else {
-                            [requiredAssets unionSet:tag.assets];
-                            multiple = YES;
-                        }
-                    }
-                }
-                else {
-                    for (Tag *tag in self.source.requiredTags) {
-                        [requiredAssets unionSet:tag.assets];
-                    }
-                }
-                [tagFilteredAssets intersectSet:requiredAssets];
-                
-            }
             
-            for (Tag *tag in self.source.excludedTags) {
-                [excludedAssets unionSet:tag.assets];
-            }
-            [tagFilteredAssets minusSet:excludedAssets];
-            [self.assetArrayController setContent:[tagFilteredAssets array]];
-            
+            [self tagFilterAssets];
         }
         if (([keyPath isEqualToString:@"self.source"]) || ([keyPath isEqualToString:@"self.source.fetchPredicate"])) {
             if (!self.source) return;
@@ -249,7 +150,7 @@
                 [self loadAssociatedItems];
             }
             else {
-                if ([self.source.entity.name isEqualToString:@"BatchSource"]) {
+                if ([self.source.type isEqualToString:@"BatchSource"]) {
                     
                     self.assets = [NSOrderedSet orderedSetWithOrderedSet:self.source.batchAssets];
                     [self.assetsTableView setSortDescriptors:nil];
@@ -264,7 +165,11 @@
                     NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
                     self.assets = [NSOrderedSet orderedSetWithArray:matchingItems];
                 }
-                [self.assetArrayController setContent:[self.assets array]];
+                self.source.itemCount = [NSNumber numberWithInteger:self.assets.count];
+                
+                [self tagFilterAssets];
+                
+              //  [self.assetArrayController setContent:[self.assets array]];
                 
                 if ((self.source.filterString != nil) && (![self.source.filterString isEqualToString:@""])) {
                     NSPredicate *predicate;
@@ -293,6 +198,39 @@
         }
     }
     
+}
+- (void)tagFilterAssets {
+    NSMutableSet *excludedAssets = [NSMutableSet setWithCapacity:1];
+    NSMutableSet *requiredAssets = [NSMutableSet setWithCapacity:1];
+    NSMutableOrderedSet *tagFilteredAssets  = self.assets.mutableCopy;
+    if (self.source.requiredTags.count > 0) {
+        
+        if (self.source.requireAllTags.boolValue) {
+            BOOL multiple;
+            for (Tag *tag in self.source.requiredTags) {
+                if (multiple) {
+                    [requiredAssets intersectSet:tag.assets];
+                }
+                else {
+                    [requiredAssets unionSet:tag.assets];
+                    multiple = YES;
+                }
+            }
+        }
+        else {
+            for (Tag *tag in self.source.requiredTags) {
+                [requiredAssets unionSet:tag.assets];
+            }
+        }
+        [tagFilteredAssets intersectSet:requiredAssets];
+        
+    }
+    
+    for (Tag *tag in self.source.excludedTags) {
+        [excludedAssets unionSet:tag.assets];
+    }
+    [tagFilteredAssets minusSet:excludedAssets];
+    [self.assetArrayController setContent:[tagFilteredAssets array]];
 }
 
 - (void)loadAssociatedItems {
@@ -326,10 +264,9 @@
     NSLog(@"AssetListViewController awakeFromNib");
     if (!self.awake) {
         self.awake = TRUE;
-        [self updatePaneSizes:@""];
         [self.assetsTableView registerForDraggedTypes:[NSArray arrayWithObjects:@"PraxItemsDropType", nil]];
-
-        
+        CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:0];
+        [self.splitView setPosition:newPosition ofDividerAtIndex:0 animated:NO];
     }
 }
 
@@ -354,91 +291,27 @@
     else [self.assetArrayController setFilterPredicate:nil];
 }
 
-- (void)updatePaneSizes:(NSString *)keyPath {
-
-    CGFloat minPosition0 = 28;
-    CGFloat maxPosition0 = [self.splitView maxPossiblePositionOfDividerAtIndex:0] - 20;
-    CGFloat minPosition1 = [self.splitView minPossiblePositionOfDividerAtIndex:1];
-    CGFloat maxPosition1 = ([self.splitView maxPossiblePositionOfDividerAtIndex:1] - 18);
-    CGFloat maxPosition2 = ([self.splitView maxPossiblePositionOfDividerAtIndex:2] - 18);
-    CGFloat position0 = [self.splitView positionOfDividerAtIndex:0];
-    CGFloat position1 = [self.splitView positionOfDividerAtIndex:1];
-    CGFloat position2 = [self.splitView positionOfDividerAtIndex:2];
-    CGFloat newPosition0;
-    CGFloat newPosition1;
-    CGFloat newPosition2;
-    
-    if ([keyPath isEqualToString:@"self.showDetailView"]) {
-        
-        if (self.showDetailView) {
-            newPosition0 = 200;
-            if (newPosition0 > maxPosition0) {
-                newPosition0 = maxPosition0;
-            }
-        }
-        else {
-            newPosition0 = minPosition0;
-        }
-        [[self.splitView animator] setPosition:newPosition0 ofDividerAtIndex:0];
-
-        
-    }
-    else if ([keyPath isEqualToString:@"self.showCodeView"]) {
-        if (self.showCodeView) {
-            newPosition2 = (maxPosition2 - 100);
-            if (!self.showWebView) {
-                newPosition1 = (position1 - (position2 - newPosition2));
-                [self.splitView setPosition:newPosition1 ofDividerAtIndex:1 animated:NO];
-            }
-            [self.splitView setPosition:newPosition2 ofDividerAtIndex:2 animated:NO];
-
-        }
-        else {
-            newPosition2 = maxPosition2;
-            [self.splitView setPosition:newPosition2 ofDividerAtIndex:2 animated:NO];
-            if (!self.showWebView) {
-                newPosition1 = (position1 + (newPosition2 - position2));
-                [self.splitView setPosition:newPosition1 ofDividerAtIndex:1 animated:NO];
-            }
-        }
-    }
-    
-    else if ([keyPath isEqualToString:@"self.showWebView"]) {
-        if (self.showWebView) {
-            
-            newPosition1 = (maxPosition1 - ((position1 - position0) / 2));
-            if (newPosition1 < minPosition1) {
-                newPosition1 = minPosition1;
-            }
-        }
-        else {
-            newPosition1 = maxPosition1;
-        }
-        [self.splitView setPosition:newPosition1 ofDividerAtIndex:1 animated:NO];
-    }
-    else {
-        newPosition2 = maxPosition2;
-        newPosition1 = (newPosition2 - 21);
-        [self.splitView setPosition:newPosition2 ofDividerAtIndex:2];
-        [self.splitView setPosition:newPosition1 ofDividerAtIndex:1];
-        [self.splitView setPosition:minPosition0 ofDividerAtIndex:0];
-    }
-    
-    
-}
-
 - (void)updateFormattedCode:sender {
-    
-    NSString *newFormattedCode = @"";
-    if (((self.showCodeView)||(self.showWebView)) || (self.showSafariView)) {
-        
-        if ((self.source) && ([self.assetArrayController.selectedObjects count] > 0)) {
-            newFormattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.selectedObjects];
+    @synchronized(self) {
+        if (self.updatingFormattedCode) return;
+        else self.updatingFormattedCode = YES;
+    }
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        NSString *newFormattedCode = @"";
+        if (self.exportCode) {
+            
+            if ((self.source) && ([self.assetArrayController.selectedObjects count] > 0)) {
+                newFormattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.selectedObjects];
+            }
         }
-    }
-    if (![newFormattedCode isEqualToString:self.formattedCode]) {
-        self.formattedCode = newFormattedCode;
-    }
+        if (![newFormattedCode isEqualToString:self.formattedCode]) {
+            self.formattedCode = newFormattedCode;
+        }
+        self.updatingFormattedCode = NO;
+    });
+
+    
 }
 
 - (IBAction)exportFormattedCode:(id)sender {
@@ -455,29 +328,44 @@
             
             self.source.exportURL = panel.URL;
             self.appleScript = nil;
-            [self writeFormattedCode:sender];
+            [self writeFormattedCode];
             }
 
     }];
 }
 
 - (void)initAppleScript {
-    self.appleScriptSource = [NSString stringWithFormat:@"tell application \"Safari\"\rset theURL to \"file://%@\"\rset foundTab to false\rset windowCount to number of window\rrepeat with theWindow from 1 to windowCount\rtry\rset tabCount to number of tabs in window theWindow\rif (tabCount > 0) then\rrepeat with theTab from 1 to tabCount\rset tabName to name of tab theTab of window theWindow\rif (exists URL of tab theTab of window theWindow) then\rset tabURL to URL of tab theTab of window theWindow\rif (tabURL = theURL) then\rset foundTab to true\rend if\rend if\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rend if\rend try\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rif (foundTab = true) then\rset URL of tab theTab of window theWindow to theURL\relse\ropen location theURL\rend if\rend tell", self.source.exportURL.path];
+    self.appleScriptSource = [NSString stringWithFormat:@"tell application \"Safari\"\rset theURL to \"%@\"\rset foundTab to false\rset windowCount to number of window\rrepeat with theWindow from 1 to windowCount\rtry\rset tabCount to number of tabs in window theWindow\rif (tabCount > 0) then\rrepeat with theTab from 1 to tabCount\rset tabName to name of tab theTab of window theWindow\rif (exists URL of tab theTab of window theWindow) then\rset tabURL to URL of tab theTab of window theWindow\rif (tabURL = theURL) then\rset foundTab to true\rend if\rend if\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rend if\rend try\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rif (foundTab = true) then\rset URL of tab theTab of window theWindow to theURL\relse\ropen location theURL\rend if\rend tell", self.exportCodeURL.absoluteString];
     self.appleScript = nil;
     self.appleScript = [[NSAppleScript alloc] initWithSource:self.appleScriptSource];
 }
 
-- (IBAction)writeFormattedCode:(id)sender {
+- (void)writeFormattedCode {
+    if (!self.document.exportCodeDirectory) return;
+    
+    if (!self.exportCodeURL) {
+        NSString *filename = [self.source.name lowercaseString];
+        filename = [filename stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+        self.exportCodeURL = [self.document.exportCodeDirectory URLByAppendingPathComponent:filename];
+        self.exportCodeURL = [self.exportCodeURL URLByAppendingPathExtension:@"html"];
+    }
+
     NSError *error;
-    BOOL ok = [self.formattedCode writeToFile:self.source.exportURL.path atomically:YES
+    [self.exportCodeURL startAccessingSecurityScopedResource];
+    BOOL ok = [self.formattedCode writeToURL:self.exportCodeURL atomically:YES
                                             encoding:NSUnicodeStringEncoding error:&error];
+    [self.exportCodeURL stopAccessingSecurityScopedResource];
     if (!ok) {
         // an error occurred
         NSLog(@"Error writing file at %@\n%@", self.source.exportURL.path, [error localizedFailureReason]);
-        self.showSafariView = NO;
-        [[NSSound soundNamed:@"Error"] play];
-        [self exportFormattedCode:self];
-
+        self.document.exportCodeDirectory = nil;
+        if (!self.document.exportCodeDirectory) {
+            self.showSafariView = NO;
+            self.exportCode = NO;
+            [[NSSound soundNamed:@"Error"] play];
+        }
+        else [self writeFormattedCode];
+        
     }
     else {
         if ((self.showSafariView) && (![self.formattedCode isEqualToString:@""])) {
@@ -486,6 +374,23 @@
             [self.appleScript executeAndReturnError:&errorInfo];
         }
     }
+}
+
+- (IBAction)filterButtonClicked:(id)sender {
+    if ([self.sourceInfoPanel.window isVisible]) {
+        [self.sourceInfoPanel.window close];
+    }
+    else {
+        [self showSourceInfoPanel:sender];
+    }
+}
+
+- (IBAction)showSourceInfoPanel:(id)sender {
+    if (!self.sourceInfoPanel) {
+        self.sourceInfoPanel = [[SourceInfoPanel alloc] initWithWindowNibName:@"SourceInfoPanel"];
+        self.sourceInfoPanel.assetListViewController = self;
+    }
+    [self.sourceInfoPanel showSourceInfoPanel];
 }
 
 - (void)doubleClickedArrayObjects:(NSArray *)arrayObjects {
@@ -542,39 +447,23 @@
         effectiveRect.origin.x -= 5.0;
         effectiveRect.size.width += 10.0;
     }
-    else {
-        effectiveRect.origin.y -= 5.0;
-        effectiveRect.size.height += 10.0;
-    }
-    
-    
+//    else {
+//        effectiveRect.origin.y -= 5.0;
+//        effectiveRect.size.height += 10.0;
+//    }
     
     return effectiveRect;
 }
-
-
-
-- (NSString *)tokenField:(NSTokenField *)tokenField displayStringForRepresentedObject:(id)representedObject {
-    return [(Tag *)representedObject name];
-}
-
-- (NSString *)tokenField:(NSTokenField *)tokenField editingStringForRepresentedObject:(id)representedObject {
-    return [(Tag *)representedObject name];
-}
-
-- (id)tokenField:(NSTokenField *)tokenField representedObjectForEditingString:(NSString *)editingString {
-    NSError *error;
-    Tag *tag;
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", editingString]];
-    NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
-    if ([matchingItems count] < 1) {
-        tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
-        tag.name = editingString;
+- (void)splitViewDidResizeSubviews:(NSNotification *)aNotification {
+    if ([self.splitView isSubviewCollapsed:self.detailViewPane]) {
+        if (self.showDetailView) self.showDetailView = NO;
     }
-    else tag = matchingItems[0];
-    return tag;
-    
+    else if (self.detailViewPane.frame.size.height < 10) {
+        if (self.showDetailView) self.showDetailView = NO;
+    }
+    else {
+        if (!self.showDetailView) self.showDetailView = YES;
+    }
 }
 
 
@@ -593,7 +482,7 @@
 - (NSDragOperation)tableView:(NSTableView*)table validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation
 {
 	if ([[[info draggingSource] delegate] isKindOfClass:[AssetListViewController class]]) {
-        if (([self.source.entity.name isEqualToString:@"BatchSource"]) || (self.isPlaylist)) {
+        if (([self.source.type isEqualToString:@"BatchSource"]) || (self.isPlaylist)) {
             if (operation == NSTableViewDropOn) [table setDropRow:row dropOperation:NSTableViewDropAbove];
             return NSDragOperationMove;
         }
@@ -635,7 +524,7 @@
             Asset *playlist = self.associatedController.assetArrayController.selectedObjects[0];
             playlist.associatedItems = arrangedAssets;
         }
-        else if ([self.source.entity.name isEqualToString:@"BatchSource"]) {
+        else if ([self.source.type isEqualToString:@"BatchSource"]) {
             self.source.batchAssets = arrangedAssets;
         }
         [self.assetArrayController setContent:[arrangedAssets array]];
@@ -643,5 +532,31 @@
     }
     else return NO;
 }
+
+
+
+- (NSArray *)tokenField:(NSTokenField *)tokenField shouldAddObjects:(NSArray *)tokens atIndex:(NSUInteger)index
+{
+    return [self.document.tagController tokenField:tokenField shouldAddObjects:tokens atIndex:index];
+}
+
+- (NSString *)tokenField:(NSTokenField *)tokenField displayStringForRepresentedObject:(id)representedObject {
+    return [self.document.tagController tokenField:tokenField displayStringForRepresentedObject:representedObject];
+}
+
+- (NSString *)tokenField:(NSTokenField *)tokenField editingStringForRepresentedObject:(id)representedObject {
+    return [self.document.tagController tokenField:tokenField editingStringForRepresentedObject:representedObject];
+}
+
+- (id)tokenField:(NSTokenField *)tokenField representedObjectForEditingString:(NSString *)editingString {
+    return [self.document.tagController tokenField:tokenField representedObjectForEditingString:editingString];
+}
+
+- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex
+    indexOfSelectedItem:(NSInteger *)selectedIndex {
+    return [self.document.tagController tokenField:tokenField completionsForSubstring:substring indexOfToken:tokenIndex indexOfSelectedItem:selectedIndex];
+}
+
+
 
 @end

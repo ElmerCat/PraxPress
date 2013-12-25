@@ -43,9 +43,7 @@
 @dynamic playlistType;
 @dynamic trackList;
 @dynamic trackType;
-@dynamic tags;
 
-@dynamic account;
 @dynamic accountType;
 @dynamic city;
 @dynamic country;
@@ -60,7 +58,14 @@
 @dynamic username;
 @dynamic source;
 
+@dynamic account;
+@dynamic accounts;
 @dynamic associatedItems;
+@dynamic batchSources;
+@dynamic categories;
+@dynamic genreTags;
+@dynamic tags;
+
 - (void)addAssociatedItemsObject:(Asset *)value {
     NSMutableOrderedSet* tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.associatedItems];
     [tempSet addObject:value];
@@ -221,10 +226,10 @@
 
 +(NSArray *)assetKeysWithStringAttributeType {
     return @[@"artwork_url",
-             @"asset_id",
-             @"city",
+        //     @"asset_id",
+       //      @"city",
              @"contents",
-             @"country",
+       //      @"country",
              @"genre",
              @"permalink",
              @"purchase_title",
@@ -233,10 +238,11 @@
              @"sub_type",
              @"tag_list",
              @"title",
-             @"trackList",
+           //  @"trackList",
              @"uri",
-             @"user_id",
-             @"username"];
+             @"user_id" //,
+          //   @"username"
+             ];
 }
 
 +(NSArray *)assetKeysWithNumberAttributeType {
@@ -244,17 +250,18 @@
              @"download_count",
              @"duration",
              @"favoritings_count",
-             @"followers_count",
-             @"followings_count",
-             @"itemCount",
+         //    @"followers_count",
+         //    @"followings_count",
+         //    @"itemCount",
              @"playback_count",
-             @"playlist_count",
-             @"sync_mode",
-             @"track_count"];
+         //    @"playlist_count",
+             @"sync_mode"//,
+         //    @"track_count"
+             ];
 }
 
 +(NSDictionary *)assetKeysAndChoicesWithMultipleChoiceAttributeType {
-    return @{@"type": @[@"post", @"page", @"track", @"playlist", @"image", @"video"],
+    return @{@"type": @[@"post", @"page", @"track", @"playlist", @"image", @"video", @"account"],
              @"sharing": @[@"Public", @"Private"],
              @"accountType":@[@"SoundCloud", @"WordPress", @"Flickr", @"YouTube"],
              @"track_type":@[@"one", @"two", @"three", @"four"]};
@@ -337,7 +344,7 @@
     
     if (!self.awake) {
         self.awake = TRUE;
-        NSLog(@"Asset awakeFromInsert");
+//        NSLog(@"Asset awakeFromInsert");
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
     }
@@ -355,6 +362,8 @@
                                          @"self.tag_list",
                                          @"self.trackList",
                                          @"self.tags",
+                                         @"self.genreTags",
+                                         @"self.categories",
                                          @"self.associatedItems",
                                          @"self.contents"
                                          ];}
@@ -374,15 +383,19 @@
         }
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
-        if ([keyPath isEqualToString:@"self.tags"]) {
+        
+        if ([keyPath isEqualToString:@"self.genreTags"]) {
+            if (self.genreTags.count) {
+                Tag *genre = [self.genreTags allObjects][0];
+                self.genre = genre.name;
+            }
+            else self.genre = @"";
+        }
+        else if ([keyPath isEqualToString:@"self.tags"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetTagsChangedNotification" object:self];
         }
-        
     }
-    
 }
-
-
 
 - (BOOL)oauthReady:(Document *)document {
     
@@ -396,8 +409,8 @@
             
             [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:self.accountType
                                            withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
-                                               [document.authorizationWindow makeKeyAndOrderFront:self];
-                                               [[document.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
+                                       //        [document.authorizationWindow makeKeyAndOrderFront:self];
+                                      //         [[document.webView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
                                            }];
             return FALSE;
         }
@@ -491,8 +504,8 @@
                            @"followings_count":@"followings_count",
                            @"title":@"full_name",
                            //   @"myspace_name":@"myspace_name",
-                           //   @"permalink":@"permalink",
-                           @"permalink":@"permalink_url",
+                           @"permalink":@"permalink",
+                           @"permalink_url":@"permalink_url",
                            @"playlist_count":@"playlist_count",
                            @"favoritings_count":@"public_favorites_count",
                            @"track_count":@"track_count",
@@ -646,6 +659,14 @@
                 }
                 [parameters setObject:[value description] forKey:asset_key];
             }
+            else if ([key isEqualToString:@"genre"]) {
+                
+                if (self.genreTags.count) {
+                    Tag *genre = [self.genreTags allObjects][0];
+                    [parameters setObject:genre.name forKey:asset_key];
+                }
+                else [parameters setObject:@"" forKey:asset_key];
+            }
             else {
                 NSString *value = ([self valueForKey:key]) ? [self valueForKey:key] : @"";
                 [parameters setObject:value forKey:asset_key];
@@ -698,6 +719,13 @@
         [parameters setObject:self.sub_type forKey:@"format"];
         [parameters setObject:self.sharing forKey:@"status"];
         
+        NSMutableString *tags = [[NSMutableString alloc] init];
+        for (Tag *tag in self.tags) {
+            if (tags.length > 0) [tags appendString:@","];
+            [tags appendString:tag.name];
+        }
+        [parameters setObject:[tags description] forKey:@"tags"];
+
         
         controller.resource = [NSURL URLWithString:[NSString stringWithFormat:@"%@/posts/%@", self.uri, self.asset_id]];
         controller.parameters = parameters;
@@ -738,15 +766,13 @@
             else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionTracks) {
                 Asset *asset;
                 for (NSDictionary *item in data) {
-                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Track"];
-                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"id"]]];
-                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
-                    if ([matchingItems count] < 1) {
+                    asset = [NSManagedObject entity:@"Asset"
+                                  withKey:@"asset_id" matchingStringValue:item[@"id"] inManagedObjectContext:controller.document.managedObjectContext];
+                    if (!asset) {
                         asset = [NSEntityDescription insertNewObjectForEntityForName:@"Track" inManagedObjectContext:controller.document.managedObjectContext];
                         asset.asset_id = [NSNumber numberWithInt:[item[@"id"] intValue]];
                         asset.batchPosition = [NSNumber numberWithInt:-1];
                     }
-                    else asset = matchingItems[0];
                     asset.account = (Asset *)self;
                     asset.accountType = [(Asset *)self accountType];
                     
@@ -774,17 +800,13 @@
                 
                 Asset *asset;
                 for (NSDictionary *item in data) {
-                    
-                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Playlist"];
-                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"id"]]];
-                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
-                    if ([matchingItems count] < 1) {
+                    asset = [NSManagedObject entity:@"Playlist" withKey:@"asset_id" matchingStringValue:item[@"id"] inManagedObjectContext:controller.document.managedObjectContext];
+                    if (!asset) {
                         asset = [NSEntityDescription insertNewObjectForEntityForName:@"Playlist" inManagedObjectContext:controller.document.managedObjectContext];
                         asset.asset_id = [NSNumber numberWithInt:[item[@"id"] intValue]];
                         asset.batchPosition = [NSNumber numberWithInt:-1];
                         
                     }
-                    else asset = matchingItems[0];
                     asset.account = (Asset *)self;
                     asset.accountType = [(Asset *)self accountType];
 
@@ -823,34 +845,35 @@
                 else [controller reset];
             }
             else if (self.updateOption.unsignedIntegerValue == PRAXReloadOptionPosts) {
-                Asset *asset;
-                for (NSDictionary *item in data[@"posts"]) {
-                    
-                    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
-                    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", item[@"ID"]]];
-                    NSArray *matchingItems = [controller.document.managedObjectContext executeFetchRequest:request error:nil];
-                    if ([matchingItems count] < 1) {
-                        asset = [NSEntityDescription insertNewObjectForEntityForName:@"Post" inManagedObjectContext:controller.document.managedObjectContext];
-                        asset.asset_id = [NSNumber numberWithInt:[item[@"ID"] intValue]];
-                        asset.batchPosition = [NSNumber numberWithInt:-1];
+                if ([(NSNumber *)data[@"found"] integerValue] < 1) {
+                    [controller reset];
+                }
+                else {
+                    Asset *asset;
+                    for (NSDictionary *item in data[@"posts"]) {
+                        asset = [NSManagedObject entity:@"Post" withKey:@"asset_id" matchingStringValue:item[@"ID"] inManagedObjectContext:controller.document.managedObjectContext];
+                        if (!asset) {
+                            asset = [NSEntityDescription insertNewObjectForEntityForName:@"Post" inManagedObjectContext:controller.document.managedObjectContext];
+                            asset.asset_id = [NSNumber numberWithInt:[item[@"ID"] intValue]];
+                            asset.batchPosition = [NSNumber numberWithInt:-1];
+                        }
+                        asset.account = (Asset *)self;
+                        asset.accountType = [(Asset *)self accountType];
+                        
+                        controller.determinate = YES;
+                        controller.updateCount = controller.updateCount + 1;
+                        [asset loadWordPressPostData:item];
+                        [controller.document.tagController loadAssetTags:asset data:item];
+                        asset.sync_mode = [NSNumber numberWithBool:FALSE];
+                        [controller.document.changedAssetsController fetch:self];
+                        
                     }
-                    else asset = matchingItems[0];
-                    asset.account = (Asset *)self;
-                    asset.accountType = [(Asset *)self accountType];
-
-                    controller.determinate = YES;
-                    controller.updateCount = controller.updateCount + 1;
-                    [asset loadWordPressPostData:item];
-                    [controller.document.tagController loadAssetTags:asset data:item];
-                    asset.sync_mode = [NSNumber numberWithBool:FALSE];
-                    [controller.document.changedAssetsController fetch:self];
                     
+                    if (controller.updateCount < controller.targetCount) {
+                        [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
+                    }
+                    else [controller reset];
                 }
-                
-                if (controller.updateCount < controller.targetCount) {
-                    [controller reloadAsset:self option:self.updateOption.unsignedIntegerValue];
-                }
-                else [controller reset];
             }
             else return NO; // invalid option
         }
@@ -980,7 +1003,6 @@
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data {
     Asset *subAsset;
     NSArray *subItems;
-    NSError *error = nil;
     asset.associatedItems = nil;
     subItems = data[@"tracks"];
     NSMutableString *trackList = [[NSMutableString alloc] init];
@@ -988,23 +1010,19 @@
         NSLog(@"subItem asset_id: %@", subItem[@"id"]);
         if (trackList.length > 0) [trackList appendString:@","];
         [trackList appendString:[subItem[@"id"] stringValue]];
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Track"];
-        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"asset_id", subItem[@"id"]]];
-        NSArray *matchingItems = [asset.managedObjectContext executeFetchRequest:request error:&error];
-        
-        if ([matchingItems count] < 1) {
+        subAsset = [NSManagedObject entity:@"Track" withKey:@"asset_id" matchingStringValue:subItem[@"id"] inManagedObjectContext:asset.managedObjectContext];
+        if (!subAsset) {
             NSLog(@"Error: - No matching Asset - subItem asset_id: %@", subItem[@"id"]);
         }
         else {
-            subAsset = matchingItems[0];
             [asset addAssociatedItemsObject:subAsset];
         }
     }
     self.trackList = trackList.description;
 }
 
-
 /*
+ 
  
  - (BOOL)validateValue:(id *)value forKey:(NSString *)key error:(NSError **)error {
  BOOL result = [super validateValue:value forKey:key error:error];
@@ -1014,6 +1032,14 @@
  
  return result;
  
+ }
+ - (BOOL)validateGenre:(id *)value error:(NSError **)error {
+ 
+ NSLog(@"Asset validateGenre %@", *value);
+ 
+ *error = [NSError errorWithDomain:@"PraxPress Error" code:7 userInfo:nil];
+ 
+ return NO;
  }
  
  

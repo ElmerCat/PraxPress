@@ -27,6 +27,7 @@
     NSLog(@"TemplateController awakeFromNib");
     if (!self.awake) {
         self.awake = TRUE;
+        [self.templatesController setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES]]];
         
     }
 }
@@ -76,76 +77,17 @@
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets {
     
-    NSMutableString *code = [[NSMutableString alloc] initWithCapacity:1024];
-    if (([assets count] > 0) &&  ([formatText length] > 0)){
-        for (Asset *asset in assets) {
-            [code appendString:[TemplateController stringWithTemplate:formatText forAsset:asset]];
+    NSMutableString *code = @"".mutableCopy;
+    if ([formatText respondsToSelector: @selector(length)]) {
+        if (([assets count] > 0) &&  ([formatText length] > 0)){
+            for (Asset *asset in assets) {
+                [code appendString:[Widget stringWithTemplate:formatText forAsset:asset wordPress:NO]];
+            }
         }
     }
+
     //   NSLog(@"code: %@", code);
     return code;
-}
-
-+ (NSString *)stringWithTemplate:(NSString *)template forAsset:(Asset *)asset {
-    
-    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:1024];
-    NSRange foundRange;
-    NSRange sourceRange;
-    sourceRange.location = 0;
-    sourceRange.length = [template length];
-    BOOL flag = FALSE;
-    while (flag == FALSE) {
-        foundRange = [template rangeOfString:@"$$$" options:0 range:sourceRange];
-        if (foundRange.location == NSNotFound) {
-            flag = TRUE;
-            break;
-        }
-        
-        sourceRange.length = (foundRange.location - sourceRange.location);
-        [string appendString:[template substringWithRange:sourceRange]];
-        
-        sourceRange.location = (foundRange.location + 3);
-        sourceRange.length = ([template length] - sourceRange.location);
-        foundRange = [template rangeOfString:@"$$$" options:0 range:sourceRange];
-        if (foundRange.location == NSNotFound) {
-            flag = TRUE;
-            
-        }
-        else {
-            sourceRange.length = (foundRange.location - sourceRange.location);
-            
-            NSString *key = [template substringWithRange:sourceRange];
-            NSString *value = [TemplateController valueOfItem:asset asStringForKey:key];
-            if ([value length] > 0) [string appendString:value];
-            sourceRange.location = (foundRange.location + 3);
-            sourceRange.length = ([template length] - sourceRange.location);
-        }
-    }
-    [string appendString:[template substringWithRange:sourceRange]];
-    return string;
-}
-
-+ (NSString *)valueOfItem:(Asset *)item asStringForKey:(NSString *)key {
-    NSEntityDescription *entity = [item entity];
-    NSDictionary *attributesByName = [entity attributesByName];
-    NSAttributeDescription *attribute = attributesByName[key];
-    if (!attribute) {
-        return @"---No Such Attribute Key---";
-    }
-    else if ([attribute attributeType] == NSUndefinedAttributeType) {
-        return @"---Undefined Attribute Type---";
-    }
-    else if ([attribute attributeType] == NSStringAttributeType) {
-        return [item valueForKey:key];
-    }
-    else if ([attribute attributeType] < NSDateAttributeType) {
-        return [[item valueForKey:key] stringValue];
-    }
-    // add more "else if" code as desired for other types
-    
-    else {
-        return @"---Unacceptable Attribute Type---";
-    }
 }
 
 
@@ -224,5 +166,93 @@
     else return proposedPosition;
 }
 
+
+- (NSArray *)tokenField:(NSTokenField *)tokenField shouldAddObjects:(NSArray *)tokens atIndex:(NSUInteger)index
+{
+
+    NSMutableArray *returnTokens = @[].mutableCopy;
+    for (id representedObject in tokens) {
+        [returnTokens addObjectsFromArray:[Widget templateFormatArrayFromObject:representedObject]];
+    }
+    return returnTokens;
+}
+
+- (BOOL)tokenField:(NSTokenField *)tokenField hasMenuForRepresentedObject:(id)representedObject {
+    return [[representedObject className] isEqualToString:@"Widget"];
+    
+}
+
+- (NSMenu *)tokenField:(NSTokenField *)tokenField menuForRepresentedObject:(id)representedObject {
+    NSLog(@"menuForRepresentedObject:%@",representedObject);
+
+    NSMenu *menu = [[NSMenu alloc] init];
+    if ([menu respondsToSelector: @selector(_setHasPadding:onEdge:)])
+    {
+        [menu _setHasPadding: NO onEdge: 1];
+        [menu _setHasPadding: NO onEdge: 3];
+    }    NSMenuItem *item;
+    
+    item = [[NSMenuItem alloc] init];
+    [item setView:self.widgetMenuView];
+    [item setRepresentedObject:representedObject];
+    [menu addItem:item];
+    [menu setDelegate:self.widgetViewController];
+    return menu;
+}
+
+- (NSTokenStyle)tokenField:(NSTokenField *)tokenField styleForRepresentedObject:(id)representedObject {
+    if ([[representedObject className] isEqualToString:@"Widget"]) {
+        return NSDefaultTokenStyle;
+    }
+    return NSPlainTextTokenStyle;
+}
+
+
+- (NSString *)tokenField:(NSTokenField *)tokenField displayStringForRepresentedObject:(id)representedObject {
+
+    if ([[representedObject className] isEqualToString:@"Widget"]) {
+        return [(Widget *)representedObject displayString];
+    }
+    else return representedObject;
+}
+
+- (NSString *)tokenField:(NSTokenField *)tokenField editingStringForRepresentedObject:(id)representedObject {
+    
+    if ([[representedObject className] isEqualToString:@"Widget"]) {
+        return [(Widget *)representedObject editingString];
+    }
+    else return representedObject;
+}
+
+- (id)tokenField:(NSTokenField *)tokenField representedObjectForEditingString:(NSString *)editingString {
+    NSArray *array = [Widget templateFormatArrayFromObject:editingString];
+    if (array.count == 1) return array[0];
+    else {
+        NSMutableString *string = @"".mutableCopy;
+        for (id object in array) {
+            if ([[object className] isEqualToString:@"Widget"]) {
+                [string appendString:[(Widget *)object editingString]];
+            }
+            else [string appendString:object];
+       }
+        return string;
+    }
+}
+
+- (BOOL)tokenField:(NSTokenField *)tokenField writeRepresentedObjects:(NSArray *)objects toPasteboard:(NSPasteboard *)pboard {
+    [pboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+    [pboard writeObjects:@[[[NSValueTransformer valueTransformerForName:@"PraxWidgetStringTransformer"] reverseTransformedValue:objects]]];
+    return YES;
+}
+
+- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex {
+    
+    
+    NSRange occurance = [substring rangeOfString:@"$" options:NSBackwardsSearch range:NSMakeRange((substring.length - 1), 1)];
+    if (occurance.length) {
+        return @[[NSString stringWithFormat:@"%@%@", substring, [Widget newWidgetCompletionString]]];
+    }
+    else return @[];
+}
 
 @end

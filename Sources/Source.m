@@ -28,6 +28,8 @@
 @dynamic excludedTags;
 @dynamic requiredTags;
 @dynamic requireAllTags;
+@dynamic itemCount;
+@dynamic type;
 
 
 - (NSArray *)childrenArray {
@@ -48,7 +50,8 @@
 }
 
 +(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"LibrarySource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"LibrarySource";
     child.name = name;
     child.sortOrder = sortOrder;
     child.folderType = folderType;
@@ -57,7 +60,8 @@
 }
 
 +(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber *)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"AccountSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"AccountSource";
     child.name = name;
     child.parent = parent;
     child.fetchEntity = fetchEntity;
@@ -65,13 +69,15 @@
     Asset *account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
     account.type = @"account";
     account.accountType = child.name;
+    account.account = account;
     child.account = account;
     child.rowHeight = rowHeight;
     return child;
 }
 
 +(Source *)addSubAccountSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"SubAccountSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"SubAccountSource";
     child.name = name;
     child.parent = parent;
     child.fetchEntity = fetchEntity;
@@ -81,7 +87,8 @@
 }
 
 +(Source *)addFolderSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"FolderSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"FolderSource";
     child.name = name;
     child.parent = parent;
     child.rowHeight = @30;
@@ -89,7 +96,8 @@
 }
 
 +(Source *)addSearchSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"SearchSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"SearchSource";
     child.name = name;
     child.parent = parent;
     child.fetchEntity = fetchEntity;
@@ -100,7 +108,8 @@
 }
 
 +(Source *)addPraxAssetSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"PraxAssetSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"PraxAssetSource";
     child.name = name;
     child.parent = parent;
     child.rowHeight = @30;
@@ -108,7 +117,8 @@
 }
 
 +(Source *)addBatchSource:(NSString*)name toParent:(Source*)parent withArrangedAssets:(NSArray*)assets inManagedObjectContext:(NSManagedObjectContext*)moc{
-    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"BatchSource" inManagedObjectContext:moc];
+    Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child.type = @"BatchSource";
     child.name = name;
     child.parent = parent;
     child.batchAssets =  [NSOrderedSet orderedSetWithArray:assets];

@@ -56,6 +56,23 @@
 
 @end
 
+@implementation NSManagedObject (PraxCategories)
+
++ (id)entity:(NSString *)entity withKey:(NSString *)key matchingStringValue:(NSString *)stringValue inManagedObjectContext:(NSManagedObjectContext *)managedObjectContext{
+    
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:entity];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", key, stringValue]];
+    NSArray *matchingItems = [managedObjectContext executeFetchRequest:request error:nil];
+    if ([matchingItems count] > 0) return matchingItems[0];
+    else return nil;
+    
+}
+
+
+@end
+
+
+
 
 @implementation AlphaColorWell
 

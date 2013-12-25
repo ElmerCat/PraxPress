@@ -10,6 +10,21 @@
 
 @implementation Document (DocumentUserInterface)
 
+
+
+- (NSString *)toolTipStats {
+    return @"Duration\rPlayback Count\rFavorites\rDownloads\rComments";
+}
+- (NSString *)toolTipPermalink {
+    return @"Permalink Slug";
+}
+- (NSString *)toolTipReload {
+    return @"Reload - Cancel changes and re-download data from server";
+}
+- (NSString *)toolTipUpload {
+    return @"Upload - Save changes and upload data to server";
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
     if (([[item title] isEqualToString:@"Show Source List"]) && (self.sourceController.sourceListVisible)) {
         [item setHidden:YES];
@@ -22,6 +37,8 @@
     [item setHidden:NO];
     return YES;
 }
+
+
 
 /*- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
@@ -46,6 +63,11 @@
     // Subclass of NSDocument, so invoke super's implementation
     return [super validateUserInterfaceItem:anItem];
 }*/
+
+- (IBAction)toggleTagsPanel:(id)sender {
+    [self.tagController toggleTagsPanel:sender];
+}
+
 
 - (IBAction)filterSelectedPane:(id)sender {
     [self.sourceController filterSelectedPane:sender];

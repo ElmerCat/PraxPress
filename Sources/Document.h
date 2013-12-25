@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 ElmerCat. All rights reserved.
 //
 
+
 @import Foundation;
 @import Cocoa;
 @import WebKit;
@@ -16,9 +17,10 @@
 
 #import "PraxCategories.h"
 #import "PraxTransformers.h"
-#import "PraxPressDocument.h"
+#import "Interface.h"
 #import "Asset.h"
 #import "Source.h"
+#import "Interface.h"
 #import "SourceController.h"
 #import "TagController.h"
 #import "AccountViewController.h"
@@ -31,9 +33,17 @@
 @class SourceController;
 @class RequestController;
 @class PraxAssetTagStringTransformer;
+@class Interface;
 
-@interface Document : NSPersistentDocument
-@property PraxPressDocument *praxPressDocument;
+@interface Document : NSPersistentDocument {
+    NSURL *_exportCodeDirectory;
+}
+@property NSURL *exportCodeDirectory;
+- (IBAction)openExportCodeDirectory:(id)sender;
+
+@property (strong) IBOutlet NSWindow *praxPressWindow;
+
+@property Interface *interface;
 @property PraxAssetTagStringTransformer *patsTransformer;
 @property (strong) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSOutlineView *sourceOutlineView;
@@ -42,23 +52,11 @@
 
 @property (strong) IBOutlet TemplateController *templateController;
 @property (strong) IBOutlet SourceController *sourceController;
-@property (weak) IBOutlet NSSplitView *leftSplitView;
-@property (weak) IBOutlet NSView *assetsView;
-@property (weak) IBOutlet NSView *changedAssetsView;
+@property (strong) IBOutlet NSArrayController *changedAssetsController;
 
 @property (strong) IBOutlet TagController *tagController;
 @property (strong) IBOutlet RequestController *requestController;
-@property (weak) IBOutlet NSToolbarItem *accountsToolbarButton;
-@property (weak) IBOutlet NSPopover *accountViewPopover;
-@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
-
-@property (weak) IBOutlet NSArrayController *assetsController;
-@property (weak) IBOutlet NSArrayController *changedAssetsController;
-@property (weak) IBOutlet NSArrayController *associatedAssetsController;
-@property (weak) IBOutlet NSArrayController *batchAssetsController;
-
-@property (weak) IBOutlet NSArrayController *templatesController;
-@property (weak) IBOutlet NSArrayController *tagsController;
+@property (strong) IBOutlet NSPanel *tagsPanel;
 
 @property NSArray *sharingTypes;
 @property NSArray *trackSubTypes;
@@ -68,20 +66,8 @@
 @property NSArray *templateSortDescriptors;
 @property (strong) NSArray *scTracks;
 
-@property (weak) IBOutlet NSTableView *assetsTableView;
-@property (weak) IBOutlet NSTableView *batchAssetsTableView;
-@property (weak) IBOutlet NSTableView *changedAssetsTableView;
-@property (weak) IBOutlet NSTableView *associatedAssetsTableView;
-
-@property (strong) IBOutlet NSWindow *authorizationWindow;
-@property (weak) IBOutlet WebView *webView;
-
 @property NSArray *accountsSettings;
 - (NSDictionary *)settingsForAccount:(NSString *)name;
-
-//-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem;
-- (IBAction)selectAccount:(id)sender;
-
 
 + (NSString*) callerKey;
 - (void)callbackFromSpecialRequest:(NSURLRequest *)request;

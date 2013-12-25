@@ -11,11 +11,29 @@
 @implementation PraxTransformers
 
 +(void)load {
+
+    id transformer;
     
-    id transformer = [[PraxArrayIsPlaylistTransformer alloc] init];
-    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayIsPlaylistTransformer"];
+    transformer = [[PraxArrayNotTracksTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayNotTracksTransformer"];
+    
+    transformer = [[PraxArrayNotPlaylistsTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayNotPlaylistsTransformer"];
+    
+    transformer = [[PraxArrayNotSoundCloudTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayNotSoundCloudTransformer"];
+    
+    transformer = [[PraxArrayNotWordPressTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayNotWordPressTransformer"];
+
     transformer = [[PraxArrayIsNotPlaylistTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayIsNotPlaylistTransformer"];
+    
+    transformer = [[PraxArrayAreWordPressTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayAreWordPressTransformer"];
+
+    transformer = [[PraxArrayIsPlaylistTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayIsPlaylistTransformer"];
     transformer = [[PraxArrayArePlaylistsTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayArePlaylistsTransformer"];
     transformer = [[PraxArrayIsTrackTransformer alloc] init];
@@ -26,8 +44,6 @@
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayAreTracksTransformer"];
     transformer = [[PraxArrayAreSoundCloudTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayAreSoundCloudTransformer"];
-    transformer = [[PraxArrayAreWordPressTransformer alloc] init];
-    [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayAreWordPressTransformer"];
     transformer = [[PraxArrayAreDifferentTypes alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayAreDifferentTypes"];
     transformer = [[PraxArrayAreDifferentAccountTypes alloc] init];
@@ -43,8 +59,15 @@
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
     transformer = [[PraxNumberIsNotZeroTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxNumberIsNotZeroTransformer"];
+    
+    transformer = [[PraxWidgetStringTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxWidgetStringTransformer"];
     transformer = [[PraxAssetStringTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxAssetStringTransformer"];
+    transformer = [[PraxAssetGenreTagStringTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxAssetGenreTagStringTransformer"];
+    transformer = [[PraxColorStringTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxColorStringTransformer"];
 
     transformer = [[PraxMillisecondsToDurationTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxMillisecondsToDurationTransformer"];
@@ -83,27 +106,89 @@
 
 @end
 
-@implementation PraxArrayIsPlaylistTransformer
 
+@implementation PraxArrayNotTracksTransformer
 + (Class)transformedValueClass {
     return [NSNumber class];
 }
-
 + (BOOL)allowsReverseTransformation { return NO; }
 - (NSNumber *)transformedValue:(id)value {
     
-    if (value == nil) return nil;
     if ([value respondsToSelector: @selector(count)]) {
-        if ([value count] == 1) {
-            Asset *asset = [(NSArray *)value objectAtIndex:0];
-            if ([[asset valueForKey:@"type"] isEqualToString:@"playlist"]) {
-                return [NSNumber numberWithBool:YES];
+        if ([value count] > 0) {
+            for (Asset *asset in (NSArray *)value) {
+                if (![[asset valueForKey:@"type"] isEqualToString:@"track"]) {
+                    return [NSNumber numberWithBool:YES];
+                }
             }
+            return [NSNumber numberWithBool:NO];
         }
     }
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:YES];
 }
+@end
 
+@implementation PraxArrayNotPlaylistsTransformer
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    
+    if ([value respondsToSelector: @selector(count)]) {
+        if ([value count] > 0) {
+            for (Asset *asset in (NSArray *)value) {
+                if (![[asset valueForKey:@"type"] isEqualToString:@"playlist"]) {
+                    return [NSNumber numberWithBool:YES];
+                }
+            }
+            return [NSNumber numberWithBool:NO];
+        }
+    }
+    return [NSNumber numberWithBool:YES];
+}
+@end
+
+@implementation PraxArrayNotSoundCloudTransformer
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    
+    if ([value respondsToSelector: @selector(count)]) {
+        if ([value count] > 0) {
+            for (Asset *asset in (NSArray *)value) {
+                if (![[asset valueForKey:@"AccountType"] isEqualToString:@"SoundCloud"]) {
+                    return [NSNumber numberWithBool:YES];
+                }
+            }
+            return [NSNumber numberWithBool:NO];
+        }
+    }
+    return [NSNumber numberWithBool:YES];
+}
+@end
+
+@implementation PraxArrayNotWordPressTransformer
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    
+    if ([value respondsToSelector: @selector(count)]) {
+        if ([value count] > 0) {
+            for (Asset *asset in (NSArray *)value) {
+                if (![[asset valueForKey:@"AccountType"] isEqualToString:@"WordPress"]) {
+                    return [NSNumber numberWithBool:YES];
+                }
+            }
+            return [NSNumber numberWithBool:NO];
+        }
+    }
+    return [NSNumber numberWithBool:YES];
+}
 @end
 
 @implementation PraxArrayIsNotPlaylistTransformer
@@ -125,6 +210,50 @@
         }
     }
     return [NSNumber numberWithBool:YES];
+}
+
+@end
+
+@implementation PraxArrayAreWordPressTransformer
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    if (value == nil) return nil;
+    if ([value respondsToSelector: @selector(count)]) {
+        if ([value count] > 1) {
+            for (Asset *asset in (NSArray *)value) {
+                if (![[asset valueForKey:@"AccountType"] isEqualToString:@"WordPress"]) {
+                    return [NSNumber numberWithBool:NO];
+                }
+            }
+            return [NSNumber numberWithBool:YES];
+        }
+    }
+    return [NSNumber numberWithBool:NO];
+}
+@end
+
+@implementation PraxArrayIsPlaylistTransformer
+
++ (Class)transformedValueClass {
+    return [NSNumber class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSNumber *)transformedValue:(id)value {
+    
+    if (value == nil) return nil;
+    if ([value respondsToSelector: @selector(count)]) {
+        if ([value count] == 1) {
+            Asset *asset = [(NSArray *)value objectAtIndex:0];
+            if ([[asset valueForKey:@"type"] isEqualToString:@"playlist"]) {
+                return [NSNumber numberWithBool:YES];
+            }
+        }
+    }
+    return [NSNumber numberWithBool:NO];
 }
 
 @end
@@ -276,27 +405,6 @@
 }
 @end
 
-@implementation PraxArrayAreWordPressTransformer
-+ (Class)transformedValueClass {
-    return [NSNumber class];
-}
-+ (BOOL)allowsReverseTransformation { return NO; }
-- (NSNumber *)transformedValue:(id)value {
-    if (value == nil) return nil;
-    if ([value respondsToSelector: @selector(count)]) {
-        if ([value count] > 1) {
-            for (Asset *asset in (NSArray *)value) {
-                if (![[asset valueForKey:@"AccountType"] isEqualToString:@"WordPress"]) {
-                    return [NSNumber numberWithBool:NO];
-                }
-            }
-            return [NSNumber numberWithBool:YES];
-        }
-    }
-    return [NSNumber numberWithBool:NO];
-}
-@end
-
 @implementation PraxArrayAreDifferentTypes
 + (Class)transformedValueClass {
     return [NSNumber class];
@@ -348,9 +456,6 @@
     return [NSNumber numberWithBool:NO];
 }
 @end
-
-
-
 
 @implementation PraxPredicateToStringTransformer
 
@@ -500,6 +605,41 @@
 
 @end
 
+@implementation PraxSourceItemImageTransformer
+
++ (Class)transformedValueClass {
+    return [NSImage class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSImage *)transformedValue:(id)value {
+    Source *source = (Source *)value;
+    if ([source.name isEqualToString:@"All Items"]) return [[NSBundle mainBundle] imageForResource:@"PraxPress"];
+    if ([source.name isEqualToString:@"Tracks"]) return [[NSBundle mainBundle] imageForResource:@"tracks"];
+    if ([source.name isEqualToString:@"Playlists"]) return [[NSBundle mainBundle] imageForResource:@"playlists"];
+    if ([source.name isEqualToString:@"Posts"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    if ([source.name isEqualToString:@"Pages"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    return nil;
+}
+
+@end
+
+@implementation PraxWidgetStringTransformer
+
++ (Class)transformedValueClass {
+    return [NSArray class];
+}
+
++ (BOOL)allowsReverseTransformation { return YES; }
+- (NSArray *)transformedValue:(id)value {
+    return [Widget templateFormatArrayFromObject:value];
+}
+- (id)reverseTransformedValue:(id)value {
+    return [Widget editingStringFromObject:value];
+}
+
+@end
+
 @implementation PraxAssetStringTransformer
 
 + (Class)transformedValueClass {
@@ -513,6 +653,67 @@
     return asset.type;
 }
 
+@end
+
+@implementation PraxColorStringTransformer
+
++ (Class)transformedValueClass {
+    return [NSColor class];
+}
+
++ (BOOL)allowsReverseTransformation { return YES; }
+- (NSColor *)transformedValue:(id)value {
+    NSString *string = (NSString *)value;
+    NSColor *color = nil;
+    unsigned colorCode = 0;
+    unsigned char redByte, greenByte, blueByte;
+    
+    if (string && string.length)
+    {
+        NSScanner *scanner = [NSScanner scannerWithString:string];
+        (void) [scanner scanHexInt:&colorCode]; // ignore error
+    }
+    redByte = (unsigned char)(colorCode >> 16);
+    greenByte = (unsigned char)(colorCode >> 8);
+    blueByte = (unsigned char)(colorCode); // masks off high bits
+    
+    color = [NSColor
+              colorWithCalibratedRed:(CGFloat)redByte / 0xff
+              green:(CGFloat)greenByte / 0xff
+              blue:(CGFloat)blueByte / 0xff
+              alpha:1.0];
+    return color;
+    
+}
+- (id)reverseTransformedValue:(id)value {
+    NSColor *color = (NSColor *)value;
+    color = [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+    CGFloat red, green, blue, alpha;
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    unsigned char redByte = red * 0xff;
+    unsigned char greenByte = green * 0xff;
+    unsigned char blueByte = blue * 0xff;
+    NSString *string = [NSString stringWithFormat:@"%02X%02X%02X", redByte, greenByte, blueByte];
+    return string;
+}
+
+@end
+
+@implementation PraxAssetGenreTagStringTransformer
+
++ (Class)transformedValueClass {
+    return [NSString class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSString *)transformedValue:(id)value {
+    NSSet *tags = (NSSet *)value;
+    if (tags.count > 0) {
+        Tag *tag = tags.anyObject;
+        return tag.name;
+    }
+    else return @"";
+}
 @end
 
 @implementation PraxAssetTagStringTransformer
@@ -531,31 +732,16 @@
 - (NSArray *)transformedValue:(id)value {
     NSSet *tags = (NSSet *)value;
     NSMutableArray *array = [@[] mutableCopy];
-
-//    NSMutableString *string = [[NSMutableString alloc] init];
     for (Tag *tag in tags) {
         [array addObject:tag];
-//        if (string.length > 0) [string appendString:@","];
-  //      [string appendString:tag.name];
     }
     return array;
 }
 - (id)reverseTransformedValue:(id)value {
     NSArray *array = (NSArray *)value;
     NSMutableSet *tags = [[NSMutableSet alloc] init];
-    
-    for (Tag *tag in array) {
-/*        NSLog(@"%@", string);
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-        [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"name", string]];
-        NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
-        if ([matchingItems count] < 1) {
-            tag = [NSEntityDescription insertNewObjectForEntityForName:@"Tag" inManagedObjectContext:self.document.managedObjectContext];
-            tag.name = string;
-            
-        }
-        else tag = matchingItems[0];*/
-        [tags addObject:tag];
+    for (id tag in array) {
+        if ([[tag className] isEqualToString:@"Tag"]) [tags addObject:tag];
     }
     
     return tags.copy;

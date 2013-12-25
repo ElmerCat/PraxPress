@@ -117,15 +117,15 @@
         if (!self.source) return;
         
         NSView *view = nil;
-        if ([self.source.entity.name isEqualToString:@"AccountSource"]) {
+        if ([self.source.type isEqualToString:@"AccountSource"]) {
             view = self.sourceAccountViews[self.source.name];
         }
-        else view = self.sourceAccountViews[self.source.entity.name];
+        else view = self.sourceAccountViews[self.source.type];
         if (!view) {
             view = self.sourceAccountViews[@"Default"];
         }
         if (view) {
-            if ([self.source.entity.name isEqualToString:@"SearchSource"]) {
+            if ([self.source.type isEqualToString:@"SearchSource"]) {
                 if (!self.source.fetchPredicate) {
                     self.source.fetchPredicate = self.source.defaultPredicate;
                 }
@@ -156,18 +156,22 @@
 - (void)showPopoverForSource:(Source *)source sender:(id)sender preferredEdge:(NSRectEdge)preferredEdge {
     
     self.source = source;
-    NSView *view = nil;
-    if ([source.entity.name isEqualToString:@"AccountSource"]) {
-        view = self.sourceAccountViews[source.name];
+    if ([source.type isEqualToString:@"SubAccountSource"]) {
+        self.source = source.parent;
     }
-    else view = self.sourceAccountViews[source.entity.name];
+    if ([self.source.type isEqualToString:@"LibrarySource"]) return;
+    NSView *view = nil;
+    if ([self.source.type isEqualToString:@"AccountSource"]) {
+        view = self.sourceAccountViews[self.source.name];
+    }
+    else view = self.sourceAccountViews[self.source.type];
     if (!view) {
-        view = self.sourceAccountViews[@"Default"];
+        return; //view = self.sourceAccountViews[@"Default"];
     }
     if (view) {
-        if ([source.entity.name isEqualToString:@"SearchSource"]) {
-            if (!source.fetchPredicate) {
-                source.fetchPredicate = source.defaultPredicate;
+        if ([self.source.type isEqualToString:@"SearchSource"]) {
+            if (!self.source.fetchPredicate) {
+                self.source.fetchPredicate = self.source.defaultPredicate;
             }
         }
         

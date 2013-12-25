@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4457.9" systemVersion="13A497d" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="1070" defaultVersion="1080" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4457.9"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ChangeValuesController">
             <connections>
-                <action selector="cancel:" destination="107" id="148"/>
-                <action selector="change:" destination="7" id="168"/>
-                <action selector="changeOptionSelected:" destination="386" id="691"/>
-                <action selector="copy:" destination="6" id="169"/>
-                <action selector="tagSelected:" destination="838" id="848"/>
-                <action selector="tagSelected:" destination="955" id="966"/>
                 <outlet property="changeOptionsController" destination="401" id="1149"/>
                 <outlet property="changeOptionsPopUpButton" destination="386" id="1175"/>
                 <outlet property="keyField" destination="9" id="166"/>
@@ -50,7 +44,7 @@
             <rect key="frame" x="0.0" y="0.0" width="518" height="654"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <comboBox wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9">
+                <comboBox wantsLayer="YES" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9">
                     <rect key="frame" x="246" y="112" width="250" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -85,6 +79,7 @@
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>
                     <connections>
+                        <action selector="copy:" target="-2" id="169"/>
                         <binding destination="-2" name="hidden" keyPath="self.keyValue" id="339">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSIsNil</string>
@@ -104,10 +99,11 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
+                        <action selector="change:" target="-2" id="168"/>
                         <binding destination="-2" name="title" keyPath="self.batchCount" id="196"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8">
                     <rect key="frame" x="24" y="56" width="94" height="11"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Copy from Selection:" id="29">
@@ -123,7 +119,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4">
+                <textField wantsLayer="YES" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4">
                     <rect key="frame" x="27" y="75" width="491" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="34">
@@ -139,7 +135,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="5">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5">
                     <rect key="frame" x="24" y="105" width="74" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -169,8 +165,11 @@
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
+                    <connections>
+                        <action selector="cancel:" target="-2" id="148"/>
+                    </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="376">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="376">
                     <rect key="frame" x="17" y="622" width="484" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -184,24 +183,25 @@
                 <popUpButton translatesAutoresizingMaskIntoConstraints="NO" id="386">
                     <rect key="frame" x="20" y="581" width="478" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <popUpButtonCell key="cell" type="square" title="Item 1" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" preferredEdge="maxY" selectedItem="389" id="387">
+                    <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" preferredEdge="maxY" id="387">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="388">
                             <items>
-                                <menuItem title="Item 1" state="on" id="389"/>
+                                <menuItem title="Item 1" id="389"/>
                                 <menuItem title="Item 2" id="390"/>
                                 <menuItem title="Item 3" id="391"/>
                             </items>
                         </menu>
                     </popUpButtonCell>
                     <connections>
+                        <action selector="changeOptionSelected:" target="-2" id="691"/>
                         <binding destination="401" name="content" keyPath="arrangedObjects" id="405"/>
                         <binding destination="401" name="contentValues" keyPath="arrangedObjects.name" previousBinding="405" id="408"/>
                         <binding destination="401" name="selectedIndex" keyPath="selectionIndex" previousBinding="408" id="452"/>
                     </connections>
                 </popUpButton>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="409">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="409">
                     <rect key="frame" x="135" y="450" width="276" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="410">
@@ -213,8 +213,8 @@
                         <binding destination="-2" name="enabled" keyPath="self.prefixWith" id="602"/>
                         <binding destination="-2" name="hidden" keyPath="self.prefixWith" previousBinding="602" id="680">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNullPlaceholder" value="1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="1"/>
                                 <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
@@ -228,7 +228,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="457">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="457">
                     <rect key="frame" x="111" y="434" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Prefix with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="458">
@@ -236,12 +236,12 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="696">
+                        <binding destination="401" name="hidden" keyPath="selection.prefixWith" previousBinding="696" id="697">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="401" name="hidden" keyPath="selection.prefixWith" previousBinding="696" id="697">
+                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="696">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
@@ -264,8 +264,8 @@
                         <binding destination="-2" name="enabled" keyPath="self.appendWith" id="598"/>
                         <binding destination="-2" name="hidden" keyPath="self.appendWith" previousBinding="598" id="683">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNullPlaceholder" value="1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="1"/>
                                 <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
@@ -279,7 +279,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="483">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="483">
                     <rect key="frame" x="111" y="416" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="484">
@@ -287,20 +287,20 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="704">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">NSNegateBoolean</string>
-                            </dictionary>
-                        </binding>
                         <binding destination="401" name="hidden" keyPath="selection.appendWith" previousBinding="704" id="705">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
                         <binding destination="-2" name="value" keyPath="self.appendWith" id="583"/>
+                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="704">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="541">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="541">
                     <rect key="frame" x="135" y="510" width="276" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="544">
@@ -312,8 +312,8 @@
                         <binding destination="-2" name="enabled" keyPath="self.findReplace" id="576"/>
                         <binding destination="-2" name="hidden" keyPath="self.findReplace" previousBinding="576" id="686">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNullPlaceholder" value="1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="1"/>
                                 <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
@@ -327,7 +327,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="604">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="604">
                     <rect key="frame" x="230" y="480" width="263" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -342,8 +342,8 @@
                         <binding destination="-2" name="enabled" keyPath="self.findReplace" id="606"/>
                         <binding destination="-2" name="hidden" keyPath="self.findReplace" previousBinding="606" id="688">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNullPlaceholder" value="1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="1"/>
                                 <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
@@ -357,7 +357,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="542">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="542">
                     <rect key="frame" x="111" y="508" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Find:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="543">
@@ -365,12 +365,12 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="738">
+                        <binding destination="401" name="hidden" keyPath="selection.findReplace" previousBinding="738" id="739">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="401" name="hidden" keyPath="selection.findReplace" previousBinding="738" id="739">
+                        <binding destination="-2" name="enabled" keyPath="self.changeTo" id="738">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
@@ -378,7 +378,7 @@
                         <binding destination="-2" name="value" keyPath="self.findReplace" id="581"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="509">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="509">
                     <rect key="frame" x="135" y="540" width="358" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="512">
@@ -390,8 +390,8 @@
                         <binding destination="-2" name="enabled" keyPath="self.changeTo" id="592"/>
                         <binding destination="-2" name="hidden" keyPath="self.changeTo" previousBinding="592" id="690">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNullPlaceholder" value="1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="1"/>
                                 <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
@@ -405,7 +405,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="510">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="510">
                     <rect key="frame" x="111" y="524" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Change to:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="511">
@@ -413,21 +413,27 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled2" keyPath="self.appendWith" previousBinding="724" id="730">
+                        <binding destination="401" name="hidden" keyPath="selection.changeTo" previousBinding="736" id="737">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
-                                <integer key="NSNotApplicablePlaceholder" value="-1"/>
-                                <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="enabled3" keyPath="self.findReplace" previousBinding="730" id="736">
+                        <binding destination="-2" name="enabled2" keyPath="self.appendWith" previousBinding="724" id="730">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
+                        <binding destination="-2" name="value" keyPath="self.changeTo" id="589"/>
+                        <binding destination="-2" name="enabled3" keyPath="self.findReplace" previousBinding="730" id="736">
+                            <dictionary key="options">
                                 <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
@@ -436,15 +442,9 @@
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="401" name="hidden" keyPath="selection.changeTo" previousBinding="736" id="737">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">NSNegateBoolean</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="value" keyPath="self.changeTo" id="589"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="557">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="557">
                     <rect key="frame" x="110" y="485" width="115" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="and Replace with:" id="558">
@@ -460,7 +460,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="742">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="742">
                     <rect key="frame" x="73" y="510" width="35" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Find:" id="743">
@@ -476,7 +476,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="751">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="751">
                     <rect key="frame" x="17" y="418" width="91" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Append with:" id="752">
@@ -492,7 +492,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="929">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="929">
                     <rect key="frame" x="111" y="372" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="932">
@@ -500,12 +500,12 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.removeAllTags" id="946">
+                        <binding destination="401" name="hidden" keyPath="selection.changeTags" previousBinding="946" id="947">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="401" name="hidden" keyPath="selection.changeTags" previousBinding="946" id="947">
+                        <binding destination="-2" name="enabled" keyPath="self.removeAllTags" id="946">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
@@ -513,7 +513,7 @@
                         <binding destination="-2" name="value" keyPath="self.removeTags" id="948"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="930">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="930">
                     <rect key="frame" x="17" y="374" width="91" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Remove Tags:" id="931">
@@ -529,7 +529,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="1176">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1176">
                     <rect key="frame" x="104" y="285" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="1179">
@@ -545,7 +545,7 @@
                         <binding destination="-2" name="value" keyPath="self.addTags" id="1274"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1177">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1177">
                     <rect key="frame" x="34" y="287" width="67" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Add Tags:" id="1178">
@@ -561,7 +561,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="997">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="997">
                     <rect key="frame" x="126" y="320" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="1000">
@@ -569,20 +569,20 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="enabled" keyPath="self.removeTags" id="1021">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">NSNegateBoolean</string>
-                            </dictionary>
-                        </binding>
                         <binding destination="401" name="hidden" keyPath="selection.changeTags" previousBinding="1021" id="1022">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
                         <binding destination="-2" name="value" keyPath="self.removeAllTags" id="1020"/>
+                        <binding destination="-2" name="enabled" keyPath="self.removeTags" id="1021">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="998">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="998">
                     <rect key="frame" x="17" y="322" width="111" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Remove All Tags:" id="999">
@@ -598,7 +598,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="791">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="791">
                     <rect key="frame" x="34" y="523" width="73" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Change to:" id="792">
@@ -614,7 +614,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="777">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="777">
                     <rect key="frame" x="33" y="433" width="75" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Prefix with:" id="778">
@@ -630,7 +630,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <popUpButton toolTip="Sharing" horizontalCompressionResistancePriority="239" tag="204" translatesAutoresizingMaskIntoConstraints="NO" id="852" userLabel="Sharing">
+                <popUpButton toolTip="Sharing" horizontalCompressionResistancePriority="239" misplaced="YES" tag="204" translatesAutoresizingMaskIntoConstraints="NO" id="852" userLabel="Sharing">
                     <rect key="frame" x="30" y="203" width="65" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -639,7 +639,7 @@
                     </constraints>
                     <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" continuous="YES" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="853">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="854"/>
                     </popUpButtonCell>
                     <connections>
@@ -653,7 +653,7 @@
                         <binding destination="1099" name="selectedIndex" keyPath="selectionIndex" previousBinding="1121" id="1169"/>
                     </connections>
                 </popUpButton>
-                <popUpButton toolTip="Track Type" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="863" userLabel="Track Type">
+                <popUpButton toolTip="Track Type" misplaced="YES" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="863" userLabel="Track Type">
                     <rect key="frame" x="356" y="203" width="100" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -661,21 +661,21 @@
                     </constraints>
                     <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" continuous="YES" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="864">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="865"/>
                     </popUpButtonCell>
                     <connections>
                         <binding destination="1100" name="content" keyPath="arrangedObjects" id="1111"/>
                         <binding destination="1100" name="contentValues" keyPath="arrangedObjects.name" previousBinding="1111" id="1113"/>
+                        <binding destination="1100" name="selectedIndex" keyPath="selectionIndex" previousBinding="1113" id="1174"/>
                         <binding destination="-2" name="hidden" keyPath="self.changeTrackSubType" id="1090">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="1100" name="selectedIndex" keyPath="selectionIndex" previousBinding="1113" id="1174"/>
                     </connections>
                 </popUpButton>
-                <popUpButton toolTip="Track Type" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="887" userLabel="Playlist Type">
+                <popUpButton toolTip="Track Type" misplaced="YES" tag="203" translatesAutoresizingMaskIntoConstraints="NO" id="887" userLabel="Playlist Type">
                     <rect key="frame" x="356" y="163" width="100" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -683,24 +683,24 @@
                     </constraints>
                     <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" continuous="YES" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="888">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="889"/>
                     </popUpButtonCell>
                     <connections>
                         <binding destination="1101" name="content" keyPath="arrangedObjects" id="1115"/>
                         <binding destination="1101" name="contentValues" keyPath="arrangedObjects.name" previousBinding="1115" id="1117"/>
+                        <binding destination="1101" name="selectedIndex" keyPath="selectionIndex" previousBinding="1117" id="1171"/>
                         <binding destination="-2" name="hidden" keyPath="self.changePlaylistSubType" id="1092">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="1101" name="selectedIndex" keyPath="selectionIndex" previousBinding="1117" id="1171"/>
                     </connections>
                 </popUpButton>
-                <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="918">
+                <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="918">
                     <rect key="frame" x="128" y="347" width="282" height="44"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <clipView key="contentView" id="uzH-5a-sDu">
+                    <clipView key="contentView" misplaced="YES" id="uzH-5a-sDu">
                         <rect key="frame" x="1" y="1" width="280" height="42"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -713,6 +713,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </tokenFieldCell>
                                 <connections>
+                                    <action selector="tagSelected:" target="-2" id="848"/>
                                     <binding destination="-2" name="value" keyPath="self.removeTagsArray" id="1276">
                                         <dictionary key="options">
                                             <bool key="NSContinuouslyUpdatesValue" value="YES"/>
@@ -723,12 +724,12 @@
                             </tokenField>
                         </subviews>
                     </clipView>
-                    <scroller key="horizontalScroller" verticalHuggingPriority="750" id="920">
+                    <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="920">
                         <rect key="frame" x="1" y="27" width="280" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.91772151898734178" id="921">
-                        <rect key="frame" x="265" y="1" width="16" height="42"/>
+                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.012658227848101266" horizontal="NO" id="921">
+                        <rect key="frame" x="266" y="1" width="15" height="42"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <connections>
@@ -739,7 +740,7 @@
                         </binding>
                     </connections>
                 </scrollView>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="952">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="952">
                     <rect key="frame" x="332" y="201" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="960">
@@ -755,7 +756,7 @@
                         <binding destination="-2" name="value" keyPath="self.changeTrackSubType" id="1093"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="953">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="953">
                     <rect key="frame" x="184" y="203" width="145" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Change Track Type to:" id="959">
@@ -771,7 +772,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="1069">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1069">
                     <rect key="frame" x="332" y="164" width="18" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="check" title="Append with:" bezelStyle="regularSquare" imagePosition="only" inset="2" id="1072">
@@ -787,7 +788,7 @@
                         <binding destination="-2" name="value" keyPath="self.changePlaylistSubType" id="1094"/>
                     </connections>
                 </button>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1070">
+                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1070">
                     <rect key="frame" x="175" y="166" width="154" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Change Playlist Type to:" id="1071">
@@ -803,10 +804,10 @@
                         </binding>
                     </connections>
                 </textField>
-                <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="954">
+                <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="954">
                     <rect key="frame" x="128" y="260" width="282" height="44"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <clipView key="contentView" id="FXI-nL-K14">
+                    <clipView key="contentView" misplaced="YES" id="FXI-nL-K14">
                         <rect key="frame" x="1" y="1" width="280" height="42"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -819,6 +820,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </tokenFieldCell>
                                 <connections>
+                                    <action selector="tagSelected:" target="-2" id="966"/>
                                     <binding destination="-2" name="value" keyPath="self.addTagsArray" id="1277">
                                         <dictionary key="options">
                                             <bool key="NSContinuouslyUpdatesValue" value="YES"/>
@@ -829,12 +831,12 @@
                             </tokenField>
                         </subviews>
                     </clipView>
-                    <scroller key="horizontalScroller" verticalHuggingPriority="750" id="957">
+                    <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="957">
                         <rect key="frame" x="1" y="27" width="280" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.91772151898734178" id="956">
-                        <rect key="frame" x="265" y="1" width="16" height="42"/>
+                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.012658227848101266" horizontal="NO" id="956">
+                        <rect key="frame" x="266" y="1" width="15" height="42"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <connections>
@@ -944,6 +946,6 @@
     </objects>
     <resources>
         <image name="NSAdvanced" width="32" height="32"/>
-        <image name="NSStopProgressFreestandingTemplate" width="12" height="12"/>
+        <image name="NSStopProgressFreestandingTemplate" width="83" height="83"/>
     </resources>
 </document>

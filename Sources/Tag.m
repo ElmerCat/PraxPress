@@ -11,11 +11,15 @@
 
 
 @implementation Tag
+
 @dynamic isWPCategory;
 @dynamic name;
 @dynamic slug;
+
 @dynamic assets;
+@dynamic categoriesAssets;
 @dynamic excludedSources;
+@dynamic genreAssets;
 @dynamic requiredSources;
 
 @end

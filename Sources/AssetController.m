@@ -27,7 +27,7 @@
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetDetailClosedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
             Asset *asset = (Asset *)[aNotification object];
             [self.assetDetailControllers removeObjectForKey:asset];
-            NSLog(@"BatchController AssetDetailClosedNotification: %@", asset.title);
+            NSLog(@"AssetController AssetDetailClosedNotification: %@", asset.title);
             
         }];
         

@@ -9,6 +9,8 @@
 #import "Document.h"
 
 @interface Template : NSManagedObject
+
+@property (nonatomic, retain) id format;
 @property (nonatomic, retain) NSString * formatText;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSSet *sources;

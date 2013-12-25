@@ -14,7 +14,6 @@
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="source" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="account" inverseEntity="Source" syncable="YES"/>
     </entity>
-    <entity name="AccountSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Asset" representedClassName="Asset" syncable="YES">
         <attribute name="accountType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="artwork_url" optional="YES" attributeType="String" syncable="YES"/>
@@ -49,12 +48,15 @@
         <relationship name="accounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="account" inverseEntity="Asset" syncable="YES"/>
         <relationship name="associatedItems" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Asset" inverseName="associatedItems" inverseEntity="Asset" syncable="YES"/>
         <relationship name="batchSources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="batchAssets" inverseEntity="Source" syncable="YES"/>
+        <relationship name="categories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="categoriesAssets" inverseEntity="Tag" syncable="YES"/>
+        <relationship name="genreTags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="genreAssets" inverseEntity="Tag" syncable="YES"/>
         <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="assets" inverseEntity="Tag" syncable="YES"/>
     </entity>
-    <entity name="BatchSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
-    <entity name="FolderSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Image" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
-    <entity name="LibrarySource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
+    <entity name="Interface" representedClassName="Interface" syncable="YES">
+        <attribute name="exportCodeDirectory" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <relationship name="selectedSource" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source" syncable="YES"/>
+    </entity>
     <entity name="Playlist" representedClassName="Asset" parentEntity="Asset" syncable="YES">
         <attribute name="playlist_type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="trackList" optional="YES" attributeType="String" syncable="YES"/>
@@ -62,11 +64,6 @@
     </entity>
     <entity name="Post" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="PraxAsset" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
-    <entity name="PraxAssetSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
-    <entity name="PraxPressDocument" representedClassName="PraxPressDocument" syncable="YES">
-        <attribute name="rootCodeDirectory" optional="YES" attributeType="String" syncable="YES"/>
-    </entity>
-    <entity name="SearchSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Source" representedClassName="Source" syncable="YES">
         <attribute name="exportURL" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="fetchEntity" optional="YES" attributeType="String" syncable="YES"/>
@@ -76,10 +73,12 @@
         <attribute name="folderType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="formattedCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="iconName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="itemCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="requireAllTags" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="rowHeight" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="sortOrder" optional="YES" attributeType="Integer 64" minValueString="0" defaultValueString="0" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="source" inverseEntity="Account" syncable="YES"/>
         <relationship name="batchAssets" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Asset" inverseName="batchSources" inverseEntity="Asset" syncable="YES"/>
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Source" inverseName="parent" inverseEntity="Source" syncable="YES"/>
@@ -88,16 +87,18 @@
         <relationship name="requiredTags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="requiredSources" inverseEntity="Tag" syncable="YES"/>
         <relationship name="template" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Template" inverseName="sources" inverseEntity="Template" syncable="YES"/>
     </entity>
-    <entity name="SubAccountSource" representedClassName="Source" parentEntity="Source" syncable="YES"/>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="isWPCategory" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="slug" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="tags" inverseEntity="Asset" syncable="YES"/>
-        <relationship name="excludedSources" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="excludedTags" inverseEntity="Source" syncable="YES"/>
+        <relationship name="categoriesAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="categories" inverseEntity="Asset" syncable="YES"/>
+        <relationship name="excludedSources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="excludedTags" inverseEntity="Source" syncable="YES"/>
+        <relationship name="genreAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="genreTags" inverseEntity="Asset" syncable="YES"/>
         <relationship name="requiredSources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="requiredTags" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Template" representedClassName="Template" syncable="YES">
+        <attribute name="format" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="formatText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="sources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="template" inverseEntity="Source" syncable="YES"/>
@@ -106,25 +107,24 @@
         <attribute name="track_type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Video" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
+    <entity name="Widget" syncable="YES">
+        <attribute name="displayString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="editingString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="formatText" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <elements>
         <element name="Account" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="AccountSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Asset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="BatchSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="FolderSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Image" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LibrarySource" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Interface" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Playlist" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Post" positionX="0" positionY="0" width="0" height="0"/>
         <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxAssetSource" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="PraxPressDocument" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SearchSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SubAccountSource" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Track" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Widget" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

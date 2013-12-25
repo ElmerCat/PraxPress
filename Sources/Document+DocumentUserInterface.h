@@ -9,8 +9,11 @@
 #import "Document.h"
 
 @interface Document (DocumentUserInterface)
+- (NSString *)toolTipStats;
+- (NSString *)toolTipPermalink;
+- (NSString *)toolTipReload;
+- (NSString *)toolTipUpload;
 
 - (IBAction)praxButtonPressed:(id)sender;
-
 
 @end

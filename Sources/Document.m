@@ -11,12 +11,12 @@
 
 @implementation Document
 
-
 - (id)init
 {
     self = [super init];
     if (self) {
         NSLog(@"Document init");
+        
         self.templateSortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
         
         self.sharingTypes = @[@{@"name":@"Private", @"value":@"private"},
@@ -67,13 +67,14 @@
     [self.managedObjectContext processPendingChanges];
     [[self.managedObjectContext undoManager] disableUndoRegistration];
     
-    self.praxPressDocument = [NSEntityDescription insertNewObjectForEntityForName:@"PraxPressDocument" inManagedObjectContext:self.managedObjectContext];
+    self.interface = [NSEntityDescription insertNewObjectForEntityForName:@"Interface" inManagedObjectContext:self.managedObjectContext];
     
     [SourceController initWithType:typeName inManagedObjectContext:self.managedObjectContext];
     
     
     [self.managedObjectContext processPendingChanges];
     [[self.managedObjectContext undoManager] enableUndoRegistration];
+    [self saveDocument:self];
     
     return self;
 }
@@ -96,37 +97,76 @@
     return @"PraxPress";
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)aController
+/*- (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
+    
+    
+}*/
+
+- (void)awakeFromNib {
+    NSLog(@"Document awakeFromNib");
+    if (!self.interface) {
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Interface"];
+        NSError *error;
+        self.interface = [self.managedObjectContext executeFetchRequest:request error:&error][0];
+    }
     
     [PraxTransformers load];
     self.patsTransformer = [PraxAssetTagStringTransformer loadForDocument:self];
     
-    [self.assetsTableView setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
-    
     // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
-    
     
     /* register our special protocol with webkit */
 	[SpecialProtocol registerSpecialProtocol];
     
-    
 }
-
-- (void)awakeFromNib {
-    NSLog(@"Document awakeFromNib");
-}
-
 
 /*- (void)dealloc {
  NSLog(@"Document dealloc");
  }*/
 
+- (void)setExportCodeDirectory:(NSURL *)exportCodeDirectory {
+    _exportCodeDirectory = exportCodeDirectory;
+    if (_exportCodeDirectory) {
+        NSError *error;
+        [exportCodeDirectory startAccessingSecurityScopedResource];
+        self.interface.exportCodeDirectory = [_exportCodeDirectory bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope includingResourceValuesForKeys:nil relativeToURL:nil error:&error];
+        [_exportCodeDirectory stopAccessingSecurityScopedResource];
+    }
+    else self.interface.exportCodeDirectory = nil;
+}
+
+- (NSURL *)exportCodeDirectory {
+    if ((!_exportCodeDirectory) && self.interface.exportCodeDirectory) {
+        NSError *error;
+        BOOL isStale;
+        self.exportCodeDirectory = [NSURL URLByResolvingBookmarkData:self.interface.exportCodeDirectory options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:&isStale error:&error];
+    }
+    if (!_exportCodeDirectory) [self openExportCodeDirectory:self];
+    return _exportCodeDirectory;
+}
+
+- (IBAction)openExportCodeDirectory:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    [panel setCanChooseFiles:FALSE];
+    [panel setCanChooseDirectories:TRUE];
+    [panel setCanCreateDirectories:TRUE];
+    [panel setMessage:@"Please Choose A Folder For Exported Code HTML Files"];
+    if (_exportCodeDirectory) [panel setDirectoryURL:_exportCodeDirectory];
+    [panel beginSheetModalForWindow:self.windowForSheet completionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            self.exportCodeDirectory = panel.URL;
+        }
+    }];
+}
+
 - (void)windowWillClose:(NSNotification *)notification {
-    NSLog(@"Document windowWillClose notification: %@", notification);
+//    NSLog(@"Document windowWillClose notification: %@", notification);
+//    self.exportCodeDirectory = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.sourceController windowWillClose:notification];
+    [self.templatesPanel performClose:self];
     //  [self.tagController windowWillClose:notification];
 }
 
@@ -193,71 +233,6 @@
 {
     return YES;
 }
-
-- (IBAction)selectAccount:(id)sender {
-    NSLog(@"selectAccount sender.tag: %ld", [(NSMenuItem *)sender tag]);
-    NSString *accountType;
-    NSInteger selectionIndex = [(NSMenuItem *)sender tag];
-    switch (selectionIndex) {
-        case 0:
-            accountType = @"SoundCloud";
-            break;
-        case 1:
-            accountType = @"WordPress";
-            break;
-        case 2:
-            accountType = @"YouTube";
-            break;
-        case 3:
-            accountType = @"Flickr";
-            break;
-        default:
-            return;
-            break;
-    }
-    
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Account"];
-    [request setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", @"accountType", accountType]];
-    NSArray *matchingItems = [self.managedObjectContext executeFetchRequest:request error:nil];
-    if ([matchingItems count] > 0) {
-        Asset *account = matchingItems[0];
-        [(AccountViewController *)[self.accountViewPopover contentViewController] setRepresentedObject:account];
-        [(AccountViewController *)[self.accountViewPopover contentViewController] setSelectionIndex:selectionIndex];
-        [self.accountViewPopover showRelativeToRect:[[self.accountsToolbarButton view] bounds] ofView:[self.accountsToolbarButton view] preferredEdge:NSMaxXEdge];
-        
-    }
-    
-    
-}
-
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex {
-    NSLog(@"splitView:(NSSplitView *)splitView shouldCollapseSubview:(NSView *)subview forDoubleClickOnDividerAtIndex:%ld", (long)dividerIndex);
-    if (subview == self.changedAssetsView) return YES;
-    else return NO;
-}
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {return TRUE;}
-
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview {return TRUE;}
-
-/*- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
- NSRect effectiveRect = proposedEffectiveRect;
- // effectiveRect.origin.x -= 2.0;
- if (splitView.isVertical) {
- effectiveRect.origin.x -= 10.0;
- effectiveRect.size.width += 10.0;
- }
- else {
- effectiveRect.origin.y -= 10.0;
- effectiveRect.size.height += 10.0;
- }
- 
- 
- 
- return effectiveRect;
- }*/
-
 
 - (NSPrintOperation *)printOperationWithSettings:(NSDictionary *)printSettings error:(NSError **)outError {
     *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSServiceMiscellaneousError userInfo:@{NSLocalizedFailureReasonErrorKey:@"\n\nI'm sorry, but that feature is Not In Service at this time."}];

@@ -45,6 +45,8 @@
 @property (nonatomic, retain) NSSet *excludedTags;
 @property (nonatomic, retain) NSSet *requiredTags;
 @property (nonatomic, retain) NSNumber * requireAllTags;
+@property (nonatomic, retain) NSNumber * itemCount;
+@property (nonatomic, retain) NSString * type;
 
 @end
 

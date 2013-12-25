@@ -16,7 +16,16 @@
 @end
 
 
+@interface NSManagedObject (PraxCategories)
+
++ (id)entity:(NSString *)entity withKey:(NSString *)key matchingStringValue:(NSString *)stringValue inManagedObjectContext:(NSManagedObjectContext *)managedObjectContext;
+
+@end
+
 @interface AlphaColorWell : NSColorWell
 
 @end
 
+@interface NSMenu (secret)
+- (void) _setHasPadding: (BOOL) pad onEdge: (int) whatEdge;
+@end

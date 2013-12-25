@@ -107,7 +107,7 @@
 - (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex {
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-    [request setPredicate:[NSPredicate predicateWithFormat:@"name BEGINSWITH[c] %@", substring]];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"name BEGINSWITH[cd] %@", substring]];
     
     NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:nil];
     if ([matchingItems count] > 0) {

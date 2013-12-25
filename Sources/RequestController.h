@@ -8,15 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
+#import "Document.h"
 #import "Asset.h"
 #import "Tag.h"
-#import "BatchController.h"
 #import "TagController.h"
 #import "AssetListViewController.h"
 
-@class Document;
 @class PostEditor;
-@class BatchController;
 @class TagController;
 
 @interface RequestController : NSObject
@@ -49,11 +47,8 @@
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet TagController *tagController;
 
-@property (unsafe_unretained) IBOutlet NSPanel *synchronizePanel;
-
-@property (weak) IBOutlet NSProgressIndicator *progressBar;
-@property (weak) IBOutlet NSImageView *progressImageWell;
-
+@property (unsafe_unretained) IBOutlet NSPanel *authorizationPanel;
+@property (weak) IBOutlet WebView *authorizationWebView;
 
 - (IBAction)uploadChangedItems:(id)sender;
 - (IBAction)reloadChangedItems:(id)sender;

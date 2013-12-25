@@ -9,6 +9,8 @@
 #import "Template.h"
 
 @implementation Template
+
+@dynamic format;
 @dynamic formatText;
 @dynamic name;
 @dynamic sources;

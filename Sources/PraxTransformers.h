@@ -10,6 +10,7 @@
 #import "Document.h"
 #import "Asset.h"
 #import "Tag.h"
+#import "Widget.h"
 
 @class Document;
 
@@ -20,10 +21,25 @@
 @interface PraxMillisecondsToDurationTransformer : NSValueTransformer
 @end
 
-@interface PraxArrayIsPlaylistTransformer : NSValueTransformer
+@interface PraxArrayNotTracksTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayNotPlaylistsTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayNotSoundCloudTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayNotWordPressTransformer : NSValueTransformer
 @end
 
 @interface PraxArrayIsNotPlaylistTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayAreWordPressTransformer : NSValueTransformer
+@end
+
+@interface PraxArrayIsPlaylistTransformer : NSValueTransformer
 @end
 
 @interface PraxArrayArePlaylistsTransformer : NSValueTransformer
@@ -39,9 +55,6 @@
 @end
 
 @interface PraxArrayAreSoundCloudTransformer : NSValueTransformer
-@end
-
-@interface PraxArrayAreWordPressTransformer : NSValueTransformer
 @end
 
 @interface PraxArrayAreDifferentTypes : NSValueTransformer
@@ -76,7 +89,19 @@
 @interface PraxIsSelectedImageTransformer : NSValueTransformer
 @end
 
+@interface PraxSourceItemImageTransformer : NSValueTransformer
+@end
+
+@interface PraxWidgetStringTransformer : NSValueTransformer
+@end
+
 @interface PraxAssetStringTransformer : NSValueTransformer
+@end
+
+@interface PraxAssetGenreTagStringTransformer : NSValueTransformer
+@end
+
+@interface PraxColorStringTransformer : NSValueTransformer
 @end
 
 @interface PraxAssetTagStringTransformer : NSValueTransformer

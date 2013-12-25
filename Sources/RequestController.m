@@ -10,7 +10,6 @@
 
 @implementation RequestController
 
-- (NSArray *)keyPathsToObserve {return @[@"self.document.changedAssetsController.arrangedObjects", @"self.statusText"];}
 
 - (id)init {
     self = [super init];
@@ -54,9 +53,9 @@
                                                       usingBlock:^(NSNotification *aNotification){
                                                           NSLog(@"RequestController NXOAuth2AccountStoreAccountsDidChangeNotification");
                                                           // Update your UI
-                                                          //          if ([SCSoundCloud account]) {
-                                                          [self.document.authorizationWindow close];
-                                                          //          }
+                                                          if (self.authorizationPanel.isVisible) {
+                                                              [self.authorizationPanel close];
+                                                          }
                                                       }];
         
         [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreDidFailToRequestAccessNotification
@@ -112,26 +111,6 @@
 - (void)awakeFromNib {
         NSLog(@"RequestController awakeFromNib");
     
-/*    [[NSNotificationCenter defaultCenter] addObserverForName:NSTableViewSelectionDidChangeNotification
-                                                      object:self.changedAssetsTableView
-                                                       queue:nil
-                                                  usingBlock:^(NSNotification *aNotification){
-                                                      if ([aNotification object] == self.changedAssetsTableView){
-                                                          
-                                                          NSLog(@"changedAssetsTableView NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
-                                                 //         if (self.changedAssetsController.selectedObjects.count > 0) {
-                                                  //            self.batchController.selectedAsset = [self.changedAssetsController selectedObjects][0];
-                                                  //            if ([self.batchController.assetDetailPanel isVisible])
-                                                  //                [self.batchController.assetDetailPanel makeKeyAndOrderFront:self];
-                                                  //        }
-                                                      }
-                                                      
-                                                      else NSLog(@"RequestController NSTableViewSelectionDidChangeNotification aNotification: %@", aNotification);
-                                                      
-                                                      
-                                                  }];
-  */  
-
 }
 
 - (void)dealloc {
@@ -140,47 +119,13 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (NSArray *)keyPathsToObserve {return @[@"self.pendingAssetsToReload",
+                                         @"self.statusText"];}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if ([keyPath isEqualToString:@"self.document.changedAssetsController.arrangedObjects"]) {
-        NSInteger count = [self.document.changedAssetsController.arrangedObjects count];
-        
-        if ((count > 0) && (self.document.changedAssetsView.frame.size.height < 150)) {
-            self.document.changedAssetsView.hidden = NO;
-            
-            [NSAnimationContext beginGrouping];
-            [[NSAnimationContext currentContext] setDuration:1];
-            NSRect newCollapsingFrame = self.document.assetsView.frame;
-            newCollapsingFrame.size.height = self.document.leftSplitView.frame.size.height-150;
-            [[self.document.assetsView animator] setFrame:newCollapsingFrame];
-            
-            NSRect newExpandingFrame = self.document.changedAssetsView.frame;
-            newExpandingFrame.size.height = 150;
-            newExpandingFrame.origin.x = self.document.leftSplitView.frame.size.height-150;
-            [[self.document.changedAssetsView animator] setFrame:newExpandingFrame];
-            
-            [NSAnimationContext endGrouping];
-            
-        }
-        else if ([keyPath isEqualToString:@"self.statusText"]) {
+    if ([keyPath isEqualToString:@"self.statusText"]) {
             [self.updateControlsToolbarItem setLabel:self.statusText];
-        }
-        else if ((!count) && (self.document.changedAssetsView.frame.size.height > 0)) {
-            
-            [NSAnimationContext beginGrouping];
-            [[NSAnimationContext currentContext] setDuration:1];
-            NSRect newExpandingFrame = self.document.assetsView.frame;
-            newExpandingFrame.size.height =  self.document.leftSplitView.frame.size.height;
-            [[self.document.assetsView animator] setFrame:newExpandingFrame];
-            
-            NSRect newCollapsingFrame = self.document.changedAssetsView.frame;
-            newCollapsingFrame.size.height = 0.0f;
-            newCollapsingFrame.origin.x = self.document.leftSplitView.frame.size.height;
-            [[self.document.changedAssetsView animator] setFrame:newCollapsingFrame];
-
-            [NSAnimationContext endGrouping];
-            
-        }       
     }
     else if ([keyPath isEqualToString:@"self.pendingAssetsToReload"]) {
 
@@ -321,6 +266,14 @@
         [self reset];
         return;
     }
+    
+    if (!asset.account.oauthAccount) {
+        if (![self authorizeAccount:asset.account]) {
+            [self reset];
+            return;
+        }
+    }
+    
     NXOAuth2Request *request = [asset requestForReloadController:self option:option];
     if (!request) return;
     self.busy = TRUE;
@@ -407,37 +360,73 @@
     [self removeAccessForAccountType:account.accountType];
     account.oauthAccount = nil;
 }
+- (BOOL)authorizeAccount:(Asset *)account {
+    
+    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:account.accountType];
+    if ([oauthAccounts count] > 0) {
+        account.oauthAccount = oauthAccounts[0];
+        return YES;
+    } else {
+        
+        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:account.accountType
+                                       withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
+                                           NSRect screen = [[NSScreen mainScreen] frame];
+                                           NSRect frame = {(screen.size.width/2), (screen.size.height/2), 0, 0};
+                                           [self.authorizationPanel.animator setFrame:frame display:YES];
+                                           [self.authorizationPanel makeKeyAndOrderFront:self];
+                                           [[self.authorizationWebView mainFrame] loadRequest:[NSURLRequest requestWithURL:preparedURL]];
+                                           frame.origin.x = screen.origin.x + 200;
+                                           frame.origin.y  = screen.origin.y + 100;
+                                           frame.size.width = screen.size.width - 400;
+                                           frame.size.height = screen.size.height - 200;
+                                           [self.authorizationPanel.animator setFrame:frame display:YES];
+                                       }];
+        
+        return NO;
+    }
+}
 
 - (void)start {
     if (self.stop) {
         [self reset];
         return;
     }
-    Asset *uploadAsset = nil;
-    Asset *downloadAsset = nil;
+    Asset *asset = nil;
+    BOOL upload = FALSE;
     @synchronized(self) {
         if(self.busy) return;
         
         if (self.assetsToUpload.count > 0) {
-            self.busy = TRUE;
-            uploadAsset = self.assetsToUpload.anyObject;
-            [self.assetsToUpload removeObject:uploadAsset];
+            upload = TRUE;
+            asset = self.assetsToUpload.anyObject;
         }
         else if (self.assetsToReload.count > 0) {
-            self.busy = TRUE;
-            downloadAsset = self.assetsToReload.anyObject;
-            [self.assetsToReload removeObject:downloadAsset];
+            asset = self.assetsToReload.anyObject;
         }
+        if (upload) [self.assetsToUpload removeObject:asset];
+        else [self.assetsToReload removeObject:asset];
+        self.busy = TRUE;
         
     } // @synchronized(self)
-    
-    if (uploadAsset) [self uploadAsset:uploadAsset];
-    else if (downloadAsset) [self downloadAsset:downloadAsset];
-    else [self reset];
+    if (!asset.account.oauthAccount) {
+        if (![self authorizeAccount:asset.account]) {
+            [self reset];
+            return;
+        }
+    }
+    if ((asset) && (asset.account.oauthAccount)) {
+        if (upload) [self uploadAsset:asset];
+        else [self downloadAsset:asset];
+    }
+    else {
+        [self reset];
+    }
 }
 
 
 - (void)uploadAssetsForClient:(id)client {
+    [self.document.praxPressWindow makeFirstResponder:nil];
+
     if ([client isKindOfClass:[AssetListViewController class]]) {
         
         for (Asset *asset in [[(AssetListViewController *)client assetArrayController] selectedObjects]) {

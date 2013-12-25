@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment version="1070" defaultVersion="1080" identifier="macosx"/>
+        <deployment version="1070" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
@@ -34,7 +34,7 @@
                         <tabViewItem label="SoundCloud" identifier="1" id="236">
                             <view key="view" id="239">
                                 <rect key="frame" x="0.0" y="0.0" width="495" height="55"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="261">
                                         <rect key="frame" x="1" y="1" width="90" height="21"/>
@@ -100,7 +100,7 @@
                                             </binding>
                                         </connections>
                                     </textField>
-                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="975">
+                                    <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="975">
                                         <rect key="frame" x="0.0" y="35" width="130" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="Reload SoundCloud Tracks" bezelStyle="shadowlessSquare" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="976">
@@ -108,18 +108,23 @@
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="1024">
+                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1024" id="1025">
                                                 <dictionary key="options">
                                                     <string key="NSSelectorName">reloadAssetTracksData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled2" keyPath="self.document.updateController.busy" previousBinding="977" id="978">
                                                 <dictionary key="options">
-                                                    <integer key="NSNullPlaceholder" value="-1"/>
+                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                     <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                     <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                    <integer key="NSNullPlaceholder" value="-1"/>
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="1024">
+                                                <dictionary key="options">
+                                                    <string key="NSSelectorName">reloadAssetTracksData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled" keyPath="self.representedObject.uri" id="977">
@@ -127,14 +132,9 @@
                                                     <string key="NSValueTransformerName">NSIsNotNil</string>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1024" id="1025">
-                                                <dictionary key="options">
-                                                    <string key="NSSelectorName">reloadAssetTracksData:</string>
-                                                </dictionary>
-                                            </binding>
                                         </connections>
                                     </button>
-                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="989">
+                                    <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="989">
                                         <rect key="frame" x="140" y="35" width="150" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <constraints>
@@ -145,28 +145,28 @@
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="1026">
+                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1026" id="1027">
                                                 <dictionary key="options">
                                                     <string key="NSSelectorName">reloadAssetPlaylistsData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled2" keyPath="self.document.updateController.busy" previousBinding="991" id="992">
                                                 <dictionary key="options">
-                                                    <integer key="NSNullPlaceholder" value="-1"/>
+                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                     <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                     <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                    <integer key="NSNullPlaceholder" value="-1"/>
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="1026">
+                                                <dictionary key="options">
+                                                    <string key="NSSelectorName">reloadAssetPlaylistsData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled" keyPath="self.representedObject.uri" id="991">
                                                 <dictionary key="options">
                                                     <string key="NSValueTransformerName">NSIsNotNil</string>
-                                                </dictionary>
-                                            </binding>
-                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1026" id="1027">
-                                                <dictionary key="options">
-                                                    <string key="NSSelectorName">reloadAssetPlaylistsData:</string>
                                                 </dictionary>
                                             </binding>
                                         </connections>
@@ -241,7 +241,7 @@
                                             </binding>
                                         </connections>
                                     </textField>
-                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="813">
+                                    <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="813">
                                         <rect key="frame" x="0.0" y="34" width="133" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="Reload WordPress Site Data" bezelStyle="shadowlessSquare" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="814">
@@ -249,18 +249,23 @@
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="871">
+                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="871" id="874">
                                                 <dictionary key="options">
                                                     <string key="NSSelectorName">reloadAssetSiteData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled2" keyPath="self.document.updateController.busy" previousBinding="850" id="851">
                                                 <dictionary key="options">
-                                                    <integer key="NSNullPlaceholder" value="-1"/>
+                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                     <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                     <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                    <integer key="NSNullPlaceholder" value="-1"/>
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="871">
+                                                <dictionary key="options">
+                                                    <string key="NSSelectorName">reloadAssetSiteData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled" keyPath="self.representedObject.uri" id="850">
@@ -268,14 +273,9 @@
                                                     <string key="NSValueTransformerName">NSIsNotNil</string>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="871" id="874">
-                                                <dictionary key="options">
-                                                    <string key="NSSelectorName">reloadAssetSiteData:</string>
-                                                </dictionary>
-                                            </binding>
                                         </connections>
                                     </button>
-                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="946">
+                                    <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="946">
                                         <rect key="frame" x="143" y="34" width="134" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <constraints>
@@ -286,28 +286,28 @@
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="958">
+                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="958" id="959">
                                                 <dictionary key="options">
                                                     <string key="NSSelectorName">reloadAssetPostsData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled2" keyPath="self.document.updateController.busy" previousBinding="948" id="949">
                                                 <dictionary key="options">
-                                                    <integer key="NSNullPlaceholder" value="-1"/>
+                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                     <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                     <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                    <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                    <integer key="NSNullPlaceholder" value="-1"/>
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="argument" keyPath="self.representedObject" id="958">
+                                                <dictionary key="options">
+                                                    <string key="NSSelectorName">reloadAssetPostsData:</string>
                                                 </dictionary>
                                             </binding>
                                             <binding destination="-2" name="enabled" keyPath="self.representedObject.uri" id="948">
                                                 <dictionary key="options">
                                                     <string key="NSValueTransformerName">NSIsNotNil</string>
-                                                </dictionary>
-                                            </binding>
-                                            <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="958" id="959">
-                                                <dictionary key="options">
-                                                    <string key="NSSelectorName">reloadAssetPostsData:</string>
                                                 </dictionary>
                                             </binding>
                                         </connections>
@@ -408,7 +408,7 @@
                         <binding destination="-2" name="value" keyPath="representedObject.title" id="557"/>
                     </connections>
                 </textField>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="468">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="468">
                     <rect key="frame" x="20" y="232" width="127" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="square" title="Reload User Account Data" bezelStyle="shadowlessSquare" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="469">
@@ -416,7 +416,7 @@
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="869">
+                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="869" id="870">
                             <dictionary key="options">
                                 <string key="NSSelectorName">reloadAssetAccountData:</string>
                             </dictionary>
@@ -426,14 +426,14 @@
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="869" id="870">
+                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="869">
                             <dictionary key="options">
                                 <string key="NSSelectorName">reloadAssetAccountData:</string>
                             </dictionary>
                         </binding>
                     </connections>
                 </button>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="1212">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1212">
                     <rect key="frame" x="621" y="232" width="49" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="square" title="Log Out" bezelStyle="shadowlessSquare" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1213">
@@ -441,7 +441,7 @@
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="1221">
+                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1221" id="1222">
                             <dictionary key="options">
                                 <string key="NSSelectorName">logoutAccount:</string>
                             </dictionary>
@@ -451,14 +451,14 @@
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1221" id="1222">
+                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="1221">
                             <dictionary key="options">
                                 <string key="NSSelectorName">logoutAccount:</string>
                             </dictionary>
                         </binding>
                     </connections>
                 </button>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="1503">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1503">
                     <rect key="frame" x="562" y="232" width="49" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
@@ -536,7 +536,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
-                <button translatesAutoresizingMaskIntoConstraints="NO" id="1199">
+                <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1199">
                     <rect key="frame" x="20" y="202" width="136" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="square" title="Reload All Data From Server" bezelStyle="shadowlessSquare" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1200">
@@ -544,7 +544,7 @@
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="1206">
+                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1206" id="1207">
                             <dictionary key="options">
                                 <string key="NSSelectorName">reloadAllAssetData:</string>
                             </dictionary>
@@ -554,7 +554,7 @@
                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="target" keyPath="self.document.updateController" previousBinding="1206" id="1207">
+                        <binding destination="-2" name="argument" keyPath="self.representedObject" id="1206">
                             <dictionary key="options">
                                 <string key="NSSelectorName">reloadAllAssetData:</string>
                             </dictionary>
