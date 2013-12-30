@@ -60,7 +60,7 @@
 }
 
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
-    NSLog(@"Document initWithType");
+    NSLog(@"Document initWithType: %@", typeName);
     self = [self init];
     [self setFileType:typeName];
     
@@ -69,7 +69,8 @@
     
     self.interface = [NSEntityDescription insertNewObjectForEntityForName:@"Interface" inManagedObjectContext:self.managedObjectContext];
     
-    [SourceController initWithType:typeName inManagedObjectContext:self.managedObjectContext];
+    [AccountController initForDocument:self];
+    [SourceController initForDocument:self];
     
     
     [self.managedObjectContext processPendingChanges];
@@ -105,21 +106,25 @@
 }*/
 
 - (void)awakeFromNib {
-    NSLog(@"Document awakeFromNib");
-    if (!self.interface) {
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Interface"];
-        NSError *error;
-        self.interface = [self.managedObjectContext executeFetchRequest:request error:&error][0];
+    if (!self.awake) {
+        NSLog(@"Document awakeFromNib");
+        if (!self.interface) {
+            NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Interface"];
+            NSError *error;
+            self.interface = [self.managedObjectContext executeFetchRequest:request error:&error][0];
+        }
+        
+        [PraxTransformers load];
+        self.patsTransformer = [PraxAssetTagStringTransformer loadForDocument:self];
+        
+        // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
+        
+        /* register our special protocol with webkit */
+        [SpecialProtocol registerSpecialProtocol];
+        
+        [self.sourceController loadInterface];
+        
     }
-    
-    [PraxTransformers load];
-    self.patsTransformer = [PraxAssetTagStringTransformer loadForDocument:self];
-    
-    // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
-    
-    /* register our special protocol with webkit */
-	[SpecialProtocol registerSpecialProtocol];
-    
 }
 
 /*- (void)dealloc {
@@ -133,6 +138,9 @@
         [exportCodeDirectory startAccessingSecurityScopedResource];
         self.interface.exportCodeDirectory = [_exportCodeDirectory bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope includingResourceValuesForKeys:nil relativeToURL:nil error:&error];
         [_exportCodeDirectory stopAccessingSecurityScopedResource];
+        if (!self.interface.exportCodeDirectory) {
+            [Prax presentAlert:[NSString stringWithFormat:@"Error bookmarking _exportCodeDirectory: %@\nerror: %@", _exportCodeDirectory, error.localizedDescription] forController:self];
+        }
     }
     else self.interface.exportCodeDirectory = nil;
 }
@@ -142,6 +150,9 @@
         NSError *error;
         BOOL isStale;
         self.exportCodeDirectory = [NSURL URLByResolvingBookmarkData:self.interface.exportCodeDirectory options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:&isStale error:&error];
+        if (!self.exportCodeDirectory) {
+            [Prax presentAlert:[NSString stringWithFormat:@"Error Resolving Bookmark for self.interface.exportCodeDirectory: %@\nerror: %@", self.interface.exportCodeDirectory, error.localizedDescription] forController:self];
+        }
     }
     if (!_exportCodeDirectory) [self openExportCodeDirectory:self];
     return _exportCodeDirectory;
@@ -238,5 +249,6 @@
     *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSServiceMiscellaneousError userInfo:@{NSLocalizedFailureReasonErrorKey:@"\n\nI'm sorry, but that feature is Not In Service at this time."}];
     return nil;
 }
+
 
 @end

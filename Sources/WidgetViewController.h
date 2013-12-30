@@ -11,6 +11,8 @@
 #import "Widget.h"
 #import "WidgetMenuView.h"
 #import "PraxTokenField.h"
+
+@class Document;
 @class WidgetMenuView;
 @class PraxTokenField;
 @class Widget;

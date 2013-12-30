@@ -18,10 +18,10 @@
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetTagsChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
             Asset *asset = (Asset *)[aNotification object];
             
-            if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
+   //         if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
             [self.tagsArrayController rearrangeObjects];
             
-                    NSLog(@"TagController AssetTagsChangedNotification: %@", asset.sync_mode);
+       //             NSLog(@"TagController AssetTagsChangedNotification: %@", asset.sync_mode);
             
         }];
     }

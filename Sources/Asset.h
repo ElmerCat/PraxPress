@@ -9,23 +9,18 @@
 
 
 #import "Document.h"
+#import "Account.h"
 
 #import "PraxPredicateEditorRowTemplate.h"
 
 @class Document;
+@class Account;
 @class Source;
 @class Tag;
 @class RequestController;
 
 @interface Asset : NSManagedObject
 
-enum {
-    PRAXReloadOptionAccount = 1,
-    PRAXReloadOptionSite,
-    PRAXReloadOptionTracks,
-    PRAXReloadOptionPlaylists,
-    PRAXReloadOptionPosts
-};
 typedef NSUInteger PRAXReloadOption;
 
 
@@ -39,7 +34,6 @@ typedef NSUInteger PRAXReloadOption;
 @property (readonly) BOOL isWordPressAsset;
 @property (readonly) BOOL isPage;
 @property (readonly) BOOL isPost;
-@property (readonly) BOOL isAccount;
 
 +(NSDictionary *)assetKeyLabels;
 +(NSArray *)assetKeysWithStringAttributeType;
@@ -52,22 +46,13 @@ typedef NSUInteger PRAXReloadOption;
 +(PraxPredicateEditorRowTemplate *)predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:(NSArray *)keys;
 
 -(NXOAuth2Request *)requestForUploadController:(RequestController *)controller;
--(NXOAuth2Request *)requestForReloadController:(RequestController *)controller option:(PRAXReloadOption)option;
+-(NXOAuth2Request *)requestForReloadController:(RequestController *)controller;
 -(BOOL)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller;
-
-
--(BOOL)oauthReady:(Document *)document;
--(void)loadWordPressAccountData:(NSDictionary *)data;
--(void)loadWordPressSiteData:(NSDictionary *)data;
--(void)loadWordPressPageCount:(NSDictionary *)data;
--(void)loadSoundCloudAccountData:(NSDictionary *)data;
+-(BOOL)loadAssetData:(NSDictionary *)data forController:(RequestController *)controller;
 
 -(void)loadWordPressPostData:(NSDictionary *)data;
 -(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
 -(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
-
-
-
 
 
 @property (nonatomic, retain) NSString * artwork_url;
@@ -97,7 +82,6 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) NSString * sub_type;
 @property (nonatomic, retain) NSString * uri;
-@property (nonatomic, retain) NSNumber * updateOption;
 @property (nonatomic, retain) NSMutableDictionary *metadata;
 @property (nonatomic, retain) NSString * playlistType;
 @property (nonatomic, retain) NSString * trackList;
@@ -120,8 +104,9 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) id oauthAccount;
 @property (nonatomic, retain) Source *source;
 
-@property (nonatomic, retain) Asset *account;
-@property (nonatomic, retain) NSSet *accounts;
+@property (nonatomic, retain) Asset *serviceAccount;
+@property (nonatomic, retain) NSSet *serviceAccounts;
+
 @property (nonatomic, retain) NSOrderedSet *associatedItems;
 @property (nonatomic, retain) NSSet *batchSources;
 @property (nonatomic, retain) NSSet *categories;
@@ -129,16 +114,20 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) NSSet *genreTags;
 
 @property (nonatomic, retain) NSSet *tags;
+@property (nonatomic, retain) Account *account;
+
+
+
 @end
 
 
 
 @interface Asset (CoreDataGeneratedAccessors)
 
-- (void)addAccountsObject:(Asset *)value;
-- (void)removeAccountsObject:(Asset *)value;
-- (void)addAccounts:(NSSet *)values;
-- (void)removeAccounts:(NSSet *)values;
+- (void)addServiceAccountsObject:(Asset *)value;
+- (void)removeServiceAccountsObject:(Asset *)value;
+- (void)addServiceAccounts:(NSSet *)values;
+- (void)removeServiceAccounts:(NSSet *)values;
 
 - (void)insertObject:(Asset *)value inAssociatedItemsAtIndex:(NSUInteger)idx;
 - (void)removeObjectFromAssociatedItemsAtIndex:(NSUInteger)idx;

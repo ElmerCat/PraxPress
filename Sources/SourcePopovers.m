@@ -198,12 +198,12 @@
 
 - (IBAction)loginButtonPressed:(id)sender {
     
-    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.source.account.accountType];
+    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.source.serviceAccount.accountType];
     if ([oauthAccounts count] > 0) {
-        self.source.account.oauthAccount = oauthAccounts[0];
+        self.source.serviceAccount.oauthAccount = oauthAccounts[0];
     } else {
         
-        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:self.self.source.account.accountType
+        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:self.self.source.serviceAccount.accountType
                                        withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
                                            NSRect screen = [[NSScreen mainScreen] frame];
                                            NSRect frame = {(screen.size.width/2), (screen.size.height/2), 0, 0};

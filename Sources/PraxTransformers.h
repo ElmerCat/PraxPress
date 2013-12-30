@@ -18,6 +18,9 @@
 +(void)load;
 @end
 
+@interface PraxImageForStringTransformer : NSValueTransformer
+@end
+
 @interface PraxMillisecondsToDurationTransformer : NSValueTransformer
 @end
 

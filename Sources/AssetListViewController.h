@@ -21,6 +21,7 @@
 @property SourceInfoPanel *sourceInfoPanel;
 @property BOOL sourceInfoPanelVisible;
 @property BOOL isAssociatedPane;
+@property BOOL isBatch;
 @property BOOL isPlaylist;
 @property BOOL isSelectedPane;
 @property Source *source;
@@ -41,6 +42,8 @@
 @property (strong) IBOutlet NSView *noSelectionView;
 
 @property (weak) IBOutlet NSSplitView *splitView;
+@property (weak) IBOutlet NSLayoutConstraint *splitViewTopConstraint;
+
 @property (weak) IBOutlet NSScrollView *assetListPane;
 @property (weak) IBOutlet NSView *detailViewPane;
 @property (weak) IBOutlet NSPopUpButton *popUpButton;
@@ -51,6 +54,12 @@
 @property NSURL *exportCodeURL;
 @property NSString *formattedCode;
 @property BOOL updatingFormattedCode;
+@property BOOL reloadingAssets;
+
+- (void)writeFormattedCode;
+- (void)updateFormattedCode:sender;
+- (void)loadAssociatedItems;
+- (void)tagFilterAssets;
 
 - (void)doubleClickedArrayObjects:(NSArray *)arrayObjects;
 - (IBAction)showSourceInfoPanel:(id)sender;

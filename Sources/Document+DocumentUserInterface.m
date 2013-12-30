@@ -68,7 +68,6 @@
     [self.tagController toggleTagsPanel:sender];
 }
 
-
 - (IBAction)filterSelectedPane:(id)sender {
     [self.sourceController filterSelectedPane:sender];
 }

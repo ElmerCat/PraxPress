@@ -13,6 +13,9 @@
 +(void)load {
 
     id transformer;
+
+    transformer = [[PraxImageForStringTransformer alloc] init];
+    [NSValueTransformer setValueTransformer:transformer forName:@"PraxImageForStringTransformer"];
     
     transformer = [[PraxArrayNotTracksTransformer alloc] init];
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxArrayNotTracksTransformer"];
@@ -73,6 +76,19 @@
     [NSValueTransformer setValueTransformer:transformer forName:@"PraxMillisecondsToDurationTransformer"];
 
 }
+@end
+
+@implementation PraxImageForStringTransformer
+
++ (Class)transformedValueClass {
+    return [NSImage class];
+}
+
++ (BOOL)allowsReverseTransformation { return NO; }
+- (NSImage *)transformedValue:(id)value {
+
+    return [NSImage imageNamed:value];
+}
 
 @end
 
@@ -92,7 +108,7 @@
         if (secs < 60) {
             return [NSString stringWithFormat:@"%d.%03d", secs, msecs];
         }
-
+        
         else {
             
         }
@@ -619,6 +635,7 @@
     if ([source.name isEqualToString:@"Playlists"]) return [[NSBundle mainBundle] imageForResource:@"playlists"];
     if ([source.name isEqualToString:@"Posts"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
     if ([source.name isEqualToString:@"Pages"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    else return [NSImage imageNamed:source.name];
     return nil;
 }
 

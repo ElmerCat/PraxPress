@@ -16,13 +16,19 @@
     if (self) {
     NSLog(@"RequestController init");
         
+        self.dataQueue = @[].mutableCopy;
+        
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
-        self.responseDataProcessingQueue = [[NSOperationQueue alloc] init];
+        self.responseHandlingQueue = dispatch_queue_create("responseHandlingQueue", DISPATCH_QUEUE_CONCURRENT);
+        
+        
+ //       self.responseDataProcessingQueue = [[NSOperationQueue alloc] init];
         [[NSNotificationCenter defaultCenter] addObserverForName:@"PraxDownloadResponseNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
             Asset *responseAsset = (Asset *)[aNotification object];
 
-            NSLog(@"RequestController PraxDownloadResponseNotification: %@", responseAsset.title);
+            [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Processing %@", responseAsset.title]];
+            //NSLog(@"RequestController PraxDownloadResponseNotification: %@", responseAsset.title);
             
             Asset *uploadAsset = nil;
             Asset *downloadAsset = nil;
@@ -37,7 +43,7 @@
                     downloadAsset = self.assetsToReload.anyObject;
                     [self.assetsToReload removeObject:downloadAsset];
                 }
-                else self.busy = FALSE;
+                else [self reset];
                 
             } // @synchronized(self)
             
@@ -47,27 +53,32 @@
         }];
 
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification
-                                                          object:[NXOAuth2AccountStore sharedStore]
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification *aNotification){
-                                                          NSLog(@"RequestController NXOAuth2AccountStoreAccountsDidChangeNotification");
-                                                          // Update your UI
-                                                          if (self.authorizationPanel.isVisible) {
-                                                              [self.authorizationPanel close];
-                                                          }
-                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification object:[NXOAuth2AccountStore sharedStore] queue:nil usingBlock:^(NSNotification *aNotification){
+            NSLog(@"RequestController NXOAuth2AccountStoreAccountsDidChangeNotification");
+            // Update your UI
+            if (self.authorizationPanel.isVisible) {
+                [self.authorizationPanel close];
+            }
+            NXOAuth2Account *oauthAccount = [aNotification userInfo][NXOAuth2AccountStoreNewAccountUserInfoKey];
+            if (oauthAccount) {
+                if (self.pendingAssetToReload) {
+                    [self downloadAsset:self.pendingAssetToReload];
+                    self.pendingAssetToReload = nil;
+                }
+                else if (self.pendingAccountToReload) {
+                    [self reloadAccount:self.pendingAccountToReload option:self.pendingOption replace:self.replace];
+                    self.pendingAccountToReload = nil;
+                }
+                
+            }
+            
+        }];
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreDidFailToRequestAccessNotification
-                                                          object:[NXOAuth2AccountStore sharedStore]
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification *aNotification){
-                                                          NSError *error = [aNotification.userInfo objectForKey:NXOAuth2AccountStoreErrorKey];
-                                                          
-                                                          NSLog(@"RequestController NXOAuth2AccountStoreDidFailToRequestAccessNotification error:%@", error);
-                                                          
-                                                          // Do something with the error
-                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreDidFailToRequestAccessNotification object:[NXOAuth2AccountStore sharedStore] queue:nil usingBlock:^(NSNotification *aNotification){
+            NSError *error = [aNotification.userInfo objectForKey:NXOAuth2AccountStoreErrorKey];
+            
+            [Prax presentAlert:[NSString stringWithFormat:@"RequestController NXOAuth2AccountStoreDidFailToRequestAccessNotification\n NXOAuth2AccountStoreErrorKey:%@", error] forController:self];
+        }];
         
         [[NXOAuth2AccountStore sharedStore] setClientID:@"493"
                                                  secret:@"Xkd4JjiFceH8OVFqEsaZtP5eGtONxnFP3Emq2mlQoiJBvw7HtpbHbniHmQdaXuhg"
@@ -120,6 +131,7 @@
 }
 
 - (NSArray *)keyPathsToObserve {return @[@"self.pendingAssetsToReload",
+                                         @"self.busy",
                                          @"self.statusText"];}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -127,9 +139,13 @@
     if ([keyPath isEqualToString:@"self.statusText"]) {
             [self.updateControlsToolbarItem setLabel:self.statusText];
     }
+    else if ([keyPath isEqualToString:@"self.busy"]) {
+        
+        
+    }
     else if ([keyPath isEqualToString:@"self.pendingAssetsToReload"]) {
-
-    
+        
+        
     }
     else {
         NSLog(@"RequestController observeValueForKeyPath:%@ ofObject:%@ change:%@ context:?", keyPath, object, change);
@@ -138,53 +154,9 @@
 
 
 
-- (void)removeAccessForAccountType:(NSString *)accountType {
-    NSArray *accounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:accountType];
-    for (NXOAuth2Account *account in accounts) {
-        [[NXOAuth2AccountStore sharedStore] removeAccount:account];
-    }
-}
 
 - (IBAction)stop:(id)sender {
     self.stop = TRUE;
-}
-
-- (IBAction)uploadChangedItems:(id)sender {
-    if (self.busy) return;
-    self.targetCount = [self.document.changedAssetsController.arrangedObjects count];
-    if (self.targetCount < 1) return;
-    self.updateCount = 0;
-    self.uploadAll = TRUE;
-    [self uploadChangedAssets];
-}
-
--(void)uploadChangedAssets {
-    if ([self.document.changedAssetsController.arrangedObjects count] < 1) {
-        [self reset];
-        return;
-    }
-    else if ((self.targetCount - self.updateCount) > 1) self.determinate = YES;
-    else self.determinate = NO;
-    [self uploadAsset:self.document.changedAssetsController.arrangedObjects[0]];
-}
-
-- (IBAction)reloadChangedItems:(id)sender {
-    if (self.busy) return;
-    self.targetCount = [self.document.changedAssetsController.arrangedObjects count];
-    if (self.targetCount < 1) return;
-    self.updateCount = 0;
-    self.reloadAll = TRUE;
-    [self reloadChangedAssets];
-}
-
--(void)reloadChangedAssets {
-    if ([self.document.changedAssetsController.arrangedObjects count] < 1) {
-        [self reset];
-        return;
-    }
-    else if ((self.targetCount - self.updateCount) > 1) self.determinate = YES;
-    else self.determinate = NO;
-    [self reloadAsset:self.document.changedAssetsController.arrangedObjects[0]];
 }
 
 
@@ -193,10 +165,15 @@
     else [self.assetsToReload removeAllObjects];
     if (!self.assetsToUpload) self.assetsToUpload = [NSMutableSet setWithCapacity:1];
     else [self.assetsToUpload removeAllObjects];
+    self.pendingAssetToReload = nil;
+    self.pendingAccountToReload = nil;
+    self.pendingOption = 0;
     
     self.determinate = NO;
     self.uploadAll = NO;
     self.reloadAll = NO;
+    self.skipAll = NO;
+    self.replace = NO;
     self.updateCount = 0;
     self.targetCount = 0;
     self.statusText = @"";
@@ -206,29 +183,41 @@
     [self.updateControlsToolbarItem setLabel:@""];
 }
 
-- (void)reloadAllAssetData:(Asset *)asset {
-    self.reloadAll = YES;
-//    [self.document.accountViewPopover performClose:self];
-    [self reloadAssetAccountData:asset];
-}
-- (void)reloadAssetAccountData:(Asset *)asset {
-    [self reloadAsset:asset option:PRAXReloadOptionAccount];
-}
-- (void)reloadAssetSiteData:(Asset *)asset {
-    [self reloadAsset:asset option:PRAXReloadOptionSite];
-}
-- (void)reloadAssetPostsData:(Asset *)asset {
-    [self reloadAsset:asset option:PRAXReloadOptionPosts];
-}
-- (void)reloadAssetTracksData:(Asset *)asset {
-    [self reloadAsset:asset option:PRAXReloadOptionTracks];
-}
-- (void)reloadAssetPlaylistsData:(Asset *)asset {
-    [self reloadAsset:asset option:PRAXReloadOptionPlaylists];
-}
+- (void)reloadAccount:(Account *)account option:(PRAXReloadOption)option replace:(BOOL)replace {
+    if (self.stop) {
+        [self reset];
+        return;
+    }
 
-- (void)reloadAsset:(Asset *)asset {
-    [self reloadAsset:asset option:0];
+    if (option) account.updateOption = option;
+    else account.updateOption = PRAXReloadOptionAccount;
+    self.replace = replace;
+    self.skipAll = replace;
+    
+    if (!account.oauthAccount) {
+        if (![self authorizeAccount:account]) {
+            [self reset];
+            self.pendingAccountToReload = account;
+            self.pendingOption = account.updateOption;
+            self.replace = replace;
+            return;
+        }
+    }
+    NXOAuth2Request *request = [account requestForDownloadController:self];
+    if (!request) return;
+    self.busy = TRUE;
+    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Downloading %@ - %@", account.name, self.resource]];
+    
+    [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
+        NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
+        
+    } responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        if (error) {
+            [Prax presentAlert:[NSString stringWithFormat:@"NXOAuth2Request GET error: %@ \nresource: %@ \nparameters: %@", [error localizedDescription], self.resource, nil] forController:self];
+            [self reset];
+        }
+        else [account handleReloadResponseData:data forController:self];
+    }];
 }
 
 - (void)downloadAsset:(Asset *)asset {
@@ -236,62 +225,27 @@
         [self reset];
         return;
     }
-    NXOAuth2Request *request = [asset requestForReloadController:self option:0];
+    NXOAuth2Request *request = [asset requestForReloadController:self];
     if (!request) return;
     self.busy = TRUE;
-    [self.updateControlsToolbarItem setLabel:@"Downloading"];
-    
-    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, self.resource);
-    [request performRequestWithSendingProgressHandler:nil
-                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-  
-                                          if (error) {
-                                              NSLog(@"NXOAuth2Request GET error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, nil);
-                                              [[NSSound soundNamed:@"Error"] play];
-                                              [self reset];
-                                          }
-                                          [self.responseDataProcessingQueue addOperationWithBlock:^{
-                                              if (![asset handleReloadResponseData:data forController:self]) {
-                                                  [[NSSound soundNamed:@"Error"] play];
-                                                  [self reset];
-                                              }
-                                          }];
-                                          [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
-
-                                      }];
-}
-
-- (void)reloadAsset:(Asset *)asset option:(PRAXReloadOption)option {
-    if (self.stop) {
-        [self reset];
-        return;
-    }
-    
-    if (!asset.account.oauthAccount) {
-        if (![self authorizeAccount:asset.account]) {
+    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Downloading %@", asset.title]];
+    [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
+        NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
+    } responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        
+        if (error) {
+            [Prax presentAlert:[NSString stringWithFormat:@"NXOAuth2Request GET error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, nil] forController:self];
             [self reset];
-            return;
         }
-    }
-    
-    NXOAuth2Request *request = [asset requestForReloadController:self option:option];
-    if (!request) return;
-    self.busy = TRUE;
-    [self.updateControlsToolbarItem setLabel:@"Downloading"];
-    
-    //    NSLog(@"updateMode GET request.account: %@ resource: %@ ", request.account, self.resource);
-    [request performRequestWithSendingProgressHandler:nil
-                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                                          if (error) {
-                                              NSLog(@"NXOAuth2Request GET error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, nil);
-                                              [[NSSound soundNamed:@"Error"] play];
-                                              [self reset];
-                                          }
-                                          else if (![asset handleReloadResponseData:data forController:self]) {
-                                              [[NSSound soundNamed:@"Error"] play];
-                                              [self reset];
-                                          }
-                                      }];
+        //       dispatch_async(self.responseHandlingQueue, ^{
+        if (![asset handleReloadResponseData:data forController:self]) {
+            [Prax presentAlert:[NSString stringWithFormat:@"RequestController asset: %@\n handleReloadResponseData: %@ \nforController: %@", asset, data, self] forController:self];
+            [self reset];
+        }
+        //       });
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
+        
+    }];
 }
 
 - (void)uploadAsset:(Asset *)asset {
@@ -304,71 +258,41 @@
     if (!request) return;
     
     self.busy = TRUE;
-    
-    NSLog(@"request.account: %@ resource: %@  parameters: %@", request.account, self.resource, self.parameters);
-    
-    [request performRequestWithSendingProgressHandler:nil
-                                      responseHandler:^(NSURLResponse *response, NSData *data, NSError *error){
-                                          if (error) {
-                                              NSLog(@"NXOAuth2Request error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, self.parameters);
-                                              [[NSSound soundNamed:@"Error"] play];
-                                              [self reset];
-                                          }
-                                          else {
-                                              [[NSSound soundNamed:@"Connect"] play];
-                                              
-                                              if ([asset.asset_id.stringValue isEqualToString:@"0"]) {
-                                                  
-/*                                                  NSString *stringX = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                  
-                                                  id itemX = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:0];
-                                                  NSError *error = nil;
-                                            //      NSLog(@"responseHandler response:%@ responseData:%@ error:%@", response, data, error);
-                                                  NSDictionary *item;
-                                                  if (([asset.type isEqualToString:@"track"]) || ([asset.type isEqualToString:@"playlist"])) {
-                                                      item = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-                                                      NSLog(@"item: %@", item);
-                                                      [asset loadSoundCloudItemData:item];
-                                                      if ([asset.entity.name isEqualToString:@"Playlist"]) {
-                                                          [asset loadPlaylistsAsset:asset data:item];
-                                                      }
-                                                  }
-                                                  else if (([asset.type isEqualToString:@"post"]) || ([asset.type isEqualToString:@"page"])) {
-                                                      item = [NSJSONSerialization JSONObjectWithData:data options:0 error:0];
-                                                      NSLog(@"item: %@", item);
-                                                      [asset loadWordPressPostData:item];
-                                                  }
-                                                  [self.tagController loadAssetTags:asset];
-                                                  asset.sync_mode = [NSNumber numberWithBool:FALSE];
-  */                                                                                                  
-                                              }
-                                              
-                                              else {
-                                                  
-                                          //        [self reloadAsset:asset];
-                                                  [self.assetsToReload addObject:asset];
-                                                  [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
-                                              }
-                                              
-                                               
-                                          }
-                                      }];
+    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Uploading %@", asset.title]];
+    [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
+        NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
+        
+    } responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        if (error) {
+            [Prax presentAlert:[NSString stringWithFormat:@"NXOAuth2Request error: %@ \nresource: %@ parameters: %@", [error localizedDescription], self.resource, self.parameters] forController:self];
+            [self reset];
+        }
+        else {
+            [[NSSound soundNamed:@"Connect"] play];
+            
+            if ([asset.asset_id.stringValue isEqualToString:@"0"]) {
+                
+            }
+            else {
+                [self.assetsToReload addObject:asset];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
+            }
+            
+            
+        }
+    }];
 }
 
 
-- (void)logoutAccount:(Asset *)account {
-    [self removeAccessForAccountType:account.accountType];
-    account.oauthAccount = nil;
-}
-- (BOOL)authorizeAccount:(Asset *)account {
+- (BOOL)authorizeAccount:(Account *)account {
     
-    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:account.accountType];
+    NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:account.name];
     if ([oauthAccounts count] > 0) {
         account.oauthAccount = oauthAccounts[0];
         return YES;
     } else {
         
-        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:account.accountType
+        [[NXOAuth2AccountStore sharedStore] requestAccessToAccountWithType:account.name
                                        withPreparedAuthorizationURLHandler:^(NSURL *preparedURL){
                                            NSRect screen = [[NSScreen mainScreen] frame];
                                            NSRect frame = {(screen.size.width/2), (screen.size.height/2), 0, 0};
@@ -395,12 +319,12 @@
     BOOL upload = FALSE;
     @synchronized(self) {
         if(self.busy) return;
-        
         if (self.assetsToUpload.count > 0) {
             upload = TRUE;
             asset = self.assetsToUpload.anyObject;
         }
         else if (self.assetsToReload.count > 0) {
+            self.replace = YES;
             asset = self.assetsToReload.anyObject;
         }
         if (upload) [self.assetsToUpload removeObject:asset];
@@ -408,23 +332,24 @@
         self.busy = TRUE;
         
     } // @synchronized(self)
+    
     if (!asset.account.oauthAccount) {
+        self.pendingAssetToReload = asset;
         if (![self authorizeAccount:asset.account]) {
-            [self reset];
             return;
         }
     }
+
     if ((asset) && (asset.account.oauthAccount)) {
         if (upload) [self uploadAsset:asset];
         else [self downloadAsset:asset];
-    }
-    else {
-        [self reset];
     }
 }
 
 
 - (void)uploadAssetsForClient:(id)client {
+    if (self.busy) return;
+    
     [self.document.praxPressWindow makeFirstResponder:nil];
 
     if ([client isKindOfClass:[AssetListViewController class]]) {
@@ -435,13 +360,14 @@
         
     }
     else {
-        [[NSSound soundNamed:@"Error"] play];
+        [Prax presentAlert:@"uploadAssetsForClient NOT isKindOfClass:[AssetListViewController class]" forController:self];
     }
     if (self.assetsToUpload.count > 0) [self start];
     
 }
 
 - (void)reloadAssetsForClient:(id)client {
+    if (self.busy) return;
     if ([client isKindOfClass:[AssetListViewController class]]) {
         
         for (Asset *asset in [[(AssetListViewController *)client assetArrayController] selectedObjects]) {
@@ -450,7 +376,7 @@
         
     }
     else {
-        [[NSSound soundNamed:@"Error"] play];
+        [Prax presentAlert:@"reloadAssetsForClient NOT isKindOfClass:[AssetListViewController class]" forController:self];
     }
     if (self.assetsToReload.count > 0) [self start];
     

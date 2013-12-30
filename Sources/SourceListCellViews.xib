@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
@@ -47,86 +47,6 @@
                 <outlet property="textField" destination="Ypb-e1-rPA" id="1lB-vV-I7M"/>
             </connections>
         </tableCellView>
-        <tableCellView identifier="AccountSource" id="72I-mE-ABF" userLabel="AccountSource">
-            <rect key="frame" x="0.0" y="0.0" width="381" height="52"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <imageView translatesAutoresizingMaskIntoConstraints="NO" id="ZV0-7t-VD7">
-                    <rect key="frame" x="3" y="20" width="17" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="17" id="E6P-x6-s1p"/>
-                    </constraints>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSUserAccounts" id="Y02-mA-FDy"/>
-                </imageView>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1nI-Pj-2u3">
-                    <rect key="frame" x="25" y="20" width="356" height="32"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="AccountSource" id="8tl-qO-jMg">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="72I-mE-ABF" name="value" keyPath="objectValue.name" id="DYv-xe-ydZ"/>
-                    </connections>
-                </textField>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B3g-re-Hb5">
-                    <rect key="frame" x="0.0" y="3" width="381" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="tXm-em-Xo7">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="72I-mE-ABF" name="value" keyPath="objectValue.fetchPredicate" id="XL9-J3-qtG"/>
-                    </connections>
-                </textField>
-                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jZH-FT-97Q">
-                    <rect key="frame" x="349" y="22" width="22" height="21"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSAdvanced" imagePosition="above" alignment="left" controlSize="mini" imageScaling="proportionallyDown" id="pYX-98-zws">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="sourceDetailsButtonPressedRightEdge:" target="-2" id="ifD-IT-mUW"/>
-                    </connections>
-                </button>
-                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="H0K-4p-yVM">
-                    <rect key="frame" x="319" y="22" width="22" height="21"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSAdvanced" imagePosition="above" alignment="left" controlSize="mini" imageScaling="proportionallyDown" id="fop-fx-NsZ">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="sourceDetailsButtonPressedBottomEdge:" target="-2" id="Rx0-ph-VL7"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstItem="jZH-FT-97Q" firstAttribute="top" secondItem="72I-mE-ABF" secondAttribute="top" constant="9" id="3hQ-0d-Pt1"/>
-                <constraint firstItem="B3g-re-Hb5" firstAttribute="top" secondItem="1nI-Pj-2u3" secondAttribute="bottom" id="CuL-Ma-73y"/>
-                <constraint firstItem="jZH-FT-97Q" firstAttribute="leading" secondItem="H0K-4p-yVM" secondAttribute="trailing" constant="8" id="D58-MR-KZs"/>
-                <constraint firstItem="1nI-Pj-2u3" firstAttribute="trailing" secondItem="B3g-re-Hb5" secondAttribute="trailing" id="E5A-tH-Fkv"/>
-                <constraint firstItem="H0K-4p-yVM" firstAttribute="top" secondItem="72I-mE-ABF" secondAttribute="top" constant="9" id="EPK-ve-rVJ"/>
-                <constraint firstAttribute="bottom" secondItem="B3g-re-Hb5" secondAttribute="bottom" constant="3" id="LyL-N1-Wl6"/>
-                <constraint firstItem="ZV0-7t-VD7" firstAttribute="bottom" secondItem="1nI-Pj-2u3" secondAttribute="bottom" id="Lzm-2C-cxb"/>
-                <constraint firstItem="1nI-Pj-2u3" firstAttribute="leading" secondItem="ZV0-7t-VD7" secondAttribute="trailing" constant="8" symbolic="YES" id="NHI-46-Wuq"/>
-                <constraint firstItem="1nI-Pj-2u3" firstAttribute="top" secondItem="ZV0-7t-VD7" secondAttribute="top" id="Tpy-nR-hfp"/>
-                <constraint firstItem="B3g-re-Hb5" firstAttribute="leading" secondItem="ZV0-7t-VD7" secondAttribute="leading" id="Tyi-N0-pwi"/>
-                <constraint firstItem="ZV0-7t-VD7" firstAttribute="leading" secondItem="72I-mE-ABF" secondAttribute="leading" constant="3" id="dxh-YS-WJd"/>
-                <constraint firstAttribute="trailing" secondItem="1nI-Pj-2u3" secondAttribute="trailing" constant="3" id="fbM-7W-OQz"/>
-                <constraint firstAttribute="trailing" secondItem="jZH-FT-97Q" secondAttribute="trailing" constant="10" id="hQQ-xQ-448"/>
-                <constraint firstItem="1nI-Pj-2u3" firstAttribute="top" secondItem="72I-mE-ABF" secondAttribute="top" id="z3A-4v-YKc"/>
-            </constraints>
-            <connections>
-                <outlet property="imageView" destination="ZV0-7t-VD7" id="rJC-gQ-JIk"/>
-                <outlet property="textField" destination="1nI-Pj-2u3" id="JOw-lc-uzR"/>
-            </connections>
-        </tableCellView>
         <tableCellView identifier="LibrarySource" id="DaC-OC-ovg" userLabel="LibrarySource">
             <rect key="frame" x="0.0" y="0.0" width="382" height="30"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -153,7 +73,7 @@
             <rect key="frame" x="0.0" y="0.0" width="344" height="34"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WIk-F4-uAx">
+                <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WIk-F4-uAx">
                     <rect key="frame" x="31" y="9" width="224" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" title="SearchSource" id="sz7-Ua-2fO">
@@ -173,7 +93,7 @@
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>
                 </button>
-                <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dt3-SD-hDJ">
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dt3-SD-hDJ">
                     <rect key="frame" x="256" y="8" width="85" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="recessed" title="Recessed Button" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aff-MC-6sF">
@@ -199,8 +119,8 @@
             <rect key="frame" x="0.0" y="0.0" width="382" height="26"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h5N-No-bGN">
-                    <rect key="frame" x="28" y="6" width="354" height="14"/>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h5N-No-bGN">
+                    <rect key="frame" x="29" y="6" width="352" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="2Qk-WN-RtR"/>
@@ -239,8 +159,8 @@
             <rect key="frame" x="0.0" y="0.0" width="382" height="17"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHc-dU-ecZ">
-                    <rect key="frame" x="0.0" y="1" width="382" height="14"/>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kHc-dU-ecZ">
+                    <rect key="frame" x="1" y="1" width="380" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="ChangedSource" id="Ef6-va-LvZ">
                         <font key="font" metaFont="smallSystemBold"/>
@@ -261,229 +181,12 @@
                 <outlet property="textField" destination="kHc-dU-ecZ" id="ghr-an-0c3"/>
             </connections>
         </tableCellView>
-        <tableCellView identifier="SoundCloud" id="XMK-LT-abJ" userLabel="SoundCloud">
-            <rect key="frame" x="0.0" y="0.0" width="381" height="44"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <imageView translatesAutoresizingMaskIntoConstraints="NO" id="WJ3-2y-c7m">
-                    <rect key="frame" x="3" y="8" width="138" height="29"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="SoundCloudName138x29" id="S0R-rr-5QW"/>
-                </imageView>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Lgw-j7-gTl">
-                    <rect key="frame" x="293" y="13" width="85" height="17"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="recessed" title="Recessed Button" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tK7-gr-KcS">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="XMK-LT-abJ" name="title" keyPath="objectValue.itemCount" id="ugy-NR-yaj"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstAttribute="centerY" secondItem="Lgw-j7-gTl" secondAttribute="centerY" id="C8M-aH-ZM4"/>
-                <constraint firstAttribute="centerY" secondItem="WJ3-2y-c7m" secondAttribute="centerY" id="O3a-eJ-V55"/>
-                <constraint firstItem="WJ3-2y-c7m" firstAttribute="leading" secondItem="XMK-LT-abJ" secondAttribute="leading" constant="3" id="OkO-xb-r63"/>
-                <constraint firstAttribute="trailing" secondItem="Lgw-j7-gTl" secondAttribute="trailing" constant="3" id="P4N-Ks-Oux"/>
-            </constraints>
-            <connections>
-                <outlet property="imageView" destination="WJ3-2y-c7m" id="qgh-MU-Uh8"/>
-            </connections>
-        </tableCellView>
-        <tableCellView identifier="WordPress" id="hvZ-m6-D6p" userLabel="WordPress">
-            <rect key="frame" x="0.0" y="0.0" width="381" height="44"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <imageView translatesAutoresizingMaskIntoConstraints="NO" id="B3v-mg-msr">
-                    <rect key="frame" x="3" y="8" width="127" height="29"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="WordPressName127x29" id="Kdq-8f-pNF"/>
-                </imageView>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uT7-WO-i8j">
-                    <rect key="frame" x="293" y="13" width="85" height="17"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="recessed" title="Recessed Button" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="haN-JZ-ueD">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="hvZ-m6-D6p" name="title" keyPath="objectValue.itemCount" id="OY1-iT-aY3"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstAttribute="trailing" secondItem="uT7-WO-i8j" secondAttribute="trailing" constant="3" id="3QN-NH-SaM"/>
-                <constraint firstItem="B3v-mg-msr" firstAttribute="leading" secondItem="hvZ-m6-D6p" secondAttribute="leading" constant="3" id="U47-8l-MhK"/>
-                <constraint firstAttribute="centerY" secondItem="uT7-WO-i8j" secondAttribute="centerY" id="xjt-Gr-qz2"/>
-                <constraint firstAttribute="centerY" secondItem="B3v-mg-msr" secondAttribute="centerY" id="y37-gR-PGs"/>
-            </constraints>
-            <connections>
-                <outlet property="imageView" destination="B3v-mg-msr" id="d4b-ca-7y1"/>
-            </connections>
-        </tableCellView>
-        <tableCellView identifier="Flickr" id="3sS-lW-1hb" userLabel="Flickr">
-            <rect key="frame" x="0.0" y="0.0" width="381" height="35"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZuM-Ce-Ixy">
-                    <rect key="frame" x="135" y="9" width="67" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Username" id="rcY-5T-EYb">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="3sS-lW-1hb" name="value" keyPath="objectValue.account.username" id="xfe-bj-Sgn"/>
-                    </connections>
-                </textField>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hib-Xv-9x8">
-                    <rect key="frame" x="29" y="9" width="38" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Flickr" id="xrk-Ep-Dxu">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                </textField>
-                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="57H-f3-euc">
-                    <rect key="frame" x="356" y="7" width="22" height="21"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSInfo" imagePosition="above" alignment="left" controlSize="mini" imageScaling="proportionallyDown" id="gdM-o1-Mx0">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="sourceDetailsButtonPressedRightEdge:" target="-2" id="XgE-Ib-w2r"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="leading" secondItem="Hib-Xv-9x8" secondAttribute="trailing" constant="74" id="1TZ-7V-hky"/>
-                <constraint firstItem="57H-f3-euc" firstAttribute="top" secondItem="3sS-lW-1hb" secondAttribute="top" constant="7" id="bph-Ta-qke"/>
-                <constraint firstAttribute="trailing" secondItem="57H-f3-euc" secondAttribute="trailing" constant="3" id="jIV-Pl-UVD"/>
-                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="top" secondItem="3sS-lW-1hb" secondAttribute="top" constant="9" id="nLF-jw-gX1"/>
-                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="baseline" secondItem="Hib-Xv-9x8" secondAttribute="baseline" id="pLC-VT-tND"/>
-                <constraint firstItem="ZuM-Ce-Ixy" firstAttribute="leading" secondItem="3sS-lW-1hb" secondAttribute="leading" constant="138" id="xhv-Z4-m9D"/>
-            </constraints>
-            <connections>
-                <outlet property="textField" destination="ZuM-Ce-Ixy" id="oOf-0b-yyW"/>
-            </connections>
-        </tableCellView>
-        <tableCellView identifier="YouTube" id="bXo-5E-KiT" userLabel="YouTube">
-            <rect key="frame" x="0.0" y="0.0" width="381" height="35"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aNl-dO-gny">
-                    <rect key="frame" x="135" y="9" width="67" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Username" id="0gU-VN-Mbi">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="bXo-5E-KiT" name="value" keyPath="objectValue.account.username" id="0TU-dd-Fl8"/>
-                    </connections>
-                </textField>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zK0-hS-MNn">
-                    <rect key="frame" x="5" y="9" width="59" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="YouTube" id="1hY-Ib-dWk">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                </textField>
-                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DrV-Uy-vG2">
-                    <rect key="frame" x="356" y="7" width="22" height="21"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSInfo" imagePosition="above" alignment="left" controlSize="mini" imageScaling="proportionallyDown" id="kFL-PU-2OE">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="sourceDetailsButtonPressedRightEdge:" target="-2" id="tXW-HQ-uVi"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstItem="aNl-dO-gny" firstAttribute="leading" secondItem="zK0-hS-MNn" secondAttribute="trailing" constant="77" id="3ec-PL-pDX"/>
-                <constraint firstItem="aNl-dO-gny" firstAttribute="leading" secondItem="bXo-5E-KiT" secondAttribute="leading" constant="138" id="7Bj-U8-Rv4"/>
-                <constraint firstAttribute="trailing" secondItem="DrV-Uy-vG2" secondAttribute="trailing" constant="3" id="A8n-eE-PC8"/>
-                <constraint firstItem="aNl-dO-gny" firstAttribute="top" secondItem="bXo-5E-KiT" secondAttribute="top" constant="9" id="CFf-SN-br9"/>
-                <constraint firstItem="DrV-Uy-vG2" firstAttribute="top" secondItem="bXo-5E-KiT" secondAttribute="top" constant="7" id="EQe-TM-wZE"/>
-                <constraint firstItem="aNl-dO-gny" firstAttribute="baseline" secondItem="zK0-hS-MNn" secondAttribute="baseline" id="SUm-MU-CVs"/>
-            </constraints>
-            <connections>
-                <outlet property="textField" destination="aNl-dO-gny" id="z5K-hz-wc1"/>
-            </connections>
-        </tableCellView>
-        <tableCellView identifier="Sub-AccountSource" id="75d-y3-HzI" userLabel="Sub-AccountSource">
-            <rect key="frame" x="0.0" y="0.0" width="366" height="20"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <imageView translatesAutoresizingMaskIntoConstraints="NO" id="GQF-ML-xyc">
-                    <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="20" id="TgI-lB-uK5"/>
-                        <constraint firstAttribute="height" priority="999" constant="20" id="mMi-b3-k0E"/>
-                    </constraints>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="WordPress" id="d3e-rH-hky"/>
-                    <connections>
-                        <binding destination="75d-y3-HzI" name="value" keyPath="objectValue" id="8sc-JP-zlZ">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxSourceItemImageTransformer</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </imageView>
-                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="pui-cq-fV0">
-                    <rect key="frame" x="26" y="2" width="121" height="17"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="SubAccountSource" id="q0g-Zv-7Qv">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="75d-y3-HzI" name="value" keyPath="objectValue.name" id="aeL-oU-jxh"/>
-                    </connections>
-                </textField>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="w10-ut-xMH">
-                    <rect key="frame" x="278" y="1" width="85" height="17"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="recessed" title="Recessed Button" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="szn-V0-tXY">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="75d-y3-HzI" name="title" keyPath="objectValue.itemCount" id="50Z-aU-Zqf"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstItem="pui-cq-fV0" firstAttribute="leading" secondItem="GQF-ML-xyc" secondAttribute="trailing" constant="8" symbolic="YES" id="3n7-jF-6a3"/>
-                <constraint firstItem="GQF-ML-xyc" firstAttribute="leading" secondItem="75d-y3-HzI" secondAttribute="leading" id="41h-k3-hjF"/>
-                <constraint firstItem="GQF-ML-xyc" firstAttribute="top" secondItem="75d-y3-HzI" secondAttribute="top" id="RW6-7K-e4g"/>
-                <constraint firstAttribute="centerY" secondItem="w10-ut-xMH" secondAttribute="centerY" id="XjU-RB-qbF"/>
-                <constraint firstAttribute="centerY" secondItem="pui-cq-fV0" secondAttribute="centerY" id="gAG-eF-8Ec"/>
-                <constraint firstAttribute="bottom" secondItem="GQF-ML-xyc" secondAttribute="bottom" id="wcE-8z-2dP"/>
-                <constraint firstAttribute="trailing" secondItem="w10-ut-xMH" secondAttribute="trailing" constant="3" id="zXr-H7-cEk"/>
-            </constraints>
-            <connections>
-                <outlet property="textField" destination="pui-cq-fV0" id="Ud6-ei-c3z"/>
-            </connections>
-        </tableCellView>
         <tableCellView identifier="PraxAssetSource" id="Jll-xx-D8l" userLabel="PraxAssetSource">
             <rect key="frame" x="0.0" y="0.0" width="344" height="34"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YGH-mP-3fR">
-                    <rect key="frame" x="0.0" y="14" width="319" height="17"/>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YGH-mP-3fR">
+                    <rect key="frame" x="1" y="14" width="317" height="17"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="17" id="GTd-8g-dEm"/>
@@ -497,8 +200,8 @@
                         <binding destination="Jll-xx-D8l" name="value" keyPath="objectValue.name" id="d2y-wu-sdr"/>
                     </connections>
                 </textField>
-                <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gpy-v2-IsC">
-                    <rect key="frame" x="0.0" y="3" width="319" height="11"/>
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gpy-v2-IsC">
+                    <rect key="frame" x="1" y="3" width="317" height="11"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="11" id="MXO-K9-aqL"/>
@@ -533,14 +236,14 @@
                 <constraint firstItem="YGH-mP-3fR" firstAttribute="leading" secondItem="Jll-xx-D8l" secondAttribute="leading" constant="3" id="i7y-pI-Tpd"/>
             </constraints>
         </tableCellView>
-        <tableCellView identifier="SubAccountSource" id="rCR-QG-2fh" userLabel="SubAccountSource">
+        <tableCellView identifier="AssetSource" id="rCR-QG-2fh" userLabel="Asset Source">
             <rect key="frame" x="0.0" y="0.0" width="382" height="26"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <textField verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t5e-Hh-K2H">
+                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t5e-Hh-K2H">
                     <rect key="frame" x="29" y="6" width="264" height="14"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" title="SubSource" id="JFM-OX-jte">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" sendsActionOnEndEditing="YES" title="Asset Source" id="JFM-OX-jte">
                         <font key="font" metaFont="smallSystemBold"/>
                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -556,7 +259,7 @@
                         <constraint firstAttribute="width" constant="20" id="Jle-iC-OYk"/>
                         <constraint firstAttribute="height" constant="20" id="y2o-Ec-3gm"/>
                     </constraints>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSFolder" id="9zF-K1-M6I"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="9zF-K1-M6I"/>
                     <connections>
                         <binding destination="rCR-QG-2fh" name="value" keyPath="objectValue" id="Ah4-9C-euw">
                             <dictionary key="options">
@@ -566,7 +269,7 @@
                         </binding>
                     </connections>
                 </imageView>
-                <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fWa-eV-Q58">
+                <button horizontalHuggingPriority="807" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fWa-eV-Q58">
                     <rect key="frame" x="294" y="4" width="85" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="recessed" title="Recessed Button" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ozc-hG-Coc">
@@ -593,13 +296,8 @@
         </tableCellView>
     </objects>
     <resources>
-        <image name="NSAdvanced" width="32" height="32"/>
+        <image name="NSActionTemplate" width="14" height="14"/>
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSFolderSmart" width="32" height="32"/>
-        <image name="NSInfo" width="32" height="32"/>
-        <image name="NSUserAccounts" width="32" height="32"/>
-        <image name="SoundCloudName138x29" width="138" height="29"/>
-        <image name="WordPress" width="64" height="64"/>
-        <image name="WordPressName127x29" width="127" height="29"/>
     </resources>
 </document>

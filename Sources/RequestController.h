@@ -9,17 +9,24 @@
 #import <Foundation/Foundation.h>
 #import <OAuth2Client/NXOAuth2.h>
 #import "Document.h"
+#import "Account.h"
 #import "Asset.h"
 #import "Tag.h"
 #import "TagController.h"
 #import "AssetListViewController.h"
 
+@class Account;
+@class Document;
 @class PostEditor;
 @class TagController;
 
 @interface RequestController : NSObject
 
-@property NSOperationQueue *responseDataProcessingQueue;
+typedef NSUInteger PRAXReloadOption;
+
+@property dispatch_queue_t responseHandlingQueue;
+
+//@property NSOperationQueue *responseDataProcessingQueue;
 
 @property NSDictionary *parameters;
 @property NSURL *resource;
@@ -32,40 +39,38 @@
 @property NSMutableSet *assetsToReload;
 - (void)uploadAssetsForClient:(id)client;
 @property NSMutableSet *assetsToUpload;
+@property Asset *pendingAssetToReload;
+@property Account *pendingAccountToReload;
+@property PRAXReloadOption pendingOption;
 
+@property NSMutableArray *dataQueue;
 
 @property BOOL stop;
 @property BOOL busy;
 @property BOOL determinate;
 @property BOOL uploadAll;
 @property BOOL reloadAll;
+@property BOOL skipAll;
+@property BOOL replace;
+
 - (void)reset;
+
 @property (weak) IBOutlet NSToolbarItem *updateControlsToolbarItem;
 
-@property (strong) Asset *targetAsset;
+//@property (strong) Asset *targetAsset;
 
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet TagController *tagController;
 
 @property (unsafe_unretained) IBOutlet NSPanel *authorizationPanel;
 @property (weak) IBOutlet WebView *authorizationWebView;
+@property (weak) IBOutlet NSView *alertAccessoryView;
 
-- (IBAction)uploadChangedItems:(id)sender;
-- (IBAction)reloadChangedItems:(id)sender;
 - (IBAction)stop:(id)sender;
 
-- (void)reloadAllAssetData:(Asset *)asset;
-- (void)reloadAssetAccountData:(Asset *)asset;
-- (void)reloadAssetSiteData:(Asset *)asset;
-- (void)reloadAssetPostsData:(Asset *)asset;
-- (void)reloadAssetTracksData:(Asset *)asset;
-- (void)reloadAssetPlaylistsData:(Asset *)asset;
+- (void)reloadAccount:(Account *)account option:(PRAXReloadOption)option replace:(BOOL)replace;
 
-- (void)reloadAsset:(Asset *)asset;
-- (void)reloadAsset:(Asset *)asset option:(NSUInteger)option;
-- (void)uploadAsset:(Asset *)asset;
 - (void)reloadChangedAssets;
 - (void)uploadChangedAssets;
-- (void)logoutAccount:(Asset *)account;
 
 @end

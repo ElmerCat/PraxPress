@@ -11,6 +11,7 @@
 #import "Asset.h"
 #import "Tag.h"
 #import "PraxTokenField.h"
+@class Document;
 
 @interface TagController : NSObject <NSTokenFieldDelegate>
 

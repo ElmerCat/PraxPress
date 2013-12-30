@@ -9,6 +9,9 @@
 #import "Source.h"
 
 @implementation Source
+
+@dynamic interface;
+
 @dynamic iconName;
 @dynamic name;
 @dynamic children;
@@ -22,7 +25,7 @@
 @dynamic fetchPredicate;
 @dynamic filterString;
 @dynamic filterKey;
-@dynamic account;
+@dynamic serviceAccount;
 @dynamic batchAssets;
 @dynamic template;
 @dynamic excludedTags;
@@ -30,6 +33,7 @@
 @dynamic requireAllTags;
 @dynamic itemCount;
 @dynamic type;
+@dynamic account;
 
 
 - (NSArray *)childrenArray {
@@ -59,18 +63,18 @@
     return child;
 }
 
-+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber *)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc{
+/*+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber *)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc{
     Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
     child.type = @"AccountSource";
     child.name = name;
     child.parent = parent;
     child.fetchEntity = fetchEntity;
     if (fetchPredicate.length) child.fetchPredicate = [NSPredicate predicateWithFormat:fetchPredicate];
-    Asset *account = [NSEntityDescription insertNewObjectForEntityForName:@"Account" inManagedObjectContext:moc];
-    account.type = @"account";
-    account.accountType = child.name;
-    account.account = account;
-    child.account = account;
+    Asset *serviceAccount = [NSEntityDescription insertNewObjectForEntityForName:@"ServiceAccount" inManagedObjectContext:moc];
+    serviceAccount.type = @"account";
+    serviceAccount.accountType = child.name;
+    serviceAccount.serviceAccount = serviceAccount;
+    child.serviceAccount = serviceAccount;
     child.rowHeight = rowHeight;
     return child;
 }
@@ -85,7 +89,7 @@
     child.rowHeight = @20;
     return child;
 }
-
+*/
 +(Source *)addFolderSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc{
     Source *child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
     child.type = @"FolderSource";

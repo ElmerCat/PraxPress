@@ -13,48 +13,36 @@
 
 
 
-+ (void)initWithType:(NSString *)typeName inManagedObjectContext:(NSManagedObjectContext *)moc {
-    NSLog(@"SourceController initWithType");
++ (void)initForDocument:(Document *)document {
+    NSLog(@"SourceController initForDocument: %@", document);
     
     Source *parent;
     Source *child;
-    Source *grandChild;
-
     
-    parent = [Source addLibrarySource:@"LIBRARY" withSortOrder:@0 forType:@"AccountSource" inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"LIBRARY" withSortOrder:@0 forType:@"AssetSource" inManagedObjectContext:document.managedObjectContext];
     
-    child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:moc];
+    child = [NSEntityDescription insertNewObjectForEntityForName:@"Source" inManagedObjectContext:document.managedObjectContext];
     child.parent = parent;
-    child.type = @"SubAccountSource";
+    child.type = @"AssetSource";
     child.name = @"All Items";
-    child.fetchEntity = @"Asset";
-    child.fetchPredicate = [NSPredicate predicateWithFormat:@"type != \"account\""];
     child.rowHeight = @25;
+    
+    document.interface.selectedSource = child;
 
-    
-    child = [Source addAccountSource:@"WordPress" rowHeight:@35 toParent:parent forEntity:@"Post" withPredicateString:@"" inManagedObjectContext:moc];
-    grandChild = [Source addSubAccountSource:@"Posts" toParent:child forEntity:@"Post" withPredicateString:@"type == \"post\"" inManagedObjectContext:moc];
-    grandChild = [Source addSubAccountSource:@"Pages" toParent:child forEntity:@"Post" withPredicateString:@"type == \"page\"" inManagedObjectContext:moc];
-    child = [Source addAccountSource:@"SoundCloud" rowHeight:@35 toParent:parent forEntity:@"Asset" withPredicateString:@"(type == \"track\") OR (type == \"playlist\")" inManagedObjectContext:moc];
-    grandChild = [Source addSubAccountSource:@"Tracks" toParent:child forEntity:@"Track" withPredicateString:@"" inManagedObjectContext:moc];
-    grandChild = [Source addSubAccountSource:@"Playlists" toParent:child forEntity:@"Playlist" withPredicateString:@"" inManagedObjectContext:moc];
-//    child = [Source addAccountSource:@"YouTube" rowHeight:@35 toParent:parent forEntity:@"Video" withPredicateString:@"" inManagedObjectContext:moc];
-//    child = [Source addAccountSource:@"Flickr" rowHeight:@35 toParent:parent forEntity:@"Image" withPredicateString:@"" inManagedObjectContext:moc];
-    
-    parent = [Source addLibrarySource:@"SEARCHES" withSortOrder:@1 forType:@"SearchSource" inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"SEARCHES" withSortOrder:@1 forType:@"SearchSource" inManagedObjectContext:document.managedObjectContext];
 
-    child = [Source addSearchSource:@"New Search" toParent:parent forEntity:@"Asset" withPredicateString:@"title BEGINSWITH[c] \"j\"" inManagedObjectContext:moc];
+    child = [Source addSearchSource:@"New Search" toParent:parent forEntity:@"Asset" withPredicateString:@"title BEGINSWITH[c] \"j\"" inManagedObjectContext:document.managedObjectContext];
     
-    parent = [Source addLibrarySource:@"BATCHES" withSortOrder:@2 forType:@"BatchSource" inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"BATCHES" withSortOrder:@2 forType:@"BatchSource" inManagedObjectContext:document.managedObjectContext];
     
-    child = [Source addBatchSource:@"New Batch" toParent:parent withArrangedAssets:@[] inManagedObjectContext:moc];
+    child = [Source addBatchSource:@"New Batch" toParent:parent withArrangedAssets:@[] inManagedObjectContext:document.managedObjectContext];
     
-    parent = [Source addLibrarySource:@"FOLDERS" withSortOrder:@3 forType:@"FolderSource" inManagedObjectContext:moc];
-    child = [Source addFolderSource:@"New Folder" toParent:parent inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"FOLDERS" withSortOrder:@3 forType:@"FolderSource" inManagedObjectContext:document.managedObjectContext];
+    child = [Source addFolderSource:@"New Folder" toParent:parent inManagedObjectContext:document.managedObjectContext];
     
-    parent = [Source addLibrarySource:@"PRAX ASSETS" withSortOrder:@4 forType:@"PraxAssetSource" inManagedObjectContext:moc];
+    parent = [Source addLibrarySource:@"PRAX ASSETS" withSortOrder:@4 forType:@"PraxAssetSource" inManagedObjectContext:document.managedObjectContext];
     
-    child = [Source addPraxAssetSource:@"New Prax Asset" toParent:parent inManagedObjectContext:moc];
+    child = [Source addPraxAssetSource:@"New Prax Asset" toParent:parent inManagedObjectContext:document.managedObjectContext];
     
 }
 
@@ -63,9 +51,9 @@
     if (self) {
         NSLog(@"SourceController init");
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
-            Asset *asset = (Asset *)[aNotification object];
+        //    Asset *asset = (Asset *)[aNotification object];
             
-            if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
+        //    if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
             [self.document.changedAssetsController rearrangeObjects];
             
             //        NSLog(@"AssetController AssetChangedNotification: %@", asset.sync_mode);
@@ -81,6 +69,7 @@
     if (!self.awake) {
         NSLog(@"SourceController awakeFromNib");
         self.awake = TRUE;
+        
         self.selectedAssetListIndex = -1;
         
         [self.sourceListOutlineView registerForDraggedTypes:@[@"org.ElmerCat.PraxPress.Source"]];
@@ -89,12 +78,12 @@
 
         self.sourceListCellControllers = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
         NSNib *nib = [[NSNib alloc] initWithNibNamed:@"SourceListCellViews" bundle:[NSBundle mainBundle]];
-        for (NSString *identifier in @[@"LibrarySource", @"AccountSource", @"SubAccountSource", @"WordPress", @"SearchSource", @"BatchSource", @"FolderSource"]) {
+        for (NSString *identifier in @[@"LibrarySource", @"AccountSource", @"SearchSource", @"BatchSource", @"FolderSource"]) {
             [self.sourceListOutlineView registerNib:nib forIdentifier:identifier];
         }
         self.assetListViewControllers = [@[] mutableCopy];
-        [self addAssetListPane:nil withSource:nil];
         
+        [self addAssetListPane:nil withSource:nil];
         NSRect frame = self.sourceListSubView.frame;
         frame.size.width = [[[NSUserDefaults standardUserDefaults] valueForKey:@"sourceListWidth"] doubleValue];
         if (frame.size.width < 50) {
@@ -102,27 +91,57 @@
         }
         [self.sourceListSubView setFrame:frame];
         
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
-        [request setPredicate:[NSPredicate predicateWithFormat:@"%K != %@", @"type", @"account"]];
-        self.allItemsCount = [self.document.managedObjectContext countForFetchRequest:request error:nil];
-        
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-      //      NSTreeNode *item = [self.document.sourceTreeController nodeOfObject:parent];
-            [self.sourceListOutlineView.animator expandItem:nil expandChildren:YES];
-        });
     }
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-//    NSLog(@"SourceController windowWillClose notification: %@", notification);
-//    for (AssetListViewController *controller in self.assetListViewControllers) {
-  //      if (controller.assetListViewer) {
+        NSLog(@"SourceController windowWillClose notification: %@", notification);
+    //    for (AssetListViewController *controller in self.assetListViewControllers) {
+    //      if (controller.assetListViewer) {
     //        [controller.assetListViewer close];
-//            controller.assetListViewer = nil;
- //       }
-  //  }
+    //            controller.assetListViewer = nil;
+    //       }
+    //  }
 }
+
+
+- (void)loadInterface {
+
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Source"];
+    NSError *error;
+    [request setPredicate:[NSPredicate predicateWithFormat:@"name = \"All Items\""]];
+    NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+    if (matchingItems.count) self.allItemsSource = matchingItems[0];
+
+    request = [NSFetchRequest fetchRequestWithEntityName:@"Asset"];
+    self.allItemsCount = [self.document.managedObjectContext countForFetchRequest:request error:nil];
+    
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+      //  [self.sourceListOutlineView.animator expandItem:nil expandChildren:YES];
+        [self.document.sourceTreeController setSelectionIndexPath:[self.document.sourceTreeController indexPathOfObject:self.document.interface.selectedSource]];
+    });
+}
+
+- (void)addSourceAccount:(Account *)account {
+    
+}
+
+- (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source {
+    NSUInteger index = 0;
+    if (controller) index = ([self.assetListViewControllers indexOfObject:controller] + 1);
+    [self adjustSplitViewForNewPaneAtIndex:index];
+    
+    AssetListViewController *newController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
+    [self.assetListViewControllers insertObject:newController atIndex:index];
+    newController.document = self.document;
+    if (source) newController.source = source;
+    [self.sourceSplitView addSubview:newController.view positioned:NSWindowAbove relativeTo:self.sourceSplitView.subviews[index]];
+    if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
+    [self selectAssetListPane:newController];
+    
+}
+
 
 - (void)showAssociatedItems:(AssetListViewController *)controller {
     if (!controller.associatedController) {
@@ -147,14 +166,14 @@
     NSInteger index = [self.assetListViewControllers indexOfObject:controller];
     if (index != self.selectedAssetListIndex) {
         self.selectedAssetListIndex = index;
-        self.selectedSource = controller.source;
+        if (controller.source) self.document.interface.selectedSource = controller.source;
     }
     else [self toggleSourceList:self];
     
-    for (int i = 0; (i < self.assetListViewControllers.count); i++) {
-        if (i == self.selectedAssetListIndex) [self.assetListViewControllers[i] setIsSelectedPane:YES];
-        else [self.assetListViewControllers[i] setIsSelectedPane:NO];
-    }
+//    for (int i = 0; (i < self.assetListViewControllers.count); i++) {
+//        if (i == self.selectedAssetListIndex) [self.assetListViewControllers[i] setIsSelectedPane:YES];
+//        else [self.assetListViewControllers[i] setIsSelectedPane:NO];
+//    }
     //    self.selectedSource = controller.source;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -176,24 +195,35 @@
     }
     if (self.assetListViewControllers.count > 1) {
         NSInteger index = [self.assetListViewControllers indexOfObject:controller];
-        BOOL wasSelected = [(AssetListViewController *)self.assetListViewControllers[index] isSelectedPane];
-//        if (controller.assetListViewer) {
- //           [controller.assetListViewer close];
-  //          controller.assetListViewer = nil;
-   //     }
-        
         controller.document = nil;
         
         [controller.view removeFromSuperview];
         [self.assetListViewControllers removeObjectAtIndex:index];
         if (self.assetListViewControllers.count < 2) self.hasMoreThanOneTab = NO;
-        if (wasSelected) {
+        if ((controller.source == self.document.interface.selectedSource)) {
             if (index > 0) index -= 1;
             [self selectAssetListPane:self.assetListViewControllers[index]];
         }
     }
     else [self selectAssetListPane:self.assetListViewControllers[0]];
+
 }
+
+- (void)removeAssets:(NSArray *)assets fromSource:(Source *)source {
+    if (((!source) || (![source.type isEqualToString:@"BatchSource"])) || (!assets.count)) {
+        [[NSSound soundNamed:@"Error"] play];
+        return;
+    }
+    NSMutableOrderedSet *batchAssets = source.batchAssets.mutableCopy;
+    for (Asset *asset in assets) {
+        
+        [batchAssets removeObject:asset];
+
+    }
+    source.batchAssets = batchAssets;
+}
+
+
 - (void)addBatchSource:(AssetListViewController *)controller withAssets:(NSArray *)assets {
     if (assets.count > 0) {
         Source *batches = [[self.document.sourceTreeController.arrangedObjects descendantNodeAtIndexPath:[NSIndexPath indexPathWithIndex:2]] representedObject];
@@ -239,23 +269,6 @@
 
     });
     
-}
-
-
-- (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source {
-    NSUInteger index = 0;
-    if (controller) index = ([self.assetListViewControllers indexOfObject:controller] + 1);
-    [self adjustSplitViewForNewPaneAtIndex:index];
-
-    AssetListViewController *newController = [[AssetListViewController alloc] initWithNibName:@"AssetListView" bundle:nil];
-    [self.assetListViewControllers insertObject:newController atIndex:index];
-    newController.document = self.document;
-    [self.sourceSplitView addSubview:newController.view positioned:NSWindowAbove relativeTo:self.sourceSplitView.subviews[index]];
-    if (source) newController.source = source;
-    else if (controller) newController.source = controller.source;
-    if (self.assetListViewControllers.count > 1) self.hasMoreThanOneTab = YES;
-    [self selectAssetListPane:newController];
-
 }
 
 /*- (NSArray *)assetsForSource:(Source *)source {
@@ -337,10 +350,9 @@
     return @[[[NSSortDescriptor alloc] initWithKey:@"sortOrder" ascending:TRUE]];
 }
 
-- (NSTableRowView *)outlineView:(NSOutlineView *)outlineView rowViewForItem:(id)item {
-    return [[SourceTableRowView alloc] init];
-    
-}
+//- (NSTableRowView *)outlineView:(NSOutlineView *)outlineView rowViewForItem:(id)item {
+//    return [[SourceTableRowView alloc] init];
+//}
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
     
@@ -364,23 +376,24 @@
     NSInteger row = [self.document.sourceOutlineView selectedRow];
     if (row < 0) return;
     NSTableCellView *view = [self.document.sourceOutlineView viewAtColumn:0 row:row makeIfNecessary:FALSE];
-    
     if (!view) return;
-
-    if (self.selectedSource != view.objectValue) {
-        AssetListViewController *controller = self.assetListViewControllers[self.selectedAssetListIndex];
-        controller.source = view.objectValue;
-        self.selectedSource = view.objectValue;
-    }
     
-
+    if (self.assetListViewControllers.count) {
+        AssetListViewController *controller = self.assetListViewControllers[self.selectedAssetListIndex];
+        if (self.document.interface.selectedSource != view.objectValue) {
+            controller.source = view.objectValue;
+            self.document.interface.selectedSource = view.objectValue;
+        }
+        else if (!controller.source) controller.source = self.document.interface.selectedSource;
+    }
 }
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isGroupItem:(id)item {
     return ([[item representedObject] parent] == nil);
 }
 
 - (NSDictionary *)sourceRowHeights {
-    return @{@"LibrarySource":@20, @"AccountSource":@30, @"SubAccountSource":@30, @"SearchSource":@30, @"BatchSource":@30, @"FolderSource":@30, @"PraxAssetSource":@100};
+    return @{@"LibrarySource":@20, @"AssetSource":@30, @"SearchSource":@30, @"BatchSource":@30, @"FolderSource":@30, @"PraxAssetSource":@100};
     
 }
 
@@ -408,22 +421,18 @@
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     Source *source = [item representedObject];
     NSString *cellType = source.type;
-    if ([cellType isEqualToString:@"AccountSource"]) {
-        cellType = source.account.accountType;
+    NSView *view = [outlineView makeViewWithIdentifier:cellType owner:self];
+    if (!view) {
+        view = [outlineView makeViewWithIdentifier:@"AssetSource" owner:self];
     }
-    return [outlineView makeViewWithIdentifier:cellType owner:self];
+    return view;
 }
 
-
-
--(void)reset {
-    
-}
 
 - (IBAction)clearTags:(id)sender {
-    self.selectedSource.requiredTags = [NSSet setWithArray:@[]];
-    self.selectedSource.excludedTags = [NSSet setWithArray:@[]];
-    self.selectedSource.requireAllTags = 0;
+    self.document.interface.selectedSource.requiredTags = [NSSet setWithArray:@[]];
+    self.document.interface.selectedSource.excludedTags = [NSSet setWithArray:@[]];
+    self.document.interface.selectedSource.requireAllTags = 0;
 }
 
 - (IBAction)newListPaneWithSource:(id)sender {

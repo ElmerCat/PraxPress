@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
@@ -142,6 +142,26 @@
                             <menuItem title="Print…" keyEquivalent="p" id="78">
                                 <connections>
                                     <action selector="printDocument:" target="-1" id="373"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Accounts" id="ddW-fO-uo0">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Accounts" id="X7n-ew-Tte">
+                        <items>
+                            <menuItem title="Show Accounts" id="xY4-6Y-PUp">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showAccounts:" target="-1" id="tmW-hg-z3U"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="jeE-2V-h1B"/>
+                            <menuItem title="Add Account..." id="qxp-Vh-GaA">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="addAccount:" target="-1" id="2Ku-A5-vBx"/>
                                 </connections>
                             </menuItem>
                         </items>

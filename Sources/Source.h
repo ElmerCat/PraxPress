@@ -7,15 +7,18 @@
 //
 
 #import "Document.h"
+
+@class Account;
 @class Asset;
 @class Tag;
 @class Template;
+@class Interface;
 
 @interface Source : NSManagedObject
 
 +(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc;
-+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber*)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
-+(Source *)addSubAccountSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
+//+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber*)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
+//+(Source *)addSubAccountSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addSearchSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addFolderSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addBatchSource:(NSString*)name toParent:(Source*)parent withArrangedAssets:(NSArray*)assets inManagedObjectContext:(NSManagedObjectContext*)moc;
@@ -37,7 +40,7 @@
 @property (nonatomic, retain) NSNumber * rowHeight;
 @property (nonatomic, retain) NSString * folderType;
 
-@property (nonatomic, retain) Asset *account;
+@property (nonatomic, retain) Asset *serviceAccount;
 @property (nonatomic, retain) Source *parent;
 @property (nonatomic, retain) NSOrderedSet *children;
 @property (nonatomic, retain) NSOrderedSet *batchAssets;
@@ -47,6 +50,8 @@
 @property (nonatomic, retain) NSNumber * requireAllTags;
 @property (nonatomic, retain) NSNumber * itemCount;
 @property (nonatomic, retain) NSString * type;
+@property (nonatomic, retain) Interface *interface;
+@property (nonatomic, retain) Account *account;
 
 @end
 

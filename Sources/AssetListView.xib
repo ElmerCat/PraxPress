@@ -20,6 +20,7 @@
                 <outlet property="popUpButton" destination="9x1-G2-rfN" id="HXl-Xs-nRE"/>
                 <outlet property="searchField" destination="wis-b6-OqT" id="aCa-w9-XRv"/>
                 <outlet property="splitView" destination="F7S-rn-psN" id="IWV-gz-iuM"/>
+                <outlet property="splitViewTopConstraint" destination="bIZ-V7-AKz" id="e1h-kx-2sV"/>
                 <outlet property="view" destination="1" id="2"/>
             </connections>
         </customObject>
@@ -40,37 +41,37 @@
                     <connections>
                         <binding destination="-2" name="hidden4" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="RCd-bR-cS0" id="6dz-ve-nTa">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">PraxArrayIsPostTransformer</string>
                             </dictionary>
                         </binding>
                         <binding destination="-2" name="hidden5" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="6dz-ve-nTa" id="KvO-Fz-Ep3">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">PraxArrayIsPlaylistTransformer</string>
                             </dictionary>
                         </binding>
                         <binding destination="-2" name="hidden3" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="rhb-zO-BJn" id="RCd-bR-cS0">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">PraxArrayIsPageTransformer</string>
                             </dictionary>
                         </binding>
                         <binding destination="-2" name="hidden2" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="9n9-Ao-y45" id="rhb-zO-BJn">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">PraxArrayAreWordPressTransformer</string>
                             </dictionary>
                         </binding>
@@ -97,10 +98,10 @@
                     <connections>
                         <binding destination="-2" name="hidden2" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="HjL-xy-rWP" id="t4n-WW-a7W">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">PraxArrayIsNotPlaylistTransformer</string>
                             </dictionary>
                         </binding>
@@ -132,7 +133,7 @@
                     </connections>
                 </button>
                 <splitView translatesAutoresizingMaskIntoConstraints="NO" id="F7S-rn-psN">
-                    <rect key="frame" x="10" y="36" width="778" height="742"/>
+                    <rect key="frame" x="10" y="36" width="778" height="720"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="20" horizontalPageScroll="10" verticalLineScroll="20" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="uDg-OS-DDc" userLabel="Asset List Pane">
@@ -565,21 +566,21 @@
                             </tableHeaderView>
                         </scrollView>
                         <customView verticalCompressionResistancePriority="641" id="25K-iS-ls8" userLabel="Detail View Pane">
-                            <rect key="frame" x="0.0" y="375" width="778" height="367"/>
+                            <rect key="frame" x="0.0" y="375" width="778" height="345"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <subviews>
                                 <box autoresizesSubviews="NO" title="Detail View Box" boxType="custom" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="dzY-0j-teY">
-                                    <rect key="frame" x="0.0" y="0.0" width="778" height="367"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="778" height="345"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <view key="contentView">
-                                        <rect key="frame" x="1" y="1" width="776" height="365"/>
+                                        <rect key="frame" x="1" y="1" width="776" height="343"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </view>
                                     <color key="borderColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="fillColor" red="1" green="1" blue="1" alpha="0.25" colorSpace="calibratedRGB"/>
                                 </box>
                                 <box autoresizesSubviews="NO" toolTip="Duration\rPlayback Count\rFavorites\rDownloads\rComments" title="Box" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="42V-Fg-8q1" userLabel="Stats Box">
-                                    <rect key="frame" x="721" y="281" width="53" height="81"/>
+                                    <rect key="frame" x="721" y="259" width="53" height="81"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <view key="contentView">
                                         <rect key="frame" x="0.0" y="0.0" width="53" height="81"/>
@@ -708,24 +709,28 @@
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <font key="titleFont" metaFont="system"/>
                 </box>
-                <searchField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wis-b6-OqT">
-                    <rect key="frame" x="129" y="785" width="596" height="16"/>
+                <searchField verticalHuggingPriority="750" horizontalCompressionResistancePriority="996" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wis-b6-OqT">
+                    <rect key="frame" x="101" y="789" width="468" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="16" id="0bO-6l-lfI"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="60" id="Hq5-6r-ZVV"/>
                     </constraints>
-                    <searchFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" id="iov-Yo-r6p">
-                        <font key="font" metaFont="miniSystem"/>
+                    <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" sendsSearchStringImmediately="YES" id="iov-Yo-r6p">
+                        <font key="font" metaFont="systemBold"/>
                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </searchFieldCell>
                     <connections>
                         <action selector="updateFilter:" target="-2" id="cCN-SK-XkB"/>
-                        <binding destination="-2" name="value" keyPath="self.source.filterString" id="VjT-WO-mHl"/>
+                        <binding destination="-2" name="value" keyPath="self.source.filterString" id="cO2-lS-0Mi">
+                            <dictionary key="options">
+                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                            </dictionary>
+                        </binding>
                         <outlet property="searchMenuTemplate" destination="Lh0-6X-NEz" id="XCH-i8-dQ6"/>
                     </connections>
                 </searchField>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VdE-Km-Q4X">
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="999" translatesAutoresizingMaskIntoConstraints="NO" id="VdE-Km-Q4X">
                     <rect key="frame" x="8" y="784" width="38" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="roundTextured" title="Edit" bezelStyle="texturedRounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pai-Sc-fND">
@@ -738,15 +743,19 @@
                         <binding destination="-2" name="value" keyPath="self.showDetailView" id="0Ov-Gy-j3p"/>
                     </connections>
                 </button>
-                <popUpButton translatesAutoresizingMaskIntoConstraints="NO" id="9x1-G2-rfN">
-                    <rect key="frame" x="747" y="786" width="38" height="19"/>
+                <popUpButton horizontalCompressionResistancePriority="613" translatesAutoresizingMaskIntoConstraints="NO" id="9x1-G2-rfN">
+                    <rect key="frame" x="697" y="784" width="91" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <popUpButtonCell key="cell" type="squareTextured" bezelStyle="texturedSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" preferredEdge="minX" selectedItem="MnU-qv-yuk" id="3Oi-qW-dds">
+                    <constraints>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="30" id="f1D-Z0-8Tm"/>
+                        <constraint firstAttribute="width" priority="914" constant="91" id="hbu-lh-Wjz"/>
+                    </constraints>
+                    <popUpButtonCell key="cell" type="roundTextured" title="Actions" bezelStyle="texturedRounded" imagePosition="left" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" preferredEdge="minX" selectedItem="ZUi-9B-Iu9" id="3Oi-qW-dds">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="h8p-No-ZlP">
                             <items>
-                                <menuItem image="NSActionTemplate" hidden="YES" id="JrD-6g-G5q"/>
+                                <menuItem title="Actions" image="NSActionTemplate" hidden="YES" id="JrD-6g-G5q"/>
                                 <menuItem title="Show Associated Items" id="ku7-an-gJg">
                                     <modifierMask key="keyEquivalentModifierMask"/>
                                     <connections>
@@ -757,10 +766,10 @@
                                         </binding>
                                         <binding destination="-2" name="hidden2" keyPath="self.associatedController" previousBinding="2jQ-Xf-aEd" id="eEB-1x-p8p">
                                             <dictionary key="options">
-                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                 <string key="NSValueTransformerName">NSIsNotNil</string>
                                             </dictionary>
                                         </binding>
@@ -782,10 +791,10 @@
                                         </binding>
                                         <binding destination="-2" name="hidden2" keyPath="self.associatedController" previousBinding="e8I-6g-5Wu" id="dTo-gF-Xbc">
                                             <dictionary key="options">
-                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                 <string key="NSValueTransformerName">NSIsNil</string>
                                             </dictionary>
                                         </binding>
@@ -834,6 +843,69 @@
                                     </connections>
                                 </menuItem>
                                 <menuItem isSeparatorItem="YES" id="V8z-h0-OEz"/>
+                                <menuItem title="Remove Selected Items from this Batch" id="TiB-UY-l3v">
+                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                    <connections>
+                                        <binding destination="-2" name="argument2" keyPath="self.source" previousBinding="b1w-wq-whI" id="cvp-dD-bJa">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssets:fromSource:</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="HP1-Ea-oP1" name="argument" keyPath="selectedObjects" id="b1w-wq-whI">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssets:fromSource:</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="-2" name="hidden" keyPath="self.isBatch" id="98k-Eo-kSl">
+                                            <dictionary key="options">
+                                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="-2" name="target" keyPath="self.document.sourceController" previousBinding="cvp-dD-bJa" id="kNa-wN-vuO">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssets:fromSource:</string>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </menuItem>
+                                <menuItem title="Remove Selected Items from Playlist" id="ZUi-9B-Iu9">
+                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                    <connections>
+                                        <binding destination="-2" name="argument2" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="4Pu-Co-f9q" id="cAs-BZ-9aB">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssociatedItems:fromAssets:</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="HP1-Ea-oP1" name="argument" keyPath="selectedObjects" id="4Pu-Co-f9q">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssociatedItems:fromAssets:</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="-2" name="hidden2" keyPath="self.associatedController.assetArrayController.selectedObjects" previousBinding="MEG-xH-RoN" id="23H-Hp-4ha">
+                                            <dictionary key="options">
+                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                                <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                <string key="NSValueTransformerName">PraxArrayIsNotPlaylistTransformer</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="-2" name="hidden" keyPath="self.isAssociatedPane" id="MEG-xH-RoN">
+                                            <dictionary key="options">
+                                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                            </dictionary>
+                                        </binding>
+                                        <binding destination="-2" name="target" keyPath="self" previousBinding="cAs-BZ-9aB" id="l4E-xM-451">
+                                            <dictionary key="options">
+                                                <string key="NSSelectorName">removeAssociatedItems:fromAssets:</string>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </menuItem>
+                                <menuItem title="Praxx" id="pmh-X0-HCY">
+                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                </menuItem>
+                                <menuItem isSeparatorItem="YES" id="DGo-Ab-3XA"/>
                                 <menuItem title="New Batch from Selection" id="0h0-5H-9J8">
                                     <modifierMask key="keyEquivalentModifierMask"/>
                                     <connections>
@@ -919,36 +991,24 @@
                         </menu>
                     </popUpButtonCell>
                 </popUpButton>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hKF-WJ-gPO">
-                    <rect key="frame" x="145" y="799" width="99" height="11"/>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="998" translatesAutoresizingMaskIntoConstraints="NO" id="hKF-WJ-gPO">
+                    <rect key="frame" x="652" y="784" width="37" height="11"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="000000 filtered items" id="aOj-kt-ljn">
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Filtered" id="aOj-kt-ljn">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
-                    <connections>
-                        <binding destination="HP1-Ea-oP1" name="displayPatternValue1" keyPath="arrangedObjects.@count" id="OFQ-yN-lSk">
-                            <dictionary key="options">
-                                <string key="NSDisplayPattern">%{value1}@ filtered items</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HCa-il-fVg">
-                    <rect key="frame" x="724" y="803" width="66" height="11"/>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="998" translatesAutoresizingMaskIntoConstraints="NO" id="HCa-il-fVg">
+                    <rect key="frame" x="52" y="784" width="41" height="11"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0000 selected" id="dae-oV-uF7">
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Selected" id="dae-oV-uF7">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
-                        <binding destination="HP1-Ea-oP1" name="displayPatternValue1" keyPath="selectedObjects.@count" id="EIX-E6-job">
-                            <dictionary key="options">
-                                <string key="NSDisplayPattern">%{value1}@ selected</string>
-                            </dictionary>
-                        </binding>
                         <binding destination="HP1-Ea-oP1" name="hidden" keyPath="selectedObjects.@count" id="iHt-3Q-wtL">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
@@ -956,68 +1016,16 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zWt-Xb-Dby">
-                    <rect key="frame" x="635" y="796" width="90" height="15"/>
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="636" translatesAutoresizingMaskIntoConstraints="NO" id="Pex-U6-EsA">
+                    <rect key="frame" x="577" y="784" width="67" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="0000 changed" bezelStyle="round" id="VVK-0j-qhg">
-                        <font key="font" metaFont="miniSystemBold"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="ACg-IG-v1g">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="Htb-Sd-MPT" name="displayPatternValue1" keyPath="arrangedObjects.@count" id="MSZ-eX-eOn">
-                            <dictionary key="options">
-                                <string key="NSDisplayPattern">%{value1}@ changed</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="Htb-Sd-MPT" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="ACg-IG-v1g" id="igz-7X-pvp">
-                            <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
-                                <integer key="NSNotApplicablePlaceholder" value="-1"/>
-                                <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
-                                <string key="NSValueTransformerName">PraxNumberIsOneTransformer</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3x0-tb-bnm">
-                    <rect key="frame" x="635" y="797" width="90" height="15"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="changed item" bezelStyle="round" id="Phj-9H-D20">
-                        <font key="font" metaFont="miniSystemBold"/>
-                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                    <connections>
-                        <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="x2I-CJ-CoW">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="Htb-Sd-MPT" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="x2I-CJ-CoW" id="zqI-Hx-Ewj">
-                            <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
-                                <integer key="NSNotApplicablePlaceholder" value="-1"/>
-                                <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSNullPlaceholder" value="-1"/>
-                                <string key="NSValueTransformerName">PraxNumberIsGreaterThanOneTransformer</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </textField>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Pex-U6-EsA">
-                    <rect key="frame" x="54" y="784" width="67" height="25"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="32" id="PvX-l6-6b1"/>
+                    </constraints>
                     <buttonCell key="cell" type="roundTextured" title="🔎 Filter" bezelStyle="texturedRounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Adg-d5-LrX">
                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                         <font key="font" metaFont="system"/>
-                        <string key="keyEquivalent">F</string>
+                        <string key="keyEquivalent">f</string>
                         <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                     </buttonCell>
                     <connections>
@@ -1025,68 +1033,12 @@
                         <binding destination="-2" name="value" keyPath="self.sourceInfoPanelVisible" id="GDp-yH-cgf"/>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LS4-gH-UFQ">
-                    <rect key="frame" x="683" y="780" width="42" height="17"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="squareTextured" title="Upload" bezelStyle="texturedSquare" image="Upload" imagePosition="only" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MmX-PT-VrW">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                        <string key="keyEquivalent">i</string>
-                        <modifierMask key="keyEquivalentModifierMask" command="YES"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="J0w-m2-nPR">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="argument" keyPath="self" id="Dj4-Sw-sfN">
-                            <dictionary key="options">
-                                <string key="NSSelectorName">uploadAssetsForClient:</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="target" keyPath="self.document.requestController" previousBinding="Dj4-Sw-sfN" id="6cr-9s-s6e">
-                            <dictionary key="options">
-                                <string key="NSSelectorName">uploadAssetsForClient:</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="toolTip" keyPath="self.document.toolTipUpload" id="5bd-p2-tij"/>
-                    </connections>
-                </button>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bvc-ER-7rj">
-                    <rect key="frame" x="635" y="780" width="43" height="17"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="squareTextured" title="Reload" bezelStyle="texturedSquare" image="Download" imagePosition="only" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="g9G-Js-Q4M">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                        <string key="keyEquivalent">i</string>
-                        <modifierMask key="keyEquivalentModifierMask" command="YES"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="HjJ-Ih-SRj">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="argument" keyPath="self" id="d5J-Fu-rNb">
-                            <dictionary key="options">
-                                <string key="NSSelectorName">reloadAssetsForClient:</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="target" keyPath="self.document.requestController" previousBinding="d5J-Fu-rNb" id="PZ2-jM-4nJ">
-                            <dictionary key="options">
-                                <string key="NSSelectorName">reloadAssetsForClient:</string>
-                            </dictionary>
-                        </binding>
-                        <binding destination="-2" name="toolTip" keyPath="self.document.toolTipReload" id="TnC-GN-tX8"/>
-                    </connections>
-                </button>
                 <popUpButton horizontalHuggingPriority="1" horizontalCompressionResistancePriority="767" translatesAutoresizingMaskIntoConstraints="NO" id="Cou-eV-NkC">
                     <rect key="frame" x="142" y="6" width="66" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <popUpButtonCell key="cell" type="roundTextured" title="Item 1" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" selectedItem="DnC-Ov-WNm" id="jih-rp-TR4">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="menu"/>
                         <menu key="menu" title="OtherViews" id="nMa-fL-VZ8">
                             <items>
                                 <menuItem title="Item 1" state="on" id="DnC-Ov-WNm"/>
@@ -1126,20 +1078,20 @@
                     </buttonCell>
                     <connections>
                         <action selector="showCodePopover:" target="lVe-dQ-3la" id="ByK-vi-kqn"/>
+                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="fX2-2m-65G"/>
                         <binding destination="-2" name="enabled2" keyPath="self.source.template" previousBinding="fX2-2m-65G" id="D2F-nQ-BXQ">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSIsNotNil</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="fX2-2m-65G"/>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="700" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6pb-qY-bkM">
-                    <rect key="frame" x="279" y="6" width="77" height="25"/>
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="6pb-qY-bkM">
+                    <rect key="frame" x="282" y="6" width="77" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="32" id="1Oi-dE-mVR"/>
@@ -1149,21 +1101,21 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
+                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="1JU-Sj-o8b"/>
+                        <binding destination="-2" name="value" keyPath="self.showSafariView" id="ylV-6T-Vc0"/>
                         <binding destination="-2" name="enabled2" keyPath="self.source.template" previousBinding="1JU-Sj-o8b" id="bqH-pK-NaS">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSIsNotNil</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="1JU-Sj-o8b"/>
-                        <binding destination="-2" name="value" keyPath="self.showSafariView" id="ylV-6T-Vc0"/>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="700" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lzT-UT-FKS">
-                    <rect key="frame" x="213" y="6" width="58" height="25"/>
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="lzT-UT-FKS">
+                    <rect key="frame" x="216" y="6" width="58" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="32" id="K6D-Jl-q7f"/>
@@ -1174,16 +1126,16 @@
                     </buttonCell>
                     <connections>
                         <action selector="templatesButtonPressed:" target="-2" id="f6R-Vj-hkx"/>
+                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="GHm-kn-TAX"/>
                         <binding destination="-2" name="enabled2" keyPath="self.source.template" previousBinding="GHm-kn-TAX" id="dYH-Ok-lFB">
                             <dictionary key="options">
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSIsNotNil</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="enabled" keyPath="self.exportCode" id="GHm-kn-TAX"/>
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="112" translatesAutoresizingMaskIntoConstraints="NO" id="z3d-Rh-Nc8">
@@ -1198,65 +1150,239 @@
                         <binding destination="-2" name="enabled" keyPath="self.exportCode" id="mE0-kU-8og"/>
                     </connections>
                 </textField>
+                <box autoresizesSubviews="NO" borderWidth="0.0" cornerRadius="12" title="Changed" boxType="custom" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="97P-Vg-d9e">
+                    <rect key="frame" x="10" y="749" width="543" height="29"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <view key="contentView">
+                        <rect key="frame" x="0.0" y="0.0" width="543" height="29"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="996" translatesAutoresizingMaskIntoConstraints="NO" id="zWt-Xb-Dby">
+                                <rect key="frame" x="6" y="9" width="159" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="0000 Changed Items" id="VVK-0j-qhg">
+                                    <font key="font" metaFont="systemBold" size="14"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="ACg-IG-v1g">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Htb-Sd-MPT" name="displayPatternValue1" keyPath="arrangedObjects.@count" id="DxG-ok-d2a">
+                                        <dictionary key="options">
+                                            <string key="NSDisplayPattern">%{value1}@ Changed Items</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Htb-Sd-MPT" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="ACg-IG-v1g" id="igz-7X-pvp">
+                                        <dictionary key="options">
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <string key="NSValueTransformerName">PraxNumberIsOneTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="996" translatesAutoresizingMaskIntoConstraints="NO" id="3x0-tb-bnm">
+                                <rect key="frame" x="6" y="9" width="109" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Changed Item" id="Phj-9H-D20">
+                                    <font key="font" metaFont="systemBold" size="14"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="x2I-CJ-CoW">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Htb-Sd-MPT" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="x2I-CJ-CoW" id="zqI-Hx-Ewj">
+                                        <dictionary key="options">
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <string key="NSValueTransformerName">PraxNumberIsGreaterThanOneTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LS4-gH-UFQ">
+                                <rect key="frame" x="335" y="3" width="198" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="32" id="fer-JI-hxR"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="871" constant="82" id="gb9-nh-R6x"/>
+                                </constraints>
+                                <buttonCell key="cell" type="roundTextured" title="Upload Changes to Server" bezelStyle="texturedRounded" image="Upload" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MmX-PT-VrW">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent">i</string>
+                                    <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="J0w-m2-nPR">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="argument" keyPath="self" id="Dj4-Sw-sfN">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">uploadAssetsForClient:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="target" keyPath="self.document.requestController" previousBinding="Dj4-Sw-sfN" id="6cr-9s-s6e">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">uploadAssetsForClient:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="toolTip" keyPath="self.document.toolTipUpload" id="5bd-p2-tij"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bvc-ER-7rj">
+                                <rect key="frame" x="171" y="3" width="156" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="774" constant="82" id="6Yf-PY-hpI"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="32" id="nwO-Yq-HX4"/>
+                                </constraints>
+                                <buttonCell key="cell" type="roundTextured" title="Reload from Server" bezelStyle="texturedRounded" image="Download" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="g9G-Js-Q4M">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent">i</string>
+                                    <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="HjJ-Ih-SRj">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="argument" keyPath="self" id="d5J-Fu-rNb">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">reloadAssetsForClient:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="target" keyPath="self.document.requestController" previousBinding="d5J-Fu-rNb" id="PZ2-jM-4nJ">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">reloadAssetsForClient:</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="-2" name="toolTip" keyPath="self.document.toolTipReload" id="TnC-GN-tX8"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="LS4-gH-UFQ" secondAttribute="trailing" priority="999" constant="10" id="MOf-Kg-mGP"/>
+                        <constraint firstItem="bvc-ER-7rj" firstAttribute="top" secondItem="97P-Vg-d9e" secondAttribute="top" constant="2" id="Vsw-VT-6Ns"/>
+                        <constraint firstItem="bvc-ER-7rj" firstAttribute="leading" secondItem="zWt-Xb-Dby" secondAttribute="trailing" priority="999" constant="8" id="eNz-WJ-2Ek"/>
+                        <constraint firstItem="LS4-gH-UFQ" firstAttribute="leading" secondItem="bvc-ER-7rj" secondAttribute="trailing" priority="999" constant="8" id="gAe-MA-7tr"/>
+                        <constraint firstItem="3x0-tb-bnm" firstAttribute="leading" secondItem="97P-Vg-d9e" secondAttribute="leading" priority="999" constant="8" id="hDR-8K-qAo"/>
+                        <constraint firstItem="3x0-tb-bnm" firstAttribute="top" secondItem="97P-Vg-d9e" secondAttribute="top" constant="2" id="ljI-Le-PsW"/>
+                        <constraint firstItem="LS4-gH-UFQ" firstAttribute="top" secondItem="97P-Vg-d9e" secondAttribute="top" constant="2" id="uhd-3w-9B0"/>
+                        <constraint firstItem="zWt-Xb-Dby" firstAttribute="leading" secondItem="97P-Vg-d9e" secondAttribute="leading" priority="999" constant="8" id="w8g-8m-6IZ"/>
+                        <constraint firstItem="zWt-Xb-Dby" firstAttribute="top" secondItem="97P-Vg-d9e" secondAttribute="top" constant="2" id="xec-FK-TjS"/>
+                    </constraints>
+                    <color key="borderColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                    <color key="fillColor" red="1" green="1" blue="0.40000000596046448" alpha="0.48999999999999999" colorSpace="calibratedRGB"/>
+                    <connections>
+                        <binding destination="Htb-Sd-MPT" name="hidden" keyPath="arrangedObjects.@count" id="8Bt-ms-c3T">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </box>
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="999" translatesAutoresizingMaskIntoConstraints="NO" id="5Bf-kj-M5s">
+                    <rect key="frame" x="54" y="792" width="37" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="recessed" title="0000" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sa7-so-d3u">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <binding destination="HP1-Ea-oP1" name="title" keyPath="selectedObjects.@count" id="3Bd-CJ-EbG"/>
+                        <binding destination="HP1-Ea-oP1" name="hidden" keyPath="selectedObjects.@count" id="z0W-o7-sW7">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" horizontalCompressionResistancePriority="999" translatesAutoresizingMaskIntoConstraints="NO" id="5O1-z2-Icw">
+                    <rect key="frame" x="652" y="792" width="37" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="recessed" title="0000" bezelStyle="recessed" alignment="center" controlSize="mini" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tLz-lL-kW4">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <binding destination="HP1-Ea-oP1" name="title" keyPath="arrangedObjects.@count" id="dBr-sc-5jg"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="lgw-E3-ww4" secondAttribute="trailing" priority="636" constant="12" id="0W0-sM-Kst"/>
-                <constraint firstItem="9x1-G2-rfN" firstAttribute="top" secondItem="HCa-il-fVg" secondAttribute="bottom" constant="-2" id="2eL-up-Tw2"/>
                 <constraint firstItem="z3d-Rh-Nc8" firstAttribute="centerY" secondItem="Cou-eV-NkC" secondAttribute="centerY" constant="-0.5" id="4CH-RN-c2a"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="18" id="6HR-Ag-nHo"/>
                 <constraint firstAttribute="bottom" secondItem="sZO-QO-Pog" secondAttribute="bottom" constant="8" id="7Hw-ab-deh"/>
+                <constraint firstItem="hKF-WJ-gPO" firstAttribute="top" secondItem="5O1-z2-Icw" secondAttribute="bottom" constant="-1" id="8KP-u1-xNr"/>
                 <constraint firstItem="tEc-9U-EM4" firstAttribute="top" secondItem="1" secondAttribute="top" constant="5" id="9Cd-4V-obx"/>
-                <constraint firstAttribute="trailing" secondItem="9x1-G2-rfN" secondAttribute="trailing" priority="999" constant="15" id="Btm-CQ-aqr"/>
-                <constraint firstAttribute="trailing" secondItem="F7S-rn-psN" secondAttribute="trailing" constant="12" id="DvJ-3a-WMO"/>
-                <constraint firstItem="9x1-G2-rfN" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" priority="999" constant="9" id="FvE-dq-P4k"/>
-                <constraint firstItem="bvc-ER-7rj" firstAttribute="leading" secondItem="zWt-Xb-Dby" secondAttribute="leading" id="Hiq-GR-8gt"/>
+                <constraint firstItem="HCa-il-fVg" firstAttribute="leading" secondItem="VdE-Km-Q4X" secondAttribute="trailing" constant="8" id="D6S-wU-fF0"/>
+                <constraint firstAttribute="trailing" secondItem="F7S-rn-psN" secondAttribute="trailing" priority="999" constant="12" id="DvJ-3a-WMO"/>
+                <constraint firstItem="5O1-z2-Icw" firstAttribute="centerX" secondItem="hKF-WJ-gPO" secondAttribute="centerX" id="FpP-ob-erx"/>
+                <constraint firstItem="HCa-il-fVg" firstAttribute="top" secondItem="5Bf-kj-M5s" secondAttribute="bottom" constant="-1" id="Fri-PI-Nxr"/>
+                <constraint firstItem="HCa-il-fVg" firstAttribute="top" secondItem="VdE-Km-Q4X" secondAttribute="top" constant="13" id="GJq-N2-eQ5"/>
+                <constraint firstItem="wis-b6-OqT" firstAttribute="top" secondItem="5Bf-kj-M5s" secondAttribute="top" id="Hxg-LH-mfc"/>
                 <constraint firstItem="pEI-fW-x4y" firstAttribute="top" secondItem="1" secondAttribute="top" constant="1" id="JGf-fY-AAt"/>
                 <constraint firstItem="pEI-fW-x4y" firstAttribute="bottom" secondItem="F7S-rn-psN" secondAttribute="bottom" constant="28" id="LDv-7o-Z3x"/>
                 <constraint firstAttribute="bottom" secondItem="F7S-rn-psN" secondAttribute="bottom" constant="36" id="Mnn-0S-XzA"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="width" secondItem="bvc-ER-7rj" secondAttribute="width" id="Mw4-ja-Doz"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="top" secondItem="3x0-tb-bnm" secondAttribute="bottom" constant="1" id="Nd7-cE-MZt"/>
+                <constraint firstItem="VdE-Km-Q4X" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="pEI-fW-x4y" secondAttribute="trailing" id="Niw-jI-wKS"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="97P-Vg-d9e" secondAttribute="trailing" priority="999" constant="12" id="Ojp-qG-zvx"/>
                 <constraint firstItem="6pb-qY-bkM" firstAttribute="leading" secondItem="lzT-UT-FKS" secondAttribute="trailing" constant="8" id="PCQ-Sr-UK4"/>
                 <constraint firstItem="lzT-UT-FKS" firstAttribute="leading" secondItem="Cou-eV-NkC" secondAttribute="trailing" priority="713" constant="8" id="PeE-jN-GfQ"/>
+                <constraint firstItem="hKF-WJ-gPO" firstAttribute="leading" secondItem="Pex-U6-EsA" secondAttribute="trailing" priority="999" constant="10" id="Quv-QR-qNM"/>
                 <constraint firstItem="M5h-sc-0y0" firstAttribute="top" secondItem="1" secondAttribute="top" constant="5" id="R4g-X1-2VF"/>
                 <constraint firstItem="lgw-E3-ww4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6pb-qY-bkM" secondAttribute="trailing" id="RFm-uw-keu"/>
-                <constraint firstItem="wis-b6-OqT" firstAttribute="leading" secondItem="Pex-U6-EsA" secondAttribute="trailing" priority="999" constant="8" id="Rdb-mJ-wdV"/>
                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lgw-E3-ww4" secondAttribute="trailing" id="Sir-nI-e1L"/>
-                <constraint firstAttribute="trailing" secondItem="LS4-gH-UFQ" secondAttribute="trailing" priority="999" constant="75" id="VXB-hX-lDT"/>
-                <constraint firstAttribute="trailing" secondItem="wis-b6-OqT" secondAttribute="trailing" priority="999" constant="75" id="W2e-b8-j01"/>
-                <constraint firstItem="wis-b6-OqT" firstAttribute="leading" secondItem="Pex-U6-EsA" secondAttribute="trailing" priority="999" constant="8" id="WmT-Lp-uyc"/>
-                <constraint firstItem="9x1-G2-rfN" firstAttribute="trailing" secondItem="HCa-il-fVg" secondAttribute="trailing" constant="-3" id="ZH9-tg-a0T"/>
+                <constraint firstItem="Pex-U6-EsA" firstAttribute="top" secondItem="hKF-WJ-gPO" secondAttribute="top" constant="-13" id="TMp-BE-3VH"/>
+                <constraint firstItem="97P-Vg-d9e" firstAttribute="top" secondItem="1" secondAttribute="top" constant="63" id="UZp-3d-W9c"/>
+                <constraint firstItem="9x1-G2-rfN" firstAttribute="leading" secondItem="hKF-WJ-gPO" secondAttribute="trailing" priority="999" constant="10" id="Udn-rQ-XOX"/>
                 <constraint firstItem="5hL-n3-1zV" firstAttribute="leading" secondItem="F7S-rn-psN" secondAttribute="leading" id="aNG-Lw-R0r"/>
-                <constraint firstItem="F7S-rn-psN" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="36" id="bIZ-V7-AKz"/>
+                <constraint firstItem="F7S-rn-psN" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="58" id="bIZ-V7-AKz"/>
                 <constraint firstItem="VdE-Km-Q4X" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="6" id="c34-av-C8V"/>
                 <constraint firstItem="pEI-fW-x4y" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="cOJ-lg-ZtU"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="bottom" secondItem="bvc-ER-7rj" secondAttribute="bottom" id="ccN-Lb-eJR"/>
                 <constraint firstItem="Pex-U6-EsA" firstAttribute="top" secondItem="VdE-Km-Q4X" secondAttribute="top" id="crx-0C-yoZ"/>
-                <constraint firstItem="F7S-rn-psN" firstAttribute="leading" secondItem="pEI-fW-x4y" secondAttribute="trailing" constant="10" id="dMy-xL-CBo"/>
+                <constraint firstItem="F7S-rn-psN" firstAttribute="leading" secondItem="pEI-fW-x4y" secondAttribute="trailing" priority="999" constant="10" id="dMy-xL-CBo"/>
                 <constraint firstItem="5hL-n3-1zV" firstAttribute="top" secondItem="1" secondAttribute="top" constant="5" id="dcM-US-Vnf"/>
+                <constraint firstItem="Pex-U6-EsA" firstAttribute="leading" secondItem="wis-b6-OqT" secondAttribute="trailing" priority="999" constant="8" id="dko-2a-QTG"/>
                 <constraint firstItem="5hL-n3-1zV" firstAttribute="trailing" secondItem="F7S-rn-psN" secondAttribute="trailing" id="eOi-2C-FsQ"/>
+                <constraint firstItem="97P-Vg-d9e" firstAttribute="leading" secondItem="pEI-fW-x4y" secondAttribute="trailing" priority="999" constant="10" id="eZf-rq-gFC"/>
                 <constraint firstItem="lzT-UT-FKS" firstAttribute="bottom" secondItem="sZO-QO-Pog" secondAttribute="bottom" id="fJ1-7T-b06"/>
                 <constraint firstItem="z3d-Rh-Nc8" firstAttribute="leading" secondItem="sZO-QO-Pog" secondAttribute="trailing" priority="636" constant="8" id="fOO-M7-ObI"/>
-                <constraint firstItem="bvc-ER-7rj" firstAttribute="leading" secondItem="3x0-tb-bnm" secondAttribute="leading" id="lwi-LU-WWF"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="9x1-G2-rfN" secondAttribute="trailing" id="iii-ms-0Jv"/>
                 <constraint firstItem="Cou-eV-NkC" firstAttribute="leading" secondItem="z3d-Rh-Nc8" secondAttribute="trailing" priority="636" constant="8" id="m5g-e1-5lX"/>
-                <constraint firstItem="Pex-U6-EsA" firstAttribute="leading" secondItem="VdE-Km-Q4X" secondAttribute="trailing" priority="999" constant="8" id="m7q-f3-eim"/>
                 <constraint firstAttribute="centerX" secondItem="M5h-sc-0y0" secondAttribute="centerX" id="mhB-TO-hLT"/>
                 <constraint firstItem="z3d-Rh-Nc8" firstAttribute="centerY" secondItem="sZO-QO-Pog" secondAttribute="centerY" constant="-0.5" id="nNe-tG-N5T"/>
                 <constraint firstItem="6pb-qY-bkM" firstAttribute="bottom" secondItem="lzT-UT-FKS" secondAttribute="bottom" id="o5q-jF-Krv"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="trailing" secondItem="zWt-Xb-Dby" secondAttribute="trailing" id="oWk-ET-if6"/>
                 <constraint firstItem="sZO-QO-Pog" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="pEI-fW-x4y" secondAttribute="trailing" id="obT-1c-rir"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="top" secondItem="zWt-Xb-Dby" secondAttribute="bottom" id="p0i-sK-LuH"/>
+                <constraint firstItem="F7S-rn-psN" firstAttribute="top" secondItem="97P-Vg-d9e" secondAttribute="bottom" constant="-7" id="prT-A3-5XM"/>
                 <constraint firstItem="VdE-Km-Q4X" firstAttribute="leading" secondItem="pEI-fW-x4y" secondAttribute="trailing" priority="999" constant="8" id="pwI-dK-Y8C"/>
+                <constraint firstAttribute="trailing" secondItem="9x1-G2-rfN" secondAttribute="trailing" priority="999" constant="12" id="r9i-fz-bbI"/>
+                <constraint firstItem="5Bf-kj-M5s" firstAttribute="centerX" secondItem="HCa-il-fVg" secondAttribute="centerX" id="rgW-hH-4Ev"/>
                 <constraint firstItem="lgw-E3-ww4" firstAttribute="bottom" secondItem="sZO-QO-Pog" secondAttribute="bottom" id="slQ-Bu-oai"/>
                 <constraint firstAttribute="centerX" secondItem="tEc-9U-EM4" secondAttribute="centerX" id="tHf-Qz-Ntc"/>
                 <constraint firstItem="sZO-QO-Pog" firstAttribute="leading" secondItem="pEI-fW-x4y" secondAttribute="trailing" priority="636" constant="8" id="tlE-Oc-XU0"/>
-                <constraint firstItem="wis-b6-OqT" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="13" id="vyZ-tQ-uIy"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="leading" secondItem="bvc-ER-7rj" secondAttribute="trailing" priority="999" constant="5" id="wDt-X6-YXo"/>
+                <constraint firstItem="9x1-G2-rfN" firstAttribute="top" secondItem="5hL-n3-1zV" secondAttribute="bottom" constant="6" id="tuh-bD-CBZ"/>
                 <constraint firstItem="lgw-E3-ww4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Cou-eV-NkC" secondAttribute="trailing" priority="999" constant="8" id="wgx-3O-H72"/>
                 <constraint firstItem="Cou-eV-NkC" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="sZO-QO-Pog" secondAttribute="trailing" id="wr1-TV-EkF"/>
                 <constraint firstItem="M5h-sc-0y0" firstAttribute="leading" secondItem="1" secondAttribute="leading" priority="999" constant="15" id="xFd-TH-ZHD"/>
-                <constraint firstItem="wis-b6-OqT" firstAttribute="leading" secondItem="hKF-WJ-gPO" secondAttribute="leading" constant="-18" id="xJ4-CD-8pq"/>
-                <constraint firstItem="LS4-gH-UFQ" firstAttribute="trailing" secondItem="3x0-tb-bnm" secondAttribute="trailing" id="z4O-2t-ViN"/>
-                <constraint firstItem="wis-b6-OqT" firstAttribute="top" secondItem="hKF-WJ-gPO" secondAttribute="bottom" constant="-2" id="zwu-eW-0tk"/>
+                <constraint firstItem="wis-b6-OqT" firstAttribute="leading" secondItem="5Bf-kj-M5s" secondAttribute="trailing" priority="999" constant="10" id="y09-pB-dwy"/>
             </constraints>
         </customView>
         <arrayController mode="entity" entityName="Asset" selectsInsertedObjects="NO" id="HP1-Ea-oP1" userLabel="Asset List Array Controller">
@@ -1678,8 +1804,6 @@
                                 <buttonCell key="cell" type="squareTextured" title="Open" bezelStyle="texturedSquare" image="NSNetwork" imagePosition="left" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c7y-8f-Lrh">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
-                                    <string key="keyEquivalent">i</string>
-                                    <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                 </buttonCell>
                                 <connections>
                                     <binding destination="HP1-Ea-oP1" name="hidden" keyPath="selectedObjects.@count" id="uMG-ph-EGB">
@@ -2309,10 +2433,10 @@
                                     <binding destination="RPh-Gv-NTe" name="value" keyPath="self.trimBeginningCount" id="Sl5-9P-TXc"/>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimBeginningOption" previousBinding="i7K-DC-JTc" id="06x-rC-Kyw">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                         </dictionary>
                                     </binding>
@@ -2347,10 +2471,10 @@
                                     </binding>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimBeginningOption" previousBinding="vSi-Hc-F70" id="lbb-G6-mE2">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                         </dictionary>
                                     </binding>
@@ -2382,10 +2506,10 @@
                                     </binding>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimBeginningOption" previousBinding="6Im-NF-Np6" id="c33-w9-5HG">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsNotZeroTransformer</string>
                                         </dictionary>
                                     </binding>
@@ -2442,10 +2566,10 @@
                                     <binding destination="RPh-Gv-NTe" name="value" keyPath="self.trimEndCount" id="hGb-3S-JrB"/>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimEndOption" previousBinding="Iz8-fM-wJg" id="9M3-JA-F8o">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                         </dictionary>
                                     </binding>
@@ -2480,10 +2604,10 @@
                                     </binding>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimEndOption" previousBinding="ZOh-Hr-rd5" id="2pW-yz-iy3">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                         </dictionary>
                                     </binding>
@@ -2515,10 +2639,10 @@
                                     </binding>
                                     <binding destination="RPh-Gv-NTe" name="enabled2" keyPath="self.trimEndOption" previousBinding="ZDR-lV-2zZ" id="h2a-N3-Ouk">
                                         <dictionary key="options">
-                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
                                             <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                             <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                             <string key="NSValueTransformerName">PraxNumberIsNotZeroTransformer</string>
                                         </dictionary>
                                     </binding>

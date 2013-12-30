@@ -8,7 +8,6 @@
 
 #import "Document.h"
 #import "Source.h"
-#import "SourceTableRowView.h"
 #import "AssetListViewController.h"
 //#import "AssetListView.h"
 #import "SourcePopovers.h"
@@ -22,7 +21,8 @@
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet NSToolbar *documentToolbar;
 @property (unsafe_unretained) IBOutlet NSWindow *documentWindow;
-@property Source *selectedSource;
+//@property Source *selectedSource;
+@property Source *allItemsSource;
 @property (weak) IBOutlet NSSplitView *sourceSplitView;
 @property (weak) IBOutlet NSView *sourceListSubView;
 @property NSMutableArray *assetListViewControllers;
@@ -35,10 +35,11 @@
 @property NSMapTable *sourceListCellControllers;
 @property (weak) IBOutlet NSOutlineView *sourceListOutlineView;
 
-+ (void)initWithType:(NSString *)typeName inManagedObjectContext:(NSManagedObjectContext *)moc;
++ (void)initForDocument:(Document *)document;
+- (void)loadInterface;
 - (void)windowWillClose:(NSNotification *)notification;
 
--(void)reset;
+
 - (IBAction)clearTags:(id)sender;
 
 
@@ -55,6 +56,7 @@
 - (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
 - (void)doubleClickedSource;
 
+- (void)removeAssets:(NSArray *)assets fromSource:(Source *)source;
 - (void)addBatchSource:(AssetListViewController *)controller withAssets:(NSArray *)assets;
 - (void)addBatchSource:(AssetListViewController *)controller withSource:(Source *)source;
 - (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source;
