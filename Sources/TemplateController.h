@@ -21,6 +21,7 @@
 @property (unsafe_unretained) IBOutlet NSTextView *textView;
 @property (unsafe_unretained) IBOutlet WidgetViewController *widgetViewController;
 @property (weak) IBOutlet NSView *widgetMenuView;
+@property (unsafe_unretained) IBOutlet NSPanel *panel;
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets;
 

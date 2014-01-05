@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "Asset.h"
 
+@class Asset;
+
 @interface Widget : NSObject
 
 + (NSString *)marker;

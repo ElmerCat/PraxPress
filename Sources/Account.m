@@ -147,9 +147,9 @@
         controller.determinate = YES;
         for (NSDictionary *item in data) {
 
-            dispatch_async(controller.responseHandlingQueue, ^{
+//            dispatch_async(controller.responseHandlingQueue, ^{
                 [self handleReloadData:item forController:controller];
-            });
+//            });
             
             controller.updateCount = controller.updateCount + 1;
         }
@@ -269,7 +269,12 @@
     }
 
     if (self.metadata[@"avatar_URL"] != [NSNull null]) {
-        self.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:self.metadata[@"avatar_URL"]]];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSImage *image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:self.metadata[@"avatar_URL"]]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.image = image;
+            });
+        });
         
  //       NSURL *url = [NSURL URLWithString:self.stringA];
   //      NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];

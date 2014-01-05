@@ -7,14 +7,19 @@
 //
 
 #import "Document.h"
+#import "AssetListViewController.h"
 
 @class Account;
 @class Asset;
 @class Tag;
 @class Template;
 @class Interface;
+@class AssetListViewController;
 
 @interface Source : NSManagedObject
+
+@property AssetListViewController *controller;
+
 
 +(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc;
 //+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber*)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
@@ -36,6 +41,9 @@
 @property (nonatomic, retain) NSURL * exportURL;
 @property (nonatomic, retain) NSString *filterString;
 @property (nonatomic, retain) NSString *filterKey;
+@property (nonatomic, retain) NSArray *selectionIndexes;
+@property (nonatomic, retain) NSArray *sortDescriptors;
+
 @property (nonatomic, retain) NSNumber * sortOrder;
 @property (nonatomic, retain) NSNumber * rowHeight;
 @property (nonatomic, retain) NSString * folderType;
@@ -53,9 +61,24 @@
 @property (nonatomic, retain) Interface *interface;
 @property (nonatomic, retain) Account *account;
 
+@property (nonatomic, retain) Interface *interfaceSelection;
+@property (nonatomic, retain) Interface *interfaceSource;
+
+@property (nonatomic, retain) NSOrderedSet *selectedAssets;
 @end
 
 @interface Source (CoreDataGeneratedAccessors)
+
+- (void)insertObject:(Asset *)value inSelectedAssetsAtIndex:(NSUInteger)idx;
+- (void)removeObjectFromSelectedAssetsAtIndex:(NSUInteger)idx;
+- (void)insertSelectedAssets:(NSArray *)value atIndexes:(NSIndexSet *)indexes;
+- (void)removeSelectedAssetsAtIndexes:(NSIndexSet *)indexes;
+- (void)replaceObjectInSelectedAssetsAtIndex:(NSUInteger)idx withObject:(Asset *)value;
+- (void)replaceSelectedAssetsAtIndexes:(NSIndexSet *)indexes withSelectedAssets:(NSArray *)values;
+- (void)addSelectedAssetsObject:(Asset *)value;
+- (void)removeSelectedAssetsObject:(Asset *)value;
+- (void)addSelectedAssets:(NSOrderedSet *)values;
+- (void)removeSelectedAssets:(NSOrderedSet *)values;
 
 - (void)addExcludedTagsObject:(Tag *)value;
 - (void)removeExcludedTagsObject:(Tag *)value;

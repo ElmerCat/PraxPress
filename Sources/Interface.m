@@ -10,7 +10,9 @@
 
 @implementation Interface
 @dynamic exportCodeDirectory;
+@dynamic sourceListWidth;
 
 @dynamic selectedSource;
+@dynamic sources;
 
 @end

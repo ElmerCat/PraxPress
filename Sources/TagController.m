@@ -16,7 +16,7 @@
         NSLog(@"TagController init");
 
         [[NSNotificationCenter defaultCenter] addObserverForName:@"AssetTagsChangedNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
-            Asset *asset = (Asset *)[aNotification object];
+//            Asset *asset = (Asset *)[aNotification object];
             
    //         if (!asset.sync_mode.boolValue) asset.sync_mode = [NSNumber numberWithBool:YES];
             [self.tagsArrayController rearrangeObjects];
@@ -58,20 +58,46 @@
 
 - (IBAction)mergeSelectedTags:(id)sender {
     
+    NSArray *tags = self.tagsArrayController.selectedObjects;
+    if (tags.count < 2) {
+        [Prax presentAlert:@"Please select at least two tags to merge" forController:self];
+        return;
+    }
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:@"Are you sure you want to merge the selected Tags?"];
+    [alert setMessageText:@"Are you sure you want to merge these Tags?"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert addButtonWithTitle:@"Merge Tags"];
+    [alert setAccessoryView:self.tagMergeAccessoryView];
     if ([alert runModal] == NSAlertSecondButtonReturn) {
-
-        Tag *selectedTag = self.tagsArrayController.selectedObjects[0];
+        NSInteger index = [self.mergeTagSelectionIndexes firstIndex];
+        if (index == NSNotFound) return;
+    
+        Tag *selectedTag = self.tagsArrayController.selectedObjects[index];
         
         NSMutableSet *assets = [NSMutableSet setWithCapacity:1];
         for (Tag *tag in self.tagsArrayController.selectedObjects) {
             [assets unionSet:tag.assets];
             if (tag != selectedTag) [self.document.managedObjectContext deleteObject:tag];
         }
-        selectedTag.assets = assets;
+        selectedTag.assets = assets.copy;
+    }
+}
+
+- (IBAction)capitalizeTags:(id)sender {
+    for (Tag *tag in self.tagsArrayController.selectedObjects) {
+        tag.name = [tag.name capitalizedString];
+    }
+}
+
+- (IBAction)lowercaseTags:(id)sender {
+    for (Tag *tag in self.tagsArrayController.selectedObjects) {
+        tag.name = [tag.name lowercaseString];
+    }
+}
+
+- (IBAction)uppercaseTags:(id)sender {
+    for (Tag *tag in self.tagsArrayController.selectedObjects) {
+        tag.name = [tag.name uppercaseString];
     }
 }
 
@@ -86,7 +112,7 @@
 
 
 - (void)loadAssetTags:(Asset *)asset data:(NSDictionary *)data {
-    NSMutableSet *tags = [[NSMutableSet alloc] init];
+    NSMutableSet *tags = [NSMutableSet setWithCapacity:1];
     Tag *tag;
 
     if ([asset.accountType isEqualToString:@"WordPress"]) {
@@ -104,7 +130,7 @@
     else { // SoundCloud
         NSString *tag_list = data[@"tag_list"];
         if (tag_list.length > 0) {
-            NSArray *tagArray = [TagController arrayFromTagString:tag_list];
+            NSArray *tagArray = [Tag arrayFromTagString:tag_list];
             for (NSString *tagString __strong in tagArray) {
                 tag = [self tagForString:tagString create:YES];
                 if (tag) [tags addObject:tag];
@@ -117,7 +143,11 @@
         }
         else asset.genreTags = nil;
     }
-    asset.tags = tags;
+    NSMutableArray *tagArray = @[].mutableCopy;
+    for (Tag *tag in tags) [tagArray addObject:tag.name];
+    asset.tag_list = [Tag tagStringFromArray:tagArray];
+    asset.tags = tags.copy;
+    
 }
 
 - (Tag *)tagForString:(NSString *)string create:(BOOL)create {
@@ -125,7 +155,7 @@
     Tag *tag = nil;
     NSError *error;
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
-    [request setPredicate:[NSPredicate predicateWithFormat:@"%K MATCHES[cd] %@", @"name", string]];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"%K MATCHES %@", @"name", string]];
     NSArray *matchingItems = [self.document.managedObjectContext executeFetchRequest:request error:&error];
     if ([matchingItems count] > 0) {
         tag = matchingItems[0];
@@ -135,66 +165,6 @@
         tag.name = string;
     }
     return tag;
-}
-
-+ (void)setAssetTagList:(Asset *)asset {
-    
-    NSMutableArray *tags = [NSMutableArray array];
-    
-    for (Tag *tag in asset.tags) {
-        [tags addObject:tag.name];
-    }
-    asset.tag_list = [TagController tagStringFromArray:tags];
-    
-}
-
-
-
-+ (NSArray *)arrayFromTagString:(NSString *)string {
-    
-    NSScanner *scanner = [NSScanner scannerWithString:string];
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    NSString *substring;
-    
-    while (scanner.scanLocation < string.length) {
-        
-        // test if the first character is a quote
-        unichar character = [string characterAtIndex:scanner.scanLocation];
-        if (character == '"') {
-            // skip the first quote and scan everything up to the next quote into a substring
-            [scanner setScanLocation:(scanner.scanLocation + 1)];
-            [scanner scanUpToString:@"\"" intoString:&substring];
-            [scanner setScanLocation:(scanner.scanLocation + 1)];  // skip the second quote too
-        }
-        else {
-            // scan everything up to the next space into the substring
-            [scanner scanUpToString:@" " intoString:&substring];
-        }
-        // add the substring to the array
-        [array addObject:substring];
-        
-        //if not at the end, skip the space character before continuing the loop
-        if (scanner.scanLocation < string.length) [scanner setScanLocation:(scanner.scanLocation + 1)];
-    }
-    return array.copy;
-}
-
-+ (NSString *)tagStringFromArray:(NSArray *)array {
-    
-    NSMutableString *string = [[NSMutableString alloc] init];
-    NSRange range;
-
-    for (NSString *substring in array) {
-        if (string.length > 0) {
-            [string appendString:@" "];
-        }
-        range = [substring rangeOfString:@" "];
-        if (range.location != NSNotFound) {
-            [string appendFormat:@"\"%@\"", substring];
-        }
-        else [string appendString:substring];
-    }
-    return string.description;
 }
 
 - (NSArray *)tokenField:(NSTokenField *)tokenField shouldAddObjects:(NSArray *)tokens atIndex:(NSUInteger)index
@@ -279,7 +249,7 @@
 {
     NSMutableString * tagString = [@"" mutableCopy];
     NSArray * draggedObjects = [self.tagsArrayController.arrangedObjects objectsAtIndexes:rowIndexes];
-    BOOL multiple;
+    BOOL multiple = NO;
     for (Tag * tag in draggedObjects) {
         if (multiple) [tagString appendString:@","];
         [tagString appendString:tag.name];

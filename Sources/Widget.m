@@ -75,12 +75,12 @@
 }
 + (NSDictionary *)displayStrings {
     return @{
-            @" Insert Prax Widget " : @" Insert Prax Widget ",
-            @"title" : @"Title",
-            @"image" : @"Image",
-            @"player" : @"Player",
-            @"uri" : @"URI"
-            };}
+             @" Insert Prax Widget " : @" Insert Prax Widget ",
+             @"title" : @"Title",
+             @"image" : @"Image",
+             @"player" : @"Player",
+             @"uri" : @"URI"
+             };}
 
 + (NSString *)displayStringForEditingString:(NSString *)string {
     NSString *keyString = [self keyStringFromEditingString:string];
@@ -108,7 +108,7 @@
 }
 
 + (NSString *)editingStringFromObject:(id)representedObject {
-   if ([[representedObject className] isEqualToString:@"Widget"])
+    if ([[representedObject className] isEqualToString:@"Widget"])
     {
         return [(Widget *)representedObject editingString];
     }
@@ -119,7 +119,7 @@
         }
         return string;
     }
-   return representedObject;
+    return representedObject;
 }
 
 + (NSString *)stringWithTemplate:(NSString *)template forAsset:(Asset *)asset wordPress:(BOOL)wordPress {
@@ -140,14 +140,18 @@
         else  {
             [string appendString:object];
         }
-   }
+    }
     return string;
 }
 
 - (NSString *)stringForAsset:(Asset *)asset wordPress:(BOOL)wordPress {
     NSMutableString *string = @"".mutableCopy;
     if ([self.keyString isEqualToString:@"image"]) {
-        NSString *value = [Widget valueOfItem:asset asStringForKey:@"artwork_url"];
+        NSString *value;
+        if ([asset.type isEqualToString:@"image"]) value = [Widget valueOfItem:asset asStringForKey:@"uri"];
+        
+        else value = [Widget valueOfItem:asset asStringForKey:@"artwork_url"];
+        
         if (value.length) {
             [string setString:@"<img"];
             NSString *option = [Widget stringValueForOption:@"width" inString:self.optionString];
@@ -194,7 +198,7 @@
                 }
             }
             NSString *wordPressFlashPlayer = @"[soundcloud url=\"https://api.soundcloud.com/tracks/$$$uri$$$\" params=\"$$$parameters$$$\" width=\"$$$width$$$\" height=\"$$$height\" iframe=\"false\" /]";
-
+            
             
             NSString *wordPressHTMLPlayer = @"[soundcloud url=\"$$$uri$$$\" params=\"$$$parameters$$$\" width=\"$$$width$$$\" height=\"$$$height\" iframe=\"true\" /]";
             
@@ -234,7 +238,7 @@
             if (trim.length && (trim.location == 0)) {
                 [parameters deleteCharactersInRange:trim];
             }
-
+            
             [string replaceOccurrencesOfString:@"$$$uri$$$" withString:uri options:nil range:NSMakeRange(0, string.length)];
             [string replaceOccurrencesOfString:@"$$$width$$$" withString:width options:nil range:NSMakeRange(0, string.length)];
             [string replaceOccurrencesOfString:@"$$$height$$$" withString:height options:nil range:NSMakeRange(0, string.length)];
@@ -300,7 +304,7 @@
     NSMutableArray *array = @[].mutableCopy;
     NSRange firstOccurrance = [string rangeOfString:[Widget marker]];
     NSRange secondOccurance = [string rangeOfString:[Widget marker] options:nil range:NSMakeRange((firstOccurrance.location + firstOccurrance.length), (string.length - (firstOccurrance.location + firstOccurrance.length)))];
-
+    
     if (firstOccurrance.location > 0) {
         [array addObject:[string substringToIndex:firstOccurrance.location]];
     }

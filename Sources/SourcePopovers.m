@@ -54,15 +54,6 @@
         
         self.searchPredicateEditor.rowTemplates = rowTemplates;
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification
-                                                          object:[NXOAuth2AccountStore sharedStore]
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification *aNotification){
-                                                          NSLog(@"SourcePopovers NXOAuth2AccountStoreAccountsDidChangeNotification");
-                                                          if (self.authorizationPanel.isVisible) {
-                                                              [self.authorizationPanel close];
-                                                          }
-                                                      }];
         [[NSNotificationCenter defaultCenter] addObserverForName:NSRuleEditorRowsDidChangeNotification
                                                           object:nil
                                                            queue:nil

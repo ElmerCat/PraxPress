@@ -75,7 +75,7 @@
                                                 <string key="NSSelectorName">makeKeyAndOrderFront:</string>
                                             </dictionary>
                                         </binding>
-                                        <binding destination="-2" name="target" keyPath="self.assetListViewController.document.tagsPanel" previousBinding="Ji7-U7-mpw" id="FBX-Ha-p88">
+                                        <binding destination="-2" name="target" keyPath="self.assetListViewController.document.tagController.tagsPanel" previousBinding="Ji7-U7-mpw" id="tUj-ma-0Sp">
                                             <dictionary key="options">
                                                 <string key="NSSelectorName">makeKeyAndOrderFront:</string>
                                             </dictionary>
@@ -544,16 +544,16 @@ DQ
                                 <string key="NSSelectorName">reloadAccount:option:</string>
                             </dictionary>
                         </binding>
-                        <binding destination="-2" name="hidden" keyPath="self.assetListViewController.document.requestController.busy" id="fbc-wk-nsd"/>
                         <binding destination="-2" name="target" keyPath="self.assetListViewController.document.requestController" previousBinding="VJz-ea-lrD" id="bJg-zZ-3c7">
                             <dictionary key="options">
                                 <string key="NSSelectorName">reloadAccount:option:</string>
                             </dictionary>
                         </binding>
+                        <binding destination="-2" name="hidden" keyPath="self.assetListViewController.document.requestController.busy" id="fbc-wk-nsd"/>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cBW-zn-NTO">
-                    <rect key="frame" x="294" y="98" width="91" height="32"/>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cBW-zn-NTO">
+                    <rect key="frame" x="295" y="98" width="91" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Log Out" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" sound="Error" inset="2" id="4ky-5o-oOc">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -582,11 +582,11 @@ DQ
                         <binding destination="-2" name="hidden" keyPath="self.assetListViewController.document.requestController.busy" id="eb6-kW-Rwn"/>
                     </connections>
                 </button>
-                <box identifier="Background Box" autoresizesSubviews="NO" misplaced="YES" title="Box" boxType="custom" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="dA1-Fi-7eR" userLabel="Background Box">
-                    <rect key="frame" x="20" y="0.0" width="359" height="96"/>
+                <box identifier="Background Box" autoresizesSubviews="NO" title="Box" boxType="custom" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="dA1-Fi-7eR" userLabel="Background Box">
+                    <rect key="frame" x="20" y="0.0" width="360" height="96"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="357" height="94"/>
+                        <rect key="frame" x="1" y="1" width="358" height="94"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView translatesAutoresizingMaskIntoConstraints="NO" id="ttk-1g-WJe">
@@ -647,8 +647,8 @@ DQ
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="l7Q-wL-eUf">
-                                <rect key="frame" x="77" y="50" width="265" height="19"/>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="l7Q-wL-eUf">
+                                <rect key="frame" x="77" y="50" width="266" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="squareTextured" title="Open Website in Browser" bezelStyle="texturedSquare" image="NSNetwork" imagePosition="left" alignment="center" controlSize="small" borderStyle="border" imageScaling="proportionallyDown" sound="Connect" inset="2" id="H4s-4E-EHB">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>

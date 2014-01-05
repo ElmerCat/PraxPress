@@ -239,10 +239,10 @@
 }
 
 - (void)showWidgetViewPopover {
-    NSPoint mousePoint = [self.document.templatesPanel mouseLocationOutsideOfEventStream];
+    NSPoint mousePoint = [self.document.templateController.panel mouseLocationOutsideOfEventStream];
     NSRect rect = NSMakeRect((mousePoint.x - 15), (mousePoint.y - 5), 1, 1);
     [self resizePopover];
-    [self.popover showRelativeToRect:rect ofView:self.document.templatesPanel.contentView preferredEdge:NSMinYEdge];
+    [self.popover showRelativeToRect:rect ofView:self.document.templateController.panel.contentView preferredEdge:NSMinYEdge];
 }
 
 - (void)popoverWillClose:(NSNotification *)notification {

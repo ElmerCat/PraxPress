@@ -75,7 +75,7 @@
     
     [self.managedObjectContext processPendingChanges];
     [[self.managedObjectContext undoManager] enableUndoRegistration];
-    [self saveDocument:self];
+//    [self saveDocument:self];
     
     return self;
 }
@@ -168,6 +168,7 @@
     [panel beginSheetModalForWindow:self.windowForSheet completionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             self.exportCodeDirectory = panel.URL;
+            _exportCodeDirectory = nil;
         }
     }];
 }
@@ -177,7 +178,7 @@
 //    self.exportCodeDirectory = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.sourceController windowWillClose:notification];
-    [self.templatesPanel performClose:self];
+    [self.templateController.panel performClose:self];
     //  [self.tagController windowWillClose:notification];
 }
 
@@ -246,7 +247,9 @@
 }
 
 - (NSPrintOperation *)printOperationWithSettings:(NSDictionary *)printSettings error:(NSError **)outError {
-    *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSServiceMiscellaneousError userInfo:@{NSLocalizedFailureReasonErrorKey:@"\n\nI'm sorry, but that feature is Not In Service at this time."}];
+    if (outError) {
+        *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSServiceMiscellaneousError userInfo:@{NSLocalizedFailureReasonErrorKey:@"\n\nI'm sorry, but that feature is Not In Service at this time."}];
+    }
     return nil;
 }
 

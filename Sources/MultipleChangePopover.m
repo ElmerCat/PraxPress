@@ -101,7 +101,7 @@
         if (self.addTags) {
             [tags unionSet:self.tagsToAdd];
         }
-        asset.tags = tags;
+        asset.tags = tags.copy;
     }
     [[NSSound soundNamed:@"Connect"] play];
     [self.popover performClose:sender];

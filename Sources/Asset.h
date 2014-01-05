@@ -23,10 +23,7 @@
 
 typedef NSUInteger PRAXReloadOption;
 
-
-
 @property BOOL awake;
-
 
 @property (readonly) BOOL isSoundCloudAsset;
 @property (readonly) BOOL isTrack;
@@ -34,6 +31,7 @@ typedef NSUInteger PRAXReloadOption;
 @property (readonly) BOOL isWordPressAsset;
 @property (readonly) BOOL isPage;
 @property (readonly) BOOL isPost;
+@property (readonly) BOOL isInSync;
 
 +(NSDictionary *)assetKeyLabels;
 +(NSArray *)assetKeysWithStringAttributeType;
@@ -47,13 +45,8 @@ typedef NSUInteger PRAXReloadOption;
 
 -(NXOAuth2Request *)requestForUploadController:(RequestController *)controller;
 -(NXOAuth2Request *)requestForReloadController:(RequestController *)controller;
--(BOOL)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller;
--(BOOL)loadAssetData:(NSDictionary *)data forController:(RequestController *)controller;
-
--(void)loadWordPressPostData:(NSDictionary *)data;
--(NSImage *)loadSoundCloudItemData:(NSDictionary *)data;
--(void)loadPlaylistsAsset:(Asset *)asset data:(NSDictionary *)data;
-
+-(void)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller;
+-(void)loadAssetData:(NSDictionary *)data forController:(RequestController *)controller;
 
 @property (nonatomic, retain) NSString * artwork_url;
 @property (nonatomic, retain) NSNumber * asset_id;
@@ -104,9 +97,6 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) id oauthAccount;
 @property (nonatomic, retain) Source *source;
 
-@property (nonatomic, retain) Asset *serviceAccount;
-@property (nonatomic, retain) NSSet *serviceAccounts;
-
 @property (nonatomic, retain) NSOrderedSet *associatedItems;
 @property (nonatomic, retain) NSSet *batchSources;
 @property (nonatomic, retain) NSSet *categories;
@@ -116,18 +106,15 @@ typedef NSUInteger PRAXReloadOption;
 @property (nonatomic, retain) NSSet *tags;
 @property (nonatomic, retain) Account *account;
 
-
-
+@property (nonatomic, retain) NSSet *selectedSources;
 @end
-
-
 
 @interface Asset (CoreDataGeneratedAccessors)
 
-- (void)addServiceAccountsObject:(Asset *)value;
-- (void)removeServiceAccountsObject:(Asset *)value;
-- (void)addServiceAccounts:(NSSet *)values;
-- (void)removeServiceAccounts:(NSSet *)values;
+- (void)addSelectedSourcesObject:(Source *)value;
+- (void)removeSelectedSourcesObject:(Source *)value;
+- (void)addSelectedSources:(NSSet *)values;
+- (void)removeSelectedSources:(NSSet *)values;
 
 - (void)insertObject:(Asset *)value inAssociatedItemsAtIndex:(NSUInteger)idx;
 - (void)removeObjectFromAssociatedItemsAtIndex:(NSUInteger)idx;
@@ -139,6 +126,7 @@ typedef NSUInteger PRAXReloadOption;
 - (void)removeAssociatedItemsObject:(Asset *)value;
 - (void)addAssociatedItems:(NSOrderedSet *)values;
 - (void)removeAssociatedItems:(NSOrderedSet *)values;
+
 - (void)addBatchSourcesObject:(Source *)value;
 - (void)removeBatchSourcesObject:(Source *)value;
 - (void)addBatchSources:(NSSet *)values;

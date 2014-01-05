@@ -26,43 +26,36 @@
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
-    if (([[item title] isEqualToString:@"Show Source List"]) && (self.sourceController.sourceListVisible)) {
-        [item setHidden:YES];
-        return NO;
+    SEL action = [item action];
+
+    if (action == @selector(closeAssetListPane:)) {
+        return [self.sourceController validateMenuItem:item];
     }
-    else if (([[item title] isEqualToString:@"Hide Source List"]) && (!self.sourceController.sourceListVisible)) {
-        [item setHidden:YES];
-        return NO;
+    
+    else if (action == @selector(toggleSourceList:)) {
+        if (([[item title] isEqualToString:@"Show Source List"]) && (self.sourceController.sourceListVisible)) {
+            [item setHidden:YES];
+            return NO;
+        }
+        else if (([[item title] isEqualToString:@"Hide Source List"]) && (!self.sourceController.sourceListVisible)) {
+            [item setHidden:YES];
+            return NO;
+        }
+        else {
+            [item setHidden:NO];
+            return YES;
+        }
     }
-    [item setHidden:NO];
-    return YES;
+    else {
+        return [super validateMenuItem:item];
+    }
 }
 
 
 
-/*- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
-{
-    SEL theAction = [anItem action];
-    
-    if (theAction == @selector(toggleSourceList:)) {
-        if (([[item title] isEqualToString:@"Show Source List"]) && (self.sourceController.sourceListVisible)) return NO;
-        else if (([[item title] isEqualToString:@"Hide Source List"]) && (!self.sourceController.sourceListVisible)) return NO;
-        else return YES;
-    }
-    else {
-        if (theAction == @selector(paste:)) {
-            if ( ) {
-                      return YES;
-                  }
-            return NO;
-        }
-        else {
-            //
-        }
-    }
-    // Subclass of NSDocument, so invoke super's implementation
-    return [super validateUserInterfaceItem:anItem];
-}*/
+- (IBAction)closeAssetListPane:(id)sender {
+    [self.sourceController closeAssetListPane:sender];
+}
 
 - (IBAction)toggleTagsPanel:(id)sender {
     [self.tagController toggleTagsPanel:sender];
@@ -125,6 +118,31 @@
     }];
 */
 }
+
+
+/*- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
+ {
+ SEL theAction = [anItem action];
+ 
+ if (theAction == @selector(toggleSourceList:)) {
+ if (([[item title] isEqualToString:@"Show Source List"]) && (self.sourceController.sourceListVisible)) return NO;
+ else if (([[item title] isEqualToString:@"Hide Source List"]) && (!self.sourceController.sourceListVisible)) return NO;
+ else return YES;
+ }
+ else {
+ if (theAction == @selector(paste:)) {
+ if ( ) {
+ return YES;
+ }
+ return NO;
+ }
+ else {
+ //
+ }
+ }
+ // Subclass of NSDocument, so invoke super's implementation
+ return [super validateUserInterfaceItem:anItem];
+ }*/
 
 
 /*-(BOOL)validateToolbarItem:(NSToolbarItem *)toolbarItem {

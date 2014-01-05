@@ -31,7 +31,6 @@ typedef NSUInteger PRAXReloadOption;
 
 -(NXOAuth2Request *)requestForDownloadController:(RequestController *)controller;
 -(void)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller;
--(BOOL)handleQueueData:(NSDictionary *)queueData forController:(RequestController *)controller;
 
 -(void)loadWordPressAccountData:(NSDictionary *)data;
 -(void)loadWordPressSiteData:(NSDictionary *)data;

@@ -13,6 +13,9 @@
 		E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A817BAF2D2001E0ED3 /* playlist.png */; };
 		E61021AB17BAF2D2001E0ED3 /* track.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A917BAF2D2001E0ED3 /* track.png */; };
 		E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */; };
+		E6191B39187647AD0074F873 /* AssetListPanelImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6191B38187647AD0074F873 /* AssetListPanelImageView.m */; };
+		E6191B3B18764ECE0074F873 /* Transparent32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = E6191B3A18764ECE0074F873 /* Transparent32x32.png */; };
+		E6191B3E18779AB90074F873 /* PraxTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6191B3D18779AB90074F873 /* PraxTableView.m */; };
 		E6192A8D18590223001BACD4 /* Widget.m in Sources */ = {isa = PBXBuildFile; fileRef = E6192A8C18590223001BACD4 /* Widget.m */; };
 		E6192A9118595908001BACD4 /* WidgetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6192A8F18595908001BACD4 /* WidgetViewController.m */; };
 		E6192A9218595908001BACD4 /* WidgetViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E6192A9018595908001BACD4 /* WidgetViewController.xib */; };
@@ -87,8 +90,6 @@
 		E6EE3F2915C773D10025C04B /* Stop.wav in Resources */ = {isa = PBXBuildFile; fileRef = E6EE3F2515C773D10025C04B /* Stop.wav */; };
 		E6FA7CCE17A5B201005CA002 /* PraxCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FA7CCD17A5B201005CA002 /* PraxCategories.m */; };
 		E6FCFE0B186A52EA001E9483 /* CodePopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE0A186A52EA001E9483 /* CodePopover.m */; };
-		E6FCFE13186BBE00001E9483 /* AssetListViewController+KeyObservation.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE12186BBE00001E9483 /* AssetListViewController+KeyObservation.m */; };
-		E6FCFE17186BBF7C001E9483 /* AssetListViewController+Delegation.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE16186BBF7C001E9483 /* AssetListViewController+Delegation.m */; };
 		E6FCFE21186CA23F001E9483 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE20186CA23F001E9483 /* Account.m */; };
 		E6FCFE25186CA921001E9483 /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE22186CA921001E9483 /* Document.xcdatamodeld */; };
 		E6FCFE28186CAAD3001E9483 /* AccountController.m in Sources */ = {isa = PBXBuildFile; fileRef = E6FCFE27186CAAD3001E9483 /* AccountController.m */; };
@@ -132,6 +133,11 @@
 		E61021A817BAF2D2001E0ED3 /* playlist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist.png; sourceTree = "<group>"; };
 		E61021A917BAF2D2001E0ED3 /* track.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = track.png; sourceTree = "<group>"; };
 		E61021AC17BAF6F3001E0ED3 /* PlaylistFrame.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlaylistFrame.png; sourceTree = "<group>"; };
+		E6191B37187647AD0074F873 /* AssetListPanelImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetListPanelImageView.h; sourceTree = "<group>"; };
+		E6191B38187647AD0074F873 /* AssetListPanelImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetListPanelImageView.m; sourceTree = "<group>"; };
+		E6191B3A18764ECE0074F873 /* Transparent32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Transparent32x32.png; sourceTree = "<group>"; };
+		E6191B3C18779AB90074F873 /* PraxTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PraxTableView.h; sourceTree = "<group>"; };
+		E6191B3D18779AB90074F873 /* PraxTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxTableView.m; sourceTree = "<group>"; };
 		E6192A8B18590223001BACD4 /* Widget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Widget.h; sourceTree = "<group>"; };
 		E6192A8C18590223001BACD4 /* Widget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Widget.m; sourceTree = "<group>"; };
 		E6192A8E18595908001BACD4 /* WidgetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetViewController.h; sourceTree = "<group>"; };
@@ -243,10 +249,6 @@
 		E6FA7CCD17A5B201005CA002 /* PraxCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PraxCategories.m; sourceTree = "<group>"; };
 		E6FCFE09186A52EA001E9483 /* CodePopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodePopover.h; sourceTree = "<group>"; };
 		E6FCFE0A186A52EA001E9483 /* CodePopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CodePopover.m; sourceTree = "<group>"; };
-		E6FCFE11186BBE00001E9483 /* AssetListViewController+KeyObservation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AssetListViewController+KeyObservation.h"; sourceTree = "<group>"; };
-		E6FCFE12186BBE00001E9483 /* AssetListViewController+KeyObservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AssetListViewController+KeyObservation.m"; sourceTree = "<group>"; };
-		E6FCFE15186BBF7B001E9483 /* AssetListViewController+Delegation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AssetListViewController+Delegation.h"; sourceTree = "<group>"; };
-		E6FCFE16186BBF7C001E9483 /* AssetListViewController+Delegation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AssetListViewController+Delegation.m"; sourceTree = "<group>"; };
 		E6FCFE1F186CA23F001E9483 /* Account.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Account.h; sourceTree = "<group>"; };
 		E6FCFE20186CA23F001E9483 /* Account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Account.m; sourceTree = "<group>"; };
 		E6FCFE23186CA921001E9483 /* Document1. 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Document1. 3.xcdatamodel"; sourceTree = "<group>"; };
@@ -292,6 +294,8 @@
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				E6191B37187647AD0074F873 /* AssetListPanelImageView.h */,
+				E6191B38187647AD0074F873 /* AssetListPanelImageView.m */,
 				E6BFE3CB185F6EBC001806B7 /* BWTokenAttachmentCell.h */,
 				E6BFE3CC185F6EBC001806B7 /* BWTokenAttachmentCell.m */,
 				E6BFE3CD185F6EBC001806B7 /* BWTokenFieldCell.h */,
@@ -312,6 +316,8 @@
 				E68A34D818559898007D8D7B /* PraxTokenField.m */,
 				E66055D41870D52100787612 /* Prax.h */,
 				E66055D51870D52100787612 /* Prax.m */,
+				E6191B3C18779AB90074F873 /* PraxTableView.h */,
+				E6191B3D18779AB90074F873 /* PraxTableView.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -388,7 +394,8 @@
 			children = (
 				E6FCFE26186CAAD3001E9483 /* AccountController.h */,
 				E6FCFE27186CAAD3001E9483 /* AccountController.m */,
-				E6FCFE14186BBF11001E9483 /* AssetListViewController */,
+				E642A03917862FF6003FF23C /* AssetListViewController.h */,
+				E642A03A17862FF6003FF23C /* AssetListViewController.m */,
 				E642A02F178628CD003FF23C /* RequestController.h */,
 				E642A030178628CD003FF23C /* RequestController.m */,
 				E642A031178628CD003FF23C /* SourceController.h */,
@@ -481,6 +488,7 @@
 		E6F1562515E58EA80098EC32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				E6191B3A18764ECE0074F873 /* Transparent32x32.png */,
 				E6FCFE29186D073A001E9483 /* Clouds32x32.png */,
 				E6B1DCA8183D66C40089AA21 /* WordPress.png */,
 				E65F7D4C18380159005F9C9F /* tracks.png */,
@@ -520,19 +528,6 @@
 			path = Sources/Images;
 			sourceTree = "<group>";
 		};
-		E6FCFE14186BBF11001E9483 /* AssetListViewController */ = {
-			isa = PBXGroup;
-			children = (
-				E642A03917862FF6003FF23C /* AssetListViewController.h */,
-				E642A03A17862FF6003FF23C /* AssetListViewController.m */,
-				E6FCFE15186BBF7B001E9483 /* AssetListViewController+Delegation.h */,
-				E6FCFE16186BBF7C001E9483 /* AssetListViewController+Delegation.m */,
-				E6FCFE11186BBE00001E9483 /* AssetListViewController+KeyObservation.h */,
-				E6FCFE12186BBE00001E9483 /* AssetListViewController+KeyObservation.m */,
-			);
-			name = AssetListViewController;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -570,7 +565,7 @@
 								enabled = 1;
 							};
 							com.apple.iCloud = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
@@ -664,6 +659,7 @@
 				E6DECE9C16AD9F830076BDC4 /* toggleRight.png in Resources */,
 				E65F7D5318380159005F9C9F /* tracks.png in Resources */,
 				E65F7D5418380159005F9C9F /* playlists.png in Resources */,
+				E6191B3B18764ECE0074F873 /* Transparent32x32.png in Resources */,
 				E61021AA17BAF2D2001E0ED3 /* playlist.png in Resources */,
 				E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */,
 				E61021AD17BAF6F3001E0ED3 /* PlaylistFrame.png in Resources */,
@@ -686,8 +682,10 @@
 				E642A03317862F04003FF23C /* PraxPredicateEditorRowTemplate.m in Sources */,
 				E6BC79B115C4759800080762 /* Document.m in Sources */,
 				E6BC79F715C48FE300080762 /* SpecialProtocol.m in Sources */,
+				E6191B3E18779AB90074F873 /* PraxTableView.m in Sources */,
 				E6297BBC183E91DF00D58A16 /* SourceInfoPanel.m in Sources */,
 				E6FCFE21186CA23F001E9483 /* Account.m in Sources */,
+				E6191B39187647AD0074F873 /* AssetListPanelImageView.m in Sources */,
 				E642A04317862FF6003FF23C /* SourcePopovers.m in Sources */,
 				E6FCFE28186CAAD3001E9483 /* AccountController.m in Sources */,
 				E6EDDE2915E021FB0039BEFD /* PraxTextFieldFormatter.m in Sources */,
@@ -704,9 +702,7 @@
 				E6775E4816A4BF4C00CDA34B /* Template.m in Sources */,
 				E69270C118295AEA00E5B202 /* NSSplitView+DMAdditions.m in Sources */,
 				E6FCFE25186CA921001E9483 /* Document.xcdatamodeld in Sources */,
-				E6FCFE17186BBF7C001E9483 /* AssetListViewController+Delegation.m in Sources */,
 				E6BFE3D618613977001806B7 /* Interface.m in Sources */,
-				E6FCFE13186BBE00001E9483 /* AssetListViewController+KeyObservation.m in Sources */,
 				E656BEC718515445009254BE /* MultipleChangePopover.m in Sources */,
 				E6FCFE0B186A52EA001E9483 /* CodePopover.m in Sources */,
 				E642A03417862F13003FF23C /* SourceController.m in Sources */,
@@ -819,6 +815,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Sources/PraxPress.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -829,7 +826,7 @@
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -839,6 +836,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Sources/PraxPress.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -849,7 +847,7 @@
 				GCC_PREFIX_HEADER = "Sources/PraxPress-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/PraxPress-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "3DDAF264-0D56-4F97-A766-93BE06C0CB5A";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

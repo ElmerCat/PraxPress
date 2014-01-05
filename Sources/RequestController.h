@@ -22,9 +22,10 @@
 
 @interface RequestController : NSObject
 
-typedef NSUInteger PRAXReloadOption;
+@property BOOL awake;
 
-@property dispatch_queue_t responseHandlingQueue;
+typedef NSUInteger PRAXReloadOption;
+//@property dispatch_queue_t responseHandlingQueue;
 
 //@property NSOperationQueue *responseDataProcessingQueue;
 
@@ -43,7 +44,7 @@ typedef NSUInteger PRAXReloadOption;
 @property Account *pendingAccountToReload;
 @property PRAXReloadOption pendingOption;
 
-@property NSMutableArray *dataQueue;
+//@property NSMutableArray *dataQueue;
 
 @property BOOL stop;
 @property BOOL busy;
@@ -61,16 +62,13 @@ typedef NSUInteger PRAXReloadOption;
 
 @property (weak) IBOutlet Document *document;
 @property (weak) IBOutlet TagController *tagController;
+@property (strong) IBOutlet NSPanel *authorizationPanel;
 
-@property (unsafe_unretained) IBOutlet NSPanel *authorizationPanel;
 @property (weak) IBOutlet WebView *authorizationWebView;
 @property (weak) IBOutlet NSView *alertAccessoryView;
 
 - (IBAction)stop:(id)sender;
 
 - (void)reloadAccount:(Account *)account option:(PRAXReloadOption)option replace:(BOOL)replace;
-
-- (void)reloadChangedAssets;
-- (void)uploadChangedAssets;
 
 @end

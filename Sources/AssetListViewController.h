@@ -10,10 +10,13 @@
 #import "NSSplitView+DMAdditions.h"
 #import "AssetMetadataPopover.h"
 #import "MultipleChangePopover.h"
+
+@class Source;
 @class SourceInfoPanel;
 @class MultipleChangePopover;
 
-@interface AssetListViewController : NSViewController <NSTableViewDelegate>
+@interface AssetListViewController : NSViewController <NSTableViewDelegate, NSSplitViewDelegate, NSTokenFieldDelegate, NSPasteboardItemDataProvider>
+
 @property (weak) IBOutlet NSTableView *assetsTableView;
 @property BOOL awake;
 @property Document *document;
@@ -31,6 +34,8 @@
 @property NSAppleScript *appleScript;
 @property int playback_count, favoritings_count, download_count, comment_count, duration;
 
+@property (weak) IBOutlet NSButton *sourceButton;
+
 @property (weak) IBOutlet NSSearchField *searchField;
 @property (strong) IBOutlet NSArrayController *assetArrayController;
 @property (strong) IBOutlet NSArrayController *changedAssetArrayController;
@@ -43,6 +48,7 @@
 
 @property (weak) IBOutlet NSSplitView *splitView;
 @property (weak) IBOutlet NSLayoutConstraint *splitViewTopConstraint;
+@property (weak) IBOutlet NSLayoutConstraint *splitViewWidthConstraint;
 
 @property (weak) IBOutlet NSScrollView *assetListPane;
 @property (weak) IBOutlet NSView *detailViewPane;

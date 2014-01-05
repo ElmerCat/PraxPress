@@ -631,12 +631,16 @@
 - (NSImage *)transformedValue:(id)value {
     Source *source = (Source *)value;
     if ([source.name isEqualToString:@"All Items"]) return [[NSBundle mainBundle] imageForResource:@"PraxPress"];
-    if ([source.name isEqualToString:@"Tracks"]) return [[NSBundle mainBundle] imageForResource:@"tracks"];
-    if ([source.name isEqualToString:@"Playlists"]) return [[NSBundle mainBundle] imageForResource:@"playlists"];
-    if ([source.name isEqualToString:@"Posts"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
-    if ([source.name isEqualToString:@"Pages"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
-    else return [NSImage imageNamed:source.name];
-    return nil;
+    else if ([source.name isEqualToString:@"SoundCloud"]) return [[NSBundle mainBundle] imageForResource:@"SoundCloud"];
+    else if ([source.name isEqualToString:@"Tracks"]) return [[NSBundle mainBundle] imageForResource:@"tracks"];
+    else if ([source.name isEqualToString:@"Playlists"]) return [[NSBundle mainBundle] imageForResource:@"playlists"];
+    else if ([source.name isEqualToString:@"WordPress"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    else if ([source.name isEqualToString:@"Posts"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    else if ([source.name isEqualToString:@"Pages"]) return [[NSBundle mainBundle] imageForResource:@"WordPress"];
+    else if ([source.type isEqualToString:@"SearchSource"]) return [NSImage imageNamed:@"NSFolderSmart"];
+    else if ([source.type isEqualToString:@"FolderSource"]) return [NSImage imageNamed:@"NSFolder"];
+    else return [NSImage imageNamed:@"Clouds32x32"];
+
 }
 
 @end
@@ -752,7 +756,7 @@
     for (Tag *tag in tags) {
         [array addObject:tag];
     }
-    return array;
+    return array.copy;
 }
 - (id)reverseTransformedValue:(id)value {
     NSArray *array = (NSArray *)value;

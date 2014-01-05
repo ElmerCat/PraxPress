@@ -141,7 +141,7 @@
 
     if (![self.window isVisible]) {
         NSRect panelFrame = self.window.frame;
-        NSPoint origin = [self.assetListViewController.document.sourceController.documentWindow frame].origin;
+        NSPoint origin = [self.assetListViewController.document.documentWindow frame].origin;
         NSRect newFrame = [self.assetListViewController.popUpButton bounds];
         newFrame = [self.assetListViewController.popUpButton convertRect:newFrame toView:nil];
         origin.x += newFrame.origin.x;

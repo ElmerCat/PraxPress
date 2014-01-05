@@ -25,10 +25,15 @@
 - (IBAction)toggleTagsPanel:(id)sender;
 - (IBAction)deleteSelectedTags:(id)sender;
 - (IBAction)mergeSelectedTags:(id)sender;
+- (IBAction)capitalizeTags:(id)sender;
+- (IBAction)lowercaseTags:(id)sender;
+- (IBAction)uppercaseTags:(id)sender;
+
+@property NSIndexSet *mergeTagSelectionIndexes;
+@property (weak) IBOutlet NSView *tagMergeAccessoryView;
 
 @property (unsafe_unretained) IBOutlet NSPanel *tagsPanel;
 
 - (void)loadAssetTags:(Asset *)asset data:(NSDictionary *)data;
-+ (void)setAssetTagList:(Asset *)asset;
 
 @end

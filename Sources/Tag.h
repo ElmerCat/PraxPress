@@ -13,6 +13,10 @@
 @class Source;
 
 @interface Tag : NSManagedObject
+
++ (NSArray *)arrayFromTagString:(NSString *)string;
++ (NSString *)tagStringFromArray:(NSArray *)array;
+
 @property (nonatomic, retain) NSNumber * isWPCategory;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSString * slug;

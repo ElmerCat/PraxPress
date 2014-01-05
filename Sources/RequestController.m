@@ -16,18 +16,29 @@
     if (self) {
     NSLog(@"RequestController init");
         
-        self.dataQueue = @[].mutableCopy;
+ //       self.dataQueue = @[].mutableCopy;
         
-        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
-        
-        self.responseHandlingQueue = dispatch_queue_create("responseHandlingQueue", DISPATCH_QUEUE_CONCURRENT);
+//        self.responseHandlingQueue = dispatch_queue_create("responseHandlingQueue", DISPATCH_QUEUE_CONCURRENT);
         
         
  //       self.responseDataProcessingQueue = [[NSOperationQueue alloc] init];
+        
+    }
+
+    [self reset];
+    return self;
+}
+
+- (void)awakeFromNib {
+    if (!self.awake) {
+        self.awake = YES;
+        NSLog(@"RequestController awakeFromNib");
+        
+        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         [[NSNotificationCenter defaultCenter] addObserverForName:@"PraxDownloadResponseNotification" object:nil queue:nil usingBlock:^(NSNotification *aNotification){
             Asset *responseAsset = (Asset *)[aNotification object];
-
-            [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Processing %@", responseAsset.title]];
+            
+            self.statusText = [NSString stringWithFormat:@"Processing %@", responseAsset.title];
             //NSLog(@"RequestController PraxDownloadResponseNotification: %@", responseAsset.title);
             
             Asset *uploadAsset = nil;
@@ -51,16 +62,16 @@
             else if (downloadAsset) [self downloadAsset:downloadAsset];
             
         }];
-
+        
         
         [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreAccountsDidChangeNotification object:[NXOAuth2AccountStore sharedStore] queue:nil usingBlock:^(NSNotification *aNotification){
             NSLog(@"RequestController NXOAuth2AccountStoreAccountsDidChangeNotification");
-            // Update your UI
-            if (self.authorizationPanel.isVisible) {
-                [self.authorizationPanel close];
-            }
+            
             NXOAuth2Account *oauthAccount = [aNotification userInfo][NXOAuth2AccountStoreNewAccountUserInfoKey];
             if (oauthAccount) {
+                if (self.authorizationPanel.isVisible) {
+                    [self.authorizationPanel close];
+                }
                 if (self.pendingAssetToReload) {
                     [self downloadAsset:self.pendingAssetToReload];
                     self.pendingAssetToReload = nil;
@@ -69,9 +80,7 @@
                     [self reloadAccount:self.pendingAccountToReload option:self.pendingOption replace:self.replace];
                     self.pendingAccountToReload = nil;
                 }
-                
             }
-            
         }];
         
         [[NSNotificationCenter defaultCenter] addObserverForName:NXOAuth2AccountStoreDidFailToRequestAccessNotification object:[NXOAuth2AccountStore sharedStore] queue:nil usingBlock:^(NSNotification *aNotification){
@@ -95,33 +104,25 @@
                                             redirectURL:[NSURL URLWithString:@"special://elmercat.org/praxpress/redirect/"]
                                          forAccountType:@"SoundCloud"];
         
-
+        
         // YouTube developer key = "AI39si7b1wiC17l1KoIAB1maTGrjfVfeKEzm6yRElmdBiOlcj75NFktrwd4oBdY2CS1j54hVPmnWhY9KGj9NaBul3BL_nk_Vsg"
         
-/*        [[NXOAuth2AccountStore sharedStore] setClientID:@"PRAX1234"
-                                                 secret:@"prax4321"
-                                       authorizationURL:[NSURL URLWithString:@"https://accounts.google.com/o/oauth2/auth"]
-                                               tokenURL:[NSURL URLWithString:@"https://elmercat.org/oauth2/token1234"]
-                                            redirectURL:[NSURL URLWithString:@"praxpress://elmercat.org/redirect/youtube"]
-                                         forAccountType:@"YouTube"];
-        
-        [[NXOAuth2AccountStore sharedStore] setClientID:@"655714d0dd3e55f1c5e8437af00228f8"
-                                                 secret:@"9fc17d4240498d56"
-                                       authorizationURL:[NSURL URLWithString:@"http://flickr.com/services/auth/"]
-                                               tokenURL:[NSURL URLWithString:@"http://www.flickr.com/services/oauth/request_token"]
-                                            redirectURL:[NSURL URLWithString:@"praxpress://elmercat.org/redirect/flickr"]
-                                         forAccountType:@"Flickr"];
-  */
+        /*        [[NXOAuth2AccountStore sharedStore] setClientID:@"PRAX1234"
+         secret:@"prax4321"
+         authorizationURL:[NSURL URLWithString:@"https://accounts.google.com/o/oauth2/auth"]
+         tokenURL:[NSURL URLWithString:@"https://elmercat.org/oauth2/token1234"]
+         redirectURL:[NSURL URLWithString:@"praxpress://elmercat.org/redirect/youtube"]
+         forAccountType:@"YouTube"];
+         
+         [[NXOAuth2AccountStore sharedStore] setClientID:@"655714d0dd3e55f1c5e8437af00228f8"
+         secret:@"9fc17d4240498d56"
+         authorizationURL:[NSURL URLWithString:@"http://flickr.com/services/auth/"]
+         tokenURL:[NSURL URLWithString:@"http://www.flickr.com/services/oauth/request_token"]
+         redirectURL:[NSURL URLWithString:@"praxpress://elmercat.org/redirect/flickr"]
+         forAccountType:@"Flickr"];
+         */
         
     }
-
-    [self reset];
-    return self;
-}
-
-- (void)awakeFromNib {
-        NSLog(@"RequestController awakeFromNib");
-    
 }
 
 - (void)dealloc {
@@ -137,7 +138,10 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"self.statusText"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
             [self.updateControlsToolbarItem setLabel:self.statusText];
+        });
+        
     }
     else if ([keyPath isEqualToString:@"self.busy"]) {
         
@@ -180,7 +184,6 @@
     self.resource = nil;
     self.busy = NO;
     self.stop = NO;
-    [self.updateControlsToolbarItem setLabel:@""];
 }
 
 - (void)reloadAccount:(Account *)account option:(PRAXReloadOption)option replace:(BOOL)replace {
@@ -206,7 +209,7 @@
     NXOAuth2Request *request = [account requestForDownloadController:self];
     if (!request) return;
     self.busy = TRUE;
-    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Downloading %@ - %@", account.name, self.resource]];
+    self.statusText = [NSString stringWithFormat:@"Downloading %@ - %@", account.name, self.resource];
     
     [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
         NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
@@ -225,10 +228,14 @@
         [self reset];
         return;
     }
+    if ([asset isInSync]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
+        return;
+    }
     NXOAuth2Request *request = [asset requestForReloadController:self];
     if (!request) return;
     self.busy = TRUE;
-    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Downloading %@", asset.title]];
+    self.statusText = [NSString stringWithFormat:@"Downloading %@", asset.title];
     [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
         NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
     } responseHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
@@ -238,10 +245,7 @@
             [self reset];
         }
         //       dispatch_async(self.responseHandlingQueue, ^{
-        if (![asset handleReloadResponseData:data forController:self]) {
-            [Prax presentAlert:[NSString stringWithFormat:@"RequestController asset: %@\n handleReloadResponseData: %@ \nforController: %@", asset, data, self] forController:self];
-            [self reset];
-        }
+        [asset handleReloadResponseData:data forController:self];
         //       });
         [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDownloadResponseNotification" object:asset];
         
@@ -258,7 +262,7 @@
     if (!request) return;
     
     self.busy = TRUE;
-    [self.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Uploading %@", asset.title]];
+    self.statusText = [NSString stringWithFormat:@"Uploading %@", asset.title];
     [request performRequestWithSendingProgressHandler:^(unsigned long long sent, unsigned long long total) {
         NSLog(@"performRequestWithSendingProgressHandler sent=%llu total=%llu", sent, total);
         
@@ -350,7 +354,7 @@
 - (void)uploadAssetsForClient:(id)client {
     if (self.busy) return;
     
-    [self.document.praxPressWindow makeFirstResponder:nil];
+    [self.document.documentWindow makeFirstResponder:nil];
 
     if ([client isKindOfClass:[AssetListViewController class]]) {
         

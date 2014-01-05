@@ -57,9 +57,9 @@
 @dynamic username;
 @dynamic source;
 
+@dynamic selectedSources;
+
 @dynamic account;
-@dynamic serviceAccount;
-@dynamic serviceAccounts;
 @dynamic associatedItems;
 @dynamic batchSources;
 @dynamic categories;
@@ -397,33 +397,36 @@
 }
 
 - (NSArray *)protectedKeys {
-    return @[@"title",
-             @"purchase_url",
-             @"purchase_title",
+    return @[@"associatedItems",
+             @"contents",
+             @"genre",
              @"permalink",
              @"permalink_url",
-             @"genre",
-             @"contents",
+             @"purchase_url",
+             @"purchase_title",
              @"sharing",
-             @"sub_type"];
+             @"sub_type",
+             @"tags",
+             @"title"];
 }
 
 - (NSArray *)keyPathsToObserve {return @[@"self.edit_mode",
-                                         @"self.title",
-                                         @"self.purchase_title",
-                                         @"self.purchase_url",
-                                         @"self.permalink_url",
-                                         @"self.sub_type",
-                                         @"self.sharing",
+                                         @"self.sync_mode",
+                                         
+                                         @"self.associatedItems",
+                                         @"self.contents",
                                          @"self.genre",
                                          @"self.permalink",
-                                         @"self.tag_list",
-                                         @"self.trackList",
+                                         @"self.permalink_url",
+                                         @"self.purchase_url",
+                                         @"self.purchase_title",
+                                         @"self.sharing",
+                                         @"self.sub_type",
                                          @"self.tags",
+                                         @"self.title",
+                                         
                                          @"self.genreTags",
-                                         @"self.categories",
-                                         @"self.associatedItems",
-                                         @"self.contents"
+                                         @"self.categories"
                                          ];}
 
 
@@ -455,32 +458,16 @@
 
     if ([key isEqualToString:@"edit_mode"]) {
         
-  //      [[NSNotificationCenter defaultCenter] postNotificationName:@"BatchAssetChangedNotification" object:self];
+        //      [[NSNotificationCenter defaultCenter] postNotificationName:@"BatchAssetChangedNotification" object:self];
+    }
+    else if ([key isEqualToString:@"sync_mode"]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
     }
     
     else {
-        if ([key isEqualToString:@"associatedItems"]) {
-            if (![self.type isEqualToString:@"playlist"]) {
-                return;
-            }
+        if ([[self protectedKeys] containsObject:key]) {
+            [self isInSync];
         }
-        else if ([[self protectedKeys] containsObject:key]) {
-            if ([self isInSync]) {
-                if (self.sync_mode.boolValue) {
-                    self.sync_mode = @NO;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
-                }
-            }
-            else {
-                if (!self.sync_mode.boolValue) {
-                    self.sync_mode = @YES;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
-                }
-            }
-            return;
-        }
-        
-      //  [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
         
         if ([key isEqualToString:@"genreTags"]) {
             if (self.genreTags.count) {
@@ -490,6 +477,7 @@
             else self.genre = @"";
         }
         else if ([key isEqualToString:@"tags"]) {
+            
             [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetTagsChangedNotification" object:self];
         }
     }
@@ -636,8 +624,23 @@
     
 }
 
+-(NSString *)praxTrackList {
+    if (![self.type isEqualToString:@"playlist"]) return @"";
+    if (!self.associatedItems.count) return @"";
+    NSMutableString *trackList = @"".mutableCopy;
+    for (Asset *track in self.associatedItems) {
+        if (trackList.length > 0) [trackList appendString:@","];
+        [trackList appendString:[track.asset_id stringValue]];
+    }
+    return trackList;
+}
 
--(BOOL)loadAssetData:(NSDictionary *)data forController:(RequestController *)controller {
+-(void)resetTrackList {
+    if (![self.type isEqualToString:@"playlist"]) return;
+    self.trackList = [self praxTrackList];
+}
+
+-(void)loadAssetData:(NSDictionary *)data forController:(RequestController *)controller {
     [self setValue:data forKey:@"metadata"];
     
     if (self.isSoundCloudAsset) {
@@ -671,11 +674,8 @@
             NSArray *subItems;
             self.associatedItems = nil;
             subItems = data[@"tracks"];
-            NSMutableString *trackList = [[NSMutableString alloc] init];
             for (NSDictionary *subItem in subItems) {
                 NSLog(@"subItem asset_id: %@", subItem[@"id"]);
-                if (trackList.length > 0) [trackList appendString:@","];
-                [trackList appendString:[subItem[@"id"] stringValue]];
                 subAsset = [NSManagedObject entity:@"Asset" withKey:@"asset_id" matchingStringValue:subItem[@"id"] inManagedObjectContext:self.managedObjectContext];
                 if (!subAsset) {
                     NSLog(@"Error: - No matching Asset - subItem asset_id: %@", subItem[@"id"]);
@@ -684,7 +684,7 @@
                     [self addAssociatedItemsObject:subAsset];
                 }
             }
-            self.trackList = trackList.description;
+            [self resetTrackList];
         }
         
     }
@@ -701,21 +701,32 @@
             NSURL *url = [NSURL URLWithString:self.artwork_url];
             NSImage *image = [[NSImage alloc] initWithContentsOfURL:url];
             self.image = [NSArchiver archivedDataWithRootObject:image];
+            
+            Asset *imageAsset = [NSManagedObject entity:@"Asset" withKey:@"uri" matchingStringValue:self.artwork_url inManagedObjectContext:self.managedObjectContext];
+            if (!imageAsset) {
+                imageAsset = [NSEntityDescription insertNewObjectForEntityForName:@"Asset" inManagedObjectContext:controller.document.managedObjectContext];
+                imageAsset.uri = self.artwork_url;
+                for (NSString *key in @[@"account", @"accountType", @"genre", @"tags", @"purchase_url", @"purchase_title"]) {
+                    [imageAsset setValue:[self valueForKey:key] forKey:key];
+                }
+                [imageAsset addAssociatedItemsObject:self];
+                imageAsset.type = @"image";
+                imageAsset.title = [NSString stringWithFormat:@"Image for %@", self.title];
+                
+            }
+
         }
         
     }
-    else return NO; // invalid option
+    else return; // invalid option
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [controller.updateControlsToolbarItem setLabel:[NSString stringWithFormat:@"Processing %@ - %@", self.account.name, self.title]];
-    });
-    
+    controller.statusText = [NSString stringWithFormat:@"Processing %@ - %@", self.account.name, self.title];
     
     [controller.document.tagController loadAssetTags:self data:data];
 //    self.sync_mode = [NSNumber numberWithBool:FALSE];
     [controller.document.changedAssetsController fetch:self];
     
-    if (controller.reloadAll) {
+/*    if (controller.reloadAll) {
         controller.updateCount += 1;
         dispatch_async(dispatch_get_main_queue(), ^{
             [controller reloadChangedAssets];
@@ -732,33 +743,65 @@
   //  }
     //    }
     if (controller.replace) self.sync_mode = @NO;
-    return YES;
-    
+    return YES; */
+
 }
 
 
--(BOOL)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller {
+-(void)handleReloadResponseData:(NSData *)responseData forController:(RequestController *)controller {
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:0];
-    if (!data) return NO;
+    if (!data) return;
     //    NSLog(@"data: %@", data);
-    return [self loadAssetData:data forController:controller];
+    [self loadAssetData:data forController:controller];
 }
-
+-(NSArray *)keysOutOfSync {
+    NSMutableArray *keys = @[].mutableCopy;
+    for (NSString *key in [self protectedKeys]) {
+        if (![self isInSyncForKey:key]) [keys addObject:key];
+    }
+    return keys;
+}
 
 -(BOOL)isInSync {
     for (NSString *key in [self protectedKeys]) {
-        if (![self isInSyncForKey:key]) return NO;
+        if (![self isInSyncForKey:key]) {
+            if (!self.sync_mode.boolValue) {
+                self.sync_mode = @YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
+            }
+            return NO;
+        }
     }
-    return YES;
+    if (self.sync_mode.boolValue) {
+        self.sync_mode = @NO;
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
+    }return YES;
 }
+
 -(BOOL)isInSyncForKey:(NSString *)key {
-    NSString *value = [self valueForKey:key];
-    NSString *metaValue = self.metadata[[self metadataKeyForKey:key]];
-    if (metaValue == value) return YES;
-    if (([metaValue respondsToSelector:@selector(length)]) &&([value respondsToSelector:@selector(length)])) {
-        return [value isEqualToString:metaValue];
+    
+    if ([key isEqualToString:@"associatedItems"]) {
+        if (![self.type isEqualToString:@"playlist"]) return YES;
+        return [self.trackList isEqualToString:[self praxTrackList]];
     }
-    else return NO;
+    
+    else if ([key isEqualToString:@"tags"]) {
+        if ((!self.tag_list.length) && (!self.tags.count)) return YES;
+        NSMutableSet *tags = [NSMutableSet setWithCapacity:1];
+        for (Tag *tag in self.tags) [tags addObject:tag.name];
+        NSSet *tagList = [[NSSet alloc] initWithArray:[self.tag_list componentsSeparatedByString:@","]];
+        return [tagList isEqualToSet:tags];
+    }
+    
+    id value = [self valueForKey:key];
+    id metaValue = self.metadata[[self metadataKeyForKey:key]];
+    if (value == metaValue) return YES;
+    if ([[self numericKeys] containsObject:key]) {
+        if (metaValue == [NSNull null]) metaValue = 0;
+        return (!(value == metaValue));
+    }
+    if (metaValue == [NSNull null]) metaValue = @"";
+    return [value isEqualToString:metaValue];
 }
 
 
@@ -766,6 +809,12 @@
     
     for (NSString *key in keys) {
         if ([self isInSyncForKey:key]) continue;
+        
+        id newValue = self.metadata[keys[key]];
+        if (newValue == [NSNull null]) {
+            if ([[self numericKeys] containsObject:key]) newValue = @"0";
+            else newValue = @"";
+        }
         
         if ([[self protectedKeys] containsObject:key]) {
             if ((!controller.replace) && (controller.skipAll)) {
@@ -775,7 +824,7 @@
             if (!controller.replace) {
                 NSInteger __block result;
  //               dispatch_sync(dispatch_get_main_queue(), ^{
-                    NSAlert *alert = [NSAlert alertWithMessageText:[NSString stringWithFormat:@"%@\n\nUpdate this Item with value from %@ Server?\n\nChange Value for %@", self.title, self.account.name, key] defaultButton:@"Skip this Item" alternateButton:[NSString stringWithFormat:@"Change to Value from %@",self.account.name] otherButton:@"Stop Downloading" informativeTextWithFormat:@"Old Value: %@\nNew Value: %@", [self valueForKey:key], self.metadata[keys[key]]];
+                    NSAlert *alert = [NSAlert alertWithMessageText:[NSString stringWithFormat:@"%@\n\nUpdate this Item with value from %@ Server?\n\nChange Value for %@", self.title, self.account.name, key] defaultButton:@"Skip this Item" alternateButton:[NSString stringWithFormat:@"Change to Value from %@",self.account.name] otherButton:@"Stop Downloading" informativeTextWithFormat:@"Old Value: %@\nNew Value: %@", [self valueForKey:key], newValue];
                     [alert setAccessoryView:controller.alertAccessoryView];
                     result = [alert runModal];
  //               });
@@ -794,12 +843,7 @@
 
             }
         }
-        if ((!self.metadata[keys[key]]) || (self.metadata[keys[key]] == [NSNull null])) {
-            if ([[self numericKeys] containsObject:key])[self setValue:0 forKey:key];
-            else [self setValue:@"" forKey:key];
-        }
-        else [self setValue:self.metadata[keys[key]] forKey:key];
-//        if ([[self protectedKeys] containsObject:key]) self.sync_mode = @NO;
+        [self setValue:newValue forKey:key];
     }
 }
 

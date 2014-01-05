@@ -19,8 +19,8 @@ static NSGradient *blueGradient, *blueStrokeGradient, *blueInsetGradient, *highl
 static NSShadow *textShadow;
 static NSColor *highlightedArrowColor;
 
-static float arrowWidth = 7.0;
-static float arrowHeight = 6.0;
+//static float arrowWidth = 7.0;
+//static float arrowHeight = 6.0;
 
 @interface NSTokenAttachmentCell (BWTACPrivate)
 - (NSDictionary *)_textAttributes;

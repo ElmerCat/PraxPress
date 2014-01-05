@@ -10,6 +10,8 @@
 
 @implementation Source
 
+@synthesize controller;
+
 @dynamic interface;
 
 @dynamic iconName;
@@ -25,6 +27,13 @@
 @dynamic fetchPredicate;
 @dynamic filterString;
 @dynamic filterKey;
+@dynamic selectionIndexes;
+@dynamic sortDescriptors;
+
+@dynamic interfaceSelection;
+@dynamic interfaceSource;
+@dynamic selectedAssets;
+
 @dynamic serviceAccount;
 @dynamic batchAssets;
 @dynamic template;
