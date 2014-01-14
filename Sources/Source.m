@@ -25,8 +25,17 @@
 @dynamic exportURL;
 
 @dynamic fetchPredicate;
+
 @dynamic filterString;
-@dynamic filterKey;
+@dynamic filterKeyIndex;
+@dynamic filterOptionIndex;
+@dynamic filterCaseSensitive;
+@dynamic filterNegate;
+
+@dynamic excludedTags;
+@dynamic requiredTags;
+@dynamic requireAllTags;
+
 @dynamic selectionIndexes;
 @dynamic sortDescriptors;
 
@@ -37,9 +46,6 @@
 @dynamic serviceAccount;
 @dynamic batchAssets;
 @dynamic template;
-@dynamic excludedTags;
-@dynamic requiredTags;
-@dynamic requireAllTags;
 @dynamic itemCount;
 @dynamic type;
 @dynamic account;

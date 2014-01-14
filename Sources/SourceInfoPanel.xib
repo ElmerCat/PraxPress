@@ -192,7 +192,7 @@
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                     <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Jwy-U4-lJp">
-                                                        <rect key="frame" x="218" y="1" width="15" height="283"/>
+                                                        <rect key="frame" x="217" y="1" width="16" height="283"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                 </scrollView>
@@ -272,7 +272,7 @@
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                     <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Omg-uS-cVM">
-                                                        <rect key="frame" x="180" y="1" width="15" height="283"/>
+                                                        <rect key="frame" x="179" y="1" width="16" height="283"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                     </scroller>
                                                 </scrollView>
@@ -567,10 +567,10 @@ DQ
                         </binding>
                         <binding destination="0cr-xM-JQS" name="hidden2" keyPath="selection.account.oauthAccount" previousBinding="eb6-kW-Rwn" id="u3K-ob-M79">
                             <dictionary key="options">
-                                <integer key="NSNullPlaceholder" value="-1"/>
+                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                <integer key="NSNullPlaceholder" value="-1"/>
                                 <string key="NSValueTransformerName">NSIsNil</string>
                             </dictionary>
                         </binding>

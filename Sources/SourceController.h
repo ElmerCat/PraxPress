@@ -8,6 +8,7 @@
 
 #import "Document.h"
 #import "Source.h"
+#import "AssetListView.h"
 #import "AssetListViewController.h"
 //#import "AssetListView.h"
 #import "SourcePopovers.h"
@@ -21,24 +22,20 @@
 @property BOOL awake;
 @property BOOL interfaceLoaded;
 @property (weak) IBOutlet Document *document;
-//@property (weak) IBOutlet NSToolbar *documentToolbar;
 @property (weak) IBOutlet NSTreeController *sourceTreeController;
 @property (weak) IBOutlet NSView *scrolledDocumentView;
 
 
-//@property Source *selectedSource;
 @property Source *allItemsSource;
 @property Source *changedItemsSource;
 
 @property (weak) IBOutlet NSSplitView *sourceSplitView;
 @property (weak) IBOutlet NSView *sourceListSubView;
-//@property NSMutableArray *assetListViewControllers;
 @property NSInteger allItemsCount;
 @property BOOL hasMoreThanOneTab;
 @property (readonly) BOOL sourceListVisible;
 @property (weak) IBOutlet NSPopover *sourcePopover;
 @property (unsafe_unretained) IBOutlet SourcePopovers *sourcePopovers;
-//@property NSMapTable *sourceListCellControllers;
 @property (weak) IBOutlet NSOutlineView *sourceListOutlineView;
 @property (weak) IBOutlet NSView *sourceNameAccessoryView;
 @property NSString *sourceName;
@@ -66,18 +63,14 @@
 - (void)doubleClickedSource;
 - (IBAction)closeAssetListPane:(id)sender;
 
-@property NSMutableArray *sources;
 @property Source *previousSource;
-//@property NSMutableArray *previousSources;
-@property NSMutableArray *panes;
 
-- (void)moveSource:(Source *)source fromController:(AssetListViewController *)fromController toController:(AssetListViewController *)toController;
+- (void)movePane:(AssetListView *)pane toPane:(AssetListView *)toPane;
+
 - (void)removeAssets:(NSArray *)assets fromSource:(Source *)source;
 - (void)addBatchSource:(AssetListViewController *)controller withAssets:(NSArray *)assets;
 - (void)addSearchSource:(AssetListViewController *)controller withSource:(Source *)source;
-- (void)addAssetListPane:(AssetListViewController *)controller withSource:(Source *)source;
 - (void)showAssociatedItems:(AssetListViewController *)controller;
-- (void)selectAssetListPane:(AssetListViewController *)controller;
 
 @end
 

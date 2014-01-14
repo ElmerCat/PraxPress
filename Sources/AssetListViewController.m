@@ -12,8 +12,6 @@
 
 #pragma mark - Initialization
 
-- (NSArray *)keyPathsToObserve {return @[@"self.changedAssetArrayController.arrangedObjects", @"self.assetArrayController.sortDescriptors", @"self.assetArrayController.selectionIndexes", @"self.associatedController.assetArrayController.selectionIndexes", @"self.isSelectedPane", @"self.source", @"self.source.batchAssets", @"self.source.fetchPredicate", @"self.source.requiredTags", @"self.document.interface.selectedSource", @"self.source.requireAllTags", @"self.source.itemCount", @"self.source.excludedTags", @"self.source.template", @"self.source.template.formatText", @"self.showDetailView", @"self.showCodeView", @"self.showSafariView", @"self.exportCode", @"self.formattedCode"];}
-
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -53,8 +51,46 @@
         self.awake = TRUE;
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidChangeNotification object:self.requiredTagsTokenField queue:nil usingBlock:^(NSNotification *aNotification){
+            
+        }];
+        
+        
         [self.assetsTableView registerForDraggedTypes:[NSArray arrayWithObjects:@"org.ElmerCat.PraxPress.Asset", nil]];
         self.showDetailView = NO;
+        self.showTemplateView = NO;
+        self.showFilterTags = NO;
+      //  self.filterKeyIndex = 101;
+      //  self.filterKeyOption = 201;
+        [self initializeFilterMenu];
+        
+        NSMutableArray *rowTemplates = [@[[[PraxPredicateEditorRowTemplate alloc] initWithCompoundTypes:@[@2, @1, @0]]] mutableCopy];
+        
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"accountType"]]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"type"]]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithStringAttributeType] forAttributeType:NSStringAttributeType]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"sharing"]]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateForMultipleChoiceAttributeWithKeys:@[@"track_type"]]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithDateAttributeType] forAttributeType:NSDateAttributeType]];
+        [rowTemplates addObject:[Asset predicateEditorRowTemplateWithKeys:[Asset assetKeysWithNumberAttributeType] forAttributeType:NSInteger64AttributeType]];
+        
+        self.predicateEditor.rowTemplates = rowTemplates;
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSRuleEditorRowsDidChangeNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *aNotification){
+                                                          
+                                                          NSLog(@"AssetListViewController NSRuleEditorRowsDidChangeNotification");
+                                                          
+                                                          [self resizePredicateBox];
+                                                          
+                                                      }];
+
+        
+        [self.requiredTagsTokenField setDelegate:self.document.tagController];
+        [self.excludedTagsTokenField setDelegate:self.document.tagController];
+        
 //        CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:0];
  //       [self.splitView setPosition:newPosition ofDividerAtIndex:0 animated:NO];
     }
@@ -63,12 +99,69 @@
 
 #pragma mark ------
 
+-(CGFloat)closedSourceBoxHeight {return 22;}
+
+-(void)prepareViewForSource {
+    self.renameSource = NO;
+    if ([@"SearchSource" isEqualToString:self.source.type]) {
+        self.editSearch = NO;
+    }
+    else {
+        [self.predicateBoxHeight setConstant:0];
+    }
+    if ([@"BatchSource" isEqualToString:self.source.type]) {
+        self.batchSubtract = NO;
+        [self.batchBoxHeight setConstant:self.closedSourceBoxHeight];
+    }
+    else {
+        [self.batchBoxHeight setConstant:0];
+    }
+    if ([@"AssetSource" isEqualToString:self.source.type]) {
+        [self.accountBoxHeight setConstant:self.closedSourceBoxHeight];
+    }
+    else {
+        [self.accountBoxHeight setConstant:0];
+    }
+    
+    
+    
+}
+
+-(void)resizePredicateBox {
+    if (![@"SearchSource" isEqualToString:self.source.type]) [self.predicateBoxHeight setConstant:0];
+    else if (self.editSearch) {
+        NSInteger rowCount = self.predicateEditor.numberOfRows;
+        if (rowCount < 2) rowCount = 2;
+        CGFloat constant = (rowCount * self.predicateEditor.rowHeight);
+        constant += 24;
+        [self.predicateBoxHeight setConstant:constant];
+    }
+    else  [self.predicateBoxHeight setConstant:self.closedSourceBoxHeight];
+}
+
++ (NSSet *)keyPathsForValuesAffectingDisplayString {return [NSSet setWithArray:@[@"self.source.requiredTags", @"self.source.excludedTags"]]; }
+
+- (void)filterAssets {
+    
+    if ((!self.source.filterString) || (!self.source.filterString.length)) {
+        [self.assetArrayController setFilterPredicate:nil];
+        [[self.searchField cell] setPlaceholderString:self.filterPlaceholderString];
+    }
+    else {
+        NSString *string = [NSString stringWithFormat:@"%@ %@%@ \"%@\"", self.filterKey, self.filterOption, self.caseOption, self.source.filterString];
+        if (self.source.filterNegate) string = [NSString stringWithFormat:@"NOT (%@)", string];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:string];
+        [self.assetArrayController setFilterPredicate:predicate];
+    }
+}
+
 - (void)tagFilterAssets {
+    self.anySourceTags = ((self.source.excludedTags.count > 0) || (self.source.requiredTags.count > 0)) ? YES : NO;
+    self.showFilterTags = self.anySourceTags;
     NSMutableSet *excludedAssets = [NSMutableSet setWithCapacity:1];
     NSMutableSet *requiredAssets = [NSMutableSet setWithCapacity:1];
     NSMutableOrderedSet *tagFilteredAssets  = self.assets.mutableCopy;
     if (self.source.requiredTags.count > 0) {
-        
         if (self.source.requireAllTags.boolValue) {
             BOOL multiple = NO;
             for (Tag *tag in self.source.requiredTags) {
@@ -131,11 +224,6 @@
             asset.associatedItems = associatedItems;
         }
     }
-}
-
-- (void)filterPane {
-    [self.searchField selectText:self];
-    
 }
 
 - (void)updateFormattedCode:sender {
@@ -225,8 +313,22 @@
 
 
 - (IBAction)selectAssetListPane:(id)sender {
-    [self.document.sourceController selectAssetListPane:self];
-    //    self.isSelectedPane = YES;
+    
+    if (!self.isSelectedPane) {
+        [self.document.sourceController toggleSourceList:self];
+        self.isSelectedPane = YES;
+    }
+    else {
+        for (NSInteger index = 1; (index < self.document.sourceController.sourceSplitView.subviews.count); index++) {
+            AssetListView *view = self.document.sourceController.sourceSplitView.subviews[index];
+            if ((self != view.controller) && (view.controller.isSelectedPane)) view.controller.isSelectedPane = NO;
+        }
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self.document.sourceController.sourceTreeController setSelectionIndexPath:[self.document.sourceController.sourceTreeController indexPathOfObject:self.source]];
+        });
+
+    }
 }
 
 - (IBAction)updateFilter:sender {
@@ -284,48 +386,171 @@
     }
 }
 
+- (IBAction)clearFilterTags:(id)sender {
+    self.source.requiredTags = [NSSet setWithArray:@[]];
+    self.source.excludedTags = [NSSet setWithArray:@[]];
+    self.source.requireAllTags = 0;
+}
+
+- (IBAction)showTags:(id)sender {
+    if (self.document.tagController.tagsPanel.isVisible) [self.document.tagController.tagsPanel orderOut:sender];
+    else {
+        [self.document.tagController.tagsPanel makeKeyAndOrderFront:sender];
+        if (!self.showFilterTags) self.showFilterTags = YES;
+    }
+}
+
 - (IBAction)templatesButtonPressed:(id)sender {
     self.document.templateController.assetListView = self;
     [self.document.templateController.panel makeKeyAndOrderFront:self];
 }
 
+
+
+- (IBAction)newSearchRule:(id)sender {
+    
+    if (self.predicateEditor.numberOfRows < 1) [self newCompoundRule:sender];
+    else {
+        [self.predicateEditor insertRowAtIndex:self.predicateEditor.numberOfRows withType:NSRuleEditorRowTypeSimple asSubrowOfRow:[self.predicateEditor parentRowForRow:(self.predicateEditor.numberOfRows - 1)] animate:YES];
+    }
+}
+
+- (IBAction)newCompoundRule:(id)sender {
+    [self.predicateEditor insertRowAtIndex:self.predicateEditor.numberOfRows withType:NSRuleEditorRowTypeCompound asSubrowOfRow:-1 animate:YES];
+    [self.predicateEditor insertRowAtIndex:self.predicateEditor.numberOfRows withType:NSRuleEditorRowTypeSimple asSubrowOfRow:(self.predicateEditor.numberOfRows - 1) animate:YES];
+}
+
+
 #pragma mark - KeyValueObservation
+
+- (NSArray *)keyPathsToObserve {return @[@"self.source",
+                                         @"self.source.itemCount",
+                                         @"self.source.batchAssets",
+                                         @"self.source.fetchPredicate",
+                                         @"self.source.filterString",
+                                         @"self.source.filterKeyIndex",
+                                         @"self.source.filterOptionIndex",
+                                         @"self.source.filterCaseSensitive",
+                                         @"self.source.filterNegate",
+                                         
+                                         @"self.document.interface.selectedSource",
+                                       //  @"self.isSelectedPane",
+                                         @"self.associatedController.source",
+                                         
+                                         @"self.changedAssetArrayController.arrangedObjects",
+                                         @"self.assetArrayController.sortDescriptors",
+                                         @"self.assetArrayController.selectionIndexes",
+                                         @"self.associatedController.assetArrayController.selectionIndexes",
+                                         @"self.source.requiredTags",
+                                         @"self.source.requireAllTags",
+                                         @"self.source.excludedTags",
+                                         @"self.source.template",
+                                         @"self.source.template.formatText",
+                                         @"self.editSearch",
+                                         @"self.showFilterTags",
+                                         @"self.showTemplateView",
+                                         @"self.showDetailView",
+                                         @"self.showCodeView",
+                                         @"self.showSafariView",
+                                         @"self.exportCode",
+                                         @"self.formattedCode"];}
+
+
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     NSLog(@"AssetListViewController observeValueForKeyPath: %@", keyPath);
     
+    if ([@[@"self.source", @"self.source.itemCount", @"self.source.batchAssets", @"self.source.fetchPredicate"] containsObject:keyPath]) {
+        
+        if (!self.isAssociatedPane) {
+            [self reloadAssets];
+            if ([@"self.source" isEqualToString:keyPath]) {
+                
+                [self prepareViewForSource];
+                if (self.associatedController) self.associatedController.source = self.source;
+
+                self.exportCodeURL = nil;
+                self.appleScript = nil;
+                
+                if (self.source == self.document.interface.selectedSource) self.isSelectedPane = YES;
+                else self.isSelectedPane = NO;
+                
+                
+            }
+        }
+    }
+
+    else if ([@"self.document.interface.selectedSource" isEqualToString:keyPath]) {
+        if (self.isSelectedPane) {
+            for (NSInteger index = 1; (index < self.document.sourceController.sourceSplitView.subviews.count); index++) {
+                AssetListView *view = self.document.sourceController.sourceSplitView.subviews[index];
+                if ((self != view.controller) && (view.controller.source == self.document.interface.selectedSource)) {
+                    self.isSelectedPane = NO;
+                    return;
+                }
+            }
+            self.source = self.document.interface.selectedSource;
+        }
+        else if (self.source == self.document.interface.selectedSource) self.isSelectedPane = YES;
+        else self.isSelectedPane = NO;
+    }
     
-    if ([keyPath isEqualToString:@"self.changedAssetArrayController.arrangedObjects"]) {
+    
+//    else if ([@"self.isSelectedPane" isEqualToString:keyPath]) {
+        //        CGFloat selectedPaneAlpha = 0;
+        //        CGFloat notSelectedPaneAlpha = 1;
+ //       if (self.isSelectedPane) {
+            //            selectedPaneAlpha = 1;
+            //            notSelectedPaneAlpha = 0;
+  //      }
+   // }
+    
+    
+    else if ([keyPath isEqualToString:@"self.changedAssetArrayController.arrangedObjects"]) {
         if ([(NSArray *)self.changedAssetArrayController.arrangedObjects count]) {
-            [self.splitViewTopConstraint.animator setConstant:60];
+            [self.changedBoxHeight.animator setConstant:50];
         }
         else {
-            [self.splitViewTopConstraint.animator setConstant:36];
+            [self.changedBoxHeight.animator setConstant:21];
         }
         
     }
     
-    else if ([keyPath isEqualToString:@"self.document.interface.selectedSource"]) {
-        if (self.source == self.document.interface.selectedSource) self.isSelectedPane = YES;
-        else self.isSelectedPane = NO;
+    else if ([@[@"self.source.filterString", @"self.source.filterNegate", @"self.source.filterCaseSensitive", @"self.source.filterOptionIndex", @"self.source.filterKeyIndex"] containsObject:keyPath]) {
+        
+        [self filterAssets];
+        
     }
-    
-    else if ([keyPath isEqualToString:@"self.isSelectedPane"]) {
-        //        CGFloat selectedPaneAlpha = 0;
-        //        CGFloat notSelectedPaneAlpha = 1;
-        if (self.isSelectedPane) {
-            //            selectedPaneAlpha = 1;
-            //            notSelectedPaneAlpha = 0;
+    else if ([keyPath isEqualToString:@"self.showFilterTags"]) {
+        if (self.showFilterTags) {
+            [self.tagsBoxHeight.animator setConstant:22];
+        }
+        else {
+            [self.tagsBoxHeight.animator setConstant:0];
         }
     }
     
+    else if ([keyPath isEqualToString:@"self.showTemplateView"]) {
+        if (self.showTemplateView) {
+     //       [self.splitView setPosition:([self.splitView minPossiblePositionOfDividerAtIndex:0] + 300) ofDividerAtIndex:1];
+            [self.splitView.animator setPosition:([self.splitView minPossiblePositionOfDividerAtIndex:0] + 200) ofDividerAtIndex:0];
+        }
+        else {
+            [self.splitView.animator setPosition:[self.splitView minPossiblePositionOfDividerAtIndex:0] ofDividerAtIndex:0];
+//            [self.splitView.animator setPosition:[self.splitView minPossiblePositionOfDividerAtIndex:0] ofDividerAtIndex:1];
+        }
+    }
+    
+    
+    else if ([keyPath isEqualToString:@"self.editSearch"]) {
+        [self resizePredicateBox];
+    }
+    
     else if ([keyPath isEqualToString:@"self.showDetailView"]) {
-        CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:0];
-        if (self.showDetailView) newPosition -= 300;
-        //  [[self.splitView animator] setPosition:newPosition ofDividerAtIndex:0];
-        //  [self.splitView setPosition:newPosition ofDividerAtIndex:0 animated:YES];
-        [self.splitView setPosition:newPosition ofDividerAtIndex:0];
+        CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:1];
+        if (self.showDetailView) newPosition -= 200;
+        [self.splitView.animator setPosition:newPosition ofDividerAtIndex:1];
     }
     
     else if ([keyPath isEqualToString:@"self.showSafariView"]) {
@@ -401,20 +626,6 @@
     else if ([@[@"self.source.excludedTags", @"self.source.requiredTags", @"self.source.requireAllTags"] containsObject:keyPath]) {
         [self tagFilterAssets];
     }
-    else if ([@[@"self.source.itemCount", @"self.source", @"self.source.batchAssets", @"self.source.fetchPredicate"] containsObject:keyPath]) {
-        
-        if (!self.isAssociatedPane) {
-            [self reloadAssets];
-            if ([keyPath isEqualToString:@"self.source"]) {
-                self.exportCodeURL = nil;
-                self.appleScript = nil;
-                
-                if (self.source == self.document.interface.selectedSource) self.isSelectedPane = YES;
-                else self.isSelectedPane = NO;
-
-            }
-        }
-    }
     else if ([@[@"self.source.template", @"self.source.template.formatText"] containsObject:keyPath]) {
         [self updateFormattedCode:self];
     }
@@ -429,7 +640,7 @@
         if (self.reloadingAssets) return;
         else self.reloadingAssets = YES;
     }
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.1 * NSEC_PER_SEC));
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         if (self.isAssociatedPane) {
             [self loadAssociatedItems];
@@ -453,20 +664,7 @@
             if (self.source.itemCount.integerValue != self.assets.count) self.source.itemCount = [NSNumber numberWithInteger:self.assets.count];
             
             [self tagFilterAssets];
-            
-            //  [self.assetArrayController setContent:[self.assets array]];
-            
-            if ((self.source.filterString != nil) && (![self.source.filterString isEqualToString:@""])) {
-                NSPredicate *predicate;
-                if ((self.source.filterKey != nil) && (![self.source.filterKey isEqualToString:@""])) {
-                    predicate = [NSPredicate predicateWithFormat:@"%K contains[cd] %@", self.source.filterKey, self.source.filterString];
-                }
-                else {
-                    predicate = [NSPredicate predicateWithFormat:@"title contains[cd] %@", self.source.filterString];
-                }
-                [self.assetArrayController setFilterPredicate:predicate];
-            }
-            else [self.assetArrayController setFilterPredicate:nil];
+            [self filterAssets];
             
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -480,8 +678,130 @@
 }
 
 
-#pragma mark - <NSSplitViewDelegate>
+#pragma mark - Filter Menu
 
+- (NSArray *)filterKeys {
+    return @[@{@"key": @"title", @"title" : @"Title", @"tag" : @101},
+             @{@"key": @"genre", @"title" : @"Genre", @"tag" : @102},
+             @{@"key": @"permalink", @"title" : @"Permalink", @"tag" : @103},
+             @{@"key": @"contents", @"title" : @"Contents / Description", @"tag" : @104},
+             @{@"key": @"permalink_title", @"title" : @"Link Title", @"tag" : @105},
+             @{@"key": @"permalink_url", @"title" : @"Link URL", @"tag" : @106},
+             @{@"key": @"prax", @"title" : @"Prax 107", @"tag" : @107},
+             @{@"key": @"prax", @"title" : @"Prax 108", @"tag" : @108} ];
+}
+
+- (NSArray *)filterOptions {
+    return @[@{@"key": @"BEGINSWITH", @"title" : @" Begins with", @"negativeTitle" : @" does NOT Begin with", @"tag" : @201},
+             @{@"key": @"CONTAINS", @"title" : @" Contains", @"negativeTitle" : @" does NOT Contain", @"tag" : @202},
+             @{@"key": @"ENDSWITH", @"title" : @" Ends with", @"negativeTitle" : @" does NOT End with", @"tag" : @203},
+             @{@"key": @"MATCHES", @"title" : @" Matches", @"negativeTitle" : @" does NOT Match", @"tag" : @204} ];
+}
+
+-(NSString *)filterKey {
+    NSInteger index = self.source.filterKeyIndex.integerValue;
+    if ((index < 0) || (index >= self.filterKeys.count)) index = 0;
+    return self.filterKeys[index][@"key"];
+}
+
+-(NSString *)filterKeyTitle {
+    NSInteger index = self.source.filterKeyIndex.integerValue;
+    if ((index < 0) || (index >= self.filterKeys.count)) index = 0;
+    return self.filterKeys[index][@"title"];
+}
+
+-(NSString *)filterOption {
+    NSInteger index = self.source.filterOptionIndex.integerValue;
+    if ((index < 0) || (index >= self.filterOptions.count)) index = 0;
+    return self.filterOptions[index][@"key"];
+}
+
+-(NSString *)filterPlaceholderString {
+    NSInteger index = self.source.filterOptionIndex.integerValue;
+    if ((index < 0) || (index >= self.filterOptions.count)) index = 0;
+    NSString *string = [NSString stringWithFormat:@"%@", self.filterKeyTitle];
+    if (self.source.filterNegate.boolValue) string = [string stringByAppendingString:self.filterOptions[index][@"negativeTitle"]];
+    else string = [string stringByAppendingString:self.filterOptions[index][@"title"]];
+    if (self.source.filterCaseSensitive.boolValue) string = [string stringByAppendingString:@"   . . .    (case sensitive)"];
+    else string = [string stringByAppendingString:@"   . . .    (ignore case)"];
+    return string;
+}
+
+-(NSString *)caseOption {
+    if (self.source.filterCaseSensitive.boolValue) return @"";
+    else return @"[cd]";
+}
+
+- (void)initializeFilterMenu {
+    NSMenuItem *menuItem;
+    for (NSDictionary *item in self.filterKeys) {
+        menuItem = [[NSMenuItem alloc] initWithTitle:item[@"title"] action:@selector(menuSelector:) keyEquivalent:@""];
+        [menuItem setTag:[item[@"tag"] integerValue]];
+        [menuItem setTarget:self];
+        [self.filterByKeyMenu addItem:menuItem];
+    }
+    for (NSDictionary *item in self.filterOptions) {
+        menuItem = [[NSMenuItem alloc] initWithTitle:item[@"title"] action:@selector(menuSelector:) keyEquivalent:@""];
+        [menuItem setTag:[item[@"tag"] integerValue]];
+        [menuItem setTarget:self];
+        [self.filterOptionMenu addItem:menuItem];
+    }
+    
+}
+
+- (IBAction)menuSelector:(id)sender {
+    NSInteger tag = [sender tag];
+    if ((101 <= tag) && (tag <= 199)) { // Filter key choices
+        if ((self.source.filterKeyIndex.integerValue + 101) != tag) self.source.filterKeyIndex = [NSNumber numberWithInteger:(tag - 101)];
+    }
+    else if ((201 <= tag) && (tag <= 204)) { // Filter key options
+        if ((self.source.filterOptionIndex.integerValue + 201) != tag) self.source.filterOptionIndex = [NSNumber numberWithInteger:(tag - 201)];
+    }
+    else if ((222 == tag) || (223 == tag)) self.source.filterCaseSensitive = [NSNumber numberWithBool:(!self.source.filterCaseSensitive.boolValue)];
+    else if (224 == tag) self.source.filterNegate = [NSNumber numberWithBool:(!self.source.filterNegate.boolValue)];
+    
+    else if (300 == tag) self.showFilterTags = YES;
+    else if (304 == tag) self.showFilterTags = NO;
+}
+
+
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSInteger tag = [item tag];
+    
+    if (100 == tag) { // Filter by key submenu
+        [item setTitle:[NSString stringWithFormat:@"%@", self.filterKeys[self.source.filterKeyIndex.integerValue][@"title"]]]; }
+    
+    else if ((101 <= tag) && (tag <= 199)) { // Filter key choices
+        [item setState:(((tag - 101) == self.source.filterKeyIndex.integerValue) ? NSOnState : NSOffState)];
+        if (tag > 106) return NO; }
+    
+    else if (200 == tag) { // Filter options submenu
+        [item setTitle:[NSString stringWithFormat:@"%@", self.filterOptions[self.source.filterOptionIndex.integerValue][@"title"]]]; }
+    
+    else if ((201 <= tag) && (tag <= 204)) { // Filter key options
+        [item setState:(((tag - 201) == self.source.filterOptionIndex.integerValue) ? NSOnState : NSOffState)]; }
+    
+    else if (222 == tag) [item setState:((self.source.filterCaseSensitive.boolValue) ? NSOnState : NSOffState)];
+    else if (223 == tag) [item setState:((!self.source.filterCaseSensitive.boolValue) ? NSOnState : NSOffState)];
+    else if (224 == tag) [item setState:((self.source.filterNegate.boolValue) ? NSOnState : NSOffState)];
+    
+    else if (300 == tag) return ((!self.source.requiredTags.count) && (!self.source.excludedTags.count));
+    else if ((301 <= tag) && (tag <= 304)) {
+        if ((!self.source.requiredTags.count) && (!self.source.excludedTags.count)) [item setHidden:YES];
+        else {
+            [item setHidden:NO];
+            if (301 == tag) [item setState:((!self.source.requireAllTags.boolValue) ? NSOnState : NSOffState)];
+            else if (302 == tag) [item setState:((self.source.requireAllTags.boolValue) ? NSOnState : NSOffState)];
+            else if (303 == tag) [item setState:((self.source.excludedTags.count) ? NSOnState : NSOffState)];
+        }
+    }
+    
+    else if (99 != tag ) return NO;
+        
+    return YES;
+}
+
+#pragma mark - <NSSplitViewDelegate>
 
 /*- (CGFloat)assetListMinHeight {return 100;}
  - (CGFloat)detailViewMinHeight {return 50;}
@@ -503,6 +823,33 @@
  }
  */
 
+/*- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {
+    
+    if (dividerIndex == 0) {
+        CGFloat divider0Position = [splitView positionOfDividerAtIndex:0];
+        CGFloat divider1Position = [splitView positionOfDividerAtIndex:1];
+        CGFloat divider2Position = [splitView positionOfDividerAtIndex:2];
+        
+        CGFloat shortage = (self.controlPaneMinHeight - (divider1Position - divider0Position));
+        
+        NSLog(@"constrainSplitPosition\n dividerIndex=%ld pos0=%f pos1=%f, pos2=%f shortage=%f", (long)dividerIndex, divider0Position, divider1Position, divider2Position, shortage);
+        
+        
+        if (shortage > 0) {
+            shortage += divider1Position;
+            [splitView setPosition:(divider1Position + shortage) ofDividerAtIndex:1];
+            [splitView adjustSubviews];
+        }
+        
+        
+        
+    }
+    
+    
+    return proposedPosition;
+    
+}*/
+
 - (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedEffectiveRect forDrawnRect:(NSRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
     NSRect effectiveRect = proposedEffectiveRect;
     // effectiveRect.origin.x -= 2.0;
@@ -510,14 +857,54 @@
         effectiveRect.origin.x -= 5.0;
         effectiveRect.size.width += 10.0;
     }
-    //    else {
-    //        effectiveRect.origin.y -= 5.0;
-    //        effectiveRect.size.height += 10.0;
-    //    }
+        else {
+            effectiveRect.origin.y -= 5.0;
+            effectiveRect.size.height += 10.0;
+        }
     
     return effectiveRect;
 }
+
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
+    if (self.assetListPane == subview) return YES;
+    else return NO;
+}
+
+
+/*- (void)splitView:(NSSplitView *)splitView resizeSubviewsWithOldSize:(NSSize)oldSize {
+    
+    CGFloat divider0Position = [splitView positionOfDividerAtIndex:0];
+    CGFloat divider1Position = [splitView positionOfDividerAtIndex:1];
+    CGFloat divider2Position = [splitView positionOfDividerAtIndex:2];
+    
+    CGFloat shortage = (self.controlPaneMinHeight - (divider1Position - divider0Position));
+    
+    NSLog(@"resizeSubviewsWithOldSize pos0=%f pos1=%f, pos2=%f shortage=%f", divider0Position, divider1Position, divider2Position, shortage);
+    
+    
+    if (shortage > 0) {
+        shortage += 20;
+ //           [splitView setPosition:(divider1Position + shortage) ofDividerAtIndex:1];
+    }
+    
+
+    
+    [splitView adjustSubviews];
+}*/
+
+/*- (void)splitViewWillResizeSubviews:(NSNotification *)aNotification {
+    NSDictionary *userInfo  = aNotification.userInfo;
+    NSNumber *dividerIndex = userInfo[@"NSSplitViewDividerIndex"];
+    NSLog(@"splitViewWillResizeSubviews NSSplitViewDividerIndex %@", dividerIndex);
+    
+}*/
+
 - (void)splitViewDidResizeSubviews:(NSNotification *)aNotification {
+    
+//    NSDictionary *userInfo  = aNotification.userInfo;
+ //   NSNumber *dividerIndex = userInfo[@"NSSplitViewDividerIndex"];
+  //  NSLog(@"splitViewDidResizeSubviews NSSplitViewDividerIndex %@", dividerIndex);
+    
     if ([self.splitView isSubviewCollapsed:self.detailViewPane]) {
         if (self.showDetailView) self.showDetailView = NO;
     }
@@ -527,6 +914,18 @@
     else {
         if (!self.showDetailView) self.showDetailView = YES;
     }
+    
+    if ([self.splitView isSubviewCollapsed:self.templateViewPane]) {
+        if (self.showTemplateView) self.showTemplateView = NO;
+    }
+    else if (self.templateViewPane.frame.size.height < 10) {
+        if (self.showTemplateView) self.showTemplateView = NO;
+    }
+    else {
+        if (!self.showTemplateView) self.showTemplateView = YES;
+    }
+    
+    
 }
 
 #pragma mark - <NSTableViewDelegate>
@@ -875,8 +1274,6 @@
     indexOfSelectedItem:(NSInteger *)selectedIndex {
     return [self.document.tagController tokenField:tokenField completionsForSubstring:substring indexOfToken:tokenIndex indexOfSelectedItem:selectedIndex];
 }
-
-
 
 
 @end

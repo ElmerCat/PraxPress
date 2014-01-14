@@ -8,7 +8,7 @@
     self=[super initWithCoder:coder];
     if ( self ) {
 
-        [self registerForDraggedTypes:@[@"org.ElmerCat.PraxPress.Source"]];
+        [self registerForDraggedTypes:@[@"org.ElmerCat.PraxPress.Source", @"org.ElmerCat.PraxPress.AssetList"]];
     }
     return self;
 }
@@ -16,8 +16,15 @@
 #pragma mark - Destination Operations
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)info {
+    if (self.controller.isAssociatedPane) return NSDragOperationNone;
+    
+    if ([[info draggingSource] isKindOfClass:[AssetListPanelImageView class]]) {
+        AssetListViewController *controller = [[info draggingSource] controller];
+        if (controller == self.controller) return NSDragOperationNone;
+        if (controller.isAssociatedPane) return NSDragOperationNone;
+    }
 
-    if ([[info draggingPasteboard] canReadItemWithDataConformingToTypes:@[@"org.ElmerCat.PraxPress.Source"]]) {
+    if ([[info draggingPasteboard] canReadItemWithDataConformingToTypes:@[@"org.ElmerCat.PraxPress.Source", @"org.ElmerCat.PraxPress.AssetList"]]) {
         
         self.highlight=YES;
         
@@ -27,7 +34,7 @@
                                           classes:[NSArray arrayWithObject:[NSPasteboardItem class]]
                                     searchOptions:nil
                                        usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
-                                           [draggingItem setDraggingFrame:self.bounds contents:[[[draggingItem imageComponents] objectAtIndex:0] contents]];
+                                           [draggingItem setDraggingFrame:self.controller.view.bounds contents:[[[draggingItem imageComponents] objectAtIndex:0] contents]];
                                        }];
         
         return NSDragOperationMove;
@@ -62,7 +69,7 @@
     self.highlight=NO;
     
     [self setNeedsDisplay: YES];
-    return [[info draggingPasteboard] canReadItemWithDataConformingToTypes:@[@"org.ElmerCat.PraxPress.Source"]];
+    return [[info draggingPasteboard] canReadItemWithDataConformingToTypes:@[@"org.ElmerCat.PraxPress.Source", @"org.ElmerCat.PraxPress.AssetList"]];
 
 }
 
@@ -70,14 +77,11 @@
     
     AssetListViewController *controller;
     if ([[info draggingSource] isKindOfClass:[AssetListPanelImageView class]]) controller = [[info draggingSource] controller];
-    if ([self isEqual:controller]) return NO;
+    if ([self.controller isEqual:controller]) return NO;
     
-    NSURL *objectURL = [NSKeyedUnarchiver unarchiveObjectWithData:[[info draggingPasteboard] dataForType:@"org.ElmerCat.PraxPress.Source"]];
-    NSManagedObjectID *objectID = [self.controller.document.managedObjectContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:objectURL];
-    Source *source = (Source *)[self.controller.document.managedObjectContext existingObjectWithID:objectID error:NULL];
+//    controller = [NSKeyedUnarchiver unarchiveObjectWithData:[[info draggingPasteboard] dataForType:@"org.ElmerCat.PraxPress.AssetList"]];
     
-    [self.controller.document.sourceController moveSource:source fromController:controller toController:self.controller];
-    
+    [self.controller.document.sourceController movePane:controller.assetListView toPane:self.controller.assetListView];
     
     return YES;
 }
@@ -112,6 +116,7 @@
 
 - (NSArray *)sourceDraggingTypes {
     return @[@"org.ElmerCat.PraxPress.Source",
+             @"org.ElmerCat.PraxPress.AssetList",
              @"public.utf8-plain-text",
              @"public.html",
              @"public.text",
@@ -128,7 +133,7 @@
 
 - (void)mouseDown:(NSEvent*)event {
 
-    if (self.controller.isAssociatedPane) return;
+//    if (self.controller.isAssociatedPane) return;
     
 //    NSURL *sourceURL = [self.controller.source.objectID URIRepresentation];
 // 	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:sourceURL];
@@ -139,8 +144,10 @@
 //	[pasteboardItem setData:data forType:@"org.ElmerCat.PraxPress.Source"];
 
     NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pasteboardItem];
-    NSRect draggingRect = self.bounds;
-    NSImage *dragImage = [[NSImage alloc] initWithData:[self.superview dataWithPDFInsideRect:[self.superview bounds]]];
+    NSRect draggingRect = [self.controller.view bounds];
+    draggingRect.origin.x -= self.frame.origin.x;
+    draggingRect.origin.y -= self.frame.origin.y;
+    NSImage *dragImage = [[NSImage alloc] initWithData:[self.superview dataWithPDFInsideRect:[self.controller.view bounds]]];
     [draggingItem setDraggingFrame:draggingRect contents:dragImage];
     NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems:@[draggingItem] event:event source:self];
     draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
@@ -155,45 +162,35 @@
     NSLog(@"%@", type);
     
     
-    if ( [type compare: NSPasteboardTypeTIFF] == NSOrderedSame ) {
+    if ([NSPasteboardTypeTIFF isEqualToString:type]) {
         
         //       [sender setData:[[self image] TIFFRepresentation] forType:NSPasteboardTypeTIFF];
         
-    } else if ( [type compare: NSPasteboardTypePDF] == NSOrderedSame ) {
+    }
+    else if ([NSPasteboardTypePDF isEqualToString:type]) {
         
         //            [sender setData:[self.view dataWithPDFInsideRect:[self.view bounds]] forType:NSPasteboardTypePDF];
         
-    } else if ( [type compare:@"org.ElmerCat.PraxPress.Source"] == NSOrderedSame ) {
+    }
+    else if ([@"org.ElmerCat.PraxPress.AssetList" isEqualToString:type]) {
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.controller];
+        [item setData:data forType:type]; }
+    
+    else if ([@"org.ElmerCat.PraxPress.Source" isEqualToString:type]) {
         NSURL *sourceURL = [self.controller.source.objectID URIRepresentation];
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:sourceURL];
-        [item setData:data forType:@"org.ElmerCat.PraxPress.Source"];
-
-    } else if ( [type compare:@"public.image"] == NSOrderedSame ) {
-        
-        NSLog(@"%@", type);
-        
-    } else if ( [type compare:@"public.utf8-plain-text"] == NSOrderedSame ) {
-        
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    } else if ( [type compare:@"public.text"] == NSOrderedSame ) {
-        
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    } else if ( [type compare:@"public.html"] == NSOrderedSame ) {
-        
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    } else if ( [type compare:NSPasteboardTypeString] == NSOrderedSame ) {
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    } else if ( [type compare:NSPasteboardTypeString] == NSOrderedSame ) {
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    } else if ( [type compare:NSPasteboardTypeHTML] == NSOrderedSame ) {
-        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type];
-        
-    }
+        [item setData:data forType:type]; }
+    
+    else if ([@"public.utf8-plain-text" isEqualToString:type]) {
+        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type]; }
+    else if ([@"public.text" isEqualToString:type]) {
+        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type]; }
+    else if ([@"public.html" isEqualToString:type]) {
+        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type]; }
+    else if ([NSPasteboardTypeString isEqualToString:type]) {
+        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type]; }
+    else if ([NSPasteboardTypeHTML isEqualToString:type]) {
+        [item setString:[NSString stringWithFormat:@"%@", self.controller.source.name] forType:type]; }
     else {
         
         NSLog(@"%@", type);

@@ -433,10 +433,10 @@
                                                         </binding>
                                                         <binding destination="-2" name="hidden2" keyPath="self.requestController.determinate" previousBinding="d2H-H8-8bh" id="jTb-7h-QOF">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                             </dictionary>
                                                         </binding>
@@ -464,10 +464,10 @@
                                                     <connections>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="nuC-Q6-fTU" id="Ml0-eC-CWA">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsNotOneTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -486,19 +486,19 @@
                                                     <connections>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="geV-mj-Ip7" id="O8R-OO-w3r">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                                             </dictionary>
                                                         </binding>
                                                         <binding destination="2r0-uP-xMq" name="hidden3" keyPath="arrangedObjects.@count" previousBinding="O8R-OO-w3r" id="woM-YT-lLG">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsOneTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -519,10 +519,10 @@
                                                         <action selector="stop:" target="X1A-z9-O7U" id="EZc-9l-Lgx"/>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="2B5-8q-Sp5" id="wJy-Xs-vh6">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -594,10 +594,10 @@
                                                         </binding>
                                                         <binding destination="-2" name="hidden2" keyPath="self.requestController.stop" previousBinding="pXZ-LZ-N6d" id="3za-LF-W91">
                                                             <dictionary key="options">
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                             </dictionary>
                                                         </binding>

@@ -40,7 +40,11 @@
 @property (nonatomic, retain) NSPredicate *fetchPredicate;
 @property (nonatomic, retain) NSURL * exportURL;
 @property (nonatomic, retain) NSString *filterString;
-@property (nonatomic, retain) NSString *filterKey;
+@property (nonatomic, retain) NSNumber * filterKeyIndex;
+@property (nonatomic, retain) NSNumber * filterOptionIndex;
+@property (nonatomic, retain) NSNumber * filterCaseSensitive;
+@property (nonatomic, retain) NSNumber * filterNegate;
+
 @property (nonatomic, retain) NSArray *selectionIndexes;
 @property (nonatomic, retain) NSArray *sortDescriptors;
 

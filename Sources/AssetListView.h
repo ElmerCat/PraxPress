@@ -11,7 +11,8 @@
 @class AssetListViewController;
 
 @interface AssetListView : NSView
-@property AssetListViewController *assetListViewController;
+
+@property (strong) IBOutlet AssetListViewController *controller;
 
 
 @end

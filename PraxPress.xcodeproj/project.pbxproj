@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E6083D92187A0E3800D31A70 /* AssetListView.m in Sources */ = {isa = PBXBuildFile; fileRef = E6083D90187A0E3800D31A70 /* AssetListView.m */; };
 		E61010C2176FE08900ACF17D /* praxpress-document.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C0176FE08900ACF17D /* praxpress-document.icns */; };
 		E61010C3176FE08900ACF17D /* praxpress-templates.icns in Resources */ = {isa = PBXBuildFile; fileRef = E61010C1176FE08900ACF17D /* praxpress-templates.icns */; };
 		E61021A217BADFC0001E0ED3 /* SoundCloud.png in Resources */ = {isa = PBXBuildFile; fileRef = E61021A117BADFC0001E0ED3 /* SoundCloud.png */; };
@@ -127,6 +128,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E6083D90187A0E3800D31A70 /* AssetListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetListView.m; sourceTree = "<group>"; };
+		E6083D91187A0E3800D31A70 /* AssetListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetListView.h; sourceTree = "<group>"; };
 		E61010C0176FE08900ACF17D /* praxpress-document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-document.icns"; sourceTree = "<group>"; };
 		E61010C1176FE08900ACF17D /* praxpress-templates.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "praxpress-templates.icns"; sourceTree = "<group>"; };
 		E61021A117BADFC0001E0ED3 /* SoundCloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SoundCloud.png; sourceTree = "<group>"; };
@@ -271,6 +274,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E6083D8D187A0D7C00D31A70 /* CustomViews */ = {
+			isa = PBXGroup;
+			children = (
+				E6083D91187A0E3800D31A70 /* AssetListView.h */,
+				E6083D90187A0E3800D31A70 /* AssetListView.m */,
+				E6191B37187647AD0074F873 /* AssetListPanelImageView.h */,
+				E6191B38187647AD0074F873 /* AssetListPanelImageView.m */,
+				E6A142B81853CB31001B9F6C /* PraxButton.h */,
+				E6A142B91853CB31001B9F6C /* PraxButton.m */,
+				E68A34D718559898007D8D7B /* PraxTokenField.h */,
+				E68A34D818559898007D8D7B /* PraxTokenField.m */,
+				E6191B3C18779AB90074F873 /* PraxTableView.h */,
+				E6191B3D18779AB90074F873 /* PraxTableView.m */,
+			);
+			name = CustomViews;
+			sourceTree = "<group>";
+		};
 		E6192A851858FC8E001BACD4 /* Document */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,8 +314,6 @@
 		E624D84A15EAEC570066D7D7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				E6191B37187647AD0074F873 /* AssetListPanelImageView.h */,
-				E6191B38187647AD0074F873 /* AssetListPanelImageView.m */,
 				E6BFE3CB185F6EBC001806B7 /* BWTokenAttachmentCell.h */,
 				E6BFE3CC185F6EBC001806B7 /* BWTokenAttachmentCell.m */,
 				E6BFE3CD185F6EBC001806B7 /* BWTokenFieldCell.h */,
@@ -310,14 +328,8 @@
 				E6EDDE2815E021FB0039BEFD /* PraxTextFieldFormatter.m */,
 				E63E87C015E05B5900110570 /* PraxTransformers.h */,
 				E63E87C115E05B5900110570 /* PraxTransformers.m */,
-				E6A142B81853CB31001B9F6C /* PraxButton.h */,
-				E6A142B91853CB31001B9F6C /* PraxButton.m */,
-				E68A34D718559898007D8D7B /* PraxTokenField.h */,
-				E68A34D818559898007D8D7B /* PraxTokenField.m */,
 				E66055D41870D52100787612 /* Prax.h */,
 				E66055D51870D52100787612 /* Prax.m */,
-				E6191B3C18779AB90074F873 /* PraxTableView.h */,
-				E6191B3D18779AB90074F873 /* PraxTableView.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -377,6 +389,7 @@
 		E661E63416279DB500EFD83A /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				E6083D8D187A0D7C00D31A70 /* CustomViews */,
 				E642A049178639A3003FF23C /* AssetListView.xib */,
 				E656BEC618515445009254BE /* MultipleChangePopover.xib */,
 				E642A04617863934003FF23C /* PraxPress.xib */,
@@ -685,6 +698,7 @@
 				E6191B3E18779AB90074F873 /* PraxTableView.m in Sources */,
 				E6297BBC183E91DF00D58A16 /* SourceInfoPanel.m in Sources */,
 				E6FCFE21186CA23F001E9483 /* Account.m in Sources */,
+				E6083D92187A0E3800D31A70 /* AssetListView.m in Sources */,
 				E6191B39187647AD0074F873 /* AssetListPanelImageView.m in Sources */,
 				E642A04317862FF6003FF23C /* SourcePopovers.m in Sources */,
 				E6FCFE28186CAAD3001E9483 /* AccountController.m in Sources */,

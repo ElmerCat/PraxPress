@@ -77,7 +77,10 @@
         <attribute name="exportURL" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="fetchEntity" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="fetchPredicate" optional="YES" attributeType="Transformable" syncable="YES"/>
-        <attribute name="filterKey" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="filterCaseSensitive" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="filterKeyIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="filterNegate" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="filterOptionIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="filterString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="folderType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="formattedCode" optional="YES" attributeType="String" syncable="YES"/>

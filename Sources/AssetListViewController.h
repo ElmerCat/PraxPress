@@ -7,6 +7,7 @@
 //
 
 #import "Document.h"
+#import "AssetListView.h"
 #import "NSSplitView+DMAdditions.h"
 #import "AssetMetadataPopover.h"
 #import "MultipleChangePopover.h"
@@ -14,49 +15,42 @@
 @class Source;
 @class SourceInfoPanel;
 @class MultipleChangePopover;
+@class AssetListView;
 
 @interface AssetListViewController : NSViewController <NSTableViewDelegate, NSSplitViewDelegate, NSTokenFieldDelegate, NSPasteboardItemDataProvider>
 
-@property (weak) IBOutlet NSTableView *assetsTableView;
+#pragma mark - Instance Variables
+
 @property BOOL awake;
 @property Document *document;
+@property Source *source;
 @property AssetListViewController *associatedController;
 @property SourceInfoPanel *sourceInfoPanel;
-@property BOOL sourceInfoPanelVisible;
-@property BOOL isAssociatedPane;
-@property BOOL isBatch;
-@property BOOL isPlaylist;
-@property BOOL isSelectedPane;
-@property Source *source;
 @property NSOrderedSet *assets;
 
 @property NSString *appleScriptSource;
 @property NSAppleScript *appleScript;
 @property int playback_count, favoritings_count, download_count, comment_count, duration;
 
-@property (weak) IBOutlet NSButton *sourceButton;
+#pragma mark - Interface State
 
-@property (weak) IBOutlet NSSearchField *searchField;
-@property (strong) IBOutlet NSArrayController *assetArrayController;
-@property (strong) IBOutlet NSArrayController *changedAssetArrayController;
-- (void)filterPane;
-- (IBAction)updateFilter:(id)sender;
-- (IBAction)selectAssetListPane:(id)sender;
-@property (weak) IBOutlet NSBox *detailViewBox;
-@property (strong) IBOutlet NSView *assetDetailView;
-@property (strong) IBOutlet NSView *noSelectionView;
-
-@property (weak) IBOutlet NSSplitView *splitView;
-@property (weak) IBOutlet NSLayoutConstraint *splitViewTopConstraint;
-@property (weak) IBOutlet NSLayoutConstraint *splitViewWidthConstraint;
-
-@property (weak) IBOutlet NSScrollView *assetListPane;
-@property (weak) IBOutlet NSView *detailViewPane;
-@property (weak) IBOutlet NSPopUpButton *popUpButton;
+@property BOOL sourceInfoPanelVisible;
+@property BOOL isAssociatedPane;
+@property BOOL isBatch;
+@property BOOL isPlaylist;
+@property BOOL isSelectedPane;
+@property BOOL renameSource;
+@property BOOL editSearch;
+@property BOOL batchSubtract;
 
 @property BOOL showDetailView;
+@property BOOL showTemplateView;
 @property BOOL showSafariView;
 @property BOOL exportCode;
+
+@property BOOL showFilterTags;
+@property BOOL anySourceTags;
+
 @property NSURL *exportCodeURL;
 @property NSString *formattedCode;
 @property BOOL updatingFormattedCode;
@@ -67,13 +61,62 @@
 - (void)loadAssociatedItems;
 - (void)tagFilterAssets;
 
+
+
+
+#pragma mark - IBOutlets
+
+@property (weak) IBOutlet NSButton *sourceButton;
+@property (strong) IBOutlet NSArrayController *assetArrayController;
+@property (strong) IBOutlet NSArrayController *changedAssetArrayController;
+@property (weak) IBOutlet NSTableView *assetsTableView;
+@property (strong) IBOutlet AssetListView *assetListView;
+
+@property (weak) IBOutlet NSPredicateEditor *predicateEditor;
+@property (weak) IBOutlet NSPopUpButton *popUpButton;
+@property (weak) IBOutlet NSSearchField *searchField;
+@property (weak) IBOutlet PraxTokenField *requiredTagsTokenField;
+@property (weak) IBOutlet PraxTokenField *excludedTagsTokenField;
+@property (strong) IBOutlet NSMenu *filterMenu;
+@property (weak) IBOutlet NSMenu *filterByKeyMenu;
+@property (weak) IBOutlet NSMenu *filterOptionMenu
+;
+@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
+@property (strong) IBOutlet MultipleChangePopover *multipleChangePopover;
+
+@property (weak) IBOutlet NSSplitView *splitView;
+@property (weak) IBOutlet NSView *templateViewPane;
+@property (weak) IBOutlet NSScrollView *assetListPane;
+@property (weak) IBOutlet NSView *detailViewPane;
+@property (strong) IBOutlet NSView *assetDetailView;
+@property (weak) IBOutlet NSBox *detailViewBox;
+@property (strong) IBOutlet NSView *noSelectionView;
+
+@property (weak) IBOutlet NSLayoutConstraint *changedBoxHeight;
+@property (weak) IBOutlet NSLayoutConstraint *tagsBoxHeight;
+@property (weak) IBOutlet NSLayoutConstraint *predicateBoxHeight;
+@property (weak) IBOutlet NSLayoutConstraint *batchBoxHeight;
+@property (weak) IBOutlet NSLayoutConstraint *accountBoxHeight;
+
+
+
+#pragma mark - IBActions
+
 - (void)doubleClickedArrayObjects:(NSArray *)arrayObjects;
 - (IBAction)showSourceInfoPanel:(id)sender;
 - (IBAction)filterButtonClicked:(id)sender;
+- (IBAction)menuSelector:(id)sender;
+
+- (IBAction)updateFilter:(id)sender;
+- (IBAction)selectAssetListPane:(id)sender;
+
+- (IBAction)newSearchRule:(id)sender;
+- (IBAction)newCompoundRule:(id)sender;
+
+- (IBAction)clearFilterTags:(id)sender;
+- (IBAction)showTags:(id)sender;
 
 - (IBAction)templatesButtonPressed:(id)sender;
-@property (weak) IBOutlet AssetMetadataPopover *assetMetadataPopover;
-@property (strong) IBOutlet MultipleChangePopover *multipleChangePopover;
 
 - (void)openBrowserWithURLString:(NSString *)string;
 - (void)showMetadataPopover:(NSDictionary *)metadata sender:(id)sender;

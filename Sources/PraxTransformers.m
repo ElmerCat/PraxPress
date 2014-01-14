@@ -751,6 +751,7 @@
 
 + (BOOL)allowsReverseTransformation { return YES; }
 - (NSArray *)transformedValue:(id)value {
+    if (![value isKindOfClass:[NSSet class]]) return @[];
     NSSet *tags = (NSSet *)value;
     NSMutableArray *array = [@[] mutableCopy];
     for (Tag *tag in tags) {
