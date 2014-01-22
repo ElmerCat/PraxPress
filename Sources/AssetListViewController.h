@@ -13,6 +13,8 @@
 #import "MultipleChangePopover.h"
 
 @class Source;
+@class Document;
+@class CodeController;
 @class SourceInfoPanel;
 @class MultipleChangePopover;
 @class AssetListView;
@@ -25,11 +27,11 @@
 @property Document *document;
 @property Source *source;
 @property AssetListViewController *associatedController;
+@property (strong) IBOutlet CodeController *codeController;
+
 @property SourceInfoPanel *sourceInfoPanel;
 @property NSOrderedSet *assets;
 
-@property NSString *appleScriptSource;
-@property NSAppleScript *appleScript;
 @property int playback_count, favoritings_count, download_count, comment_count, duration;
 
 #pragma mark - Interface State
@@ -44,25 +46,15 @@
 @property BOOL batchSubtract;
 
 @property BOOL showDetailView;
-@property BOOL showTemplateView;
-@property BOOL showSafariView;
-@property BOOL exportCode;
+@property BOOL showCodeView;
 
 @property BOOL showFilterTags;
 @property BOOL anySourceTags;
 
-@property NSURL *exportCodeURL;
-@property NSString *formattedCode;
-@property BOOL updatingFormattedCode;
 @property BOOL reloadingAssets;
 
-- (void)writeFormattedCode;
-- (void)updateFormattedCode:sender;
 - (void)loadAssociatedItems;
 - (void)tagFilterAssets;
-
-
-
 
 #pragma mark - IBOutlets
 
@@ -85,7 +77,7 @@
 @property (strong) IBOutlet MultipleChangePopover *multipleChangePopover;
 
 @property (weak) IBOutlet NSSplitView *splitView;
-@property (weak) IBOutlet NSView *templateViewPane;
+@property (weak) IBOutlet NSView *codeViewPane;
 @property (weak) IBOutlet NSScrollView *assetListPane;
 @property (weak) IBOutlet NSView *detailViewPane;
 @property (strong) IBOutlet NSView *assetDetailView;
@@ -115,8 +107,6 @@
 
 - (IBAction)clearFilterTags:(id)sender;
 - (IBAction)showTags:(id)sender;
-
-- (IBAction)templatesButtonPressed:(id)sender;
 
 - (void)openBrowserWithURLString:(NSString *)string;
 - (void)showMetadataPopover:(NSDictionary *)metadata sender:(id)sender;
