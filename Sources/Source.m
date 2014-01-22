@@ -10,52 +10,98 @@
 
 @implementation Source
 
+@synthesize awake;
 @synthesize controller;
 
-@dynamic interface;
+#pragma mark - Core Data Attributes
 
-@dynamic iconName;
-@dynamic name;
-@dynamic children;
-@dynamic parent;
-@dynamic sortOrder;
-@dynamic fetchEntity;
-@dynamic rowHeight;
-@dynamic folderType;
 @dynamic exportURL;
-
+@dynamic fetchEntity;
 @dynamic fetchPredicate;
-
-@dynamic filterString;
-@dynamic filterKeyIndex;
-@dynamic filterOptionIndex;
 @dynamic filterCaseSensitive;
+@dynamic filterKeyIndex;
 @dynamic filterNegate;
-
-@dynamic excludedTags;
-@dynamic requiredTags;
+@dynamic filterOptionIndex;
+@dynamic filterString;
+@dynamic folderType;
+@dynamic iconName;
+@dynamic itemCount;
+@dynamic name;
 @dynamic requireAllTags;
-
+@dynamic rowHeight;
 @dynamic selectionIndexes;
 @dynamic sortDescriptors;
+@dynamic sortOrder;
+@dynamic templateFooterCode;
+@dynamic templateHeaderCode;
+@dynamic templateItemsCode;
+@dynamic templateItemsPerRow;
+@dynamic templateMode;
+@dynamic templateRowCode;
+@dynamic type;
 
+#pragma mark - Core Data Relationships
+
+@dynamic account;
+@dynamic batchAssets;
+@dynamic children;
+@dynamic excludedTags;
 @dynamic interfaceSelection;
 @dynamic interfaceSource;
+@dynamic parent;
+@dynamic requiredTags;
 @dynamic selectedAssets;
 
-@dynamic serviceAccount;
-@dynamic batchAssets;
-@dynamic template;
-@dynamic itemCount;
-@dynamic type;
-@dynamic account;
+#pragma mark - Initialization
+
+- (void)awakeFromInsert {
+    
+    if (!self.awake) {
+        self.awake = YES;
+/*
+        NSMutableOrderedSet *templates = [NSMutableOrderedSet orderedSetWithCapacity:3];
+        Template *template;
+        NSDictionary *defaultTemplate;
+        NSInteger type;
+        
+        type = PraxTemplateTypeHeader;
+        defaultTemplate = [Template defaultTemplateForType:type];
+        if (defaultTemplate) {
+            template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.managedObjectContext];
+            template.type = [NSNumber numberWithInteger:type];
+            template.text = defaultTemplate[@"text"];
+            [templates addObject:template];
+        }
+        
+        type = PraxTemplateTypeItem;
+        defaultTemplate = [Template defaultTemplateForType:type];
+        if (defaultTemplate) {
+            template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.managedObjectContext];
+            template.type = [NSNumber numberWithInteger:type];
+            template.text = defaultTemplate[@"text"];
+            [templates addObject:template];
+        }
+        
+        type = PraxTemplateTypeFooter;
+        defaultTemplate = [Template defaultTemplateForType:type];
+        if (defaultTemplate) {
+            template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.managedObjectContext];
+            template.type = [NSNumber numberWithInteger:type];
+            template.text = defaultTemplate[@"text"];
+            [templates addObject:template];
+        }
+        
+        self.templates = templates.copy;
+ */
+ 
+    }
+}
+
+
 
 
 - (NSArray *)childrenArray {
 	return self.children.array;
-}
-- (NSInteger)subItemLabelCount {
-    return @7;
 }
 
 -(NSPredicate *)defaultPredicate {

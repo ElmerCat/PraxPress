@@ -18,57 +18,60 @@
 
 @interface Source : NSManagedObject
 
+@property BOOL awake;
+
 @property AssetListViewController *controller;
 
 
 +(Source *)addLibrarySource:(NSString*)name withSortOrder:(NSNumber*)sortOrder forType:(NSString*)folderType inManagedObjectContext:(NSManagedObjectContext*)moc;
-//+(Source *)addAccountSource:(NSString*)name rowHeight:(NSNumber*)rowHeight toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
-//+(Source *)addSubAccountSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addSearchSource:(NSString*)name toParent:(Source*)parent forEntity:(NSString*)fetchEntity withPredicateString:(NSString*)fetchPredicate inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addFolderSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addBatchSource:(NSString*)name toParent:(Source*)parent withArrangedAssets:(NSArray*)assets inManagedObjectContext:(NSManagedObjectContext*)moc;
 +(Source *)addPraxAssetSource:(NSString*)name toParent:(Source*)parent inManagedObjectContext:(NSManagedObjectContext*)moc;
 
 -(NSArray *)childrenArray;
--(NSInteger)subItemLabelCount;
 -(NSPredicate *)defaultPredicate;
 -(NSPredicate *)defaultPredicateForAsset:(Asset *)asset;
 
-@property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSString * iconName;
-@property (nonatomic, retain) NSString * fetchEntity;
-@property (nonatomic, retain) NSPredicate *fetchPredicate;
+#pragma mark - Core Data Attributes
 @property (nonatomic, retain) NSURL * exportURL;
-@property (nonatomic, retain) NSString *filterString;
-@property (nonatomic, retain) NSNumber * filterKeyIndex;
-@property (nonatomic, retain) NSNumber * filterOptionIndex;
+@property (nonatomic, retain) NSString * fetchEntity;
+@property (nonatomic, retain) NSPredicate * fetchPredicate;
 @property (nonatomic, retain) NSNumber * filterCaseSensitive;
+@property (nonatomic, retain) NSNumber * filterKeyIndex;
 @property (nonatomic, retain) NSNumber * filterNegate;
-
-@property (nonatomic, retain) NSArray *selectionIndexes;
-@property (nonatomic, retain) NSArray *sortDescriptors;
-
-@property (nonatomic, retain) NSNumber * sortOrder;
-@property (nonatomic, retain) NSNumber * rowHeight;
+@property (nonatomic, retain) NSNumber * filterOptionIndex;
+@property (nonatomic, retain) NSString * filterString;
 @property (nonatomic, retain) NSString * folderType;
-
-@property (nonatomic, retain) Asset *serviceAccount;
-@property (nonatomic, retain) Source *parent;
-@property (nonatomic, retain) NSOrderedSet *children;
-@property (nonatomic, retain) NSOrderedSet *batchAssets;
-@property (nonatomic, retain) Template *template;
-@property (nonatomic, retain) NSSet *excludedTags;
-@property (nonatomic, retain) NSSet *requiredTags;
-@property (nonatomic, retain) NSNumber * requireAllTags;
+@property (nonatomic, retain) NSString * iconName;
 @property (nonatomic, retain) NSNumber * itemCount;
+@property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSNumber * requireAllTags;
+@property (nonatomic, retain) NSNumber * rowHeight;
+@property (nonatomic, retain) NSArray * selectionIndexes;
+@property (nonatomic, retain) NSArray * sortDescriptors;
+@property (nonatomic, retain) NSNumber * sortOrder;
+@property (nonatomic, retain) NSString * templateFooterCode;
+@property (nonatomic, retain) NSString * templateHeaderCode;
+@property (nonatomic, retain) NSString * templateItemsCode;
+@property (nonatomic, retain) NSNumber * templateItemsPerRow;
+@property (nonatomic, retain) NSNumber * templateMode;
+@property (nonatomic, retain) NSString * templateRowCode;
 @property (nonatomic, retain) NSString * type;
-@property (nonatomic, retain) Interface *interface;
-@property (nonatomic, retain) Account *account;
 
+#pragma mark - Core Data To-One Relationships
+@property (nonatomic, retain) Account *account;
 @property (nonatomic, retain) Interface *interfaceSelection;
 @property (nonatomic, retain) Interface *interfaceSource;
+@property (nonatomic, retain) Source *parent;
 
+#pragma mark - Core Data To-Many Relationships
 @property (nonatomic, retain) NSOrderedSet *selectedAssets;
+@property (nonatomic, retain) NSSet *excludedTags;
+@property (nonatomic, retain) NSSet *requiredTags;
+@property (nonatomic, retain) NSOrderedSet *children;
+@property (nonatomic, retain) NSOrderedSet *batchAssets;
+
 @end
 
 @interface Source (CoreDataGeneratedAccessors)
@@ -115,4 +118,5 @@
 - (void)removeChildrenObject:(NSManagedObject *)value;
 - (void)addChildren:(NSOrderedSet *)values;
 - (void)removeChildren:(NSOrderedSet *)values;
+
 @end

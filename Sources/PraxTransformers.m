@@ -655,6 +655,7 @@
 - (NSArray *)transformedValue:(id)value {
     return [Widget templateFormatArrayFromObject:value];
 }
+
 - (id)reverseTransformedValue:(id)value {
     return [Widget editingStringFromObject:value];
 }

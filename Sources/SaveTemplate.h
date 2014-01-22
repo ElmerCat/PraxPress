@@ -8,6 +8,25 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SaveTemplate : NSViewController
+@import Cocoa;
+#import "AssetListViewController.h"
+
+@interface SaveTemplate : NSViewController <NSTableViewDelegate>
+@property BOOL awake;
+
+@property NSString *templateName;
+@property BOOL canSave;
+@property BOOL canReplace;
+
+@property (unsafe_unretained) IBOutlet AssetListViewController *controller;
+@property (weak) IBOutlet NSPopover *popover;
+
+
+@property (weak) IBOutlet NSArrayController *templatesArrayController;
+
+
+- (IBAction)saveTemplate:(id)sender;
+- (IBAction)save:(id)sender;
+- (IBAction)replace:(id)sender;
 
 @end
