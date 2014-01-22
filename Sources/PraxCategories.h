@@ -10,20 +10,19 @@
 #import "Asset.h"
 
 @interface NSArray (PraxCategories)
-
 - (id)firstObjectWithKey:(NSString *)key equalToString:(NSString *)string;
 - (NSString *)praxPressListType;
 @end
 
+@interface NSArrayController (PraxCategories)
+-(BOOL)isSelectedItemStringValue:(NSString *)string uniqueForKey:(NSString *)key;
+@end
 
 @interface NSManagedObject (PraxCategories)
-
 + (id)entity:(NSString *)entity withKey:(NSString *)key matchingStringValue:(NSString *)stringValue inManagedObjectContext:(NSManagedObjectContext *)managedObjectContext;
-
 @end
 
 @interface AlphaColorWell : NSColorWell
-
 @end
 
 @interface NSMenu (secret)

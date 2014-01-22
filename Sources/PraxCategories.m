@@ -20,6 +20,7 @@
     if (index == NSNotFound) return nil;
     else return self[index];
 }
+
 - (NSString *)praxPressListType {
     NSInteger count = self.count;
 
@@ -52,6 +53,21 @@
         }
         return [NSString stringWithFormat:@"%@s", type];
     }
+}
+
+@end
+
+@implementation NSArrayController (PraxCategories)
+
+-(BOOL)isSelectedItemStringValue:(NSString *)string uniqueForKey:(NSString *)key {
+    if (self.selectedObjects.count) {
+        NSDictionary *selectedItem = self.selectedObjects[0];
+        for (NSDictionary *item in self.arrangedObjects) {
+            if (item == selectedItem) continue;
+            if ([item[key] isEqualToString:string]) return NO;
+        }
+    }
+    return YES;
 }
 
 @end
