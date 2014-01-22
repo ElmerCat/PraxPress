@@ -223,7 +223,7 @@
 - (void)dealloc {
     //    NSLog(@"Asset dealloc");
     if (self.awake) {
-        self.awake = FALSE;
+        self.awake = NO;
         for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
         
     }
@@ -232,7 +232,7 @@
 - (void)awakeFromFetch {
     
     if (!self.awake) {
-        self.awake = TRUE;
+        self.awake = YES;
         //        NSLog(@"Asset awakeFromFetch");
         
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
@@ -244,7 +244,7 @@
 - (void)awakeFromInsert {
     
     if (!self.awake) {
-        self.awake = TRUE;
+        self.awake = YES;
         //        NSLog(@"Asset awakeFromInsert");
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
