@@ -58,7 +58,7 @@
         
         [self.assetsTableView registerForDraggedTypes:[NSArray arrayWithObjects:@"org.ElmerCat.PraxPress.Asset", nil]];
         self.showDetailView = NO;
-        self.showTemplateView = NO;
+        self.showCodeView = NO;
         self.showFilterTags = NO;
       //  self.filterKeyIndex = 101;
       //  self.filterKeyOption = 201;
@@ -225,75 +225,6 @@
         }
     }
 }
-
-- (void)updateFormattedCode:sender {
-    @synchronized(self) {
-        if (self.updatingFormattedCode) return;
-        else self.updatingFormattedCode = YES;
-    }
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        NSString *newFormattedCode = @"";
-        if (self.exportCode) {
-            
-            if ((self.source) && ([self.assetArrayController.selectedObjects count] > 0)) {
-                newFormattedCode = [TemplateController codeForTemplate:self.source.template.formatText withAssets:self.assetArrayController.selectedObjects];
-            }
-        }
-        if (![newFormattedCode isEqualToString:self.formattedCode]) {
-            self.formattedCode = newFormattedCode;
-        }
-        self.updatingFormattedCode = NO;
-    });
-
-    
-}
-
-- (void)initAppleScript {
-    self.appleScriptSource = [NSString stringWithFormat:@"tell application \"Safari\"\rset theURL to \"%@\"\rset foundTab to false\rset windowCount to number of window\rrepeat with theWindow from 1 to windowCount\rtry\rset tabCount to number of tabs in window theWindow\rif (tabCount > 0) then\rrepeat with theTab from 1 to tabCount\rset tabName to name of tab theTab of window theWindow\rif (exists URL of tab theTab of window theWindow) then\rset tabURL to URL of tab theTab of window theWindow\rif (tabURL = theURL) then\rset foundTab to true\rend if\rend if\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rend if\rend try\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rif (foundTab = true) then\rset URL of tab theTab of window theWindow to theURL\relse\rmake new document at end of documents with properties {URL:theURL}\rend if\rend tell", self.exportCodeURL.absoluteString];
-    self.appleScript = nil;
-    self.appleScript = [[NSAppleScript alloc] initWithSource:self.appleScriptSource];
-}
-
-- (void)writeFormattedCode {
-    if (!self.document.exportCodeDirectory) return;
-    
-    if (!self.exportCodeURL) {
-        NSString *filename = [self.source.name lowercaseString];
-        filename = [filename stringByReplacingOccurrencesOfString:@" " withString:@"-"];
-        self.exportCodeURL = [self.document.exportCodeDirectory URLByAppendingPathComponent:filename];
-        self.exportCodeURL = [self.exportCodeURL URLByAppendingPathExtension:@"html"];
-    }
-
-    NSError *error;
-    [self.exportCodeURL startAccessingSecurityScopedResource];
-    BOOL ok = [self.formattedCode writeToURL:self.exportCodeURL atomically:YES
-                                            encoding:NSUnicodeStringEncoding error:&error];
-    [self.exportCodeURL stopAccessingSecurityScopedResource];
-    if (!ok) {
-        NSString *text = [NSString stringWithFormat:@"Error writing file\nself.source.exportURL.path: %@\nlocalizedFailureReason: %@", self.source.exportURL.path, [error localizedFailureReason]];
-        [Prax presentAlert:text forController:self];
-        self.document.exportCodeDirectory = nil;
-        if (!self.document.exportCodeDirectory) {
-            self.showSafariView = NO;
-            self.exportCode = NO;
-            [Prax presentAlert:@"self.document.exportCodeDirectory is nil" forController:self];
-        }
-        else [self writeFormattedCode];
-        
-    }
-    else {
-        if ((self.showSafariView) && (![self.formattedCode isEqualToString:@""])) {
-            if (!self.appleScript) [self initAppleScript];
-            NSDictionary *errorInfo;
-            if (![self.appleScript executeAndReturnError:&errorInfo]) {
-                [Prax presentAlert:[NSString stringWithFormat:@"showSafariView AppleScript error: %@", errorInfo] forController:self];
-            }
-            
-        }
-    }
-}
-
 - (void)showTags:(NSSet *)tags sender:(id)sender {
     NSLog(@"tags %@", [tags description]);
     
@@ -340,26 +271,6 @@
     else [self.assetArrayController setFilterPredicate:nil];
 }
 
-- (IBAction)exportFormattedCode:(id)sender {
-    NSSavePanel *panel = [NSSavePanel savePanel];
-    [panel setAllowedFileTypes:@[@"html"]];
-    [panel setAllowsOtherFileTypes:YES];
-    [panel setMessage:@"Export Code to File"];
-    if (self.source.exportURL) {
-        [panel setDirectoryURL:[self.source.exportURL URLByDeletingLastPathComponent]];
-        [panel setNameFieldStringValue:[self.source.exportURL lastPathComponent]];
-    }
-    [panel beginSheetModalForWindow:self.document.windowForSheet completionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            
-            self.source.exportURL = panel.URL;
-            self.appleScript = nil;
-            [self writeFormattedCode];
-        }
-        
-    }];
-}
-
 - (IBAction)filterButtonClicked:(id)sender {
     if ([self.sourceInfoPanel.window isVisible]) {
         [self.sourceInfoPanel.window close];
@@ -400,13 +311,6 @@
     }
 }
 
-- (IBAction)templatesButtonPressed:(id)sender {
-    self.document.templateController.assetListView = self;
-    [self.document.templateController.panel makeKeyAndOrderFront:self];
-}
-
-
-
 - (IBAction)newSearchRule:(id)sender {
     
     if (self.predicateEditor.numberOfRows < 1) [self newCompoundRule:sender];
@@ -444,11 +348,8 @@
                                          @"self.source.requiredTags",
                                          @"self.source.requireAllTags",
                                          @"self.source.excludedTags",
-                                         @"self.source.template",
-                                         @"self.source.template.formatText",
                                          @"self.editSearch",
                                          @"self.showFilterTags",
-                                         @"self.showTemplateView",
                                          @"self.showDetailView",
                                          @"self.showCodeView",
                                          @"self.showSafariView",
@@ -469,9 +370,6 @@
                 
                 [self prepareViewForSource];
                 if (self.associatedController) self.associatedController.source = self.source;
-
-                self.exportCodeURL = nil;
-                self.appleScript = nil;
                 
                 if (self.source == self.document.interface.selectedSource) self.isSelectedPane = YES;
                 else self.isSelectedPane = NO;
@@ -531,14 +429,12 @@
         }
     }
     
-    else if ([keyPath isEqualToString:@"self.showTemplateView"]) {
-        if (self.showTemplateView) {
-     //       [self.splitView setPosition:([self.splitView minPossiblePositionOfDividerAtIndex:0] + 300) ofDividerAtIndex:1];
-            [self.splitView.animator setPosition:([self.splitView minPossiblePositionOfDividerAtIndex:0] + 200) ofDividerAtIndex:0];
+    else if ([keyPath isEqualToString:@"self.showCodeView"]) {
+        if (self.showCodeView) {
+            [self.splitView.animator setPosition:([self.splitView minPossiblePositionOfDividerAtIndex:0] + 130) ofDividerAtIndex:0];
         }
         else {
             [self.splitView.animator setPosition:[self.splitView minPossiblePositionOfDividerAtIndex:0] ofDividerAtIndex:0];
-//            [self.splitView.animator setPosition:[self.splitView minPossiblePositionOfDividerAtIndex:0] ofDividerAtIndex:1];
         }
     }
     
@@ -551,25 +447,6 @@
         CGFloat newPosition = [self.splitView maxPossiblePositionOfDividerAtIndex:1];
         if (self.showDetailView) newPosition -= 200;
         [self.splitView.animator setPosition:newPosition ofDividerAtIndex:1];
-    }
-    
-    else if ([keyPath isEqualToString:@"self.showSafariView"]) {
-        if (self.showSafariView) {
-            [self writeFormattedCode];
-        }
-    }
-    
-    else if ([keyPath isEqualToString:@"self.exportCode"]) {
-        if (self.exportCode) {
-            [self updateFormattedCode:self];
-        }
-        else self.showSafariView = NO;
-    }
-    
-    else if ([keyPath isEqualToString:@"self.formattedCode"]) {
-        if (self.exportCode) {
-            [self writeFormattedCode];
-        }
     }
     
     else if ([keyPath isEqualToString:@"self.assetArrayController.sortDescriptors"]) {
@@ -620,16 +497,12 @@
             }
         }
         
-        [self updateFormattedCode:self];
+        self.codeController.needsUpdate = YES;
         
     }
     else if ([@[@"self.source.excludedTags", @"self.source.requiredTags", @"self.source.requireAllTags"] containsObject:keyPath]) {
         [self tagFilterAssets];
     }
-    else if ([@[@"self.source.template", @"self.source.template.formatText"] containsObject:keyPath]) {
-        [self updateFormattedCode:self];
-    }
-    
 }
 
 - (void) reloadAssets {
@@ -668,7 +541,7 @@
             
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                [self updateFormattedCode:self];
+                self.codeController.needsUpdate = YES;
             });
         }
         
@@ -915,14 +788,14 @@
         if (!self.showDetailView) self.showDetailView = YES;
     }
     
-    if ([self.splitView isSubviewCollapsed:self.templateViewPane]) {
-        if (self.showTemplateView) self.showTemplateView = NO;
+    if ([self.splitView isSubviewCollapsed:self.codeViewPane]) {
+        if (self.showCodeView) self.showCodeView = NO;
     }
-    else if (self.templateViewPane.frame.size.height < 10) {
-        if (self.showTemplateView) self.showTemplateView = NO;
+    else if (self.codeViewPane.frame.size.height < 10) {
+        if (self.showCodeView) self.showCodeView = NO;
     }
     else {
-        if (!self.showTemplateView) self.showTemplateView = YES;
+        if (!self.showCodeView) self.showCodeView = YES;
     }
     
     
