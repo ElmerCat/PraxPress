@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict/>
+<dict>
+	<key>templates</key>
+	<array>
+		<dict>
+			<key>type</key>
+			<string>header</string>
+			<key>text</key>
+			<string>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt; 
+&lt;title&gt;PraxPress&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;</string>
+		</dict>
+		<dict>
+			<key>type</key>
+			<string>item</string>
+			<key>text</key>
+			<string>&lt;div&gt;$$$title$$$&lt;/div&gt;</string>
+		</dict>
+		<dict>
+			<key>type</key>
+			<string>footer</string>
+			<key>text</key>
+			<string>&lt;/body&gt;&lt;/html&gt;</string>
+		</dict>
+	</array>
+</dict>
 </plist>
