@@ -9,20 +9,23 @@
 #import <Cocoa/Cocoa.h>
 #include "Document.h"
 #import "Widget.h"
-#import "WidgetMenuView.h"
 #import "PraxTokenField.h"
+#import "CodeController.h"
 
-@class Document;
+@class CodeController;
 @class WidgetMenuView;
 @class PraxTokenField;
 @class Widget;
 
 @interface WidgetViewController : NSViewController <NSMenuDelegate>
+
+
 @property BOOL awake;
 
-@property (weak) IBOutlet Document *document;
+@property (weak) IBOutlet CodeController *controller;
+
 @property (weak) IBOutlet NSPopover *popover;
-@property (weak) IBOutlet PraxTokenField *templateTokenField;
+@property (weak) IBOutlet PraxTokenField *tokenField;
 @property (weak) IBOutlet NSPopUpButton *popUpButton;
 @property (weak) IBOutlet NSLayoutConstraint *playerOptionBoxHeight;
 @property (weak) IBOutlet NSLayoutConstraint *playerOptionBoxWidth;

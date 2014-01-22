@@ -41,7 +41,7 @@
 - (void)awakeFromNib {
     NSLog(@"SourceInfoPanel awakeFromNib");
     if (!self.awake) {
-        self.awake = TRUE;
+        self.awake = YES;
         
         
         NSMutableArray *rowTemplates = [@[[[PraxPredicateEditorRowTemplate alloc] initWithCompoundTypes:@[@2, @1, @0]]] mutableCopy];
@@ -161,7 +161,7 @@
 }
 
 - (IBAction)loginButtonPressed:(id)sender {
-    
+/*
     NSArray *oauthAccounts = [[NXOAuth2AccountStore sharedStore] accountsWithAccountType:self.source.serviceAccount.accountType];
     if ([oauthAccounts count] > 0) {
         self.source.serviceAccount.oauthAccount = oauthAccounts[0];
@@ -182,7 +182,7 @@
                                        }];
         
     }
-    
+*/    
 }
 
 - (IBAction)clearTags:(id)sender {

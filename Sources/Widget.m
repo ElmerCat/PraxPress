@@ -77,7 +77,15 @@
     return @{
              @" Insert Prax Widget " : @" Insert Prax Widget ",
              @"title" : @"Title",
+             @"purchase_title" : @"Link Title",
+             @"purchase_url" : @"Link URL",
+             @"genre" : @"Genre",
+             @"permalink" : @"Permalink Slug",
+             @"permalink_url" : @"Permalink URL",
+             @"contents" : @"Contents / Description",
+             @"genre" : @"Genre",
              @"image" : @"Image",
+             @"artwork_url" : @"Image URL",
              @"player" : @"Player",
              @"uri" : @"URI"
              };}
@@ -245,7 +253,7 @@
             [string replaceOccurrencesOfString:@"$$$parameters$$$" withString:parameters options:nil range:NSMakeRange(0, string.length)];
         }
     }
-    else {
+    else { // keys
         if ([self.optionString isEqualToString:@"u"]) {
             [string setString:[[Widget valueOfItem:asset asStringForKey:self.keyString] uppercaseString]];
         }
@@ -273,7 +281,8 @@
         return @"---Undefined Attribute Type---";
     }
     else if ([attribute attributeType] == NSStringAttributeType) {
-        return [item valueForKey:key];
+        NSString *string = [item valueForKey:key];
+        return (string) ? string : @"";
     }
     else if ([attribute attributeType] < NSDateAttributeType) {
         return [[item valueForKey:key] stringValue];

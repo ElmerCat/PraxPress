@@ -11,12 +11,12 @@
 @implementation WidgetViewController
 
 - (NSArray *)textChoices {
-    return @[@"Title", @"URI"];
+    return @[@"Title", @"Genre", @"Permalink Slug", @"Permalink URL", @"Contents / Description", @"Link Title", @"Link URL", @"Image URL", @"URI"];
 }
+
 - (NSArray *)textOptions {
     return @[@"Default", @"Upper Case", @"Lower Case", @"Capitalize"];
 }
-
 
 - (NSArray *)playerTypes {
     return @[@{@"key" : @"HTML5", @"value" : @"HTML5 Player"},
@@ -46,7 +46,7 @@
 
 - (void)awakeFromNib{
     if (!self.awake) {
-        self.awake = TRUE;
+        self.awake = YES;
         NSLog(@"WidgetViewController awakeFromNib");
         
         for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
@@ -66,7 +66,6 @@
 
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    NSLog(@"Widget observeValueForKeyPath:%@\nobject:%@\nchange:%@\ncontext:%@", keyPath, object, change, context);
 
     if ([keyPath isEqualToString:@"self.widgetKeyString"]) {
         if ([self.widgetKeyString isEqualToString:@"image"]) {
@@ -78,7 +77,7 @@
         else self.optionIndex = 0;
         return;
     }
-    if ([keyPath isEqualToString:@"self.widgetOptionString"]) {
+    else if ([keyPath isEqualToString:@"self.widgetOptionString"]) {
         if ([self.widgetKeyString isEqualToString:@"image"]) {
             self.imageOptionIndex = 0;
             self.width = @"";
@@ -175,20 +174,24 @@
         
         
     }
-    if ([keyPath isEqualToString:@"self.widget.editingString"]) {
+    else if ([keyPath isEqualToString:@"self.widget.editingString"]) {
         
         if (self.widgetFound) {
       //      self.widget.displayString = [Widget displayStringForEditingString:self.widget.editingString];
             
-            NSMutableString *formatText = @"".mutableCopy;
-            [formatText appendString:self.stringBeforeWidget];
-            [formatText appendString:self.widget.editingString];
-            [formatText appendString:self.stringAfterWidget];
+            NSMutableString *editingString = @"".mutableCopy;
+            [editingString appendString:self.stringBeforeWidget];
+            [editingString appendString:self.widget.editingString];
+            [editingString appendString:self.stringAfterWidget];
             
-            Template *template = self.document.templateController.templatesController.selectedObjects[0];
-            template.formatText = formatText;
+            self.controller.editingString = editingString;
+            
+  //          Template *template = self.document.templateController.templatesController.selectedObjects[0];
+//            template.formatText = formatText;
         }
     }
+    else NSLog(@"Widget observeValueForKeyPath:%@\nobject:%@\nchange:%@\ncontext:%@", keyPath, object, change, context);
+
 }
 
 - (void)menuWillOpen:(NSMenu *)menu {
@@ -199,18 +202,18 @@
     self.stringAfterWidget = @"".mutableCopy;
 
     NSMenuItem *item = [menu itemAtIndex:0];
-    NSLog(@"%@",item.representedObject);
+//    NSLog(@"%@",item.representedObject);
     self.widget = item.representedObject;
     
-    NSArray *array = self.templateTokenField.objectValue;
+    NSArray *array = self.tokenField.objectValue;
     for (id object in array) {
         if (object == self.widget) self.widgetFound = YES;
         else if (self.widgetFound) [self.stringAfterWidget appendString:[Widget editingStringFromObject:object]];
         else [self.stringBeforeWidget appendString:[Widget editingStringFromObject:object]];
     }
-    NSLog(@"self.stringBeforeWidget:%@",self.stringBeforeWidget);
-    NSLog(@"self.stringAfterWidget:%@",self.stringAfterWidget);
-    NSLog(@"widgetFound:%hhd",self.widgetFound);
+//    NSLog(@"self.stringBeforeWidget:%@",self.stringBeforeWidget);
+//    NSLog(@"self.stringAfterWidget:%@",self.stringAfterWidget);
+//    NSLog(@"widgetFound:%hhd",self.widgetFound);
     if (self.widgetFound) {
         self.widgetKeyString = self.widget.keyString;
         self.widgetOptionString = self.widget.optionString;
@@ -239,10 +242,10 @@
 }
 
 - (void)showWidgetViewPopover {
-    NSPoint mousePoint = [self.document.templateController.panel mouseLocationOutsideOfEventStream];
+    NSPoint mousePoint = [self.tokenField.window mouseLocationOutsideOfEventStream];
     NSRect rect = NSMakeRect((mousePoint.x - 15), (mousePoint.y - 5), 1, 1);
     [self resizePopover];
-    [self.popover showRelativeToRect:rect ofView:self.document.templateController.panel.contentView preferredEdge:NSMinYEdge];
+    [self.popover showRelativeToRect:rect ofView:self.tokenField.window.contentView preferredEdge:NSMinYEdge];
 }
 
 - (void)popoverWillClose:(NSNotification *)notification {

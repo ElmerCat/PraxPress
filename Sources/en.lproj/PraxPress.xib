@@ -23,7 +23,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
-        <window title="PraxPress" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" wantsToBeColor="NO" frameAutosaveName="PraxPress" animationBehavior="default" id="1">
+        <window title="PraxPress" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" wantsToBeColor="NO" frameAutosaveName="PraxPress" animationBehavior="default" id="1">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
@@ -433,10 +433,10 @@
                                                         </binding>
                                                         <binding destination="-2" name="hidden2" keyPath="self.requestController.determinate" previousBinding="d2H-H8-8bh" id="jTb-7h-QOF">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                             </dictionary>
                                                         </binding>
@@ -464,10 +464,10 @@
                                                     <connections>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="nuC-Q6-fTU" id="Ml0-eC-CWA">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsNotOneTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -486,19 +486,19 @@
                                                     <connections>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="geV-mj-Ip7" id="O8R-OO-w3r">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                                             </dictionary>
                                                         </binding>
                                                         <binding destination="2r0-uP-xMq" name="hidden3" keyPath="arrangedObjects.@count" previousBinding="O8R-OO-w3r" id="woM-YT-lLG">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsOneTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -519,10 +519,10 @@
                                                         <action selector="stop:" target="X1A-z9-O7U" id="EZc-9l-Lgx"/>
                                                         <binding destination="2r0-uP-xMq" name="hidden2" keyPath="arrangedObjects.@count" previousBinding="2B5-8q-Sp5" id="wJy-Xs-vh6">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">PraxNumberIsZeroTransformer</string>
                                                             </dictionary>
                                                         </binding>
@@ -594,10 +594,10 @@
                                                         </binding>
                                                         <binding destination="-2" name="hidden2" keyPath="self.requestController.stop" previousBinding="pXZ-LZ-N6d" id="3za-LF-W91">
                                                             <dictionary key="options">
-                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                                                <integer key="NSNullPlaceholder" value="-1"/>
                                                                 <integer key="NSNotApplicablePlaceholder" value="-1"/>
                                                                 <integer key="NSNoSelectionPlaceholder" value="-1"/>
-                                                                <integer key="NSNullPlaceholder" value="-1"/>
+                                                                <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                                                 <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                             </dictionary>
                                                         </binding>
@@ -742,17 +742,11 @@
                 <binding destination="Kkg-l9-pUZ" name="sortDescriptors" keyPath="sortDescriptors" id="aFX-sE-hgs"/>
             </connections>
         </treeController>
-        <arrayController mode="entity" entityName="Template" automaticallyPreparesContent="YES" id="cJw-ij-Psa" userLabel="Templates Array Controller">
-            <connections>
-                <binding destination="-2" name="managedObjectContext" keyPath="self.managedObjectContext" id="uRQ-WE-4qd"/>
-            </connections>
-        </arrayController>
         <customObject id="rfX-Bx-ydB" customClass="TemplateController">
             <connections>
                 <outlet property="document" destination="-2" id="Zpd-0E-n4m"/>
                 <outlet property="panel" destination="0aw-DI-kgW" id="wTA-z1-Coe"/>
                 <outlet property="tableView" destination="nL7-k4-E9t" id="rki-BW-XuI"/>
-                <outlet property="templatesController" destination="cJw-ij-Psa" id="NJw-zY-oxr"/>
                 <outlet property="textView" destination="k8T-Qb-KoH" id="Yuy-ZZ-9mo"/>
                 <outlet property="widgetMenuView" destination="lkp-Qt-vmY" id="Fnm-rv-0Jk"/>
                 <outlet property="widgetViewController" destination="poG-kD-Zqs" id="r5u-aU-LJ7"/>
@@ -887,16 +881,8 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <connections>
-                                                        <binding destination="cJw-ij-Psa" name="value" keyPath="arrangedObjects.name" id="83e-wO-M3d"/>
-                                                    </connections>
                                                 </tableColumn>
                                             </tableColumns>
-                                            <connections>
-                                                <binding destination="cJw-ij-Psa" name="content" keyPath="arrangedObjects" id="Mh0-WT-GVE"/>
-                                                <binding destination="cJw-ij-Psa" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="Mh0-WT-GVE" id="XnH-uf-BKL"/>
-                                                <binding destination="cJw-ij-Psa" name="sortDescriptors" keyPath="sortDescriptors" previousBinding="XnH-uf-BKL" id="JEO-sL-bFw"/>
-                                            </connections>
                                         </tableView>
                                     </subviews>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -931,12 +917,6 @@
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </tokenFieldCell>
                                                 <connections>
-                                                    <binding destination="cJw-ij-Psa" name="value" keyPath="selection.formatText" id="FwF-XX-zVv">
-                                                        <dictionary key="options">
-                                                            <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                            <string key="NSValueTransformerName">PraxWidgetStringTransformer</string>
-                                                        </dictionary>
-                                                    </binding>
                                                     <outlet property="delegate" destination="rfX-Bx-ydB" id="2oz-2P-2px"/>
                                                 </connections>
                                             </tokenField>
@@ -967,13 +947,6 @@
                                                     <allowedInputSourceLocales>
                                                         <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                                     </allowedInputSourceLocales>
-                                                    <connections>
-                                                        <binding destination="cJw-ij-Psa" name="value" keyPath="selection.formatText" id="In8-Di-oFx">
-                                                            <dictionary key="options">
-                                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                            </dictionary>
-                                                        </binding>
-                                                    </connections>
                                                 </textView>
                                             </subviews>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -1027,12 +1000,7 @@
                             <action selector="duplicate:" target="rfX-Bx-ydB" id="Ilh-2l-7LG"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="A0FD4D7C-B13E-46B9-B961-D0A52E4B6FBC" label="Delete Template" paletteLabel="Delete Template" tag="-1" image="NSTrashEmpty" id="9Aa-Hf-iZv">
-                        <connections>
-                            <action selector="remove:" target="cJw-ij-Psa" id="nks-2j-5od"/>
-                            <binding destination="cJw-ij-Psa" name="enabled" keyPath="canRemove" id="Vuf-O4-opg"/>
-                        </connections>
-                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="A0FD4D7C-B13E-46B9-B961-D0A52E4B6FBC" label="Delete Template" paletteLabel="Delete Template" tag="-1" image="NSTrashEmpty" id="9Aa-Hf-iZv"/>
                     <toolbarItem implicitItemIdentifier="408BB34D-4BD4-42FC-9D0F-FFE8BF9167ED" label="Import Templates" paletteLabel="Import Templates" tag="-1" image="NSFolder" id="sJG-MN-Sjy">
                         <connections>
                             <action selector="importTemplates:" target="rfX-Bx-ydB" id="ntu-7c-vlT"/>

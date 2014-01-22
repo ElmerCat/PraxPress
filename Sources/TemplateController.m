@@ -11,13 +11,13 @@
 @implementation TemplateController
 
 
-- (NSArray *)keyPathsToObserve {return @[@"self.templatesController.selectionIndexes", @"self.assetListView", @"self.assetListView.source", @"self.assetListView.source.template"];}
+//- (NSArray *)keyPathsToObserve {return @[@"self.templatesController.selectionIndexes", @"self.assetListView", @"self.assetListView.source", @"self.assetListView.source.template"];}
 
 - (id)init {
     self = [super init];
     if (self) {
         NSLog(@"TemplateController init");
-        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
+//        for (NSString *keyPath in self.keyPathsToObserve) [self addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:0];
         
     }
     return self;
@@ -26,8 +26,8 @@
 - (void)awakeFromNib {
     NSLog(@"TemplateController awakeFromNib");
     if (!self.awake) {
-        self.awake = TRUE;
-        [self.templatesController setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES]]];
+        self.awake = YES;
+//        [self.templatesController setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES]]];
         
     }
 }
@@ -38,10 +38,10 @@
 }
 - (void)dealloc {
     NSLog(@"TemplateController dealloc");
-    for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
+//    for (NSString *keyPath in self.keyPathsToObserve) [self removeObserver:self forKeyPath:keyPath];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {  
+/*- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     NSLog(@"TemplateController observeValueForKeyPath: %@", keyPath);
     
     if ([keyPath isEqualToString:@"self.templatesController.selectionIndexes"]) {
@@ -72,7 +72,7 @@
         }
     }
 }
-
+*/
 
 
 + (NSString *)codeForTemplate:(NSString *)formatText withAssets:(NSArray *)assets {
@@ -104,17 +104,17 @@
             
             NSMutableDictionary *templates = [NSMutableDictionary dictionaryWithCapacity:10];
             for (Template *template in self.templatesController.arrangedObjects) {
-                templates[template.name] = template.formatText;
+//                templates[template.name] = template.formatText;
             }
             
             NSArray *importTemplates = [NSKeyedUnarchiver unarchiveObjectWithFile:[url path]];
             for (NSDictionary *importTemplate in importTemplates) {
                 NSString *text = templates[importTemplate[@"name"]];
                 if (text.length <= 0) {
-                    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
-                    template.name = importTemplate[@"name"];
-                    template.formatText = importTemplate[@"formatText"];
-                    [self.templatesController rearrangeObjects];
+//                    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
+//                    template.name = importTemplate[@"name"];
+//                    template.formatText = importTemplate[@"formatText"];
+//                    [self.templatesController rearrangeObjects];
                 }
             }
         }
@@ -131,7 +131,7 @@
         if (result == NSFileHandlingPanelOKButton) {
             NSMutableArray *templates = [NSMutableArray arrayWithCapacity:10];
             for (Template *template in self.templatesController.arrangedObjects) {
-                [templates addObject:@{@"name":template.name, @"formatText":template.formatText}];
+//                [templates addObject:@{@"name":template.name, @"formatText":template.formatText}];
             }
             [NSKeyedArchiver archiveRootObject:templates toFile:panel.URL.path];
         }
@@ -139,24 +139,24 @@
 }
 
 - (IBAction)addTemplate:(id)sender {
-    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
-    template.name = @"NEW Template";
-    template.formatText = @"<div>$$$title$$$</div>";
-    [self.templatesController rearrangeObjects];
-    [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
+//    Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
+//    template.name = @"NEW Template";
+//    template.formatText = @"<div>$$$title$$$</div>";
+ //   [self.templatesController rearrangeObjects];
+//    [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
     
 }
 
 - (IBAction)duplicate:(id)sender {
     if (self.templatesController.selectedObjects.count > 0) {
-        Template *selectedTemplate = self.templatesController.selectedObjects[0];
+//        Template *selectedTemplate = self.templatesController.selectedObjects[0];
         
-        Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
+//        Template *template = [NSEntityDescription insertNewObjectForEntityForName:@"Template" inManagedObjectContext:self.document.managedObjectContext];
         
-        template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
-        template.formatText = selectedTemplate.formatText;
-        [self.templatesController rearrangeObjects];
-        [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
+//        template.name = [NSString stringWithFormat:@"%@ COPY", selectedTemplate.name];
+//        template.formatText = selectedTemplate.formatText;
+//        [self.templatesController rearrangeObjects];
+//        [self.tableView scrollRowToVisible:self.templatesController.selectionIndex];
     }
 }
 

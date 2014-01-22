@@ -11,7 +11,6 @@
 #import "AssetListView.h"
 #import "AssetListViewController.h"
 //#import "AssetListView.h"
-#import "SourcePopovers.h"
 #import "SourceInfoPanel.h"
 
 @class SourcePopovers;
@@ -46,7 +45,7 @@
 - (void)windowWillClose:(NSNotification *)notification;
 
 
-- (IBAction)clearTags:(id)sender;
+//- (IBAction)clearTags:(id)sender;
 
 
 - (IBAction)newListPaneWithSource:(id)sender;
@@ -56,10 +55,9 @@
 
 - (IBAction)newPraxAsset:(id)sender;
 - (IBAction)toggleSourceList:(id)sender;
-- (IBAction)filterSelectedPane:(id)sender;
 - (IBAction)toolbarItemSelected:(id)sender;
-- (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
-- (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
+//- (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender;
+//- (IBAction)sourceDetailsButtonPressedBottomEdge:(id)sender;
 - (void)doubleClickedSource;
 - (IBAction)closeAssetListPane:(id)sender;
 

@@ -30,7 +30,7 @@
 - (void)awakeFromNib {
     NSLog(@"TagController awakeFromNib");
     if (!self.awake) {
-        self.awake = TRUE;
+        self.awake = YES;
         [self.tagsArrayController setSortDescriptors:@[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)]]];
     }
 }

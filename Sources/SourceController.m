@@ -84,8 +84,8 @@
 
 - (void)awakeFromNib {
     if (!self.awake) {
+        self.awake = YES;
         NSLog(@"SourceController awakeFromNib");
-        self.awake = TRUE;
         [self.sourceListOutlineView registerForDraggedTypes:@[@"org.ElmerCat.PraxPress.Source"]];
         [self.sourceListOutlineView setDoubleAction:@selector(doubleClickedSource)];
         [self.sourceListOutlineView setTarget:self];
@@ -110,10 +110,11 @@
     if (!self.document.interface.selectedSource) self.document.interface.selectedSource = self.allItemsSource;
     [self addPaneWithSource:self.document.interface.selectedSource afterPane:nil associated:NO select:YES];
     
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.1 * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [self.sourceSplitView.animator setPosition:self.document.interface.sourceListWidth.doubleValue ofDividerAtIndex:0];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"AssetChangedNotification" object:self];
+        [self.sourceListOutlineView expandItem:[self.sourceTreeController nodeOfObject:self.allItemsSource.parent] expandChildren:NO];
         self.interfaceLoaded = YES;
     });
 }
@@ -486,7 +487,7 @@
 
 #pragma mark - IBActions
 
-- (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender {
+/*- (IBAction)sourceDetailsButtonPressedRightEdge:(id)sender {
     Source *source = (Source *)[(NSTableCellView *)[sender superview] objectValue];
     if ((source == self.sourcePopovers.source) && (self.sourcePopover.isShown)) [self.sourcePopover close];
     else [self.sourcePopovers showPopoverForSource:source sender:sender preferredEdge:NSMaxXEdge];
@@ -502,7 +503,7 @@
     self.document.interface.selectedSource.requiredTags = [NSSet setWithArray:@[]];
     self.document.interface.selectedSource.excludedTags = [NSSet setWithArray:@[]];
     self.document.interface.selectedSource.requireAllTags = 0;
-}
+}*/
 
 - (IBAction)newListPaneWithSource:(id)sender {
     Source *source = [[self.sourceListOutlineView itemAtRow:[self.sourceListOutlineView clickedRow]] representedObject];
