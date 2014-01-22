@@ -83,7 +83,6 @@
         <attribute name="filterOptionIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="filterString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="folderType" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="formattedCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="iconName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="itemCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -92,6 +91,12 @@
         <attribute name="selectionIndexes" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="sortDescriptors" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="sortOrder" optional="YES" attributeType="Integer 64" minValueString="0" defaultValueString="0" syncable="YES"/>
+        <attribute name="templateFooterCode" optional="YES" attributeType="String" defaultValueString="&lt;/body>&lt;/html>" syncable="YES"/>
+        <attribute name="templateHeaderCode" optional="YES" attributeType="String" defaultValueString="&lt;html>&lt;body>" syncable="YES"/>
+        <attribute name="templateItemsCode" optional="YES" attributeType="String" defaultValueString="&lt;span>$$$title$$$&lt;/span>" syncable="YES"/>
+        <attribute name="templateItemsPerRow" optional="YES" attributeType="Integer 16" minValueString="1" defaultValueString="1" syncable="YES"/>
+        <attribute name="templateMode" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="templateRowCode" optional="YES" attributeType="String" defaultValueString="&lt;/tr>&lt;tr>" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="sources" inverseEntity="Account" syncable="YES"/>
         <relationship name="batchAssets" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Asset" inverseName="batchSources" inverseEntity="Asset" syncable="YES"/>
@@ -102,7 +107,6 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source" inverseName="children" inverseEntity="Source" syncable="YES"/>
         <relationship name="requiredTags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="requiredSources" inverseEntity="Tag" syncable="YES"/>
         <relationship name="selectedAssets" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Asset" inverseName="selectedSources" inverseEntity="Asset" syncable="YES"/>
-        <relationship name="template" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Template" inverseName="sources" inverseEntity="Template" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="isWPCategory" optional="YES" attributeType="Boolean" syncable="YES"/>
@@ -113,12 +117,6 @@
         <relationship name="excludedSources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="excludedTags" inverseEntity="Source" syncable="YES"/>
         <relationship name="genreAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Asset" inverseName="genreTags" inverseEntity="Asset" syncable="YES"/>
         <relationship name="requiredSources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="requiredTags" inverseEntity="Source" syncable="YES"/>
-    </entity>
-    <entity name="Template" representedClassName="Template" syncable="YES">
-        <attribute name="format" optional="YES" attributeType="Transformable" syncable="YES"/>
-        <attribute name="formatText" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="sources" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Source" inverseName="template" inverseEntity="Source" syncable="YES"/>
     </entity>
     <entity name="Video" representedClassName="Asset" parentEntity="Asset" syncable="YES"/>
     <entity name="Widget" syncable="YES">
@@ -134,7 +132,6 @@
         <element name="PraxAsset" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Source" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Template" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Video" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Widget" positionX="0" positionY="0" width="0" height="0"/>
     </elements>

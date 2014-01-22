@@ -107,6 +107,7 @@
 
 - (void)awakeFromNib {
     if (!self.awake) {
+        self.awake = TRUE;
         NSLog(@"Document awakeFromNib");
         if (!self.interface) {
             NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Interface"];

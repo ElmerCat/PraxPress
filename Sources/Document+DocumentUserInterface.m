@@ -10,6 +10,15 @@
 
 @implementation Document (DocumentUserInterface)
 
+- (IBAction)displayAccountsPreferences:(id)sender {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"PraxDefaultsDisplayNotification" object:@"Accounts"];
+
+}
+
+
+
+
+
 
 
 - (NSString *)toolTipStats {
@@ -59,10 +68,6 @@
 
 - (IBAction)toggleTagsPanel:(id)sender {
     [self.tagController toggleTagsPanel:sender];
-}
-
-- (IBAction)filterSelectedPane:(id)sender {
-    [self.sourceController filterSelectedPane:sender];
 }
 
 - (IBAction)toggleSourceList:(id)sender {

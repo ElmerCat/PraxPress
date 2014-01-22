@@ -25,10 +25,9 @@
 #import "AccountController.h"
 #import "SourceController.h"
 #import "TagController.h"
-#import "AccountViewController.h"
 #import "RequestController.h"
 #import "AssetMetadataPopover.h"
-#import "TemplateViewController.h"
+#import "CodeController.h"
 #import "TemplateController.h"
 
 @class AccountController;

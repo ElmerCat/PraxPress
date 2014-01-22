@@ -14,6 +14,7 @@
 - (NSString *)toolTipReload;
 - (NSString *)toolTipUpload;
 
+- (IBAction)displayAccountsPreferences:(id)sender;
 - (IBAction)praxButtonPressed:(id)sender;
 
 @end
