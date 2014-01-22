@@ -27,5 +27,4 @@
     [self.popover showRelativeToRect:[(NSButton *)sender bounds] ofView:(NSButton *)sender preferredEdge:NSMaxXEdge];
 }
 
-
 @end
