@@ -63,7 +63,7 @@
 - (IBAction)saveTemplate:(id)sender {
     [self.templatesArrayController setSelectionIndexes:nil];
     self.templateName = @"";
-    [self.popover showRelativeToRect:[(NSButton *)sender bounds] ofView:(NSButton *)sender preferredEdge:NSMaxXEdge];
+    [self.popover showRelativeToRect:self.relativeView.bounds ofView:self.relativeView preferredEdge:NSMaxYEdge];
 }
 
 - (IBAction)save:(id)sender {

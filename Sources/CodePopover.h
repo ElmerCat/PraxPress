@@ -11,6 +11,7 @@
 @interface CodePopover : NSViewController
 
 @property (weak) IBOutlet NSPopover *popover;
+@property (weak) IBOutlet NSView *relativeView;
 
 - (IBAction)showCodePopover:(id)sender;
 

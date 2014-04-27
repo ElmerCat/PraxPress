@@ -44,5 +44,6 @@
 
 #pragma mark - IBActions
 
+- (IBAction)templateMode:(id)sender;
 
 @end

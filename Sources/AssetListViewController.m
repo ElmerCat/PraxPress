@@ -149,7 +149,7 @@
     }
     else {
         NSString *string = [NSString stringWithFormat:@"%@ %@%@ \"%@\"", self.filterKey, self.filterOption, self.caseOption, self.source.filterString];
-        if (self.source.filterNegate) string = [NSString stringWithFormat:@"NOT (%@)", string];
+        if (self.source.filterNegate.boolValue) string = [NSString stringWithFormat:@"NOT (%@)", string];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:string];
         [self.assetArrayController setFilterPredicate:predicate];
     }

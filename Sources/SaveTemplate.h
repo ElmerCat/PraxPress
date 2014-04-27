@@ -20,6 +20,7 @@
 
 @property (unsafe_unretained) IBOutlet AssetListViewController *controller;
 @property (weak) IBOutlet NSPopover *popover;
+@property (weak) IBOutlet NSView *relativeView;
 
 
 @property (weak) IBOutlet NSArrayController *templatesArrayController;

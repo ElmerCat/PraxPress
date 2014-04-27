@@ -89,7 +89,8 @@
     
 }
 
-- (void)initAppleScript {
+- (void)initAppleScript {    
+    
     self.appleScriptSource = [NSString stringWithFormat:@"tell application \"Safari\"\rset theURL to \"%@\"\rset foundTab to false\rset windowCount to number of window\rrepeat with theWindow from 1 to windowCount\rtry\rset tabCount to number of tabs in window theWindow\rif (tabCount > 0) then\rrepeat with theTab from 1 to tabCount\rset tabName to name of tab theTab of window theWindow\rif (exists URL of tab theTab of window theWindow) then\rset tabURL to URL of tab theTab of window theWindow\rif (tabURL = theURL) then\rset foundTab to true\rend if\rend if\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rend if\rend try\rif (foundTab = true) then\rexit repeat\rend if\rend repeat\rif (foundTab = true) then\rset URL of tab theTab of window theWindow to theURL\relse\rmake new document at end of documents with properties {URL:theURL}\ractivate\rend if\rend tell", self.exportCodeURL.absoluteString];
     self.appleScript = nil;
     self.appleScript = [[NSAppleScript alloc] initWithSource:self.appleScriptSource];
@@ -135,6 +136,26 @@
 }
 
 
+#pragma mark - IBActions
+
+- (IBAction)templateMode:(id)sender {
+    NSInteger tag = [sender tag];
+    if ((100 <= tag) && (101 >= tag)) {
+        if (100 == tag) self.controller.source.templateMode = @0;
+        if (101 == tag) self.controller.source.templateMode = @1;
+    }
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSInteger tag = item.tag;
+    if ((100 <= tag) && (101 >= tag)) {
+        NSInteger templateMode = self.controller.source.templateMode.integerValue;
+        if (100 == tag) [item setState:((templateMode == 0) ? NSOnState : NSOffState)];
+        else if (101 == tag) [item setState:((templateMode == 1) ? NSOnState : NSOffState)];
+        return YES;
+    }
+    return NO;
+}
 
 
 #pragma mark - KeyValueObservation

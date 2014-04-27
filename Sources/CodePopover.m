@@ -24,7 +24,7 @@
 }
 
 - (IBAction)showCodePopover:(id)sender {
-    [self.popover showRelativeToRect:[(NSButton *)sender bounds] ofView:(NSButton *)sender preferredEdge:NSMaxXEdge];
+    [self.popover showRelativeToRect:self.relativeView.bounds ofView:self.relativeView preferredEdge:NSMinXEdge];
 }
 
 @end
