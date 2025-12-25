@@ -3,7 +3,8 @@
 
 import Foundation
 import CoreGraphics
-import Combine
+import PDFKit
+internal import Combine
 
 struct EdgeTrims: Codable, Hashable {
     var left: CGFloat
@@ -14,9 +15,15 @@ struct EdgeTrims: Codable, Hashable {
     static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
 
-final class PerPageTrimModel: ObservableObject {
+@Observable class PerPageTrimModel {
+    
+    var pdfDocument: PDFDocument?
+    var currentIndex: Int = 0
+    var mergedWidthPts: CGFloat = 0
+    var mergedHeightPts: CGFloat = 0
+    
     // Keyed by page index in the source PDF
-    @Published var trims: [Int: EdgeTrims] = [:]
+    var trims: [Int: EdgeTrims] = [:]
 
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
     func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }

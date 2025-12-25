@@ -4,106 +4,121 @@
 import SwiftUI
 import PDFKit
 import AppKit
+internal import Combine
 
-struct PageTrimView: View {
-    let url: URL
-    @ObservedObject var model: PerPageTrimModel
-
-    @State private var pdfDocument: PDFDocument?
-    @State private var currentIndex: Int = 0
-
-    @State private var mergedWidthPts: CGFloat = 0
-    @State private var mergedHeightPts: CGFloat = 0
-
+struct PageTrimStatus: View {
+    let model: PerPageTrimModel
+    
     var body: some View {
-        VStack(spacing: 0) {
+        GroupBox {
             HStack {
                 // Left: Page indicator
-                Text("Page \(currentIndex + 1) of \(pdfDocument?.pageCount ?? 0)")
+                Text("Page \(model.currentIndex + 1) of \(model.pdfDocument?.pageCount ?? 0)")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
+                    
+                    
+                
                 Spacer()
-
+                
                 // Right: Live merged size using trims
-                if mergedWidthPts > 0, mergedHeightPts > 0 {
-                    let wIn = mergedWidthPts / 72.0
-                    let hIn = mergedHeightPts / 72.0
-                    Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", mergedWidthPts, mergedHeightPts, wIn, hIn))
+                if model.mergedWidthPts > 0, model.mergedHeightPts > 0 {
+                    let wIn = model.mergedWidthPts / 72.0
+                    let hIn = model.mergedHeightPts / 72.0
+                    Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", model.mergedWidthPts, model.mergedHeightPts, wIn, hIn))
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    //    .foregroundStyle(Color.white)
                 } else {
                     Text("Merged size: —")
                         .font(.subheadline)
-                        .foregroundStyle(.tertiary)
+                      //  .foregroundStyle(.tertiary)
                 }
             }
             .padding(8)
+        }
+        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        .foregroundStyle(Color.white)
+    }
+}
 
+struct PageTrimView: View {
+    @Bindable var viewModel:  ViewModel
+    @Bindable var model: PerPageTrimModel
+    
+    var body: some View {
+        
+        if viewModel.selectedFiles.isEmpty {
+            Text("Plese Select a File to Merge")
+                .font(Font.largeTitle.bold())
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        else {
+            let id = viewModel.selectedFiles.first
+            let entry = viewModel.listOfFiles.first(where: { $0.id == id })
+            let url = entry!.url
+            
+            PageTrimStatus(model: model)
+            
             HStack(spacing: 0) {
-                PDFPageListView(document: pdfDocument, selectedIndex: $currentIndex)
+                PDFPageListView(document: model.pdfDocument, selectedIndex: $model.currentIndex)
                     .frame(width: 180)
                     .background(.quaternary)
                 Divider()
-                if let doc = pdfDocument, let page = doc.page(at: currentIndex) {
-                    CropOverlayPDFView(page: page, trims: Binding(get: { model.trims(for: currentIndex) }, set: { model.setTrims($0, for: currentIndex) }))
+                if let doc = model.pdfDocument, let page = doc.page(at: model.currentIndex) {
+                    CropOverlayPDFView(page: page, trims: Binding(get: { model.trims(for: model.currentIndex) }, set: { model.setTrims($0, for: model.currentIndex) }))
                         .background(Color(nsColor: .windowBackgroundColor))
                 } else {
                     ContentUnavailableView("No page", systemImage: "doc")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-        }
-        .onAppear {
-            _ = url.startAccessingSecurityScopedResource()
-            self.pdfDocument = PDFDocument(url: url)
-            if (self.pdfDocument?.pageCount ?? 0) > 0 { self.currentIndex = 0 }
-            recomputeMergedMetrics()
-        }
-        .onChange(of: url) { _, newURL in
-            // Stop access for the old URL if needed
-            url.stopAccessingSecurityScopedResource()
-            // Start access and load new document
-            _ = newURL.startAccessingSecurityScopedResource()
-            self.pdfDocument = PDFDocument(url: newURL)
-            // Reset page index
-            if (self.pdfDocument?.pageCount ?? 0) > 0 { self.currentIndex = 0 }
-            // Clear trims for the new document
-            model.trims = [:]
-            // Recompute merged metrics if available
-            DispatchQueue.main.async {
+            
+            .onAppear {
+                _ = url.startAccessingSecurityScopedResource()
+                model.pdfDocument = PDFDocument(url: url)
+                if (model.pdfDocument?.pageCount ?? 0) > 0 { model.currentIndex = 0 }
                 recomputeMergedMetrics()
             }
-            #if canImport(SwiftUI)
-            // If recompute function exists, call it
-            // (Safe to call even if it's no-op in older versions)
-            #endif
-        }
-        .onDisappear {
-            url.stopAccessingSecurityScopedResource()
-        }
-        .onChange(of: currentIndex) { _, _ in
-            DispatchQueue.main.async {
-                recomputeMergedMetrics()
+            .onChange(of: url) { _, newURL in
+                // Stop access for the old URL if needed
+                url.stopAccessingSecurityScopedResource()
+                // Start access and load new document
+                _ = newURL.startAccessingSecurityScopedResource()
+                model.pdfDocument = PDFDocument(url: newURL)
+                // Reset page index
+                if (model.pdfDocument?.pageCount ?? 0) > 0 { model.currentIndex = 0 }
+                // Clear trims for the new document
+                model.trims = [:]
+                // Recompute merged metrics if available
+                DispatchQueue.main.async {
+                    recomputeMergedMetrics()
+                }
             }
-        }
-        .onReceive(model.$trims) { _ in
-            DispatchQueue.main.async {
-                recomputeMergedMetrics()
+            .onDisappear {
+                url.stopAccessingSecurityScopedResource()
+            }
+            .onChange(of: model.currentIndex) { _, _ in
+                DispatchQueue.main.async {
+                    recomputeMergedMetrics()
+                }
+            }
+            .onChange(of: model.trims) { _, _ in
+                DispatchQueue.main.async {
+                    recomputeMergedMetrics()
+                }
             }
         }
     }
-
+    
     private func recomputeMergedMetrics() {
-        guard let doc = pdfDocument else {
-            mergedWidthPts = 0
-            mergedHeightPts = 0
+        guard let doc = model.pdfDocument else {
+            model.mergedWidthPts = 0
+            model.mergedHeightPts = 0
             return
         }
         let count = doc.pageCount
         guard count > 0 else {
-            mergedWidthPts = 0
-            mergedHeightPts = 0
+            model.mergedWidthPts = 0
+            model.mergedHeightPts = 0
             return
         }
         var maxVisibleWidth: CGFloat = 0
@@ -118,15 +133,15 @@ struct PageTrimView: View {
             maxVisibleWidth = max(maxVisibleWidth, vis.width)
             totalVisibleHeight += vis.height
         }
-        mergedWidthPts = maxVisibleWidth
-        mergedHeightPts = totalVisibleHeight
+        model.mergedWidthPts = maxVisibleWidth
+        model.mergedHeightPts = totalVisibleHeight
     }
 }
 
 private struct PDFPageListView: View {
     let document: PDFDocument?
     @Binding var selectedIndex: Int
-
+    
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
@@ -157,14 +172,14 @@ private struct PDFPageListView: View {
 struct CropOverlayPDFView: NSViewRepresentable {
     let page: PDFPage
     @Binding var trims: EdgeTrims
-
+    
     func makeNSView(context: Context) -> CropOverlayPDFNSView {
         let v = CropOverlayPDFNSView()
         v.configure(page: page, trims: trims)
         v.onTrimsChanged = { self.trims = $0 }
         return v
     }
-
+    
     func updateNSView(_ nsView: CropOverlayPDFNSView, context: Context) {
         nsView.configure(page: page, trims: trims)
     }
@@ -175,7 +190,7 @@ final class CropOverlayPDFNSView: NSView {
     private let overlay = OverlayView()
     private var page: PDFPage?
     var onTrimsChanged: ((EdgeTrims) -> Void)?
-
+    
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         wantsLayer = true
@@ -202,16 +217,16 @@ final class CropOverlayPDFNSView: NSView {
             self.onTrimsChanged?(trims)
         }
     }
-
+    
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
+    
     override func layout() {
         super.layout()
         pdfView.frame = bounds
         overlay.frame = bounds
         overlay.needsDisplay = true
     }
-
+    
     func configure(page: PDFPage, trims: EdgeTrims) {
         if self.page !== page {
             let doc = PDFDocument()
@@ -232,22 +247,22 @@ final class CropOverlayPDFNSView: NSView {
             overlay.needsDisplay = true
         }
     }
-
+    
     private func pageBoundsInView() -> CGRect {
         guard let page else { return .zero }
         let media = page.bounds(for: .mediaBox)
         return pdfView.convert(media, from: page)
     }
-
+    
     // Transparent overlay that captures mouse and draws the selection rectangle
     private final class OverlayView: NSView {
         var onFinish: ((CGRect) -> Void)?
         var currentRect: CGRect? { didSet { needsDisplay = true } }
         private var dragStart: CGPoint?
-
+        
         override var acceptsFirstResponder: Bool { true }
         override func hitTest(_ point: NSPoint) -> NSView? { return self } // capture events over pdfView
-
+        
         override func draw(_ dirtyRect: NSRect) {
             super.draw(dirtyRect)
             guard let r = currentRect else { return }
@@ -258,12 +273,12 @@ final class CropOverlayPDFNSView: NSView {
             NSColor.systemBlue.withAlphaComponent(0.15).setFill()
             r.fill()
         }
-
+        
         override func mouseDown(with event: NSEvent) {
             dragStart = convert(event.locationInWindow, from: nil)
             currentRect = CGRect(origin: dragStart!, size: .zero)
         }
-
+        
         override func mouseDragged(with event: NSEvent) {
             guard let start = dragStart else { return }
             let cur = convert(event.locationInWindow, from: nil)
@@ -272,7 +287,7 @@ final class CropOverlayPDFNSView: NSView {
                                  width: abs(cur.x - start.x),
                                  height: abs(cur.y - start.y))
         }
-
+        
         override func mouseUp(with event: NSEvent) {
             guard let rect = currentRect else { return }
             onFinish?(rect)
