@@ -66,7 +66,7 @@ struct SourceFilesView: View {
         .toolbar(removing: .sidebarToggle)
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
-                if (!viewModel.selectedFiles.isEmpty) {
+                if (viewModel.columnVisibility == .all && !viewModel.selectedFiles.isEmpty) {
                     Button {
                         viewModel.listOfFiles.removeAll()
                         viewModel.selectedFiles.removeAll()

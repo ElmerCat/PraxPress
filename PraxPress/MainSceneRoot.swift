@@ -17,22 +17,32 @@ internal import Combine
 
     var listOfFiles: [PDFEntry] = []
     var selectedFiles = Set<PDFEntry.ID>() 
-    var isEnabled = false
+   // var isEnabled = false
+    
+    var showSavePanel: Bool = false
+//    var mergeAsShown: Bool = false
+
+    
+    var saveError: String?
     
 }
 
 struct MainSceneRoot: View {
 
     @State private var viewModel = ViewModel()
-    @State private var perPageTrimModel = PerPageTrimModel()
+    @State private var pdfModel = PDFModel()
+    
 
     
     
     var body: some View {
+        
         ContentView()
             .environment(viewModel)
-            .environment(perPageTrimModel)
+            .environment(pdfModel)
+            
     }
+        
 }
 
 

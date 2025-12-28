@@ -12,6 +12,8 @@ import AppKit
 struct PraxPressApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @State private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
+    
     
     var body: some Scene {
         WindowGroup(id: "main") {
@@ -26,8 +28,12 @@ struct PraxPressApp: App {
         .commands {
             MainCommands()
         }
+        .windowToolbarStyle(.unified(showsTitle: true))
+      
+        .windowToolbarLabelStyle($toolbarLabelStyle)
     }
 }
+   
 
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
