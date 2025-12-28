@@ -171,7 +171,7 @@ struct ContentView: View {
                 }
                 .disabled(viewModel.selectedFiles.isEmpty)
                 
-                Button("Save As…", systemImage: "square.and.arrow.down.on.square") {
+                Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
                   //  pdfModel.showSavePanel = true
                     viewModel.showSavePanel = true
                 }
