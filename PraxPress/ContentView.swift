@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  PraxPress
+//  PraxPress - Prax=1229-1
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -26,7 +26,6 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(min: 50, ideal: 300, max: 400)
         }
         
-        
         detail:  {
             HSplitView {
                 
@@ -36,67 +35,14 @@ struct ContentView: View {
                 .background(.cyan).padding(20)
 
                 GroupBox {
+                    PageTrimStatus(pdfModel: pdfModel)
                     PDFViewContainer(viewModel: viewModel, pdfModel: pdfModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
-/*                    if pdfModel.fileURL != nil {
-                        PDFViewContainer(previewModel: pdfModel)
-                            .background(Color(nsColor: .windowBackgroundColor))
-                    } else {
-                        ContentUnavailableView("No PDF available", systemImage: "doc")
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }*/
                 }.background(.green).padding(20)
-
-/*                GroupBox {
-                    MeshGradient(
-                        width: 3,
-                        height: 3,
-                        points: [
-                            [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
-                            [0.0, 0.5], [0.9, 0.3], [1.0, 0.5],
-                            [0.0, 1.0], [0.5, 1.0], [1.0, 1.0]
-                        ],
-                        colors: [
-                            .black,.black,.black,
-                            .blue, .blue, .blue,
-                            .green, .green, .green
-                        ]
-                    ).overlay(alignment: .center) {
-                        
-                        VStack {
-                            GroupBox {
-                                
-                                Text("NavigationSplitView 1 - Detail")
-                                    .frame(minWidth: 100, maxWidth: 100, maxHeight: 100)
-                                    .background(.pink)
-                                
-                            }
-                            .background(.yellow)
-                            Button(viewModel.isLarge ? "Make Small" : "Make Large") {
-                                // Toggle the state when the button is tapped
-                                viewModel.isLarge.toggle()
-                            }
-                            Text("NavigationSplitView 1 - Content")
-                            //           .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            //               .background(.purple)
-                            
-                                .background(.purple)
-                            
-                        }
-                        
-                        
-                        
-                    }
-                    
-                }.background(.cyan).padding(20)
-                
-            */
 
             }
             .sheet(isPresented: $viewModel.showSavePanel) {
-       //         pdfModel.saveMergedPagesAs(viewModel: viewModel)
                 
                 if let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) {
                     SaveAsPanel(suggestedURL: entry.url.deletingPathExtension().appendingPathExtension("merged.pdf")) { destination in
@@ -120,27 +66,28 @@ struct ContentView: View {
                 VStack {
                     GroupBox {
                         
-                        Text("NavigationSplitView 1 - Detail")
-                            .frame(minWidth: 100, maxWidth: 100, maxHeight: 100)
+                        Text("Inspector 1")
+                            .frame(minWidth: 100, maxWidth: .infinity, maxHeight: 100)
                             .background(.pink)
                         
                     }
-                    .background(.yellow)
+                    .padding(20)
+                  //  .background(.yellow)
                     Button(viewModel.isLarge ? "Make Small" : "Make Large") {
                         // Toggle the state when the button is tapped
                         viewModel.isLarge.toggle()
                     }
-                    Text("NavigationSplitView 1 - Content")
+                    Text("Inspector 2")
                     //           .frame(maxWidth: .infinity, maxHeight: .infinity)
                     //               .background(.purple)
                     
                         .background(.purple)
                     
                 }
-                Text("Inspector View 1")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Text("Inspector 3")
+                //    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .inspectorColumnWidth(min: 50, ideal: 150, max: 500)
-                    .background(.yellow)
+                    .background(.gray)
             }
             
             

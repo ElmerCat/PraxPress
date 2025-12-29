@@ -1,0 +1,17 @@
+//
+//  Prax.txt
+//  PraxPress - Prax=1229-1
+//
+//  Created by Elmer Cat on 12/29/25.
+//
+
+Hello - This is a macOS 26 only app.
+Please search for the Prax code to see all 8 .swift source files in the project:  "Prax=1229-1"
+
+In PageTrimView, the user can drag to select crop trim rectangles for each individual page. If the view is resized, the displayed trim rectangle is not automatically adjusted to reflect the new page dimensions (see screenshots).
+
+If the selected page thumbnail is changed and reselected, the trim rectangle does update correctly. How can you make the displayed trim rectangle automtically adjust to the new page dimensions?
+
+
+
+/Users/elmercat/Desktop/1.png

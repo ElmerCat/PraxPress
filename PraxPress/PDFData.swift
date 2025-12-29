@@ -1,6 +1,6 @@
 //
 //  PDFData.swift
-//  PraxPress
+//  PraxPress - Prax=1229-1
 //
 //  Created by Elmer Cat on 12/22/25.
 //
@@ -8,8 +8,6 @@
 import SwiftUI
 import PDFKit
 internal import Combine
-
-
 
 // Minimal SwiftUI wrapper around PDFView
 struct PDFViewContainer: View {
@@ -30,32 +28,59 @@ struct PDFViewContainer: View {
                 autoUpdatePreviewOnTrimsChange(viewModel: viewModel, pdfModel: pdfModel)
             }
         }
-
         
         .onChange(of: viewModel.selectedFiles) {
-            print("Julie d'Prax")
-            
-            if let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) {
-                pdfModel.computePageMetrics(for: entry.url)
-                
-                pdfModel.fileURL = entry.url
-                
-                // Regenerate merged preview for the newly selected file using current trims
-                autoUpdatePreviewOnTrimsChange(viewModel: viewModel, pdfModel: pdfModel)
+            // Resolve selected entries in selection order
+            let selectedIDs = Array(viewModel.selectedFiles)
+            let entries: [PDFEntry] = selectedIDs.compactMap { id in
+                viewModel.listOfFiles.first(where: { $0.id == id })
             }
-            
+            let urls = entries.map { $0.url }
+
+            if urls.isEmpty {
+                // Clean up any previous temp artifacts
+                pdfModel.cleanupTemporaryArtifacts()
+                pdfModel.fileURL = nil
+                return
+            }
+
+            if urls.count == 1, let first = urls.first {
+                // Clean up any previous combined temp when switching back to a single source
+                pdfModel.cleanupTemporaryArtifacts()
+                pdfModel.computePageMetrics(for: first)
+                pdfModel.fileURL = first
+            } else {
+                if let combined = try? pdfModel.buildTemporaryCombinedPDF(from: urls) {
+                    pdfModel.computePageMetrics(for: combined)
+                    pdfModel.fileURL = combined
+                }
+            }
+
+            // Regenerate merged preview for the newly selected source using current trims
+            autoUpdatePreviewOnTrimsChange(viewModel: viewModel, pdfModel: pdfModel)
         }
     }
 
-
     private func autoUpdatePreviewOnTrimsChange(viewModel: ViewModel, pdfModel: PDFModel) {
          
-        guard let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) else { return }
+        // Resolve all selected URLs in selection order
+        let selectedIDs = Array(viewModel.selectedFiles)
+        let entries: [PDFEntry] = selectedIDs.compactMap { id in
+            viewModel.listOfFiles.first(where: { $0.id == id })
+        }
+        let urls = entries.map { $0.url }
+        guard !urls.isEmpty else { return }
         do {
             let fm = FileManager.default
             let tmp = fm.temporaryDirectory.appendingPathComponent("preview-merged-\(UUID().uuidString)").appendingPathExtension("pdf")
+            let sourceURL: URL
+            if urls.count == 1, let first = urls.first {
+                sourceURL = first
+            } else {
+                sourceURL = try pdfModel.buildTemporaryCombinedPDF(from: urls)
+            }
             try pdfModel.mergeAllPagesVerticallyIntoSinglePage(
-                sourceURL: entry.url,
+                sourceURL: sourceURL,
                 destinationURL: tmp,
                 trimTop: 0,
                 trimBottom: 0,
@@ -63,15 +88,14 @@ struct PDFViewContainer: View {
                 perPageTrims: pdfModel.trims
             )
             if let old = pdfModel.lastPreviewURL { try? fm.removeItem(at: old) }
+            // If the currently displayed file was the combined source, we can keep it; preview is separate.
+            // Nothing else required here.
             pdfModel.fileURL = tmp
             pdfModel.lastPreviewURL = tmp
         } catch {
             viewModel.saveError = error.localizedDescription
         }
     }
-    
-    
-  
 }
 
 
@@ -105,3 +129,4 @@ struct PDFViewRepresentable: NSViewRepresentable {
         }
     }
 }
+

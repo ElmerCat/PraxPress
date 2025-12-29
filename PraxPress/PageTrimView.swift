@@ -1,5 +1,7 @@
+//
 //  PageTrimView.swift
-//  PraxPDF - Prax=1220-1
+//  PraxPress - Prax=1229-1
+//
 
 import SwiftUI
 import PDFKit
@@ -71,27 +73,59 @@ struct PageTrimView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-
             .onAppear {
-                _ = url.startAccessingSecurityScopedResource()
-                pdfModel.pdfDocument = PDFDocument(url: url)
-                if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
-                recomputeMergedMetrics()
-            }
-            .onChange(of: url) { _, newURL in
-                // Stop access for the old URL if needed
-                url.stopAccessingSecurityScopedResource()
-                // Start access and load new document
-                _ = newURL.startAccessingSecurityScopedResource()
-                pdfModel.pdfDocument = PDFDocument(url: newURL)
-                // Reset page index
-                if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
-                // Clear trims for the new document
-                pdfModel.trims = [:]
-                // Recompute merged metrics if available
-                DispatchQueue.main.async {
-                    recomputeMergedMetrics()
+                let selectedIDs = Array(viewModel.selectedFiles)
+                let selectedEntries: [PDFEntry] = selectedIDs.compactMap { id in
+                    viewModel.listOfFiles.first(where: { $0.id == id })
                 }
+                let urls = selectedEntries.map { $0.url }
+
+                if let first = urls.first, urls.count == 1 {
+                    _ = first.startAccessingSecurityScopedResource()
+                    pdfModel.pdfDocument = PDFDocument(url: first)
+                } else if !urls.isEmpty {
+                    do {
+                        let combinedURL = try pdfModel.buildTemporaryCombinedPDF(from: urls)
+                        _ = combinedURL.startAccessingSecurityScopedResource()
+                        pdfModel.pdfDocument = PDFDocument(url: combinedURL)
+                    } catch {
+                        // Fall back to empty document on error
+                        pdfModel.pdfDocument = PDFDocument()
+                    }
+                } else {
+                    pdfModel.pdfDocument = nil
+                }
+
+                if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
+                pdfModel.trims = [:]
+                DispatchQueue.main.async { recomputeMergedMetrics() }
+            }
+            .onChange(of: viewModel.selectedFiles) { _, _ in
+                let selectedIDs = Array(viewModel.selectedFiles)
+                let selectedEntries: [PDFEntry] = selectedIDs.compactMap { id in
+                    viewModel.listOfFiles.first(where: { $0.id == id })
+                }
+                let urls = selectedEntries.map { $0.url }
+
+                if let first = urls.first, urls.count == 1 {
+                    first.stopAccessingSecurityScopedResource()
+                    _ = first.startAccessingSecurityScopedResource()
+                    pdfModel.pdfDocument = PDFDocument(url: first)
+                } else if !urls.isEmpty {
+                    do {
+                        let combinedURL = try pdfModel.buildTemporaryCombinedPDF(from: urls)
+                        _ = combinedURL.startAccessingSecurityScopedResource()
+                        pdfModel.pdfDocument = PDFDocument(url: combinedURL)
+                    } catch {
+                        pdfModel.pdfDocument = PDFDocument()
+                    }
+                } else {
+                    pdfModel.pdfDocument = nil
+                }
+
+                if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
+                pdfModel.trims = [:]
+                DispatchQueue.main.async { recomputeMergedMetrics() }
             }
             .onDisappear {
                 url.stopAccessingSecurityScopedResource()
@@ -192,6 +226,10 @@ final class CropOverlayPDFNSView: NSView {
     private let overlay = OverlayView()
     private var page: PDFPage?
     var onTrimsChanged: ((EdgeTrims) -> Void)?
+    private var currentTrims: EdgeTrims = .zero
+    
+    private var boundsObserver: NSObjectProtocol?
+    private weak var observedClipView: NSClipView?
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -216,7 +254,15 @@ final class CropOverlayPDFNSView: NSView {
             let top = max(0, media.maxY - pageRect.maxY)
             let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
             self.overlay.currentRect = clamped
+            self.currentTrims = trims
             self.onTrimsChanged?(trims)
+        }
+        startObservingScroll()
+    }
+    
+    deinit {
+        if let clip = observedClipView, let obs = boundsObserver {
+            NotificationCenter.default.removeObserver(obs)
         }
     }
     
@@ -226,6 +272,18 @@ final class CropOverlayPDFNSView: NSView {
         super.layout()
         pdfView.frame = bounds
         overlay.frame = bounds
+        
+        // Recompute overlay rect for the new layout/scale so it tracks PDFView's transform
+        if let page = self.page {
+            let media = page.bounds(for: .mediaBox)
+            let visible = CGRect(x: media.minX + currentTrims.left,
+                                 y: media.minY + currentTrims.bottom,
+                                 width: media.width - currentTrims.left - currentTrims.right,
+                                 height: media.height - currentTrims.top - currentTrims.bottom)
+            let rInView = pdfView.convert(visible, from: page)
+            overlay.currentRect = rInView
+        }
+        
         overlay.needsDisplay = true
     }
     
@@ -236,6 +294,8 @@ final class CropOverlayPDFNSView: NSView {
             pdfView.document = doc
             pdfView.go(to: page)
             self.page = page
+            startObservingScroll()
+            currentTrims = trims
         }
         // Draw existing trims as a selection rectangle
         if let page = self.page {
@@ -254,6 +314,34 @@ final class CropOverlayPDFNSView: NSView {
         guard let page else { return .zero }
         let media = page.bounds(for: .mediaBox)
         return pdfView.convert(media, from: page)
+    }
+    
+    private func startObservingScroll() {
+        guard let clipView = pdfView.enclosingScrollView?.contentView else { return }
+        // Avoid double-observing the same clip view
+        if observedClipView === clipView { return }
+        // Remove previous observer if any
+        if let prev = observedClipView, let obs = boundsObserver {
+            NotificationCenter.default.removeObserver(obs)
+            boundsObserver = nil
+        }
+        observedClipView = clipView
+        boundsObserver = NotificationCenter.default.addObserver(forName: NSView.boundsDidChangeNotification, object: clipView, queue: .main) { [weak self] _ in
+            guard let self = self else { return }
+            // Recompute overlay rect on scroll/zoom
+            if let page = self.page {
+                let media = page.bounds(for: .mediaBox)
+                let visible = CGRect(x: media.minX + self.currentTrims.left,
+                                     y: media.minY + self.currentTrims.bottom,
+                                     width: media.width - self.currentTrims.left - self.currentTrims.right,
+                                     height: media.height - self.currentTrims.top - self.currentTrims.bottom)
+                let rInView = self.pdfView.convert(visible, from: page)
+                self.overlay.currentRect = rInView
+                self.overlay.needsDisplay = true
+            }
+        }
+        // Ensure the clip view posts bounds change notifications
+        clipView.postsBoundsChangedNotifications = true
     }
     
     // Transparent overlay that captures mouse and draws the selection rectangle
@@ -457,3 +545,4 @@ final class CropOverlayPDFNSView: NSView {
         }
     }
 }
+

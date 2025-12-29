@@ -1,6 +1,6 @@
 //
 //  MainSceneRoot.swift
-//  PraxPress
+//  PraxPress - Prax=1229-1
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -36,11 +36,10 @@ struct MainSceneRoot: View {
     
     
     var body: some View {
-        
         ContentView()
             .environment(viewModel)
             .environment(pdfModel)
-            
+            .overlay(TempCleanupLifecycleHook(onCleanup: { pdfModel.cleanupTemporaryArtifacts() }))
     }
         
 }
@@ -76,3 +75,4 @@ struct MainCommands: Commands {
         
     }
 }
+

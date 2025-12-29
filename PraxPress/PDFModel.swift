@@ -1,5 +1,6 @@
 //  PDFModel.swift
-//  PraxPDF - Prax=1220-1
+//  PraxPress - Prax=1229-1
+//
 
 import Foundation
 import CoreGraphics
@@ -21,6 +22,7 @@ struct EdgeTrims: Codable, Hashable {
     
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
+    var lastCombinedSourceURL: URL? = nil
     
     var pdfDocument: PDFDocument?
     var currentIndex: Int = 0
@@ -35,27 +37,12 @@ struct EdgeTrims: Codable, Hashable {
     var mergeBottomMargin: Double = 0
     var mergeInterPageGap: Double = 0
     
-
-
-    
-    
     // Keyed by page index in the source PDF
     var trims: [Int: EdgeTrims] = [:]
-    
-
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
     func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
     
-    
-    func saveMergedPagesAs(viewModel: ViewModel) {
-        
-    }
-    
-    
     func handleMergePagesOverwrite(viewModel: ViewModel) {
-        
-        print("Juliette M. Belanger")
-        
         guard let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) else { return }
         do {
             try mergeAllPagesVerticallyIntoSinglePage(
@@ -90,8 +77,7 @@ struct EdgeTrims: Codable, Hashable {
             return
         }
         
-        // Use mediaBox consistently (matches the Trim Tool and thumbnails)
-        var pageRects: [CGRect] = []
+         var pageRects: [CGRect] = []
         pageRects.reserveCapacity(pageCount)
         
         for i in 0..<pageCount {
@@ -219,10 +205,7 @@ struct EdgeTrims: Codable, Hashable {
         try fm.moveItem(at: tmpFinal, to: destinationURL)
     }
     
-    
-    
-    
-    func computePageMetrics(for url: URL) {
+     func computePageMetrics(for url: URL) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
         guard let doc = PDFDocument(url: url) else {
@@ -253,6 +236,52 @@ struct EdgeTrims: Codable, Hashable {
         //     let sortedUnknowns = Array(foundUnknowns).sorted()
         //    unknownFieldNames = sortedUnknowns
         //    showUnknownFieldsAlert = !sortedUnknowns.isEmpty
+    }
+    
+    /// Build a temporary combined PDF by concatenating pages from the given URLs in order.
+    /// Returns the temporary file URL on success.
+    func buildTemporaryCombinedPDF(from urls: [URL]) throws -> URL {
+        if let old = lastCombinedSourceURL {
+            try? FileManager.default.removeItem(at: old)
+            lastCombinedSourceURL = nil
+        }
+
+        let fm = FileManager.default
+        let tempURL = fm.temporaryDirectory.appendingPathComponent("combined-\(UUID().uuidString)").appendingPathExtension("pdf")
+        defer {
+            // No cleanup here; caller may want to keep it until replaced.
+        }
+        let combined = PDFDocument()
+        var insertIndex = 0
+        for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            guard let doc = PDFDocument(url: url) else { continue }
+            for i in 0..<doc.pageCount {
+                if let page = doc.page(at: i) {
+                    combined.insert(page, at: insertIndex)
+                    insertIndex += 1
+                }
+            }
+        }
+        // Write to disk
+        guard combined.write(to: tempURL) else {
+            throw NSError(domain: "PraxPDF", code: 2001, userInfo: [NSLocalizedDescriptionKey: "Failed to write combined PDF."])
+        }
+        lastCombinedSourceURL = tempURL
+        return tempURL
+    }
+    
+    func cleanupTemporaryArtifacts() {
+        let fm = FileManager.default
+        if let oldPreview = lastPreviewURL {
+            try? fm.removeItem(at: oldPreview)
+            lastPreviewURL = nil
+        }
+        if let oldCombined = lastCombinedSourceURL {
+            try? fm.removeItem(at: oldCombined)
+            lastCombinedSourceURL = nil
+        }
     }
 }
 

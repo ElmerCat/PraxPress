@@ -1,6 +1,6 @@
 //
 //  PraxPressApp.swift
-//  PraxPress
+//  PraxPress - Prax=1229-1
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -22,7 +22,6 @@ struct PraxPressApp: App {
                     WindowReader { window in
                         WindowCoordinator.shared.attachIfPending(newWindow: window)
                     }
-                    
                 )
         }
         .commands {
@@ -86,4 +85,16 @@ struct WindowReader: NSViewRepresentable {
     }
 }
 
+struct TempCleanupLifecycleHook: View {
+    let onCleanup: () -> Void
+    var body: some View {
+        Color.clear
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                onCleanup()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { _ in
+                onCleanup()
+            }
+    }
+}
 
