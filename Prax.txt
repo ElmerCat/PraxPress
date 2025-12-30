@@ -1,10 +1,12 @@
 //
 //  Prax.txt
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=1229-3
 //
 //  Created by Elmer Cat on 12/29/25.
 //
 
-Hello - This is a macOS 26 only app.
-Please search for the Prax code to see all 8 .swift source files in the project:  "Prax=1229-1"
+Hello - This is a Swift 6 / macOS 26 only app.
+Please search for the Prax code to see all 8 .swift source files in the project:  "Prax=1229-3"
+
+The PageTrimView uses a private PDFPageListView to display thumbnails of the PDF pages.  How can this be replaced with a proper PDFKit PDFThumbnailView which can take advantage of built-in dragging to rearrange PDF pages?
 

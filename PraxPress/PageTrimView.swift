@@ -1,6 +1,6 @@
 //
 //  PageTrimView.swift
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=1229-3
 //
 
 import SwiftUI
@@ -46,6 +46,8 @@ struct PageTrimView: View {
     @Bindable var viewModel:  ViewModel
     @Bindable var pdfModel: PDFModel
     
+    @State private var sharedPDFView: PDFView? = nil
+    
     var body: some View {
         
         if viewModel.selectedFiles.isEmpty {
@@ -60,17 +62,61 @@ struct PageTrimView: View {
             
             PageTrimStatus(pdfModel: pdfModel)
             
-            HStack(spacing: 0) {
-                PDFPageListView(document: pdfModel.pdfDocument, selectedIndex: $pdfModel.currentIndex)
-                    .frame(width: 180)
-                    .background(.quaternary)
-                Divider()
-                if let doc = pdfModel.pdfDocument, let page = doc.page(at: pdfModel.currentIndex) {
-                    CropOverlayPDFView(page: page, trims: Binding(get: { pdfModel.trims(for: pdfModel.currentIndex) }, set: { pdfModel.setTrims($0, for: pdfModel.currentIndex) }))
-                        .background(Color(nsColor: .windowBackgroundColor))
+            // Break complex subviews into locals to help the type checker
+            let sidebar: AnyView = {
+                if let pdfv = sharedPDFView, pdfModel.pdfDocument != nil {
+                    return AnyView(
+                        PDFThumbnailSidebar(pdfView: pdfv,
+                                            sidebarWidth: 180,
+                                            thumbSize: CGSize(width: 120, height: 160),
+                                            backgroundColor: .quaternaryLabelColor)
+                            .frame(width: 180)
+                    )
                 } else {
-                    ContentUnavailableView("No page", systemImage: "doc")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    return AnyView(
+                        ProgressView().frame(width: 180)
+                    )
+                }
+            }()
+            
+            let documentView = PDFDocumentWithTrimOverlay(
+                document: $pdfModel.pdfDocument,
+                currentIndex: $pdfModel.currentIndex,
+                trims: $pdfModel.trims,
+                displayMode: viewModel.pdfDisplayMode,
+                displaysPageBreaks: true,
+                autoScales: viewModel.pdfAutoScales,
+                backgroundColor: .windowBackgroundColor,
+                displaysAsBook: viewModel.pdfDisplaysAsBook,
+                onPDFViewReady: { view in
+                    self.sharedPDFView = view
+                }
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            HStack(spacing: 0) {
+                sidebar
+                Divider()
+                documentView
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .automatic) {
+                    Menu {
+                        Button("Single Page") { viewModel.pdfDisplayMode = .singlePage }
+                        Button("Single Page Continuous") { viewModel.pdfDisplayMode = .singlePageContinuous }
+                        Button("Two Up") { viewModel.pdfDisplayMode = .twoUp }
+                        Button("Two Up Continuous") { viewModel.pdfDisplayMode = .twoUpContinuous }
+                    } label: {
+                        Label("Display Mode", systemImage: "rectangle.split.2x1")
+                    }
+
+                    Toggle(isOn: $viewModel.pdfAutoScales) {
+                        Label("Auto Scales", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
+                    }
+
+                    Toggle(isOn: $viewModel.pdfDisplaysAsBook) {
+                        Label("Book Mode", systemImage: "book")
+                    }
                 }
             }
             .onAppear {
@@ -99,6 +145,9 @@ struct PageTrimView: View {
                 if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
                 pdfModel.trims = [:]
                 DispatchQueue.main.async { recomputeMergedMetrics() }
+            }
+            .onChange(of: pdfModel.pdfDocument) { _, _ in
+                DispatchQueue.main.async { /* advance runloop to stabilize bindings */ }
             }
             .onChange(of: viewModel.selectedFiles) { _, _ in
                 let selectedIDs = Array(viewModel.selectedFiles)
@@ -171,36 +220,6 @@ struct PageTrimView: View {
         }
         pdfModel.mergedWidthPts = maxVisibleWidth
         pdfModel.mergedHeightPts = totalVisibleHeight
-    }
-}
-
-private struct PDFPageListView: View {
-    let document: PDFDocument?
-    @Binding var selectedIndex: Int
-    
-    var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 8) {
-                if let doc = document {
-                    ForEach(0..<(doc.pageCount), id: \.self) { i in
-                        Button(action: { selectedIndex = i }) {
-                            HStack(alignment: .top, spacing: 8) {
-                                if let thumb = doc.page(at: i)?.thumbnail(of: NSSize(width: 120, height: 160), for: .mediaBox) {
-                                    Image(nsImage: thumb)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 120)
-                                        .overlay(RoundedRectangle(cornerRadius: 4).stroke(selectedIndex == i ? Color.accentColor : .clear, lineWidth: 3))
-                                }
-                                Text("Page \(i + 1)")
-                                Spacer()
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }.padding(8)
-        }
     }
 }
 

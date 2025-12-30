@@ -1,6 +1,6 @@
 //
 //  SourceFilesView.swift
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=1229-3
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -61,7 +61,7 @@ struct SourceFilesView: View {
             }
             .background(Color.blue.opacity(0.5))
         }
-        .navigationTitle("PraxPDF")
+        .navigationTitle("PraxPress")
         .navigationSplitViewColumnWidth(min: 100, ideal: 300, max: 1000)
         .toolbar(removing: .sidebarToggle)
         .toolbar {

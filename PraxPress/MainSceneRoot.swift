@@ -1,12 +1,13 @@
 //
 //  MainSceneRoot.swift
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=1229-3
 //
 //  Created by Elmer Cat on 12/21/25.
 //
 
 import SwiftUI
 internal import Combine
+import PDFKit
 
 @Observable class ViewModel {
     var isOn = false
@@ -24,6 +25,10 @@ internal import Combine
 
     
     var saveError: String?
+    // PDF viewing configuration used by PageTrimView toolbar and PDFDocumentView
+    var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
+    var pdfAutoScales: Bool = true
+    var pdfDisplaysAsBook: Bool = false
     
 }
 

@@ -1,5 +1,5 @@
 //  PDFModel.swift
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=1229-3
 //
 
 import Foundation
@@ -64,7 +64,7 @@ struct EdgeTrims: Codable, Hashable {
         let needsStopSource = sourceURL.startAccessingSecurityScopedResource()
         defer { if needsStopSource { sourceURL.stopAccessingSecurityScopedResource() } }
         guard let sourceDoc = PDFDocument(url: sourceURL) else {
-            throw NSError(domain: "PraxPDF", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to open source PDF for merging."])
+            throw NSError(domain: "PraxPress", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to open source PDF for merging."])
         }
         
         let pageCount = sourceDoc.pageCount
@@ -104,10 +104,10 @@ struct EdgeTrims: Codable, Hashable {
         var mediaBox = CGRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight)
         let tmpOut = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
         guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else {
-            throw NSError(domain: "PraxPDF", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to create data consumer."])
+            throw NSError(domain: "PraxPress", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to create data consumer."])
         }
         guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
-            throw NSError(domain: "PraxPDF", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create PDF context."])
+            throw NSError(domain: "PraxPress", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create PDF context."])
         }
         
         ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
@@ -266,7 +266,7 @@ struct EdgeTrims: Codable, Hashable {
         }
         // Write to disk
         guard combined.write(to: tempURL) else {
-            throw NSError(domain: "PraxPDF", code: 2001, userInfo: [NSLocalizedDescriptionKey: "Failed to write combined PDF."])
+            throw NSError(domain: "PraxPress", code: 2001, userInfo: [NSLocalizedDescriptionKey: "Failed to write combined PDF."])
         }
         lastCombinedSourceURL = tempURL
         return tempURL
