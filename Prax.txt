@@ -1,12 +1,13 @@
 //
 //  Prax.txt
-//  PraxPress - Prax=1229-3
+//  PraxPress - Prax=0102-0
 //
 //  Created by Elmer Cat on 12/29/25.
 //
 
 Hello - This is a Swift 6 / macOS 26 only app.
-Please search for the Prax code to see all 8 .swift source files in the project:  "Prax=1229-3"
+Please search for the Prax code to see all 10 .swift source files in the project:  "Prax=0102-0"
 
-The PageTrimView uses a private PDFPageListView to display thumbnails of the PDF pages.  How can this be replaced with a proper PDFKit PDFThumbnailView which can take advantage of built-in dragging to rearrange PDF pages?
+The PDFPageOverlayViewProvider is now working correctly. Trim rectangles can be set and adjusted for each individual page, however the values don't seem to be set correctly in PDFModel and the resulting merged preview is not correct.  Can you figure out what's wrong?
 
+    

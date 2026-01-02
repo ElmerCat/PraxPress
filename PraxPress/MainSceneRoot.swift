@@ -1,6 +1,6 @@
 //
 //  MainSceneRoot.swift
-//  PraxPress - Prax=1229-3
+//  PraxPress - Prax=0102-0
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -28,8 +28,10 @@ import PDFKit
     // PDF viewing configuration used by PageTrimView toolbar and PDFDocumentView
     var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
     var pdfAutoScales: Bool = true
+    var pdfDisplayPageBreaks: Bool = true
     var pdfDisplaysAsBook: Bool = false
     
+    var pdfBackgroundColor: NSColor = .clear
 }
 
 struct MainSceneRoot: View {

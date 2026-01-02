@@ -1,67 +1,347 @@
 //  PDFDocumentView.swift
-//  PraxPress - Prax=1229-3
+//  PraxPress - Prax=0102-0
 //
 //  SwiftUI wrapper for a full PDFKit PDFView with configurable display options and selection sync.
+//
+//  NOTE: A minimal trim overlay provider is scaffolded here. The host should wire up the
+//  hooks to their PDFModel trims for full functionality.
 
 import SwiftUI
 import PDFKit
 import AppKit
 
+// Minimal trim overlay handle view reused per page by the provider
+final class TrimOverlayHandleView: NSView {
+    var onFinish: ((CGRect) -> Void)?
+    var currentRect: CGRect? { didSet { needsDisplay = true } }
+    var clampRect: CGRect?
+    
+    private let handleSize: CGFloat = 8
+    private let hitInset: CGFloat = 6
+    private enum Handle { case topLeft, top, topRight, right, bottomRight, bottom, bottomLeft, left }
+    private enum DragMode { case none, move, resize(Handle) }
+    private var dragMode: DragMode = .none
+    private var dragStart: CGPoint?
+    private var originalRect: CGRect?
+    
+    override var acceptsFirstResponder: Bool { true }
+    override func hitTest(_ point: NSPoint) -> NSView? { self }
+    
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard let r = currentRect else { return }
+        NSColor.systemBlue.setStroke()
+        NSColor.systemBlue.withAlphaComponent(0.15).setFill()
+        r.fill()
+        let path = NSBezierPath(rect: r)
+        path.lineWidth = 2
+        path.stroke()
+        NSColor.white.setFill()
+        NSColor.systemBlue.setStroke()
+        for handleRect in handleRects(for: r).values {
+            let handlePath = NSBezierPath(rect: handleRect)
+            handlePath.fill()
+            handlePath.lineWidth = 1.5
+            handlePath.stroke()
+        }
+    }
+    
+    override func mouseDown(with event: NSEvent) {
+        let point = convert(event.locationInWindow, from: nil)
+        dragStart = point
+        if let rect = currentRect {
+            if let handle = hitTestHandle(point, in: rect) {
+                dragMode = .resize(handle)
+                originalRect = rect
+            } else if rect.insetBy(dx: hitInset, dy: hitInset).contains(point) {
+                dragMode = .move
+                originalRect = rect
+            } else {
+                dragMode = .resize(.bottomLeft)
+                currentRect = CGRect(origin: point, size: .zero)
+                originalRect = nil
+            }
+        } else {
+            dragMode = .resize(.bottomLeft)
+            currentRect = CGRect(origin: point, size: .zero)
+            originalRect = nil
+        }
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        guard let dragStart = dragStart else { return }
+        let point = convert(event.locationInWindow, from: nil)
+        let pageRect = clampRect ?? bounds
+        switch dragMode {
+        case .none: break
+        case .move:
+            guard let originalRect = originalRect else { return }
+            var newRect = originalRect.offsetBy(dx: point.x - dragStart.x, dy: point.y - dragStart.y)
+            newRect = newRect.intersection(pageRect)
+            if newRect.width >= handleSize * 2 && newRect.height >= handleSize * 2 { currentRect = newRect }
+        case .resize(let handle):
+            let r = originalRect ?? CGRect(origin: dragStart, size: .zero)
+            var minX = r.minX, maxX = r.maxX, minY = r.minY, maxY = r.maxY
+            func clampX(_ x: CGFloat) -> CGFloat { max(pageRect.minX, min(pageRect.maxX, x)) }
+            func clampY(_ y: CGFloat) -> CGFloat { max(pageRect.minY, min(pageRect.maxY, y)) }
+            let x = clampX(point.x), y = clampY(point.y)
+            switch handle {
+            case .topLeft:      minX = min(x, maxX - handleSize * 2); maxY = max(y, minY + handleSize * 2)
+            case .top:          maxY = max(y, minY + handleSize * 2)
+            case .topRight:     maxX = max(x, minX + handleSize * 2); maxY = max(y, minY + handleSize * 2)
+            case .right:        maxX = max(x, minX + handleSize * 2)
+            case .bottomRight:  maxX = max(x, minX + handleSize * 2); minY = min(y, maxY - handleSize * 2)
+            case .bottom:       minY = min(y, maxY - handleSize * 2)
+            case .bottomLeft:   minX = min(x, maxX - handleSize * 2); minY = min(y, maxY - handleSize * 2)
+            case .left:         minX = min(x, maxX - handleSize * 2)
+            }
+            let newRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY).intersection(pageRect)
+            if newRect.width >= handleSize * 2 && newRect.height >= handleSize * 2 { currentRect = newRect }
+        }
+    }
+    
+    override func mouseUp(with event: NSEvent) {
+        dragMode = .none
+        dragStart = nil
+        originalRect = nil
+        if let rect = currentRect { onFinish?(rect) }
+    }
+    
+    private func handleRects(for rect: CGRect) -> [Handle: CGRect] {
+        var dict: [Handle: CGRect] = [:]
+        let hs = handleSize
+        let x = rect.minX, y = rect.minY, w = rect.width, h = rect.height
+        dict[.topLeft] = CGRect(x: x - hs/2, y: y + h - hs/2, width: hs, height: hs)
+        dict[.top] = CGRect(x: x + w/2 - hs/2, y: y + h - hs/2, width: hs, height: hs)
+        dict[.topRight] = CGRect(x: x + w - hs/2, y: y + h - hs/2, width: hs, height: hs)
+        dict[.right] = CGRect(x: x + w - hs/2, y: y + h/2 - hs/2, width: hs, height: hs)
+        dict[.bottomRight] = CGRect(x: x + w - hs/2, y: y - hs/2, width: hs, height: hs)
+        dict[.bottom] = CGRect(x: x + w/2 - hs/2, y: y - hs/2, width: hs, height: hs)
+        dict[.bottomLeft] = CGRect(x: x - hs/2, y: y - hs/2, width: hs, height: hs)
+        dict[.left] = CGRect(x: x - hs/2, y: y + h/2 - hs/2, width: hs, height: hs)
+        return dict
+    }
+    
+    private func hitTestHandle(_ point: CGPoint, in rect: CGRect) -> Handle? {
+        let handles = handleRects(for: rect)
+        for (handle, handleRect) in handles {
+            if handleRect.insetBy(dx: -hitInset, dy: -hitInset).contains(point) { return handle }
+        }
+        return nil
+    }
+}
+
 struct PDFDocumentView: NSViewRepresentable {
-    @Binding var document: PDFDocument?
-    @Binding var currentIndex: Int
-
-    var displayMode: PDFDisplayMode = .singlePageContinuous
-    var displaysPageBreaks: Bool = true
-    var autoScales: Bool = true
-    var backgroundColor: NSColor = .clear
-    var displaysAsBook: Bool = false
-
-    func makeCoordinator() -> Coordinator { Coordinator(currentIndex: $currentIndex) }
-
-    func makeNSView(context: Context) -> PDFView {
+    @Bindable var viewModel:  ViewModel
+    @Bindable var pdfModel: PDFModel
+    
+    var onPDFViewReady: (PDFView) -> Void = {
+        _ in
+        print("Juliette M. Belanger")
+    }
+    
+    // Hooks for per-page trims so the overlay can seed and persist rectangles
+    var trimsForPageIndex: (Int) -> EdgeTrims = { _ in .zero }
+    var onTrimsChanged: (Int, EdgeTrims) -> Void = { _, _ in }
+    
+    func makeCoordinator() -> Coordinator {
+        print("Nadine Peeler")
+        return Coordinator(pdfModel: pdfModel)
+    }
+    
+    func makeNSView(context: Context) -> NSSplitView {
+        let split = NSSplitView()
+        split.isVertical = true
+        split.dividerStyle = .thin
+        split.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Main PDFView
         let pdfView = PDFView()
-        pdfView.autoScales = autoScales
-        pdfView.displayMode = displayMode
-        pdfView.displaysPageBreaks = displaysPageBreaks
-        pdfView.backgroundColor = backgroundColor
-        pdfView.displaysAsBook = displaysAsBook
-
+        pdfView.pageOverlayViewProvider = context.coordinator
+        
+        context.coordinator.pdfView = pdfView
+        
+        pdfView.autoScales = viewModel.pdfAutoScales
+        pdfView.displayMode = viewModel.pdfDisplayMode
+        pdfView.displaysPageBreaks = viewModel.pdfDisplayPageBreaks
+        pdfView.backgroundColor = viewModel.pdfBackgroundColor
+        pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook
+        
+        let thumbnail = PDFThumbnailView()
+        context.coordinator.thumbnailView = thumbnail
+        
+        thumbnail.translatesAutoresizingMaskIntoConstraints = false
+        thumbnail.backgroundColor = viewModel.pdfBackgroundColor
+        thumbnail.thumbnailSize = CGSize(width: 120, height: 160)
+        thumbnail.pdfView = pdfView
+        
+        
+        split.addArrangedSubview(thumbnail)
+        split.addArrangedSubview(pdfView)
+        
+        // Initial divider position (thumbnail pane width ~180)
+        DispatchQueue.main.async {
+            let target: CGFloat = 180
+            split.setPosition(target, ofDividerAt: 0)
+        }
+        
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.pageChanged(_:)),
             name: Notification.Name.PDFViewPageChanged,
             object: pdfView
         )
-        return pdfView
-    }
-
-    func updateNSView(_ pdfView: PDFView, context: Context) {
-        if pdfView.document !== document {
-            pdfView.document = document
+        
+        DispatchQueue.main.async { [weak pdfView] in
+            if let v = pdfView {
+                print("Julie d'Prax")
+                onPDFViewReady(v)
+            }
         }
-        if pdfView.displayMode != displayMode { pdfView.displayMode = displayMode }
-        if pdfView.displaysPageBreaks != displaysPageBreaks { pdfView.displaysPageBreaks = displaysPageBreaks }
-        if pdfView.backgroundColor != backgroundColor { pdfView.backgroundColor = backgroundColor }
-        if pdfView.displaysAsBook != displaysAsBook { pdfView.displaysAsBook = displaysAsBook }
-        if pdfView.autoScales != autoScales { pdfView.autoScales = autoScales }
-
-        if let doc = document, currentIndex >= 0, currentIndex < doc.pageCount {
-            let page = doc.page(at: currentIndex)!
-            if pdfView.currentPage !== page { pdfView.go(to: page) }
-        }
+        
+        
+        
+        return split
     }
-
-    final class Coordinator: NSObject {
-        @Binding var currentIndex: Int
-        init(currentIndex: Binding<Int>) { _currentIndex = currentIndex }
-
+    
+    func updateNSView(_ split: NSSplitView, context: Context) {
+        guard let pdfView = context.coordinator.pdfView else { return }
+        
+        if pdfView.document !== pdfModel.pdfDocument {
+            pdfView.document = pdfModel.pdfDocument
+            
+            pdfModel.currentIndex = 0
+            pdfModel.trims = [:]
+            
+            if pdfModel.pdfDocument != nil {
+                var pg = 0
+                while pg < pdfModel.pdfDocument!.pageCount {
+                    pdfModel.setTrims(EdgeTrims.zero, for: pg)
+                    pg += 1
+                }
+            }
+            // Nudge layout/refresh so PDFKit asks for overlays
+            pdfView.layoutDocumentView()
+            pdfView.needsDisplay = true
+        }
+        if pdfView.displayMode != viewModel.pdfDisplayMode  { pdfView.displayMode = viewModel.pdfDisplayMode  }
+        if pdfView.displaysPageBreaks != viewModel.pdfDisplayPageBreaks { pdfView.displaysPageBreaks = viewModel.pdfDisplayPageBreaks }
+        if pdfView.backgroundColor != viewModel.pdfBackgroundColor { pdfView.backgroundColor = viewModel.pdfBackgroundColor }
+        if pdfView.displaysAsBook != viewModel.pdfDisplaysAsBook { pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook }
+        if pdfView.autoScales != viewModel.pdfAutoScales { pdfView.autoScales = viewModel.pdfAutoScales }
+        
+        if (pdfModel.pdfDocument != nil), pdfModel.currentIndex >= 0, pdfModel.currentIndex < pdfModel.pdfDocument!.pageCount {
+            let page = pdfModel.pdfDocument!.page(at: pdfModel.currentIndex)!
+            if pdfView.currentPage !== page {
+                pdfView.go(to: page)
+                // Refresh overlay after page switch
+                pdfView.layoutDocumentView()
+                pdfView.needsDisplay = true
+            }
+        }
+        
+        
+    }
+    
+    final class Coordinator: NSObject, PDFPageOverlayViewProvider {
+        let pdfModel: PDFModel
+        weak var thumbnailView: PDFThumbnailView?
+        weak var pdfView: PDFView?
+        
+        var trimsLookup: ((Int) -> EdgeTrims)?
+        var trimsSetter: ((Int, EdgeTrims) -> Void)?
+        init(pdfModel: PDFModel) { self.pdfModel = pdfModel }
+        
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
                   let doc = pdfView.document,
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
-            if idx != NSNotFound, idx != currentIndex { currentIndex = idx }
+            print("changed to page:", idx)
+            if idx != NSNotFound, idx != pdfModel.currentIndex { pdfModel.currentIndex = idx }
         }
+        
+        func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
+            let view = TrimOverlayHandleView()
+            view.onFinish = { [weak self, weak page] rectInOverlay in
+                print("rectInOverlay: ", rectInOverlay.debugDescription)
+                
+                guard let self, let page = page else { return }
+                // Convert overlay-local rect to PDFView coordinates
+                let rectInView = view.convert(rectInOverlay, to: pdfView)
+                
+                // Clamp to page bounds in PDFView coordinates
+                let pageBoundsInView = pdfView.convert(page.bounds(for: .cropBox), from: page)
+                print("pageBoundsInView: ", pageBoundsInView.debugDescription)
+                let clamped = rectInView.intersection(pageBoundsInView)
+                print("clamped: ", clamped.debugDescription)
+                guard !clamped.isEmpty else { return }
+                
+                // Convert to page coords
+                let pageRect = pdfView.convert(clamped, to: page)
+                print("pageRect ", pageRect.debugDescription)
+                
+                let media = page.bounds(for: .cropBox)
+                print("media: ", media.debugDescription)
+                
+                let left = max(0, pageRect.minX - media.minX)
+                let right = max(0, media.maxX - pageRect.maxX)
+                let bottom = max(0, pageRect.minY - media.minY)
+                let top = max(0, media.maxY - pageRect.maxY)
+                
+                let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
+                print("trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
+                
+                let idx = page.document?.index(for: page) ?? 0
+                pdfModel.setTrims(trims, for: idx)
+            }
+            // Seed current rect from trims
+            if let doc = page.document {
+                let idx = doc.index(for: page)
+                let t = pdfModel.trims(for: idx)
+                // Page rect in page space
+                let crop = page.bounds(for: .cropBox)
+                // Visible rect in page space
+                let visibleInPage = CGRect(
+                    x: crop.minX + t.left,
+                    y: crop.minY + t.bottom,
+                    width: crop.width - t.left - t.right,
+                    height: crop.height - t.top - t.bottom
+                )
+                // Convert both crop and visible into PDFView coordinates
+                let cropInView = pdfView.convert(crop, from: page)
+                let visibleInView = pdfView.convert(visibleInPage, from: page)
+                // Convert into overlay coordinates
+                let cropInOverlay = view.convert(cropInView, from: pdfView)
+                let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+                // Assign clamp rect and current rect using overlay-local coordinates
+                view.clampRect = cropInOverlay
+                view.currentRect = visibleInOverlay
+                // Post-layout correction to ensure alignment after auto-scale/layout settles
+                DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
+                    guard let view = view, let page = page, let pdfView = pdfView else { return }
+                    let crop = page.bounds(for: .cropBox)
+                    let cropInView = pdfView.convert(crop, from: page)
+                    let cropInOverlay = view.convert(cropInView, from: pdfView)
+                    view.clampRect = cropInOverlay
+                    // Recompute visible using current trims
+                    let t2 = self.pdfModel.trims(for: idx)
+                    let visibleInPage2 = CGRect(
+                        x: crop.minX + t2.left,
+                        y: crop.minY + t2.bottom,
+                        width: crop.width - t2.left - t2.right,
+                        height: crop.height - t2.top - t2.bottom
+                    )
+                    let visibleInView2 = pdfView.convert(visibleInPage2, from: page)
+                    let visibleInOverlay2 = view.convert(visibleInView2, from: pdfView)
+                    view.currentRect = visibleInOverlay2
+                    view.needsDisplay = true
+                }
+            }
+            return view
+        }
+        
+        
     }
 }
+

@@ -1,10 +1,11 @@
 //  PDFModel.swift
-//  PraxPress - Prax=1229-3
+//  PraxPress - Prax=0102-0
 //
 
 import Foundation
 import CoreGraphics
 import PDFKit
+import SwiftUI
 import UniformTypeIdentifiers
 
 internal import Combine
@@ -24,7 +25,8 @@ struct EdgeTrims: Codable, Hashable {
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
     
-    var pdfDocument: PDFDocument?
+    var pdfDocument: PDFDocument? 
+
     var currentIndex: Int = 0
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
@@ -60,6 +62,8 @@ struct EdgeTrims: Codable, Hashable {
         }
     }
 
+
+    
     func mergeAllPagesVerticallyIntoSinglePage(sourceURL: URL, destinationURL: URL, trimTop: CGFloat = 0, trimBottom: CGFloat = 0, interPageGap: CGFloat = 0, perPageTrims: [Int: EdgeTrims] = [:]) throws {
         let needsStopSource = sourceURL.startAccessingSecurityScopedResource()
         defer { if needsStopSource { sourceURL.stopAccessingSecurityScopedResource() } }
@@ -82,7 +86,7 @@ struct EdgeTrims: Codable, Hashable {
         
         for i in 0..<pageCount {
             guard let page = sourceDoc.page(at: i) else { continue }
-            let rect = page.bounds(for: .mediaBox)
+            let rect = page.bounds(for: .cropBox)
             pageRects.append(rect)
         }
         
@@ -120,10 +124,11 @@ struct EdgeTrims: Codable, Hashable {
             guard let page = sourceDoc.page(at: i) else { continue }
             let rect = pageRects[i]
             let per = perPageTrims[i] ?? .zero
-            let seamTop: CGFloat = (i == 0) ? 0 : trimTop
-            let seamBottom: CGFloat = (i == pageCount - 1) ? 0 : trimBottom
+            let seamTop: CGFloat = 0
+            let seamBottom: CGFloat = 0
             
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+            print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
             let visibleWidth = vis.width
             let visibleHeight = vis.height
             guard visibleWidth > 0, visibleHeight > 0 else {
@@ -146,7 +151,7 @@ struct EdgeTrims: Codable, Hashable {
             if let cgPage = page.pageRef {
                 ctx.drawPDFPage(cgPage)
             } else {
-                page.draw(with: .mediaBox, to: ctx)
+                page.draw(with: .cropBox, to: ctx)
             }
             ctx.restoreGState()
             
@@ -177,13 +182,14 @@ struct EdgeTrims: Codable, Hashable {
         for i in 0..<pageCount {
             guard let srcPage = sourceDoc.page(at: i) else { continue }
             let rect = pageRects[i]
-            let per = trims[i] ?? .zero
-            let seamTop: CGFloat = (i == 0) ? 0 : trimTop
-            let seamBottom: CGFloat = (i == pageCount - 1) ? 0 : trimBottom
+            let per = perPageTrims[i] ?? .zero
+            let seamTop: CGFloat = 0
+            let seamBottom: CGFloat = 0
             
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
             let dx = 0 - vis.minX
             let dy = placedOriginsY[i] - vis.minY
+            print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
             
             for annot in srcPage.annotations {
                 guard annot.fieldName != nil else { continue }
@@ -285,6 +291,72 @@ struct EdgeTrims: Codable, Hashable {
     }
 }
 
+struct PageTrimStatus: View {
+    let pdfModel: PDFModel
+    
+    var body: some View {
+        GroupBox {
+            HStack {
+                // Left: Page indicator
+                Text("Page \(pdfModel.currentIndex + 1) of \(pdfModel.pdfDocument?.pageCount ?? 0)")
+                    .font(.subheadline)
+                
+                
+                
+                Spacer()
+                
+                if let trimsForPage = pdfModel.trims[pdfModel.currentIndex] {
+                    Text(String(format: "EdgeTrims Left: %.0f  Right %.0f  Top: %.2f  Bottom: %.2f)", trimsForPage.left, trimsForPage.right, trimsForPage.top, trimsForPage.bottom))
+                        .font(.subheadline)
+                }
+                else {
+                    Text("No Trims")
+                        .font(.subheadline)
+                    //  .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(8)
+        }
+        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        .foregroundStyle(Color.white)
+    }
+}
+
+
+
+struct DocumentTrimStatus: View {
+    let pdfModel: PDFModel
+    
+    var body: some View {
+        GroupBox {
+            HStack {
+                // Left: Page indicator
+                Text("Document pages: \(pdfModel.pdfDocument?.pageCount ?? 0)")
+                    .font(.subheadline)
+                
+                Spacer()
+                
+                // Right: Live merged size using trims
+                if pdfModel.mergedWidthPts > 0, pdfModel.mergedHeightPts > 0 {
+                    let wIn = pdfModel.mergedWidthPts / 72.0
+                    let hIn = pdfModel.mergedHeightPts / 72.0
+                    Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", pdfModel.mergedWidthPts, pdfModel.mergedHeightPts, wIn, hIn))
+                        .font(.subheadline)
+                    //    .foregroundStyle(Color.white)
+                } else {
+                    Text("Merged size: —")
+                        .font(.subheadline)
+                    //  .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(8)
+        }
+        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        .foregroundStyle(Color.white)
+    }
+}
+
+
 
 func isPDF(_ url: URL) -> Bool {
     if let type = UTType(filenameExtension: url.pathExtension) {
@@ -355,3 +427,4 @@ extension PDFGeometry {
         return CGSize(width: maxVisibleWidth, height: totalVisibleHeight + gapsTotal)
     }
 }
+
