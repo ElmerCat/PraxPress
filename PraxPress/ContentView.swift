@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  PraxPress - Prax=1229-1
+//  PraxPress - Prax=0102-0
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -35,7 +35,7 @@ struct ContentView: View {
                 .background(.cyan).padding(20)
 
                 GroupBox {
-                    PageTrimStatus(pdfModel: pdfModel)
+                    DocumentTrimStatus(pdfModel: pdfModel)
                     PDFViewContainer(viewModel: viewModel, pdfModel: pdfModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
