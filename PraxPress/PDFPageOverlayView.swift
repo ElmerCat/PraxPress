@@ -1,6 +1,6 @@
 //
-//  TrimOverlayHandleView.swift
-//  PraxPress - Prax=0104-0
+//  PDFPageOverlayView.swift
+//  PraxPress - Prax=0104-1
 //
 
 
@@ -9,7 +9,7 @@ import PDFKit
 import AppKit
 
 // Minimal trim overlay handle view reused per page by the provider
-final class TrimOverlayHandleView: NSView {
+final class PDFPageOverlayView: NSView {
     
     var pdfModel: PDFModel?
     var pdfView: PDFView?

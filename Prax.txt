@@ -1,12 +1,21 @@
 //
 //  Prax.txt
-//  PraxPress - Prax=0104-0
+//  PraxPress - Prax=0104-1
 //
 //  Created by Elmer Cat on 12/29/25.
 //
 
 Hello - This is a Swift 6 / macOS 26 only app.
-Please search for the Prax code to see all 9 .swift source files in the project:  "Prax=0104-0"
 
-The page trim rectangles are now working correctly.  Can you add a feature where one of the PDF pages can be set as a "Width Guide Page". Then, have the left and right trimmed edges of that page appear as guidelines on top of the other pages, and allow their trim rectangles to snap and match those boundaries?
-    
+Please search for the Prax code to see all 10 .swift source files in the project:  "Prax=0104-1"
+
+Despite always keeping the binoculars on (blue), you often don't have access to all the files I think you do, and Xcode has no way of letting me know.
+
+If you don't see all those files now, or later in the conversation, please tell me. Otherwise you may not understand all that's going on in the app and will wind up making inappropriate changes.  Okay?
+
+
+Now, on my PDFThumbnailView, I set allowsDragging = true. However, instead of dragging to reorder pages, it duplicates dragged pages.  I'd also like to eventually allow dragging pages in and out of the PDFThumbnailView.
+
+Attempting to implement standard NSDragging delegate methods doesn't work because PDFThumbnailView has no delegate property.
+
+I think the solutiion may be to subclass PDFThumbnailView.  Do you have any other ideas to make this work?

@@ -1,5 +1,5 @@
 //  PDFDocumentView.swift
-//  PraxPress - Prax=0104-0
+//  PraxPress - Prax=0104-1
 //
 //  SwiftUI wrapper for a full PDFKit PDFView with configurable display options and selection sync.
 //
@@ -44,16 +44,18 @@ struct PDFDocumentView: NSViewRepresentable {
         pdfView.backgroundColor = viewModel.pdfBackgroundColor
         pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook
         
-        let thumbnail = PDFThumbnailView()
-        context.coordinator.thumbnailView = thumbnail
+        let thumbnailView = PDFThumbnailView()
+        context.coordinator.thumbnailView = thumbnailView
         
-        thumbnail.translatesAutoresizingMaskIntoConstraints = false
-        thumbnail.backgroundColor = viewModel.pdfBackgroundColor
-        thumbnail.thumbnailSize = CGSize(width: 120, height: 160)
-        thumbnail.pdfView = pdfView
+        thumbnailView.allowsDragging = true
+        
+        thumbnailView.translatesAutoresizingMaskIntoConstraints = false
+        thumbnailView.backgroundColor = viewModel.pdfBackgroundColor
+        thumbnailView.thumbnailSize = CGSize(width: 120, height: 160)
+        thumbnailView.pdfView = pdfView
         
         
-        split.addArrangedSubview(thumbnail)
+        split.addArrangedSubview(thumbnailView)
         split.addArrangedSubview(pdfView)
         
         // Initial divider position (thumbnail pane width ~180)
@@ -154,7 +156,7 @@ struct PDFDocumentView: NSViewRepresentable {
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
-            let view = TrimOverlayHandleView()
+            let view = PDFPageOverlayView()
             view.pdfView = pdfView
             view.pdfModel = pdfModel
             
@@ -195,26 +197,7 @@ struct PDFDocumentView: NSViewRepresentable {
             // Seed current rect from trims
             if let doc = page.document {
                 let idx = doc.index(for: page)
-           //     let t = pdfModel.trims(for: idx)
-           //     // Page rect in page space
-           //     let crop = page.bounds(for: .cropBox)
-           //     // Visible rect in page space
-           //     let visibleInPage = CGRect(
-           //         x: crop.minX + t.left,
-           //         y: crop.minY + t.bottom,
-           //         width: crop.width - t.left - t.right,
-           //         height: crop.height - t.top - t.bottom
-           //     )
-           //     // Convert both crop and visible into PDFView coordinates
-           //     let cropInView = pdfView.convert(crop, from: page)
-           //     let visibleInView = pdfView.convert(visibleInPage, from: page)
-           //     // Convert into overlay coordinates
-           //     let cropInOverlay = view.convert(cropInView, from: pdfView)
-           //     let visibleInOverlay = view.convert(visibleInView, from: pdfView)
-           //     // Assign clamp rect and current rect using overlay-local coordinates
-           //     view.clampRect = cropInOverlay
-           //     view.currentRect = visibleInOverlay
-                // Post-layout correction to ensure alignment after auto-scale/layout settles
+  
                 DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                     guard let view = view, let page = page, let pdfView = pdfView else { return }
                     let crop = page.bounds(for: .cropBox)
@@ -222,20 +205,20 @@ struct PDFDocumentView: NSViewRepresentable {
                     let cropInOverlay = view.convert(cropInView, from: pdfView)
                     view.clampRect = cropInOverlay
                     // Recompute visible using current trims
-                    let t2 = self.pdfModel.trims(for: idx)
-                    let visibleInPage2 = CGRect(
-                        x: crop.minX + t2.left,
-                        y: crop.minY + t2.bottom,
-                        width: crop.width - t2.left - t2.right,
-                        height: crop.height - t2.top - t2.bottom
+                    let trim = self.pdfModel.trims(for: idx)
+                    let visibleInPage = CGRect(
+                        x: crop.minX + trim.left,
+                        y: crop.minY + trim.bottom,
+                        width: crop.width - trim.left - trim.right,
+                        height: crop.height - trim.top - trim.bottom
                     )
-                    let visibleInView2 = pdfView.convert(visibleInPage2, from: page)
-                    let visibleInOverlay2 = view.convert(visibleInView2, from: pdfView)
-                    view.currentRect = visibleInOverlay2
+                    let visibleInView = pdfView.convert(visibleInPage, from: page)
+                    let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+                    view.currentRect = visibleInOverlay
 
                     view.needsDisplay = true
                 }
-                // Removed second DispatchQueue.main.async block to avoid duplication
+                
             }
             return view
         }
