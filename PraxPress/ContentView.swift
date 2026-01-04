@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  PraxPress - Prax=0102-0
+//  PraxPress - Prax=0102-1
 //
 //  Created by Elmer Cat on 12/21/25.
 //
@@ -128,6 +128,23 @@ struct ContentView: View {
 
                 
             }
+            ToolbarItemGroup(placement: .navigation) {
+                Menu {
+                    Button {
+                        pdfModel.setWidthGuide(fromPage: pdfModel.currentIndex)
+                    } label: {
+                        Label("Set Width Guide to This Page", systemImage: "ruler")
+                    }
+                    Button(role: .destructive) {
+                        pdfModel.clearWidthGuide()
+                    } label: {
+                        Label("Clear Width Guide", systemImage: "ruler.fill")
+                    }
+                } label: {
+                    Label("Width Guide", systemImage: "ruler")
+                }
+            }
+            
             ToolbarItemGroup(placement: .secondaryAction) {
                 
                 Button {

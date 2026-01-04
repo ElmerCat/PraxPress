@@ -1,5 +1,5 @@
 //  PDFModel.swift
-//  PraxPress - Prax=0102-0
+//  PraxPress - Prax=0102-1
 //
 
 import Foundation
@@ -9,6 +9,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 internal import Combine
+
+extension Notification.Name { static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged") }
 
 struct EdgeTrims: Codable, Hashable {
     var left: CGFloat
@@ -41,8 +43,38 @@ struct EdgeTrims: Codable, Hashable {
     
     // Keyed by page index in the source PDF
     var trims: [Int: EdgeTrims] = [:]
+
+    // Width Guide support
+    var widthGuidePageIndex: Int? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
+    
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
     func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
+    
+    /// Compute and store the width guide X positions (in page space of the guide page)
+    func setWidthGuide(fromPage index: Int) {
+        guard let doc = pdfDocument, let page = doc.page(at: index) else { return }
+        let media = page.bounds(for: .cropBox)
+        let per = trims[index] ?? .zero
+        let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
+        widthGuidePageIndex = index
+        widthGuideLeftX = vis.minX
+        widthGuideRightX = vis.maxX
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: nil)
+        }
+    }
+
+    /// Remove any active width guide
+    func clearWidthGuide() {
+        widthGuidePageIndex = nil
+        widthGuideLeftX = nil
+        widthGuideRightX = nil
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: nil)
+        }
+    }
     
     func handleMergePagesOverwrite(viewModel: ViewModel) {
         guard let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) else { return }
@@ -296,26 +328,44 @@ struct PageTrimStatus: View {
     
     var body: some View {
         GroupBox {
-            HStack {
-                // Left: Page indicator
-                Text("Page \(pdfModel.currentIndex + 1) of \(pdfModel.pdfDocument?.pageCount ?? 0)")
-                    .font(.subheadline)
-                
-                
-                
-                Spacer()
-                
-                if let trimsForPage = pdfModel.trims[pdfModel.currentIndex] {
-                    Text(String(format: "EdgeTrims Left: %.0f  Right %.0f  Top: %.2f  Bottom: %.2f)", trimsForPage.left, trimsForPage.right, trimsForPage.top, trimsForPage.bottom))
+            VStack {
+                HStack {
+                    // Left: Page indicator
+                    Text("Page \(pdfModel.currentIndex + 1) of \(pdfModel.pdfDocument?.pageCount ?? 0)")
                         .font(.subheadline)
+                    
+                    
+                    
+                    Spacer()
+                    
+                    if let trimsForPage = pdfModel.trims[pdfModel.currentIndex] {
+                        Text(String(format: "EdgeTrims Left: %.0f  Right %.0f  Top: %.2f  Bottom: %.2f", trimsForPage.left, trimsForPage.right, trimsForPage.top, trimsForPage.bottom))
+                            .font(.subheadline)
+                    }
+
                 }
-                else {
-                    Text("No Trims")
-                        .font(.subheadline)
-                    //  .foregroundStyle(.tertiary)
+                .padding(8)
+                HStack {
+     
+                    if let g = pdfModel.widthGuidePageIndex {
+                        Text("Guide: page \(g + 1)")
+                            .font(.subheadline)
+                            
+                        Spacer()
+                        Text("Guide Left: \(pdfModel.widthGuideLeftX!)  Right: \(pdfModel.widthGuideRightX!)")
+                            .font(.subheadline)
+                            
+                    }
+                    else {
+                        Text("No Guide Page Set")
+                            .font(.subheadline)
+                        //  .foregroundStyle(.tertiary)
+                    }
+                    
                 }
+                .padding(8)
+
             }
-            .padding(8)
         }
         .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
         .foregroundStyle(Color.white)

@@ -1,21 +1,17 @@
 //
 //  PageTrimView.swift
-//  PraxPress - Prax=0102-0
+//  PraxPress - Prax=0102-1
 //
 
 import SwiftUI
 import PDFKit
 import AppKit
 internal import Combine
-
-
-
+import QuartzCore
 
 struct PageTrimView: View {
     @Bindable var viewModel:  ViewModel
     @Bindable var pdfModel: PDFModel
-    
- //   @State private var sharedPDFView: PDFView? = nil
     
     var body: some View {
         
@@ -33,19 +29,6 @@ struct PageTrimView: View {
             
             // Break complex subviews into locals to help the type checker
             let documentView = PDFDocumentView(viewModel: viewModel, pdfModel: pdfModel)
-//                document: $pdfModel.pdfDocument,
- //               currentIndex: $pdfModel.currentIndex,
- //               displayMode: viewModel.pdfDisplayMode,
- //               displaysPageBreaks: true,
- //               autoScales: viewModel.pdfAutoScales,
- //               backgroundColor: .windowBackgroundColor,
- //               displaysAsBook: viewModel.pdfDisplaysAsBook,
-//                onPDFViewReady: { view in
-  //                  DispatchQueue.main.async {
-    //                    self.sharedPDFView = view
-      //              }
-        //        }
-            
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             documentView
@@ -69,6 +52,7 @@ struct PageTrimView: View {
                             Label("Book Mode", systemImage: "book")
                         }
                     }
+
                 }
                 .onAppear {
                     let selectedIDs = Array(viewModel.selectedFiles)
@@ -95,6 +79,7 @@ struct PageTrimView: View {
                     
                     if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
                     pdfModel.trims = [:]
+                    pdfModel.clearWidthGuide()
                     DispatchQueue.main.async { recomputeMergedMetrics() }
                 }
                 .onChange(of: pdfModel.pdfDocument) { _, _ in
@@ -125,6 +110,7 @@ struct PageTrimView: View {
                     
                     if (pdfModel.pdfDocument?.pageCount ?? 0) > 0 { pdfModel.currentIndex = 0 }
                     pdfModel.trims = [:]
+                    pdfModel.clearWidthGuide()
                     DispatchQueue.main.async { recomputeMergedMetrics() }
                 }
                 .onDisappear {
@@ -133,11 +119,13 @@ struct PageTrimView: View {
                 .onChange(of: pdfModel.currentIndex) { _, _ in
                     DispatchQueue.main.async {
                         recomputeMergedMetrics()
+                        recomputeWidthGuideIfNeeded()
                     }
                 }
                 .onChange(of: pdfModel.trims) { _, _ in
                     DispatchQueue.main.async {
                         recomputeMergedMetrics()
+                        recomputeWidthGuideIfNeeded()
                     }
                 }
             
@@ -172,6 +160,11 @@ struct PageTrimView: View {
         pdfModel.mergedWidthPts = maxVisibleWidth
         pdfModel.mergedHeightPts = totalVisibleHeight
     }
+    
+    private func recomputeWidthGuideIfNeeded() {
+        guard let guideIndex = pdfModel.widthGuidePageIndex else { return }
+        // Recompute guide edges using current trims
+        pdfModel.setWidthGuide(fromPage: guideIndex)
+    }
 }
-
 

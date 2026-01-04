@@ -1,135 +1,12 @@
 //  PDFDocumentView.swift
-//  PraxPress - Prax=0102-0
+//  PraxPress - Prax=0102-1
 //
 //  SwiftUI wrapper for a full PDFKit PDFView with configurable display options and selection sync.
 //
-//  NOTE: A minimal trim overlay provider is scaffolded here. The host should wire up the
-//  hooks to their PDFModel trims for full functionality.
 
 import SwiftUI
 import PDFKit
 import AppKit
-
-// Minimal trim overlay handle view reused per page by the provider
-final class TrimOverlayHandleView: NSView {
-    var onFinish: ((CGRect) -> Void)?
-    var currentRect: CGRect? { didSet { needsDisplay = true } }
-    var clampRect: CGRect?
-    
-    private let handleSize: CGFloat = 8
-    private let hitInset: CGFloat = 6
-    private enum Handle { case topLeft, top, topRight, right, bottomRight, bottom, bottomLeft, left }
-    private enum DragMode { case none, move, resize(Handle) }
-    private var dragMode: DragMode = .none
-    private var dragStart: CGPoint?
-    private var originalRect: CGRect?
-    
-    override var acceptsFirstResponder: Bool { true }
-    override func hitTest(_ point: NSPoint) -> NSView? { self }
-    
-    override func draw(_ dirtyRect: NSRect) {
-        super.draw(dirtyRect)
-        guard let r = currentRect else { return }
-        NSColor.systemBlue.setStroke()
-        NSColor.systemBlue.withAlphaComponent(0.15).setFill()
-        r.fill()
-        let path = NSBezierPath(rect: r)
-        path.lineWidth = 2
-        path.stroke()
-        NSColor.white.setFill()
-        NSColor.systemBlue.setStroke()
-        for handleRect in handleRects(for: r).values {
-            let handlePath = NSBezierPath(rect: handleRect)
-            handlePath.fill()
-            handlePath.lineWidth = 1.5
-            handlePath.stroke()
-        }
-    }
-    
-    override func mouseDown(with event: NSEvent) {
-        let point = convert(event.locationInWindow, from: nil)
-        dragStart = point
-        if let rect = currentRect {
-            if let handle = hitTestHandle(point, in: rect) {
-                dragMode = .resize(handle)
-                originalRect = rect
-            } else if rect.insetBy(dx: hitInset, dy: hitInset).contains(point) {
-                dragMode = .move
-                originalRect = rect
-            } else {
-                dragMode = .resize(.bottomLeft)
-                currentRect = CGRect(origin: point, size: .zero)
-                originalRect = nil
-            }
-        } else {
-            dragMode = .resize(.bottomLeft)
-            currentRect = CGRect(origin: point, size: .zero)
-            originalRect = nil
-        }
-    }
-    
-    override func mouseDragged(with event: NSEvent) {
-        guard let dragStart = dragStart else { return }
-        let point = convert(event.locationInWindow, from: nil)
-        let pageRect = clampRect ?? bounds
-        switch dragMode {
-        case .none: break
-        case .move:
-            guard let originalRect = originalRect else { return }
-            var newRect = originalRect.offsetBy(dx: point.x - dragStart.x, dy: point.y - dragStart.y)
-            newRect = newRect.intersection(pageRect)
-            if newRect.width >= handleSize * 2 && newRect.height >= handleSize * 2 { currentRect = newRect }
-        case .resize(let handle):
-            let r = originalRect ?? CGRect(origin: dragStart, size: .zero)
-            var minX = r.minX, maxX = r.maxX, minY = r.minY, maxY = r.maxY
-            func clampX(_ x: CGFloat) -> CGFloat { max(pageRect.minX, min(pageRect.maxX, x)) }
-            func clampY(_ y: CGFloat) -> CGFloat { max(pageRect.minY, min(pageRect.maxY, y)) }
-            let x = clampX(point.x), y = clampY(point.y)
-            switch handle {
-            case .topLeft:      minX = min(x, maxX - handleSize * 2); maxY = max(y, minY + handleSize * 2)
-            case .top:          maxY = max(y, minY + handleSize * 2)
-            case .topRight:     maxX = max(x, minX + handleSize * 2); maxY = max(y, minY + handleSize * 2)
-            case .right:        maxX = max(x, minX + handleSize * 2)
-            case .bottomRight:  maxX = max(x, minX + handleSize * 2); minY = min(y, maxY - handleSize * 2)
-            case .bottom:       minY = min(y, maxY - handleSize * 2)
-            case .bottomLeft:   minX = min(x, maxX - handleSize * 2); minY = min(y, maxY - handleSize * 2)
-            case .left:         minX = min(x, maxX - handleSize * 2)
-            }
-            let newRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY).intersection(pageRect)
-            if newRect.width >= handleSize * 2 && newRect.height >= handleSize * 2 { currentRect = newRect }
-        }
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        dragMode = .none
-        dragStart = nil
-        originalRect = nil
-        if let rect = currentRect { onFinish?(rect) }
-    }
-    
-    private func handleRects(for rect: CGRect) -> [Handle: CGRect] {
-        var dict: [Handle: CGRect] = [:]
-        let hs = handleSize
-        let x = rect.minX, y = rect.minY, w = rect.width, h = rect.height
-        dict[.topLeft] = CGRect(x: x - hs/2, y: y + h - hs/2, width: hs, height: hs)
-        dict[.top] = CGRect(x: x + w/2 - hs/2, y: y + h - hs/2, width: hs, height: hs)
-        dict[.topRight] = CGRect(x: x + w - hs/2, y: y + h - hs/2, width: hs, height: hs)
-        dict[.right] = CGRect(x: x + w - hs/2, y: y + h/2 - hs/2, width: hs, height: hs)
-        dict[.bottomRight] = CGRect(x: x + w - hs/2, y: y - hs/2, width: hs, height: hs)
-        dict[.bottom] = CGRect(x: x + w/2 - hs/2, y: y - hs/2, width: hs, height: hs)
-        dict[.bottomLeft] = CGRect(x: x - hs/2, y: y - hs/2, width: hs, height: hs)
-        dict[.left] = CGRect(x: x - hs/2, y: y + h/2 - hs/2, width: hs, height: hs)
-        return dict
-    }
-    
-    private func hitTestHandle(_ point: CGPoint, in rect: CGRect) -> Handle? {
-        let handles = handleRects(for: rect)
-        for (handle, handleRect) in handles {
-            if handleRect.insetBy(dx: -hitInset, dy: -hitInset).contains(point) { return handle }
-        }
-        return nil
-    }
-}
 
 struct PDFDocumentView: NSViewRepresentable {
     @Bindable var viewModel:  ViewModel
@@ -191,6 +68,12 @@ struct PDFDocumentView: NSViewRepresentable {
             name: Notification.Name.PDFViewPageChanged,
             object: pdfView
         )
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.widthGuideChanged(_:)),
+            name: .praxWidthGuideChanged,
+            object: nil
+        )
         
         DispatchQueue.main.async { [weak pdfView] in
             if let v = pdfView {
@@ -212,6 +95,7 @@ struct PDFDocumentView: NSViewRepresentable {
             
             pdfModel.currentIndex = 0
             pdfModel.trims = [:]
+            pdfModel.clearWidthGuide()
             
             if pdfModel.pdfDocument != nil {
                 var pg = 0
@@ -261,10 +145,22 @@ struct PDFDocumentView: NSViewRepresentable {
             if idx != NSNotFound, idx != pdfModel.currentIndex { pdfModel.currentIndex = idx }
         }
         
+        @objc func widthGuideChanged(_ note: Notification) {
+            guard let pdfView = self.pdfView else { return }
+            DispatchQueue.main.async {
+                pdfView.layoutDocumentView()
+                pdfView.needsDisplay = true
+            }
+        }
+        
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             let view = TrimOverlayHandleView()
+            view.pdfView = pdfView
+            view.pdfModel = pdfModel
+            
+            
             view.onFinish = { [weak self, weak page] rectInOverlay in
-                print("rectInOverlay: ", rectInOverlay.debugDescription)
+             //   print("rectInOverlay: ", rectInOverlay.debugDescription)
                 
                 guard let self, let page = page else { return }
                 // Convert overlay-local rect to PDFView coordinates
@@ -272,17 +168,17 @@ struct PDFDocumentView: NSViewRepresentable {
                 
                 // Clamp to page bounds in PDFView coordinates
                 let pageBoundsInView = pdfView.convert(page.bounds(for: .cropBox), from: page)
-                print("pageBoundsInView: ", pageBoundsInView.debugDescription)
+            //    print("pageBoundsInView: ", pageBoundsInView.debugDescription)
                 let clamped = rectInView.intersection(pageBoundsInView)
-                print("clamped: ", clamped.debugDescription)
+          //     print("clamped: ", clamped.debugDescription)
                 guard !clamped.isEmpty else { return }
                 
                 // Convert to page coords
                 let pageRect = pdfView.convert(clamped, to: page)
-                print("pageRect ", pageRect.debugDescription)
+           //     print("pageRect ", pageRect.debugDescription)
                 
                 let media = page.bounds(for: .cropBox)
-                print("media: ", media.debugDescription)
+          //      print("media: ", media.debugDescription)
                 
                 let left = max(0, pageRect.minX - media.minX)
                 let right = max(0, media.maxX - pageRect.maxX)
@@ -290,33 +186,34 @@ struct PDFDocumentView: NSViewRepresentable {
                 let top = max(0, media.maxY - pageRect.maxY)
                 
                 let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-                print("trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
+//                print("trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
                 
                 let idx = page.document?.index(for: page) ?? 0
                 pdfModel.setTrims(trims, for: idx)
             }
+            
             // Seed current rect from trims
             if let doc = page.document {
                 let idx = doc.index(for: page)
-                let t = pdfModel.trims(for: idx)
-                // Page rect in page space
-                let crop = page.bounds(for: .cropBox)
-                // Visible rect in page space
-                let visibleInPage = CGRect(
-                    x: crop.minX + t.left,
-                    y: crop.minY + t.bottom,
-                    width: crop.width - t.left - t.right,
-                    height: crop.height - t.top - t.bottom
-                )
-                // Convert both crop and visible into PDFView coordinates
-                let cropInView = pdfView.convert(crop, from: page)
-                let visibleInView = pdfView.convert(visibleInPage, from: page)
-                // Convert into overlay coordinates
-                let cropInOverlay = view.convert(cropInView, from: pdfView)
-                let visibleInOverlay = view.convert(visibleInView, from: pdfView)
-                // Assign clamp rect and current rect using overlay-local coordinates
-                view.clampRect = cropInOverlay
-                view.currentRect = visibleInOverlay
+           //     let t = pdfModel.trims(for: idx)
+           //     // Page rect in page space
+           //     let crop = page.bounds(for: .cropBox)
+           //     // Visible rect in page space
+           //     let visibleInPage = CGRect(
+           //         x: crop.minX + t.left,
+           //         y: crop.minY + t.bottom,
+           //         width: crop.width - t.left - t.right,
+           //         height: crop.height - t.top - t.bottom
+           //     )
+           //     // Convert both crop and visible into PDFView coordinates
+           //     let cropInView = pdfView.convert(crop, from: page)
+           //     let visibleInView = pdfView.convert(visibleInPage, from: page)
+           //     // Convert into overlay coordinates
+           //     let cropInOverlay = view.convert(cropInView, from: pdfView)
+           //     let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+           //     // Assign clamp rect and current rect using overlay-local coordinates
+           //     view.clampRect = cropInOverlay
+           //     view.currentRect = visibleInOverlay
                 // Post-layout correction to ensure alignment after auto-scale/layout settles
                 DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                     guard let view = view, let page = page, let pdfView = pdfView else { return }
@@ -335,8 +232,10 @@ struct PDFDocumentView: NSViewRepresentable {
                     let visibleInView2 = pdfView.convert(visibleInPage2, from: page)
                     let visibleInOverlay2 = view.convert(visibleInView2, from: pdfView)
                     view.currentRect = visibleInOverlay2
+
                     view.needsDisplay = true
                 }
+                // Removed second DispatchQueue.main.async block to avoid duplication
             }
             return view
         }
