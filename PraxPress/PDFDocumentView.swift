@@ -44,18 +44,24 @@ struct PDFDocumentView: NSViewRepresentable {
         pdfView.backgroundColor = viewModel.pdfBackgroundColor
         pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook
         
-        let thumbnailView = PDFThumbnailView()
-        context.coordinator.thumbnailView = thumbnailView
+        //let thumbnailView = ReorderablePDFThumbnailView()
+       // let thumbnailView = NSCollectionView()
         
-        thumbnailView.allowsDragging = true
+        let thumbnailController = ThumbnailViewController( with: viewModel, pdfModel: pdfModel)
+
+        thumbnailController.pdfView = pdfView
         
-        thumbnailView.translatesAutoresizingMaskIntoConstraints = false
-        thumbnailView.backgroundColor = viewModel.pdfBackgroundColor
-        thumbnailView.thumbnailSize = CGSize(width: 120, height: 160)
-        thumbnailView.pdfView = pdfView
+        context.coordinator.thumbnailController = thumbnailController
+        
+//        thumbnailView.allowsDragging = false
+        
+ //       thumbnailView.translatesAutoresizingMaskIntoConstraints = false
+   //     thumbnailView.backgroundColor = viewModel.pdfBackgroundColor
+  //      thumbnailView.thumbnailSize = CGSize(width: 120, height: 160)
+       
         
         
-        split.addArrangedSubview(thumbnailView)
+        split.addArrangedSubview(thumbnailController.view)
         split.addArrangedSubview(pdfView)
         
         // Initial divider position (thumbnail pane width ~180)
@@ -131,7 +137,7 @@ struct PDFDocumentView: NSViewRepresentable {
     
     final class Coordinator: NSObject, PDFPageOverlayViewProvider {
         let pdfModel: PDFModel
-        weak var thumbnailView: PDFThumbnailView?
+        weak var thumbnailController: ThumbnailViewController?
         weak var pdfView: PDFView?
         
         var trimsLookup: ((Int) -> EdgeTrims)?

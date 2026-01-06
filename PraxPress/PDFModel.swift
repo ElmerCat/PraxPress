@@ -21,7 +21,10 @@ struct EdgeTrims: Codable, Hashable {
     static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
 
-@Observable class PDFModel {
+@Observable
+
+final class PDFModel: Sendable {
+    static let shared = PDFModel()
     
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
@@ -160,7 +163,7 @@ struct EdgeTrims: Codable, Hashable {
             let seamBottom: CGFloat = 0
             
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-            print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
+     //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
             let visibleWidth = vis.width
             let visibleHeight = vis.height
             guard visibleWidth > 0, visibleHeight > 0 else {
@@ -221,7 +224,7 @@ struct EdgeTrims: Codable, Hashable {
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
             let dx = 0 - vis.minX
             let dy = placedOriginsY[i] - vis.minY
-            print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
+         //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
             
             for annot in srcPage.annotations {
                 guard annot.fieldName != nil else { continue }

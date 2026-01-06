@@ -10,6 +10,7 @@ internal import Combine
 import PDFKit
 
 @Observable class ViewModel {
+    static let shared = ViewModel()
     var isOn = false
     var isLarge: Bool = false
     var showingImporter: Bool = false
@@ -36,8 +37,8 @@ import PDFKit
 
 struct MainSceneRoot: View {
 
-    @State private var viewModel = ViewModel()
-    @State private var pdfModel = PDFModel()
+    @State private var viewModel = ViewModel.shared
+    @State private var pdfModel = PDFModel.shared
     
 
     
