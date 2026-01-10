@@ -12,25 +12,38 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView id="Hz6-mo-xeY">
+        <customView id="Hz6-mo-xeY" customClass="ThumbnailItemView" customModule="PraxPress" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="C4X-Xf-QFU">
+                    <rect key="frame" x="17" y="207" width="48" height="48"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" imageFrameStyle="grayBezel" image="NSActionTemplate" id="ZlH-cR-T62"/>
+                    <connections>
+                        <binding destination="j10-kH-XCT" name="value" keyPath="thumbImage" id="0nL-D9-ZpV"/>
+                    </connections>
+                </imageView>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="okK-4g-lQo">
-                    <rect key="frame" x="218" y="128" width="45" height="16"/>
-                    <textFieldCell key="cell" lineBreakMode="clipping" title="Norma" id="l12-bz-B99">
+                    <rect key="frame" x="18" y="186" width="46" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" refusesFirstResponder="YES" title="Page X" id="l12-bz-B99">
                         <font key="font" usesAppearanceFont="YES"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
-                        <binding destination="-2" name="value" keyPath="text" id="whr-J7-8PW"/>
+                        <binding destination="j10-kH-XCT" name="displayPatternValue1" keyPath="thumbText" id="1v9-5r-RIU">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">Page %{value1}@</string>
+                            </dictionary>
+                        </binding>
                     </connections>
                 </textField>
             </subviews>
             <constraints>
-                <constraint firstItem="okK-4g-lQo" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="hiR-go-byi"/>
-                <constraint firstItem="okK-4g-lQo" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="juu-8U-pg0"/>
+                <constraint firstItem="okK-4g-lQo" firstAttribute="centerX" secondItem="C4X-Xf-QFU" secondAttribute="centerX" id="YUr-ng-0vk"/>
+                <constraint firstItem="okK-4g-lQo" firstAttribute="top" secondItem="C4X-Xf-QFU" secondAttribute="bottom" constant="8" symbolic="YES" id="aZX-U8-FuN"/>
+                <constraint firstItem="okK-4g-lQo" firstAttribute="leading" secondItem="C4X-Xf-QFU" secondAttribute="leading" id="kIV-xw-4Pc"/>
             </constraints>
             <point key="canvasLocation" x="-126" y="114"/>
         </customView>
@@ -40,4 +53,7 @@
             </connections>
         </collectionViewItem>
     </objects>
+    <resources>
+        <image name="NSActionTemplate" width="20" height="20"/>
+    </resources>
 </document>

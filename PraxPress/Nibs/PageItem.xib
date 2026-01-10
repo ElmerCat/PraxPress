@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="c22-O7-iKe">
+            <rect key="frame" x="0.0" y="0.0" width="200" height="260"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vOR-lY-RYV">
+                    <rect key="frame" x="-3" y="37" width="206" height="226"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="220" id="rgC-J3-Vmj"/>
+                    </constraints>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" imageFrameStyle="grayBezel" id="OOm-sP-UIk"/>
+                </imageView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="icb-ed-A7I">
+                    <rect key="frame" x="82" y="16" width="37" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="q66-QZ-0oE">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button translatesAutoresizingMaskIntoConstraints="NO" id="teO-fk-G83">
+                    <rect key="frame" x="150" y="4" width="50" height="28"/>
+                    <buttonCell key="cell" type="bevel" title="Guide Page" bezelStyle="rounded" image="ruler" catalog="system" imagePosition="only" alignment="center" alternateImage="ruler.fill" controlSize="large" lineBreakMode="truncatingTail" imageScaling="axesIndependently" inset="2" id="NGZ-4D-X8c">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="50" id="F8X-66-3Zh"/>
+                        <constraint firstAttribute="height" constant="28" id="owx-5D-HLs"/>
+                    </constraints>
+                    <connections>
+                        <action selector="clickedGuidePageButton:" target="Xlf-2q-nt8" id="uNF-YH-T5L"/>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="icb-ed-A7I" firstAttribute="top" secondItem="vOR-lY-RYV" secondAttribute="bottom" constant="8" symbolic="YES" id="0RO-yz-h3s"/>
+                <constraint firstAttribute="bottom" secondItem="teO-fk-G83" secondAttribute="bottom" constant="4" id="1gU-KV-1lZ"/>
+                <constraint firstItem="vOR-lY-RYV" firstAttribute="trailing" secondItem="teO-fk-G83" secondAttribute="trailing" id="DJg-Jl-XPa"/>
+                <constraint firstItem="teO-fk-G83" firstAttribute="top" secondItem="vOR-lY-RYV" secondAttribute="bottom" constant="8" symbolic="YES" id="INh-1v-hbd"/>
+                <constraint firstItem="vOR-lY-RYV" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="WmV-SU-86q"/>
+                <constraint firstItem="vOR-lY-RYV" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="e0m-kJ-xJl"/>
+                <constraint firstAttribute="trailing" secondItem="teO-fk-G83" secondAttribute="trailing" id="vEk-Ya-Jfe"/>
+                <constraint firstItem="vOR-lY-RYV" firstAttribute="centerX" secondItem="icb-ed-A7I" secondAttribute="centerX" id="wrt-aL-Qo6"/>
+            </constraints>
+            <connections>
+                <outlet property="menu" destination="gMI-xr-i80" id="8gY-SH-qWQ"/>
+            </connections>
+            <point key="canvasLocation" x="-8" y="-207"/>
+        </customView>
+        <collectionViewItem id="Xlf-2q-nt8" customClass="PageItem" customModule="PraxPress" customModuleProvider="target">
+            <connections>
+                <outlet property="guidePageButton" destination="teO-fk-G83" id="Xqi-dB-cuz"/>
+                <outlet property="imageView" destination="vOR-lY-RYV" id="gBe-6i-2Aw"/>
+                <outlet property="textField" destination="icb-ed-A7I" id="LHp-CY-ESf"/>
+                <outlet property="view" destination="c22-O7-iKe" id="PHF-YF-2Fe"/>
+            </connections>
+        </collectionViewItem>
+        <menu id="gMI-xr-i80">
+            <items>
+                <menuItem title="Merge From Top" id="Wv1-RB-XOP">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Merge From Left" id="Tgz-Kb-XRQ">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Begin New Page" id="qPQ-3a-E2J">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="ZNA-14-cZg"/>
+            </items>
+            <point key="canvasLocation" x="205" y="-247"/>
+        </menu>
+    </objects>
+    <resources>
+        <image name="ruler" catalog="system" width="19" height="9"/>
+        <image name="ruler.fill" catalog="system" width="19" height="9"/>
+    </resources>
+</document>

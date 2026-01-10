@@ -21,6 +21,17 @@ struct EdgeTrims: Codable, Hashable {
     static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
 
+struct PDFPageSection: Hashable {
+    let title: String
+    let id = UUID()
+}
+
+struct PDFPageItem: Hashable {
+    let index: Int
+    let name: String
+    let id = UUID()
+}
+
 @Observable
 
 final class PDFModel: Sendable {
@@ -30,8 +41,32 @@ final class PDFModel: Sendable {
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
     
-    var pdfDocument: PDFDocument? 
+    var pdfSections: [PDFPageSection] = []
+    var pdfPages: [PDFPageItem] = []
+    var pdfDocument: PDFDocument? {
+        didSet {
+            pdfSections.removeAll()
+            pdfPages.removeAll()
+            if let pdfDocument {
+                pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
+                for idx in 0..<pdfDocument.pageCount {
+                    pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
+                }
+            }
+        }
+    }
 
+    func updateCurrentIndex(indexPaths: Set<IndexPath>) -> Void {
+        if let first = indexPaths.first {
+            currentIndex = first.item
+        }
+        
+    }
+    
+    func pages(in section: PDFPageSection) -> [PDFPageItem] {
+        return pdfPages
+    }
+    
     var currentIndex: Int = 0
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0

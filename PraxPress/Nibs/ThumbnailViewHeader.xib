@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="ThumbnailViewController" customModule="PraxPress" customModuleProvider="target"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView identifier="ThumbnailViewHeader" id="Mpr-gh-nqm" userLabel="ThumbnailViewHeader" customClass="ThumbnailViewHeader" customModule="PraxPress" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="189" height="96"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fQH-sV-R8f">
+                    <rect key="frame" x="21" y="40" width="36" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Doris" id="xaG-N4-nwW">
+                        <font key="font" usesAppearanceFont="YES"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cpN-hh-f8b">
+                    <rect key="frame" x="63" y="40" width="106" height="16"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="106" id="8kz-Yj-dZY"/>
+                    </constraints>
+                    <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="ZqT-wq-e2T">
+                        <font key="font" metaFont="cellTitle"/>
+                    </sliderCell>
+                </slider>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="cpN-hh-f8b" secondAttribute="trailing" constant="20" symbolic="YES" id="FTR-wg-2kR"/>
+                <constraint firstItem="cpN-hh-f8b" firstAttribute="leading" secondItem="fQH-sV-R8f" secondAttribute="trailing" constant="8" symbolic="YES" id="Ozk-cn-Wh8"/>
+                <constraint firstItem="cpN-hh-f8b" firstAttribute="top" secondItem="fQH-sV-R8f" secondAttribute="top" id="UDF-Pc-Diq"/>
+                <constraint firstItem="cpN-hh-f8b" firstAttribute="centerY" secondItem="Mpr-gh-nqm" secondAttribute="centerY" id="xm1-rm-9kQ"/>
+            </constraints>
+            <connections>
+                <outlet property="headerLabel" destination="fQH-sV-R8f" id="GuL-4S-JJV"/>
+            </connections>
+            <point key="canvasLocation" x="-257.5" y="-182"/>
+        </customView>
+    </objects>
+</document>

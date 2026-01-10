@@ -28,6 +28,7 @@ struct PDFDocumentView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> NSSplitView {
         let split = NSSplitView()
+        split.delegate = context.coordinator
         split.isVertical = true
         split.dividerStyle = .thin
         split.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +48,7 @@ struct PDFDocumentView: NSViewRepresentable {
         //let thumbnailView = ReorderablePDFThumbnailView()
        // let thumbnailView = NSCollectionView()
         
-        let thumbnailController = ThumbnailViewController( with: viewModel, pdfModel: pdfModel)
+        let thumbnailController = PagesViewController(with: viewModel, pdfModel: pdfModel)
 
         thumbnailController.pdfView = pdfView
         
@@ -135,14 +136,22 @@ struct PDFDocumentView: NSViewRepresentable {
         
     }
     
-    final class Coordinator: NSObject, PDFPageOverlayViewProvider {
+    final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate {
         let pdfModel: PDFModel
-        weak var thumbnailController: ThumbnailViewController?
+        weak var thumbnailController: PagesViewController?
         weak var pdfView: PDFView?
         
         var trimsLookup: ((Int) -> EdgeTrims)?
         var trimsSetter: ((Int, EdgeTrims) -> Void)?
         init(pdfModel: PDFModel) { self.pdfModel = pdfModel }
+        
+        func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+
+            print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
+            return 100
+        }
+
+        
         
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
