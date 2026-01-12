@@ -5,10 +5,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="ThumbnailViewController" customModule="PraxPress" customModuleProvider="target"/>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView identifier="ThumbnailViewHeader" id="Mpr-gh-nqm" userLabel="ThumbnailViewHeader" customClass="ThumbnailViewHeader" customModule="PraxPress" customModuleProvider="target">
+        <customView identifier="ThumbnailViewHeader" id="Mpr-gh-nqm" userLabel="PagesSectionHeader" customClass="PagesSectionHeader" customModule="PraxPress" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="189" height="96"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
@@ -37,7 +37,7 @@
                 <constraint firstItem="cpN-hh-f8b" firstAttribute="centerY" secondItem="Mpr-gh-nqm" secondAttribute="centerY" id="xm1-rm-9kQ"/>
             </constraints>
             <connections>
-                <outlet property="headerLabel" destination="fQH-sV-R8f" id="GuL-4S-JJV"/>
+                <outlet property="label" destination="fQH-sV-R8f" id="HHM-n0-Tr3"/>
             </connections>
             <point key="canvasLocation" x="-257.5" y="-182"/>
         </customView>

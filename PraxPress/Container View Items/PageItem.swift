@@ -9,10 +9,11 @@
 
 //import Cocoa
 import SwiftUI
+internal import Combine
 
 class PageItem: NSCollectionViewItem {
     
-    @State private var pdfModel = PDFModel.shared
+    @State private var prax = PraxModel.shared
     
     var pageIndex: Int? = nil
         
@@ -24,11 +25,11 @@ class PageItem: NSCollectionViewItem {
     
     @IBAction func clickedGuidePageButton(_ sender: Any) {
         
-        if pageIndex == pdfModel.widthGuidePageIndex {
-            pdfModel.clearWidthGuide()
+        if pageIndex == prax.widthGuidePageIndex {
+            prax.clearWidthGuide()
         }
         else {
-            pdfModel.setWidthGuide(fromPage: pageIndex!)
+            prax.setWidthGuide(fromPage: pageIndex!)
         }
     }
     
@@ -39,9 +40,9 @@ class PageItem: NSCollectionViewItem {
         super.viewDidLoad()
         
         observeWidthGuidePageIndex = Task {
-            for await _ in Observations({ self.pdfModel.widthGuidePageIndex }) {
-                print("PagesViewController observeWidthGuidePageIndex  ", self.pdfModel.widthGuidePageIndex ?? "None")
-                guidePageButton?.state = self.pdfModel.widthGuidePageIndex == self.pageIndex ? .on : .off
+            for await _ in Observations({ self.prax.widthGuidePageIndex }) {
+  //              print("PagesViewController observeWidthGuidePageIndex  ", self.prax.widthGuidePageIndex ?? "None")
+                guidePageButton?.state = self.prax.widthGuidePageIndex == self.pageIndex ? .on : .off
                 
             }
         }
@@ -72,4 +73,17 @@ class PageItem: NSCollectionViewItem {
         textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
         view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
     }
+}
+class PagesSectionHeader: NSView, NSCollectionViewElement {
+    @State private var prax = PraxModel.shared
+        
+
+    
+    @IBOutlet weak var label: NSTextField!
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("pages-section-headeer-reuse-identifier")
+}
+
+class PagesSectionFooter: NSView, NSCollectionViewElement {
+    @IBOutlet weak var label: NSTextField!
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("pages-section-footer-reuse-identifierr")
 }

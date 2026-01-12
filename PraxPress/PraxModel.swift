@@ -1,4 +1,4 @@
-//  PDFModel.swift
+//  PraxModel.swift
 //  PraxPress - Prax=0104-1
 //
 
@@ -6,18 +6,22 @@ import Foundation
 import CoreGraphics
 import PDFKit
 import SwiftUI
+import SwiftData
 import UniformTypeIdentifiers
 
 internal import Combine
 
-extension Notification.Name { static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged") }
+extension Notification.Name {
+    static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
+    static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
+}
 
 struct EdgeTrims: Codable, Hashable {
     var left: CGFloat
     var right: CGFloat
     var top: CGFloat
     var bottom: CGFloat
-
+    
     static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
 
@@ -32,30 +36,87 @@ struct PDFPageItem: Hashable {
     let id = UUID()
 }
 
+//@Model
 @Observable
+final class PraxModel: Sendable {
+    init() { }
+    static let shared = PraxModel()
 
-final class PDFModel: Sendable {
-    static let shared = PDFModel()
+    var editingPDFView: PDFView?
     
+    func zoomToFitEditingPDFView() {
+        if let editingPDFView {
+            editingPDFView.scaleFactor = editingPDFView.scaleFactorForSizeToFit
+            pdfAutoScales = true
+        }
+    }
+    func zoomInEditingPDFView() {
+        if let editingPDFView {
+            editingPDFView.zoomIn(self)
+            pdfAutoScales = false
+        }
+    }
+    func zoomOutEditingPDFView() {
+        if let editingPDFView {
+            editingPDFView.zoomOut(self)
+            pdfAutoScales = false
+        }
+    }
+
+    var isOn = false
+    var isLarge: Bool = false
+    var showingImporter: Bool = false
+    var isShowingInspector: Bool = false
+    var showSavePanel: Bool = false
+    var columnVisibility: NavigationSplitViewVisibility = .all
+    
+    var listOfFiles: [PDFEntry] = [] {
+        didSet {
+      print ("listOfFiles didSet ", listOfFiles.description)
+        }
+    }
+    var selectedFiles = Set<PDFEntry.ID>() {
+        didSet {
+            print ("selectedFiles didSet ", selectedFiles.description)
+            
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .praxFileSelectionChanged, object: nil)
+            }
+
+        }
+    }
+
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
+
+    var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
+    var pdfAutoScales: Bool = true
+    var pdfDisplayPageBreaks: Bool = true
+    var pdfDisplaysAsBook: Bool = false
     
+    var pdfBackgroundColor: NSColor = .clear
+    var saveError: String?
+
     var pdfSections: [PDFPageSection] = []
-    var pdfPages: [PDFPageItem] = []
-    var pdfDocument: PDFDocument? {
+    var pdfPages: [PDFPageItem] = [] {
+        didSet {
+            print ("pdfPages didSet ", pdfPages.description)
+        }
+    }
+    var editingPDFDocument: PDFDocument? {
         didSet {
             pdfSections.removeAll()
             pdfPages.removeAll()
-            if let pdfDocument {
+            if let editingPDFDocument {
                 pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
-                for idx in 0..<pdfDocument.pageCount {
+                for idx in 0..<editingPDFDocument.pageCount {
                     pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
                 }
             }
         }
     }
-
+    
     func updateCurrentIndex(indexPaths: Set<IndexPath>) -> Void {
         if let first = indexPaths.first {
             currentIndex = first.item
@@ -66,33 +127,32 @@ final class PDFModel: Sendable {
     func pages(in section: PDFPageSection) -> [PDFPageItem] {
         return pdfPages
     }
-    
+
     var currentIndex: Int = 0
+
+    var trims: [Int: EdgeTrims] = [:]
+    func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
+    func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
+    
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
     
     var pageCount: Int? = nil
     var totalHeightPoints: CGFloat? = nil
     var maxWidthPoints: CGFloat? = nil
-
+    
     var mergeTopMargin: Double = 0
     var mergeBottomMargin: Double = 0
     var mergeInterPageGap: Double = 0
     
-    // Keyed by page index in the source PDF
-    var trims: [Int: EdgeTrims] = [:]
-
     // Width Guide support
     var widthGuidePageIndex: Int? = nil
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-    func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
-    func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
-    
     /// Compute and store the width guide X positions (in page space of the guide page)
     func setWidthGuide(fromPage index: Int) {
-        guard let doc = pdfDocument, let page = doc.page(at: index) else { return }
+        guard let doc = editingPDFDocument, let page = doc.page(at: index) else { return }
         let media = page.bounds(for: .cropBox)
         let per = trims[index] ?? .zero
         let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
@@ -103,7 +163,7 @@ final class PDFModel: Sendable {
             NotificationCenter.default.post(name: .praxWidthGuideChanged, object: nil)
         }
     }
-
+    
     /// Remove any active width guide
     func clearWidthGuide() {
         widthGuidePageIndex = nil
@@ -114,8 +174,8 @@ final class PDFModel: Sendable {
         }
     }
     
-    func handleMergePagesOverwrite(viewModel: ViewModel) {
-        guard let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) else { return }
+    func handleMergePagesOverwrite() {
+        guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
         do {
             try mergeAllPagesVerticallyIntoSinglePage(
                 sourceURL: entry.url,
@@ -128,11 +188,11 @@ final class PDFModel: Sendable {
             // Recompute metrics based on the new single-page doc
             computePageMetrics(for: entry.url)
         } catch {
-            viewModel.saveError = error.localizedDescription
+            saveError = error.localizedDescription
         }
     }
-
-
+    
+    
     
     func mergeAllPagesVerticallyIntoSinglePage(sourceURL: URL, destinationURL: URL, trimTop: CGFloat = 0, trimBottom: CGFloat = 0, interPageGap: CGFloat = 0, perPageTrims: [Int: EdgeTrims] = [:]) throws {
         let needsStopSource = sourceURL.startAccessingSecurityScopedResource()
@@ -151,7 +211,7 @@ final class PDFModel: Sendable {
             return
         }
         
-         var pageRects: [CGRect] = []
+        var pageRects: [CGRect] = []
         pageRects.reserveCapacity(pageCount)
         
         for i in 0..<pageCount {
@@ -198,7 +258,7 @@ final class PDFModel: Sendable {
             let seamBottom: CGFloat = 0
             
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-     //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
+            //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
             let visibleWidth = vis.width
             let visibleHeight = vis.height
             guard visibleWidth > 0, visibleHeight > 0 else {
@@ -259,7 +319,7 @@ final class PDFModel: Sendable {
             let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
             let dx = 0 - vis.minX
             let dy = placedOriginsY[i] - vis.minY
-         //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
+            //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
             
             for annot in srcPage.annotations {
                 guard annot.fieldName != nil else { continue }
@@ -281,7 +341,7 @@ final class PDFModel: Sendable {
         try fm.moveItem(at: tmpFinal, to: destinationURL)
     }
     
-     func computePageMetrics(for url: URL) {
+    func computePageMetrics(for url: URL) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
         guard let doc = PDFDocument(url: url) else {
@@ -321,7 +381,7 @@ final class PDFModel: Sendable {
             try? FileManager.default.removeItem(at: old)
             lastCombinedSourceURL = nil
         }
-
+        
         let fm = FileManager.default
         let tempURL = fm.temporaryDirectory.appendingPathComponent("combined-\(UUID().uuidString)").appendingPathExtension("pdf")
         defer {
@@ -359,160 +419,71 @@ final class PDFModel: Sendable {
             lastCombinedSourceURL = nil
         }
     }
-}
-
-struct PageTrimStatus: View {
-    let pdfModel: PDFModel
     
-    var body: some View {
-        GroupBox {
-            VStack {
-                HStack {
-                    // Left: Page indicator
-                    Text("Page \(pdfModel.currentIndex + 1) of \(pdfModel.pdfDocument?.pageCount ?? 0)")
-                        .font(.subheadline)
-                    
-                    
-                    
-                    Spacer()
-                    
-                    if let trimsForPage = pdfModel.trims[pdfModel.currentIndex] {
-                        Text(String(format: "EdgeTrims Left: %.0f  Right %.0f  Top: %.2f  Bottom: %.2f", trimsForPage.left, trimsForPage.right, trimsForPage.top, trimsForPage.bottom))
-                            .font(.subheadline)
-                    }
-
-                }
-                .padding(8)
-                HStack {
-     
-                    if let g = pdfModel.widthGuidePageIndex {
-                        Text("Guide: page \(g + 1)")
-                            .font(.subheadline)
-                            
-                        Spacer()
-                        Text("Guide Left: \(pdfModel.widthGuideLeftX!)  Right: \(pdfModel.widthGuideRightX!)")
-                            .font(.subheadline)
-                            
-                    }
-                    else {
-                        Text("No Guide Page Set")
-                            .font(.subheadline)
-                        //  .foregroundStyle(.tertiary)
-                    }
-                    
-                }
-                .padding(8)
-
-            }
+    func loadSelectedFiles() {
+        
+        let selectedIDs = Array(selectedFiles)
+        let selectedEntries: [PDFEntry] = selectedIDs.compactMap { id in
+            listOfFiles.first(where: { $0.id == id })
         }
-        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
-        .foregroundStyle(Color.white)
-    }
-}
-
-
-
-struct DocumentTrimStatus: View {
-    let pdfModel: PDFModel
-    
-    var body: some View {
-        GroupBox {
-            HStack {
-                // Left: Page indicator
-                Text("Document pages: \(pdfModel.pdfDocument?.pageCount ?? 0)")
-                    .font(.subheadline)
-                
-                Spacer()
-                
-                // Right: Live merged size using trims
-                if pdfModel.mergedWidthPts > 0, pdfModel.mergedHeightPts > 0 {
-                    let wIn = pdfModel.mergedWidthPts / 72.0
-                    let hIn = pdfModel.mergedHeightPts / 72.0
-                    Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", pdfModel.mergedWidthPts, pdfModel.mergedHeightPts, wIn, hIn))
-                        .font(.subheadline)
-                    //    .foregroundStyle(Color.white)
-                } else {
-                    Text("Merged size: —")
-                        .font(.subheadline)
-                    //  .foregroundStyle(.tertiary)
-                }
+        let urls = selectedEntries.map { $0.url }
+        
+        if let first = urls.first, urls.count == 1 {
+            _ = first.startAccessingSecurityScopedResource()
+            editingPDFDocument = PDFDocument(url: first)
+        } else if !urls.isEmpty {
+            do {
+                let combinedURL = try buildTemporaryCombinedPDF(from: urls)
+                _ = combinedURL.startAccessingSecurityScopedResource()
+                editingPDFDocument = PDFDocument(url: combinedURL)
+            } catch {
+                // Fall back to empty document on error
+                editingPDFDocument = PDFDocument()
             }
-            .padding(8)
+        } else {
+            editingPDFDocument = nil
         }
-        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
-        .foregroundStyle(Color.white)
+        
+        if (editingPDFDocument?.pageCount ?? 0) > 0 { currentIndex = 0 }
+        trims = [:]
+        clearWidthGuide()
+        DispatchQueue.main.async { self.recomputeMergedMetrics() }
     }
-}
-
-
-
-func isPDF(_ url: URL) -> Bool {
-    if let type = UTType(filenameExtension: url.pathExtension) {
-        return type.conforms(to: .pdf)
-    }
-    return url.pathExtension.lowercased() == "pdf"
-}
-
-
-struct PDFEntry: Identifiable, Hashable {
-    let id: UUID
-    let url: URL
-    let bookmarkData: Data
-    var fileName: String { url.lastPathComponent }
-    let pcardHolderName: String?
-    let documentNumber: String?
-    let date: String?
-    let amount: String?
-    let vendor: String?
-    let glAccount: String?
-    let costObject: String?
-    let description: String?
     
-    init(id: UUID = UUID(), url: URL, bookmarkData: Data, pcardHolderName: String?, documentNumber: String?, date: String?, amount: String?, vendor: String?, glAccount: String?, costObject: String?, description: String?) {
-        self.id = id
-        self.url = url
-        self.bookmarkData = bookmarkData
-        self.pcardHolderName = pcardHolderName
-        self.documentNumber = documentNumber
-        self.date = date
-        self.amount = amount
-        self.vendor = vendor
-        self.glAccount = glAccount
-        self.costObject = costObject
-        self.description = description
-    }
-}
-
-struct PDFGeometry {
-    /// Compute the visible rect in page space given media box and trims.
-    static func visibleRect(media: CGRect, trims: EdgeTrims, seamTop: CGFloat, seamBottom: CGFloat) -> CGRect {
-        let minX = media.minX + trims.left
-        let maxX = media.maxX - trims.right
-        let minY = media.minY + trims.bottom + seamBottom
-        let maxY = media.maxY - trims.top - seamTop
-        let w = max(0, maxX - minX)
-        let h = max(0, maxY - minY)
-        return CGRect(x: minX, y: minY, width: w, height: h)
-    }
-}
-
-extension PDFGeometry {
-    /// Computes the final canvas size for the merged PDF using the same rules as the merge routine.
-    static func canvasSize(for pageRects: [CGRect], trims: [Int: EdgeTrims], trimTop: CGFloat, trimBottom: CGFloat, interPageGap: CGFloat) -> CGSize {
+    
+    private func recomputeMergedMetrics() {
+        guard let doc = editingPDFDocument else {
+            mergedWidthPts = 0
+            mergedHeightPts = 0
+            return
+        }
+        let count = doc.pageCount
+        guard count > 0 else {
+            mergedWidthPts = 0
+            mergedHeightPts = 0
+            return
+        }
         var maxVisibleWidth: CGFloat = 0
         var totalVisibleHeight: CGFloat = 0
-        let count = pageRects.count
         for i in 0..<count {
-            let per = trims[i] ?? .zero
-            let seamTop: CGFloat = (i == 0) ? 0 : trimTop
-            let seamBottom: CGFloat = (i == count - 1) ? 0 : trimBottom
-            let vis = visibleRect(media: pageRects[i], trims: per, seamTop: seamTop, seamBottom: seamBottom)
+            guard let page = doc.page(at: i) else { continue }
+            let media = page.bounds(for: .cropBox)
+            let per = trims(for: i)
+            let seamTop: CGFloat = (i == 0) ? 0 : 0
+            let seamBottom: CGFloat = (i == count - 1) ? 0 : 0
+            let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
             maxVisibleWidth = max(maxVisibleWidth, vis.width)
             totalVisibleHeight += vis.height
         }
-        let internalSeams = max(0, count - 1)
-        let gapsTotal = interPageGap * CGFloat(internalSeams)
-        return CGSize(width: maxVisibleWidth, height: totalVisibleHeight + gapsTotal)
+        mergedWidthPts = maxVisibleWidth
+        mergedHeightPts = totalVisibleHeight
     }
+    
+    private func recomputeWidthGuideIfNeeded() {
+        guard let guideIndex = widthGuidePageIndex else { return }
+        // Recompute guide edges using current trims
+        setWidthGuide(fromPage: guideIndex)
+    }
+    
 }
 

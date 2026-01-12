@@ -1,4 +1,4 @@
-//  PDFDocumentView.swift
+//  DocumentEditingView.swift
 //  PraxPress - Prax=0104-1
 //
 //  SwiftUI wrapper for a full PDFKit PDFView with configurable display options and selection sync.
@@ -8,12 +8,11 @@ import SwiftUI
 import PDFKit
 import AppKit
 
-struct PDFDocumentView: NSViewRepresentable {
-    @Bindable var viewModel:  ViewModel
-    @Bindable var pdfModel: PDFModel
-    
-    var onPDFViewReady: (PDFView) -> Void = {
-        _ in
+struct DocumentEditingView: NSViewRepresentable {
+    @State private var prax = PraxModel.shared
+ 
+    func onPDFViewReady (pdfView: PDFView) -> Void {
+        prax.editingPDFView = pdfView
         print("Juliette M. Belanger")
     }
     
@@ -23,7 +22,7 @@ struct PDFDocumentView: NSViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         print("Nadine Peeler")
-        return Coordinator(pdfModel: pdfModel)
+        return Coordinator(prax: prax)
     }
     
     func makeNSView(context: Context) -> NSSplitView {
@@ -39,37 +38,37 @@ struct PDFDocumentView: NSViewRepresentable {
         
         context.coordinator.pdfView = pdfView
         
-        pdfView.autoScales = viewModel.pdfAutoScales
-        pdfView.displayMode = viewModel.pdfDisplayMode
-        pdfView.displaysPageBreaks = viewModel.pdfDisplayPageBreaks
-        pdfView.backgroundColor = viewModel.pdfBackgroundColor
-        pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook
+        pdfView.autoScales = prax.pdfAutoScales
+        pdfView.displayMode = prax.pdfDisplayMode
+        pdfView.displaysPageBreaks = prax.pdfDisplayPageBreaks
+        pdfView.backgroundColor = prax.pdfBackgroundColor
+        pdfView.displaysAsBook = prax.pdfDisplaysAsBook
         
-        //let thumbnailView = ReorderablePDFThumbnailView()
-       // let thumbnailView = NSCollectionView()
-        
-        let thumbnailController = PagesViewController(with: viewModel, pdfModel: pdfModel)
-
+        let thumbnailController = PagesViewController()
         thumbnailController.pdfView = pdfView
         
         context.coordinator.thumbnailController = thumbnailController
-        
-//        thumbnailView.allowsDragging = false
-        
- //       thumbnailView.translatesAutoresizingMaskIntoConstraints = false
-   //     thumbnailView.backgroundColor = viewModel.pdfBackgroundColor
-  //      thumbnailView.thumbnailSize = CGSize(width: 120, height: 160)
        
-        
-        
         split.addArrangedSubview(thumbnailController.view)
         split.addArrangedSubview(pdfView)
+        split.dividerStyle = .paneSplitter
+//        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
+//        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultHigh, forSubviewAt: 1)
+        
+//        split.setPosition(CGFloat(100), ofDividerAt: 0)
         
         // Initial divider position (thumbnail pane width ~180)
         DispatchQueue.main.async {
-            let target: CGFloat = 180
-            split.setPosition(target, ofDividerAt: 0)
+            let target: CGFloat = 150
+           split.setPosition(target, ofDividerAt: 0)
         }
+
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.fileSelectionChanged(_:)),
+            name: .praxFileSelectionChanged,
+            object: nil
+        )
         
         NotificationCenter.default.addObserver(
             context.coordinator,
@@ -87,29 +86,26 @@ struct PDFDocumentView: NSViewRepresentable {
         DispatchQueue.main.async { [weak pdfView] in
             if let v = pdfView {
                 print("Julie d'Prax")
-                onPDFViewReady(v)
+                onPDFViewReady(pdfView: v)
             }
         }
-        
-        
-        
         return split
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
         guard let pdfView = context.coordinator.pdfView else { return }
         
-        if pdfView.document !== pdfModel.pdfDocument {
-            pdfView.document = pdfModel.pdfDocument
+        if pdfView.document !== prax.editingPDFDocument {
+            pdfView.document = prax.editingPDFDocument
             
-            pdfModel.currentIndex = 0
-            pdfModel.trims = [:]
-            pdfModel.clearWidthGuide()
+            prax.currentIndex = 0
+            prax.trims = [:]
+            prax.clearWidthGuide()
             
-            if pdfModel.pdfDocument != nil {
+            if prax.editingPDFDocument != nil {
                 var pg = 0
-                while pg < pdfModel.pdfDocument!.pageCount {
-                    pdfModel.setTrims(EdgeTrims.zero, for: pg)
+                while pg < prax.editingPDFDocument!.pageCount {
+                    prax.setTrims(EdgeTrims.zero, for: pg)
                     pg += 1
                 }
             }
@@ -117,14 +113,14 @@ struct PDFDocumentView: NSViewRepresentable {
             pdfView.layoutDocumentView()
             pdfView.needsDisplay = true
         }
-        if pdfView.displayMode != viewModel.pdfDisplayMode  { pdfView.displayMode = viewModel.pdfDisplayMode  }
-        if pdfView.displaysPageBreaks != viewModel.pdfDisplayPageBreaks { pdfView.displaysPageBreaks = viewModel.pdfDisplayPageBreaks }
-        if pdfView.backgroundColor != viewModel.pdfBackgroundColor { pdfView.backgroundColor = viewModel.pdfBackgroundColor }
-        if pdfView.displaysAsBook != viewModel.pdfDisplaysAsBook { pdfView.displaysAsBook = viewModel.pdfDisplaysAsBook }
-        if pdfView.autoScales != viewModel.pdfAutoScales { pdfView.autoScales = viewModel.pdfAutoScales }
+        if pdfView.displayMode != prax.pdfDisplayMode  { pdfView.displayMode = prax.pdfDisplayMode  }
+        if pdfView.displaysPageBreaks != prax.pdfDisplayPageBreaks { pdfView.displaysPageBreaks = prax.pdfDisplayPageBreaks }
+        if pdfView.backgroundColor != prax.pdfBackgroundColor { pdfView.backgroundColor = prax.pdfBackgroundColor }
+        if pdfView.displaysAsBook != prax.pdfDisplaysAsBook { pdfView.displaysAsBook = prax.pdfDisplaysAsBook }
+        if pdfView.autoScales != prax.pdfAutoScales { pdfView.autoScales = prax.pdfAutoScales }
         
-        if (pdfModel.pdfDocument != nil), pdfModel.currentIndex >= 0, pdfModel.currentIndex < pdfModel.pdfDocument!.pageCount {
-            let page = pdfModel.pdfDocument!.page(at: pdfModel.currentIndex)!
+        if (prax.editingPDFDocument != nil), prax.currentIndex >= 0, prax.currentIndex < prax.editingPDFDocument!.pageCount {
+            let page = prax.editingPDFDocument!.page(at: prax.currentIndex)!
             if pdfView.currentPage !== page {
                 pdfView.go(to: page)
                 // Refresh overlay after page switch
@@ -137,21 +133,27 @@ struct PDFDocumentView: NSViewRepresentable {
     }
     
     final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate {
-        let pdfModel: PDFModel
+        @State private var prax = PraxModel.shared
+
         weak var thumbnailController: PagesViewController?
         weak var pdfView: PDFView?
         
         var trimsLookup: ((Int) -> EdgeTrims)?
         var trimsSetter: ((Int, EdgeTrims) -> Void)?
-        init(pdfModel: PDFModel) { self.pdfModel = pdfModel }
+        init(prax: PraxModel) { self.prax = prax }
         
         func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
 
-            print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
+ //           print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
             return 100
         }
 
-        
+        @objc func fileSelectionChanged(_ note: Notification) {
+            print("fileSelectionChanged")
+            prax.loadSelectedFiles()
+            
+        }
+
         
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
@@ -159,7 +161,7 @@ struct PDFDocumentView: NSViewRepresentable {
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
             print("changed to page:", idx)
-            if idx != NSNotFound, idx != pdfModel.currentIndex { pdfModel.currentIndex = idx }
+            if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
         
         @objc func widthGuideChanged(_ note: Notification) {
@@ -173,7 +175,6 @@ struct PDFDocumentView: NSViewRepresentable {
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
-            view.pdfModel = pdfModel
             
             
             view.onFinish = { [weak self, weak page] rectInOverlay in
@@ -206,7 +207,7 @@ struct PDFDocumentView: NSViewRepresentable {
 //                print("trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
                 
                 let idx = page.document?.index(for: page) ?? 0
-                pdfModel.setTrims(trims, for: idx)
+                prax.setTrims(trims, for: idx)
             }
             
             // Seed current rect from trims
@@ -220,7 +221,7 @@ struct PDFDocumentView: NSViewRepresentable {
                     let cropInOverlay = view.convert(cropInView, from: pdfView)
                     view.clampRect = cropInOverlay
                     // Recompute visible using current trims
-                    let trim = self.pdfModel.trims(for: idx)
+                    let trim = self.prax.trims(for: idx)
                     let visibleInPage = CGRect(
                         x: crop.minX + trim.left,
                         y: crop.minY + trim.bottom,

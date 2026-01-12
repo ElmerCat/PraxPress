@@ -9,20 +9,14 @@ import SwiftUI
 internal import Combine
 
 struct ContentView: View {
-    
-    @Environment(ViewModel.self) private var _viewModel
-    @Environment(PDFModel.self) private var _pdfModel
-    
-    var body: some View {
+    @State private var prax = PraxModel.shared
+
+     var body: some View {
         
         let _ = Self._printChanges()
         
-        @Bindable var viewModel = _viewModel
-        @Bindable var pdfModel = _pdfModel
-        
-        NavigationSplitView(columnVisibility: $viewModel.columnVisibility) {
+        NavigationSplitView(columnVisibility: $prax.columnVisibility) {
             SourceFilesView()
-                .environment(viewModel)
                 .navigationSplitViewColumnWidth(min: 50, ideal: 300, max: 400)
         }
         
@@ -30,39 +24,45 @@ struct ContentView: View {
             HSplitView {
                 
                 GroupBox {
-                    PageTrimView(viewModel: viewModel, pdfModel: pdfModel)
+                    DocumentEditingToolbar()
+                    DocumentEditingView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .onAppear {
+                            prax.loadSelectedFiles()
+                        }
+
                 }
                 .background(.cyan).padding(20)
 
                 GroupBox {
-                    DocumentTrimStatus(pdfModel: pdfModel)
-                    PDFViewContainer(viewModel: viewModel, pdfModel: pdfModel)
+                    MergedDocumentToolbar()
+                    MergedDocumentView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                 }.background(.green).padding(20)
 
             }
-            .sheet(isPresented: $viewModel.showSavePanel) {
+            .sheet(isPresented: $prax.showSavePanel) {
                 
-                if let id = viewModel.selectedFiles.first, let entry = viewModel.listOfFiles.first(where: { $0.id == id }) {
+                if let id = prax.selectedFiles.first, let entry = prax.listOfFiles.first(where: { $0.id == id }) {
                     SaveAsPanel(suggestedURL: entry.url.deletingPathExtension().appendingPathExtension("merged.pdf")) { destination in
                         do {
-                            try pdfModel.mergeAllPagesVerticallyIntoSinglePage(
+                            try prax.mergeAllPagesVerticallyIntoSinglePage(
                                 sourceURL: entry.url,
                                 destinationURL: destination,
-                                trimTop: CGFloat(pdfModel.mergeTopMargin),
-                                trimBottom: CGFloat(pdfModel.mergeBottomMargin),
-                                interPageGap: CGFloat(pdfModel.mergeInterPageGap),
-                                perPageTrims: pdfModel.trims
+                                trimTop: CGFloat(prax.mergeTopMargin),
+                                trimBottom: CGFloat(prax.mergeBottomMargin),
+                                interPageGap: CGFloat(prax.mergeInterPageGap),
+                                perPageTrims: prax.trims
                             )
                             // Update preview to show merged result if overwriting selected file
                         } catch {
-                            viewModel.saveError = error.localizedDescription
+                            prax.saveError = error.localizedDescription
                         }
                     }
                 }
             }
-            .inspector(isPresented: $viewModel.isShowingInspector) {
+            .inspector(isPresented: $prax.isShowingInspector) {
                 VStack {
                     GroupBox {
                         
@@ -73,9 +73,9 @@ struct ContentView: View {
                     }
                     .padding(20)
                   //  .background(.yellow)
-                    Button(viewModel.isLarge ? "Make Small" : "Make Large") {
+                    Button(prax.isLarge ? "Make Small" : "Make Large") {
                         // Toggle the state when the button is tapped
-                        viewModel.isLarge.toggle()
+                        prax.isLarge.toggle()
                     }
                     Text("Inspector 2")
                     //           .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -104,25 +104,25 @@ struct ContentView: View {
                     Label("Sidebar", systemImage: "sidebar.left")
                 }
                 Button {
-                    if viewModel.columnVisibility == .detailOnly {
+                    if prax.columnVisibility == .detailOnly {
                         NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
                     }
-                    viewModel.showingImporter = true
+                    prax.showingImporter = true
                 } label: {
                     Label("Select Files", systemImage: "folder.badge.plus")
                 }
                 Button("Save", systemImage: "square.and.arrow.down") {
-                    pdfModel.handleMergePagesOverwrite(viewModel: viewModel)
+                    prax.handleMergePagesOverwrite()
                     //            handleSaveCurrentSelection()
                     
                 }
-                .disabled(viewModel.selectedFiles.isEmpty)
+                .disabled(prax.selectedFiles.isEmpty)
                 
                 Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
-                  //  pdfModel.showSavePanel = true
-                    viewModel.showSavePanel = true
+                  //  prax.showSavePanel = true
+                    prax.showSavePanel = true
                 }
-                .disabled(viewModel.selectedFiles.isEmpty)
+                .disabled(prax.selectedFiles.isEmpty)
 
                 
 
@@ -131,12 +131,12 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .navigation) {
                 Menu {
                     Button {
-                        pdfModel.setWidthGuide(fromPage: pdfModel.currentIndex)
+                        prax.setWidthGuide(fromPage: prax.currentIndex)
                     } label: {
                         Label("Set Width Guide to This Page", systemImage: "ruler")
                     }
                     Button(role: .destructive) {
-                        pdfModel.clearWidthGuide()
+                        prax.clearWidthGuide()
                     } label: {
                         Label("Clear Width Guide", systemImage: "ruler.fill")
                     }
@@ -148,9 +148,9 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .secondaryAction) {
                 
                 Button {
-                    viewModel.isLarge.toggle()
+                    prax.isLarge.toggle()
                 } label: {
-                    Label((viewModel.isLarge ? "Julie d'Prax" : "Juliette M. Belanger"), systemImage: (viewModel.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                    Label((prax.isLarge ? "Julie d'Prax" : "Juliette M. Belanger"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
                 }
                 
 
@@ -160,9 +160,9 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .status) {
                 
                 Button {
-                    viewModel.isLarge.toggle()
+                    prax.isLarge.toggle()
                 } label: {
-                    Label((viewModel.isLarge ? "Status Small" : "Status Large"), systemImage: (viewModel.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                    Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
                 }
                 
             }
@@ -175,9 +175,9 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 
                 Button {
-                    viewModel.isShowingInspector.toggle()
+                    prax.isShowingInspector.toggle()
                 } label: {
-                    Label((viewModel.isShowingInspector ? "Hide Inspector" : "Show Inspector"), systemImage: (viewModel.isShowingInspector ? "info.square.fill" : "info.square"))
+                    Label((prax.isShowingInspector ? "Hide Inspector" : "Show Inspector"), systemImage: (prax.isShowingInspector ? "info.square.fill" : "info.square"))
                 }
      
             }

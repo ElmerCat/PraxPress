@@ -14,17 +14,17 @@ private let DEBUG_LOGS = false
 
 struct SourceFilesView: View {
     
-    @Environment(ViewModel.self) private var _viewModel
+    @State private var prax = PraxModel.shared
+     
     @State private var importError: String?
     
     var body: some View {
-        @Bindable var viewModel = _viewModel
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                if !viewModel.listOfFiles.isEmpty {
+                if !prax.listOfFiles.isEmpty {
                     
                     
-                    Table(viewModel.listOfFiles, selection: $viewModel.selectedFiles) {
+                    Table(prax.listOfFiles, selection: $prax.selectedFiles) {
                         TableColumn("File") { entry in Text(entry.fileName) }
                         TableColumn("PcardHolderName") { entry in Text(entry.pcardHolderName ?? "—") }
                         TableColumn("DocumentNumber") { entry in Text(entry.documentNumber ?? "—") }
@@ -37,14 +37,14 @@ struct SourceFilesView: View {
                     }
                     .frame(minHeight: 200)
                      
-                    Text("\(viewModel.selectedFiles.count)  of \(viewModel.listOfFiles.count) Files Selected")
+                    Text("\(prax.selectedFiles.count)  of \(prax.listOfFiles.count) Files Selected")
                         .font(.subheadline)
                        
 
                 } else {
                     
                     Button (action: {
-                        viewModel.showingImporter = true
+                        prax.showingImporter = true
                     }, label: {
                         HStack{
                             Image(systemName: "plus.rectangle.on.folder")
@@ -66,23 +66,23 @@ struct SourceFilesView: View {
         .toolbar(removing: .sidebarToggle)
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
-                if (viewModel.columnVisibility == .all && !viewModel.selectedFiles.isEmpty) {
+                if (prax.columnVisibility == .all && !prax.selectedFiles.isEmpty) {
                     Button {
-                        viewModel.listOfFiles.removeAll()
-                        viewModel.selectedFiles.removeAll()
+                        prax.listOfFiles.removeAll()
+                        prax.selectedFiles.removeAll()
                     } label: {
                         Label("Remove Files", systemImage: "folder.badge.minus")
                     }
-                    .disabled(viewModel.selectedFiles.isEmpty)
+                    .disabled(prax.selectedFiles.isEmpty)
                 }
             }
         }
         .fileImporter(
-            isPresented: $viewModel.showingImporter,
+            isPresented: $prax.showingImporter,
             allowedContentTypes: [.pdf, .folder],
             allowsMultipleSelection: true
         ) { result in
-            handleImportResult(result, forFiles:&viewModel.listOfFiles)
+            handleImportResult(result, forFiles:&prax.listOfFiles)
         }
     }
   

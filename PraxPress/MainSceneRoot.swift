@@ -9,51 +9,17 @@ import SwiftUI
 internal import Combine
 import PDFKit
 
-@Observable class ViewModel {
-    static let shared = ViewModel()
-    var isOn = false
-    var isLarge: Bool = false
-    var showingImporter: Bool = false
-    var isShowingInspector: Bool = false
-    var columnVisibility: NavigationSplitViewVisibility = .all
-
-    var listOfFiles: [PDFEntry] = []
-    var selectedFiles = Set<PDFEntry.ID>() 
-   // var isEnabled = false
-    
-    var showSavePanel: Bool = false
-//    var mergeAsShown: Bool = false
-
-    
-    var saveError: String?
-    // PDF viewing configuration used by PageTrimView toolbar and PDFDocumentView
-    var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
-    var pdfAutoScales: Bool = true
-    var pdfDisplayPageBreaks: Bool = true
-    var pdfDisplaysAsBook: Bool = false
-    
-    var pdfBackgroundColor: NSColor = .clear
-}
 
 struct MainSceneRoot: View {
 
-    @State private var viewModel = ViewModel.shared
-    @State private var pdfModel = PDFModel.shared
-    
-
-    
+    @State private var prax = PraxModel.shared
     
     var body: some View {
         ContentView()
-            .environment(viewModel)
-            .environment(pdfModel)
-            .overlay(TempCleanupLifecycleHook(onCleanup: { pdfModel.cleanupTemporaryArtifacts() }))
+            .environment(prax)
+            .overlay(TempCleanupLifecycleHook(onCleanup: { prax.cleanupTemporaryArtifacts() }))
     }
-        
 }
-
-
-
 
 struct MainCommands: Commands {
     @Environment(\.openWindow) private var openWindow

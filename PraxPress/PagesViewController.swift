@@ -13,19 +13,8 @@ import Observation
 import UniformTypeIdentifiers
 
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
-     
     
-    @Bindable var viewModel:  ViewModel
-    @Bindable var pdfModel: PDFModel
-    
-    init(with viewModel: ViewModel, pdfModel: PDFModel) {
-        self.viewModel = viewModel
-        self.pdfModel = pdfModel
-        super.init(nibName: nil, bundle: nil)
-    }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    @State private var prax = PraxModel.shared
     
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
@@ -54,23 +43,23 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         
         
         observeDocumentChange = Task {
-            for await _ in Observations({ self.pdfModel.pdfDocument }) {
-                print("PagesViewController observeDocumentChange  ", self.pdfModel.pdfDocument ?? "None")
+            for await _ in Observations({ self.prax.editingPDFDocument }) {
+                print("PagesViewController observeDocumentChange  ", self.prax.editingPDFDocument ?? "None")
                 
                 updateUI()
             }
         }
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ self.pdfModel.currentIndex }) {
-                print("PagesViewController observeCurrentIndexChange  ", self.pdfModel.currentIndex)
+            for await _ in Observations({ self.prax.currentIndex }) {
+                print("PagesViewController observeCurrentIndexChange  ", self.prax.currentIndex)
                 if collectionView?.numberOfSections == 0  { return }
                 if (collectionView?.numberOfItems(inSection: 0) == 0)  { return }
-                collectionView.selectionIndexPaths = [IndexPath(item: self.pdfModel.currentIndex, section: 0)]
+                collectionView.selectionIndexPaths = [IndexPath(item: self.prax.currentIndex, section: 0)]
             }
         }
     }
     
- }
+}
 
 extension PagesViewController {
     private func createLayout() -> NSCollectionViewLayout {
@@ -96,7 +85,10 @@ extension PagesViewController {
             elementKind: PagesViewController.sectionFooterElementKind,
             alignment: .bottom)
         section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-        
+        sectionHeader.pinToVisibleBounds = true
+        sectionHeader.zIndex = 2
+        sectionFooter.pinToVisibleBounds = true
+        sectionFooter.zIndex = 2
         let layout = NSCollectionViewCompositionalLayout(section: section)
         return layout
     }
@@ -104,16 +96,17 @@ extension PagesViewController {
 
 extension PagesViewController {
     private func configureHierarchy() {
-        let itemNib = NSNib(nibNamed: "PageItem", bundle: nil)
+        var itemNib = NSNib(nibNamed: "PageItem", bundle: nil)
         collectionView.register(itemNib, forItemWithIdentifier: PageItem.reuseIdentifier)
         
-        let titleSupplementaryNib = NSNib(nibNamed: "TitleSupplementaryView", bundle: nil)
-        collectionView.register(titleSupplementaryNib,
+        itemNib = NSNib(nibNamed: "PagesSectionHeader", bundle: nil)
+        collectionView.register(itemNib,
                                 forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind,
-                                withIdentifier: TitleSupplementaryView.reuseIdentifier)
-        collectionView.register(titleSupplementaryNib,
+                                withIdentifier: PagesSectionHeader.reuseIdentifier)
+        itemNib = NSNib(nibNamed: "PagesSectionFooter", bundle: nil)
+        collectionView.register(itemNib,
                                 forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind,
-                                withIdentifier: TitleSupplementaryView.reuseIdentifier)
+                                withIdentifier: PagesSectionFooter.reuseIdentifier)
         
         collectionView.collectionViewLayout = createLayout()
         
@@ -129,7 +122,7 @@ extension PagesViewController {
         collectionView.setDraggingSourceOperationMask([.copy, .delete], forLocal: false)
         
         
-
+        
         
         
     }
@@ -138,52 +131,64 @@ extension PagesViewController {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: PageItem.reuseIdentifier, for: indexPath)
             guard let pageItem = item as? PageItem else { return nil }
-            pageItem.pageIndex = identifier.index             
-            if let page = self.pdfModel.pdfDocument?.page(at: indexPath.item) {
+            pageItem.pageIndex = identifier.index
+            if let page = self.prax.editingPDFDocument?.page(at: indexPath.item) {
                 pageItem.imageView?.image = page.thumbnail(of: CGSize(width: 120, height: 160), for: .cropBox)
             } else {
                 pageItem.imageView?.image = nil
             }
             pageItem.textField?.stringValue = identifier.name
             
-            pageItem.guidePageButton?.state = self.pdfModel.widthGuidePageIndex == identifier.index ? .on : .off
+            pageItem.guidePageButton?.state = self.prax.widthGuidePageIndex == identifier.index ? .on : .off
             
             return pageItem
         }
         dataSource.supplementaryViewProvider = {
             (collectionView: NSCollectionView, kind: String, indexPath: IndexPath) -> (NSView & NSCollectionViewElement)? in
-            if let supplementaryView = collectionView.makeSupplementaryView(
-                ofKind: kind,
-                withIdentifier: TitleSupplementaryView.reuseIdentifier,
-                for: indexPath) as? TitleSupplementaryView {
-                let viewKind = kind == PagesViewController.sectionHeaderElementKind ?
-                PagesViewController.sectionHeaderElementKind : PagesViewController.sectionFooterElementKind
-                supplementaryView.label.stringValue = self.pdfModel.pdfSections[indexPath.section].title
-                return supplementaryView
-            } else {
-                fatalError("Cannot create new supplementary")
+            
+            
+            if kind == PagesViewController.sectionHeaderElementKind {
+                if let supplementaryView = collectionView.makeSupplementaryView(
+                    ofKind: kind,
+                    withIdentifier: PagesSectionHeader.reuseIdentifier,
+                    for: indexPath) as? PagesSectionHeader {
+                    supplementaryView.label.stringValue = self.prax.pdfSections[indexPath.section].title
+                    return supplementaryView
+                }
             }
+            
+            else if kind == PagesViewController.sectionFooterElementKind {
+                if let supplementaryView = collectionView.makeSupplementaryView(
+                    ofKind: kind,
+                    withIdentifier: PagesSectionFooter.reuseIdentifier,
+                    for: indexPath) as? PagesSectionFooter {
+                    supplementaryView.label.stringValue = String(self.prax.editingPDFDocument?.pageCount ?? 0)
+                    return supplementaryView
+                }
+            }
+            
+            fatalError("Cannot create new supplementary view of kind: \(kind)")
         }
     }
     
     private func updateUI(animated: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-        pdfModel.pdfSections.forEach {
+        prax.pdfSections.forEach {
             snapshot.appendSections([$0])
-            snapshot.appendItems(pdfModel.pdfPages)
+            snapshot.appendItems(prax.pdfPages)
         }
         dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
-        pdfModel.updateCurrentIndex(indexPaths: indexPaths)
+        prax.updateCurrentIndex(indexPaths: indexPaths)
     }
-
+    
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
     }
-
+    
     
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
     ) -> Bool {
@@ -195,7 +200,7 @@ extension PagesViewController {
                         pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
         
         print("PagesViewController pasteboardWriterForItemAt  ", indexPath)
-         var provider: NSFilePromiseProvider?
+        var provider: NSFilePromiseProvider?
         
         provider = FilePromiseProvider()
         
@@ -210,7 +215,7 @@ extension PagesViewController {
         // Send out the indexPath and photo's url dictionary.
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider!.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: pdfModel.fileURL as Any,FilePromiseProvider.UserInfoKeys.indexPathKey: data]
+            provider!.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: prax.fileURL as Any,FilePromiseProvider.UserInfoKeys.indexPathKey: data]
         } catch {
             fatalError("failed to archive indexPath to pasteboard")
         }
@@ -221,21 +226,23 @@ extension PagesViewController {
         _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
     ) -> NSDragOperation {
         
-        print("PagesViewController validateDrop  ", draggingInfo, " proposedIndexPath ", proposedDropIndexPath, " dropOperation ", proposedDropOperation)
+        let indPth = proposedDropIndexPath.pointee
+        
+        print("PagesViewController validateDrop  ", indPth.debugDescription)
         
         var dragOperation: NSDragOperation = [.move]
         
         return dragOperation
     }
-
+    
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
         
-        print("PagesViewController acceptDrop  ", draggingInfo, " indexPath: ", indexPath, " dropOperation ", dropOperation)
+        print("PagesViewController acceptDrop  ", indexPath.item)
         
         // Check where the dragged items are coming from.
         if let draggingSource = draggingInfo.draggingSource as? NSCollectionView, draggingSource == collectionView {
             // Drag source from your own collection view.
-            // Move each dragged photo item to their new place.
+            // Move each dragged item to their new place.
             dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         } else {
             // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
@@ -248,8 +255,8 @@ extension PagesViewController {
     
     
     func dropExternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-
-        print("dropExternalPages  ", draggingInfo, " indexPath: ", indexPath)
+        
+        print("dropExternalPages  ", indexPath)
         
     }
     // Find the proper drop location relative to the provided indexPath.
@@ -266,7 +273,7 @@ extension PagesViewController {
     
     func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         
-        print("dropInternalPages  ", draggingInfo, " indexPath: ", indexPath)
+        print("dropInternalPages  ", indexPath)
         
         var snapshot = self.dataSource.snapshot()
         
@@ -281,8 +288,8 @@ extension PagesViewController {
                         if let data = pasteboardItem.data(forType: .itemDragType) {
                             let nsIndexPath = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexPath.self, from: data)
                             if let nsIndexPath {
-                                let photoIndexPath = nsIndexPath as IndexPath
-                                if let photoItem = self.dataSource.itemIdentifier(for: photoIndexPath) {
+                                let pageIndexPath = nsIndexPath as IndexPath
+                                if let pageItem = self.dataSource.itemIdentifier(for: pageIndexPath) {
                                     // Find out the proper indexPath drop point.
                                     let toIndexPath = self.dropLocation(indexPath: indexPath)
                                     
@@ -292,23 +299,23 @@ extension PagesViewController {
                                     
                                     if toIndexPath.item == 0 {
                                         // Item is being dropped at the beginning.
-                                        snapshot.moveItem(photoItem, beforeItem: dropItemLocation)
+                                        snapshot.moveItem(pageItem, beforeItem: dropItemLocation)
                                     } else {
                                         // Item is being dropped between items or at the very end.
-                                        snapshot.moveItem(photoItem, afterItem: dropItemLocation)
+                                        snapshot.moveItem(pageItem, afterItem: dropItemLocation)
                                     }
                                 }
                             }
                         }
                         
                     } catch {
-                        Swift.debugPrint("failed to unarchive indexPath for dropped photo item.")
+                        Swift.debugPrint("failed to unarchive indexPath for dropped item.")
                     }
                 }
             })
         dataSource.apply(snapshot, animatingDifferences: true)
     }
-
+    
 }
 
 extension NSPasteboard.PasteboardType {
@@ -322,7 +329,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
         static let indexPathKey = "indexPath"
         static let urlKey = "url"
     }
-
+    
     
     /** Required:
      Return an array of UTI strings of data types the receiver can write to the pasteboard.
@@ -362,7 +369,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
         }
         return super.pasteboardPropertyList(forType: type)
     }
-
+    
     
     func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
         
@@ -370,11 +377,11 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
         return "Prax.pdf"
     }
     
- 
+    
     func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
-
+        
         print("filePromiseProvider writePromiseTo url:  ", url)
-
+        
     }
     
 }
