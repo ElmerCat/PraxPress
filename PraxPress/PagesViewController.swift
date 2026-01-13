@@ -230,9 +230,7 @@ extension PagesViewController {
         
         print("PagesViewController validateDrop  ", indPth.debugDescription)
         
-        var dragOperation: NSDragOperation = [.move]
-        
-        return dragOperation
+        return [.move]
     }
     
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
@@ -270,6 +268,45 @@ extension PagesViewController {
         return toIndexPath
     }
     
+    // Flatten the snapshot’s sections/items into a single array of page indices
+    // in the exact order the PDFDocument should have them.
+    private func flattenedPageOrder(from snapshot: NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>) -> [Int] {
+        var order: [Int] = []
+        for section in snapshot.sectionIdentifiers {
+            let items = snapshot.itemIdentifiers(inSection: section)
+            order.append(contentsOf: items.map { $0.index })
+        }
+        return order
+    }
+
+    // Reorder the existing document in-place using PDFKit’s exchangePage(at:withPageAt:)
+    private func reorderDocumentPagesInPlaceUsingExchange(to newOrder: [Int]) {
+        guard let doc = prax.editingPDFDocument else { return }
+        let pageCount = doc.pageCount
+        guard pageCount == newOrder.count else { return }
+
+        // currentOrder[i] = logical page index currently at position i
+        var currentOrder = Array(0..<pageCount)
+
+        for i in 0..<pageCount {
+            if currentOrder[i] == newOrder[i] { continue }
+            guard let j = currentOrder.firstIndex(of: newOrder[i]) else { continue }
+
+            doc.exchangePage(at: i, withPageAt: j)
+            currentOrder.swapAt(i, j)
+        }
+
+        // After the document order changes, rebuild pages and keep trims aligned
+        prax.rebuildPagesFromDocument()
+        updateUI(animated: true)
+    }
+
+    // Update selection to the new position of a logical page index after reordering
+    private func updateSelectionForMovedPage(originalLogicalIndex: Int, newOrder: [Int]) {
+        if let newPos = newOrder.firstIndex(of: originalLogicalIndex) {
+            prax.currentIndex = newPos
+        }
+    }
     
     func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         
@@ -314,6 +351,31 @@ extension PagesViewController {
                 }
             })
         dataSource.apply(snapshot, animatingDifferences: true)
+
+        // Compute the new flattened document order (section 0 items, then section 1 items, ...)
+        let newOrder = flattenedPageOrder(from: snapshot)
+        prax.remapTrims(using: newOrder)
+        
+        // If we can determine the originally dragged page logical index, preserve selection
+        var originalDraggedLogicalIndex: Int? = nil
+        draggingInfo.enumerateDraggingItems(options: [], for: collectionView, classes: [NSPasteboardItem.self], searchOptions: [:]) { draggingItem, _, _ in
+            if let pasteboardItem = draggingItem.item as? NSPasteboardItem,
+               let data = pasteboardItem.data(forType: .itemDragType),
+               let nsIndexPath = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexPath.self, from: data) {
+                let sourceIndexPath = nsIndexPath as IndexPath
+                if let pageItem = self.dataSource.itemIdentifier(for: sourceIndexPath) {
+                    originalDraggedLogicalIndex = pageItem.index
+                }
+            }
+        }
+
+        // Reorder the PDF document in place using exchanges
+        reorderDocumentPagesInPlaceUsingExchange(to: newOrder)
+
+        // Update selection to the new location of the dragged page, if available
+        if let original = originalDraggedLogicalIndex {
+            updateSelectionForMovedPage(originalLogicalIndex: original, newOrder: newOrder)
+        }
     }
     
 }
@@ -385,3 +447,4 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     }
     
 }
+

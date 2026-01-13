@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DA535C472F16183800AC964F /* PraxPress.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DA535C462F16183800AC964F /* PraxPress.pdf */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DA3968332F030930000A7354 /* Prax.txt */ = {isa = PBXFileReference; explicitFileType = text; path = Prax.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
+		DA535C462F16183800AC964F /* PraxPress.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PraxPress.pdf; sourceTree = "<group>"; };
 		DACA214D2EF8DB9400E38A38 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -47,6 +52,7 @@
 			isa = PBXGroup;
 			children = (
 				DA3968332F030930000A7354 /* Prax.txt */,
+				DA535C462F16183800AC964F /* PraxPress.pdf */,
 				DACA214F2EF8DB9400E38A38 /* PraxPress */,
 				DACA214E2EF8DB9400E38A38 /* Products */,
 			);
@@ -124,6 +130,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA535C472F16183800AC964F /* PraxPress.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

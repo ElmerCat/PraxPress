@@ -41,7 +41,9 @@ struct PDFPageItem: Hashable {
 final class PraxModel: Sendable {
     init() { }
     static let shared = PraxModel()
-
+    
+    var mergedPDFView: PDFView?
+    
     var editingPDFView: PDFView?
     
     func zoomToFitEditingPDFView() {
@@ -62,7 +64,7 @@ final class PraxModel: Sendable {
             pdfAutoScales = false
         }
     }
-
+    
     var isOn = false
     var isLarge: Bool = false
     var showingImporter: Bool = false
@@ -72,24 +74,32 @@ final class PraxModel: Sendable {
     
     var listOfFiles: [PDFEntry] = [] {
         didSet {
-      print ("listOfFiles didSet ", listOfFiles.description)
+            print ("PraxModel listOfFiles didSet ") //, listOfFiles.description)
         }
     }
     var selectedFiles = Set<PDFEntry.ID>() {
         didSet {
-            print ("selectedFiles didSet ", selectedFiles.description)
+            print ("PraxModel selectedFiles didSet ") //, selectedFiles.description)
+            
+            editingPDFDocument = createMergedDocumentFromSelectedFiles()
+            
+            if (editingPDFDocument?.pageCount ?? 0) > 0 { currentIndex = 0 }
+            trims = [:]
+            clearWidthGuide()
             
             DispatchQueue.main.async {
+                self.recomputeMergedMetrics()
+                self.mergedPDFDocument = self.editingPDFDocument
                 NotificationCenter.default.post(name: .praxFileSelectionChanged, object: nil)
             }
-
+            
         }
     }
-
+    
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
-
+    
     var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
     var pdfAutoScales: Bool = true
     var pdfDisplayPageBreaks: Bool = true
@@ -97,15 +107,40 @@ final class PraxModel: Sendable {
     
     var pdfBackgroundColor: NSColor = .clear
     var saveError: String?
-
+    
     var pdfSections: [PDFPageSection] = []
     var pdfPages: [PDFPageItem] = [] {
         didSet {
-            print ("pdfPages didSet ", pdfPages.description)
+            print ("pdfPages didSet ") //, pdfPages.description)
         }
     }
+    
+    var mergedPDFURL: URL = {
+        
+        
+        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged-\(UUID().uuidString)").appendingPathExtension("pdf")
+    }()
+    
+    var mergedPDFDocument: PDFDocument? {
+        didSet {
+            print ("mergedPDFDocument didSet ")
+            DispatchQueue.main.async {
+                
+                self.mergeDocumentPages()
+                
+                let pv = PDFDocument(url: self.mergedPDFURL)!
+                self.mergedPDFView?.document = pv
+                
+                self.mergedPDFView?.layoutDocumentView()
+                print ("Prax Model - mergedPDFDocument layoutDocumentView ")
+            }
+            
+        }
+    }
+    
     var editingPDFDocument: PDFDocument? {
         didSet {
+            print ("editingPDFDocument didSet ")
             pdfSections.removeAll()
             pdfPages.removeAll()
             if let editingPDFDocument {
@@ -127,9 +162,9 @@ final class PraxModel: Sendable {
     func pages(in section: PDFPageSection) -> [PDFPageItem] {
         return pdfPages
     }
-
+    
     var currentIndex: Int = 0
-
+    
     var trims: [Int: EdgeTrims] = [:]
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
     func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
@@ -160,7 +195,7 @@ final class PraxModel: Sendable {
         widthGuideLeftX = vis.minX
         widthGuideRightX = vis.maxX
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: nil)
+            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
         }
     }
     
@@ -170,64 +205,67 @@ final class PraxModel: Sendable {
         widthGuideLeftX = nil
         widthGuideRightX = nil
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: nil)
+            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
         }
     }
     
     func handleMergePagesOverwrite() {
+        
+        fatalError("Julie d'Prax: This function is not currently implemented")
         guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
-        do {
-            try mergeAllPagesVerticallyIntoSinglePage(
-                sourceURL: entry.url,
-                destinationURL: entry.url,
-                trimTop: CGFloat(mergeTopMargin),
-                trimBottom: CGFloat(mergeBottomMargin),
-                interPageGap: CGFloat(mergeInterPageGap),
-                perPageTrims: trims
-            )
-            // Recompute metrics based on the new single-page doc
-            computePageMetrics(for: entry.url)
-        } catch {
-            saveError = error.localizedDescription
-        }
+        mergeDocumentPages()
+        // Recompute metrics based on the new single-page doc
+        computePageMetrics(for: entry.url)
+        
     }
     
-    
-    
-    func mergeAllPagesVerticallyIntoSinglePage(sourceURL: URL, destinationURL: URL, trimTop: CGFloat = 0, trimBottom: CGFloat = 0, interPageGap: CGFloat = 0, perPageTrims: [Int: EdgeTrims] = [:]) throws {
-        let needsStopSource = sourceURL.startAccessingSecurityScopedResource()
-        defer { if needsStopSource { sourceURL.stopAccessingSecurityScopedResource() } }
-        guard let sourceDoc = PDFDocument(url: sourceURL) else {
-            throw NSError(domain: "PraxPress", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to open source PDF for merging."])
+    func createMergedDocumentFromSelectedFiles () -> PDFDocument? {
+        let entries: [PDFEntry] = selectedFiles.compactMap { id in
+            listOfFiles.first(where: { $0.id == id })
         }
+        let urls = entries.map { $0.url }
+        guard !urls.isEmpty else { return nil }
         
-        let pageCount = sourceDoc.pageCount
-        if pageCount == 0 {
-            let empty = PDFDocument()
-            if FileManager.default.fileExists(atPath: destinationURL.path) {
-                try? FileManager.default.removeItem(at: destinationURL)
+        let mergedDoc = PDFDocument()
+        mergedDoc.write(to: mergedPDFURL)
+        var insertIndex = 0
+        for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            guard let doc = PDFDocument(url: url) else { continue }
+            for i in 0..<doc.pageCount {
+                if let page = doc.page(at: i) {
+                    mergedDoc.insert(page, at: insertIndex)
+                    insertIndex += 1
+                }
             }
-            empty.write(to: destinationURL)
-            return
         }
+        return mergedDoc
+    }
+    
+    func mergeDocumentPages() {
+        
+        
+        
+        guard let pageCount = editingPDFDocument?.pageCount else { return }
         
         var pageRects: [CGRect] = []
         pageRects.reserveCapacity(pageCount)
         
         for i in 0..<pageCount {
-            guard let page = sourceDoc.page(at: i) else { continue }
+            guard let page = editingPDFDocument?.page(at: i) else { continue }
             let rect = page.bounds(for: .cropBox)
             pageRects.append(rect)
         }
         
-        let canvas = PDFGeometry.canvasSize(for: pageRects, trims: perPageTrims, trimTop: trimTop, trimBottom: trimBottom, interPageGap: interPageGap)
+        let canvas = PDFGeometry.canvasSize(for: pageRects, trims: trims, trimTop: 0, trimBottom: 0, interPageGap: 0)
         let canvasWidth = canvas.width
         let canvasHeight = canvas.height
         
         // Temporarily remove annotations to avoid drawing their appearances twice
         var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageCount)
         for i in 0..<pageCount {
-            if let p = sourceDoc.page(at: i) {
+            if let p = mergedPDFDocument?.page(at: i) {
                 removedPerPage[i] = p.annotations
                 for a in p.annotations { p.removeAnnotation(a) }
             }
@@ -237,12 +275,8 @@ final class PraxModel: Sendable {
         let fm = FileManager.default
         var mediaBox = CGRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight)
         let tmpOut = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
-        guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else {
-            throw NSError(domain: "PraxPress", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Failed to create data consumer."])
-        }
-        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
-            throw NSError(domain: "PraxPress", code: 1003, userInfo: [NSLocalizedDescriptionKey: "Failed to create PDF context."])
-        }
+        guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { return }
+        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { return }
         
         ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
         
@@ -251,9 +285,9 @@ final class PraxModel: Sendable {
         var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageCount)
         
         for i in 0..<pageCount {
-            guard let page = sourceDoc.page(at: i) else { continue }
+            guard let page = mergedPDFDocument?.page(at: i) else { continue }
             let rect = pageRects[i]
-            let per = perPageTrims[i] ?? .zero
+            let per = trims[i] ?? .zero
             let seamTop: CGFloat = 0
             let seamBottom: CGFloat = 0
             
@@ -262,7 +296,7 @@ final class PraxModel: Sendable {
             let visibleWidth = vis.width
             let visibleHeight = vis.height
             guard visibleWidth > 0, visibleHeight > 0 else {
-                currentTop -= (max(0, visibleHeight) + interPageGap)
+                currentTop -= (max(0, visibleHeight)) // + interPageGap)
                 continue
             }
             
@@ -285,7 +319,7 @@ final class PraxModel: Sendable {
             }
             ctx.restoreGState()
             
-            currentTop -= (visibleHeight + interPageGap)
+            currentTop -= visibleHeight // (visibleHeight + interPageGap)
         }
         
         ctx.endPDFPage()
@@ -293,26 +327,32 @@ final class PraxModel: Sendable {
         
         // Restore annotations to source pages
         for i in 0..<pageCount {
-            if let p = sourceDoc.page(at: i) {
+            if let p = mergedPDFDocument?.page(at: i) {
                 for a in removedPerPage[i] { p.addAnnotation(a) }
             }
         }
         
         // Move temp to destination
-        let needsStopDest = destinationURL.startAccessingSecurityScopedResource()
-        defer { if needsStopDest { destinationURL.stopAccessingSecurityScopedResource() } }
-        if fm.fileExists(atPath: destinationURL.path) { try? fm.removeItem(at: destinationURL) }
-        try fm.moveItem(at: tmpOut, to: destinationURL)
+        let needsStopDest = mergedPDFURL.startAccessingSecurityScopedResource()
+        defer { if needsStopDest { mergedPDFURL.stopAccessingSecurityScopedResource() } }
+        if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
+        do {
+            print ("Move at ", tmpOut, " to ", mergedPDFURL)
+            try fm.moveItem(at: tmpOut, to: mergedPDFURL)
+        }
+        catch {
+            print("Julie d'Prax: Move temp to destination failed", error.localizedDescription)
+        }
         
         // Second pass: reopen merged and re-add cloned annotations with the SAME translation used above
-        let needsStopDest2 = destinationURL.startAccessingSecurityScopedResource()
-        defer { if needsStopDest2 { destinationURL.stopAccessingSecurityScopedResource() } }
-        guard let mergedDoc = PDFDocument(url: destinationURL), let mergedPage = mergedDoc.page(at: 0) else { return }
+        let needsStopDest2 = mergedPDFURL.startAccessingSecurityScopedResource()
+        defer { if needsStopDest2 { mergedPDFURL.stopAccessingSecurityScopedResource() } }
+        guard let mergedDoc = PDFDocument(url: mergedPDFURL), let mergedPage = mergedDoc.page(at: 0) else { return }
         
         for i in 0..<pageCount {
-            guard let srcPage = sourceDoc.page(at: i) else { continue }
+            guard let srcPage = mergedPDFDocument?.page(at: i) else { continue }
             let rect = pageRects[i]
-            let per = perPageTrims[i] ?? .zero
+            let per = trims[i] ?? .zero
             let seamTop: CGFloat = 0
             let seamBottom: CGFloat = 0
             
@@ -337,8 +377,14 @@ final class PraxModel: Sendable {
         // Save final merged doc safely
         let tmpFinal = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
         guard mergedDoc.write(to: tmpFinal) else { return }
-        if fm.fileExists(atPath: destinationURL.path) { try? fm.removeItem(at: destinationURL) }
-        try fm.moveItem(at: tmpFinal, to: destinationURL)
+        if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
+        do {
+            try fm.moveItem(at: tmpFinal, to: mergedPDFURL)
+        }
+        catch {
+            fatalError("Julie d'Prax: Mave final merged doc safely failed")
+        }
+        print("Julie d'Prax: Mave final merged doc safely ", mergedPDFURL)
     }
     
     func computePageMetrics(for url: URL) {
@@ -420,37 +466,6 @@ final class PraxModel: Sendable {
         }
     }
     
-    func loadSelectedFiles() {
-        
-        let selectedIDs = Array(selectedFiles)
-        let selectedEntries: [PDFEntry] = selectedIDs.compactMap { id in
-            listOfFiles.first(where: { $0.id == id })
-        }
-        let urls = selectedEntries.map { $0.url }
-        
-        if let first = urls.first, urls.count == 1 {
-            _ = first.startAccessingSecurityScopedResource()
-            editingPDFDocument = PDFDocument(url: first)
-        } else if !urls.isEmpty {
-            do {
-                let combinedURL = try buildTemporaryCombinedPDF(from: urls)
-                _ = combinedURL.startAccessingSecurityScopedResource()
-                editingPDFDocument = PDFDocument(url: combinedURL)
-            } catch {
-                // Fall back to empty document on error
-                editingPDFDocument = PDFDocument()
-            }
-        } else {
-            editingPDFDocument = nil
-        }
-        
-        if (editingPDFDocument?.pageCount ?? 0) > 0 { currentIndex = 0 }
-        trims = [:]
-        clearWidthGuide()
-        DispatchQueue.main.async { self.recomputeMergedMetrics() }
-    }
-    
-    
     private func recomputeMergedMetrics() {
         guard let doc = editingPDFDocument else {
             mergedWidthPts = 0
@@ -483,6 +498,39 @@ final class PraxModel: Sendable {
         guard let guideIndex = widthGuidePageIndex else { return }
         // Recompute guide edges using current trims
         setWidthGuide(fromPage: guideIndex)
+    }
+    
+    // Rebuild sections and page items from the current editingPDFDocument
+    // After any reordering, call this to keep the model in sync with the document.
+    func rebuildPagesFromDocument() {
+        pdfSections.removeAll()
+        pdfPages.removeAll()
+        guard let doc = editingPDFDocument else { return }
+        // For now, single section; later, construct real sections as needed.
+        pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
+        for i in 0..<doc.pageCount {
+            pdfPages.append(PDFPageItem(index: i, name: "Page \(i + 1)"))
+        }
+        // After reordering, trims are keyed by page index; ensure width guide stays consistent
+        recomputeWidthGuideIfNeeded()
+    }
+    
+    // Remap trims using a permutation that maps from old logical indices to new positions.
+    // newOrder is an array where position p contains the old logical index now at p.
+    func remapTrims(using newOrder: [Int]) {
+        // Build inverse mapping: oldIndex -> newIndex
+        var newIndexForOld: [Int: Int] = [:]
+        for (newIndex, oldIndex) in newOrder.enumerated() {
+            newIndexForOld[oldIndex] = newIndex
+        }
+        var newTrims: [Int: EdgeTrims] = [:]
+        for (oldIndex, value) in trims {
+            if let newIndex = newIndexForOld[oldIndex] {
+                newTrims[newIndex] = value
+            }
+        }
+        trims = newTrims
+        recomputeWidthGuideIfNeeded()
     }
     
 }

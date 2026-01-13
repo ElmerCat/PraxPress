@@ -28,7 +28,7 @@ struct ContentView: View {
                     DocumentEditingView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .onAppear {
-                            prax.loadSelectedFiles()
+                        //    prax.loadSelectedFiles()
                         }
 
                 }
@@ -46,19 +46,23 @@ struct ContentView: View {
                 
                 if let id = prax.selectedFiles.first, let entry = prax.listOfFiles.first(where: { $0.id == id }) {
                     SaveAsPanel(suggestedURL: entry.url.deletingPathExtension().appendingPathExtension("merged.pdf")) { destination in
-                        do {
-                            try prax.mergeAllPagesVerticallyIntoSinglePage(
-                                sourceURL: entry.url,
+                        
+                        fatalError("Julie d'Prax: This function is not currently implemented")
+                        
+                        prax.mergeDocumentPages()
+                      /*  do {
+                            try prax.mergeDocumentPages()
+                          /*      sourceURL: entry.url,
                                 destinationURL: destination,
                                 trimTop: CGFloat(prax.mergeTopMargin),
                                 trimBottom: CGFloat(prax.mergeBottomMargin),
                                 interPageGap: CGFloat(prax.mergeInterPageGap),
                                 perPageTrims: prax.trims
                             )
-                            // Update preview to show merged result if overwriting selected file
+          */                  // Update preview to show merged result if overwriting selected file
                         } catch {
                             prax.saveError = error.localizedDescription
-                        }
+                        }*/
                     }
                 }
             }

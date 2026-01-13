@@ -36,7 +36,7 @@ struct DocumentEditingView: NSViewRepresentable {
         let pdfView = PDFView()
         pdfView.pageOverlayViewProvider = context.coordinator
         
-        context.coordinator.pdfView = pdfView
+      //  context.coordinator.pdfView = pdfView
         
         pdfView.autoScales = prax.pdfAutoScales
         pdfView.displayMode = prax.pdfDisplayMode
@@ -63,18 +63,18 @@ struct DocumentEditingView: NSViewRepresentable {
            split.setPosition(target, ofDividerAt: 0)
         }
 
-        NotificationCenter.default.addObserver(
+       NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.fileSelectionChanged(_:)),
             name: .praxFileSelectionChanged,
             object: nil
         )
-        
+
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.pageChanged(_:)),
             name: Notification.Name.PDFViewPageChanged,
-            object: pdfView
+            object: prax.editingPDFView
         )
         NotificationCenter.default.addObserver(
             context.coordinator,
@@ -93,7 +93,7 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
-        guard let pdfView = context.coordinator.pdfView else { return }
+        guard let pdfView = prax.editingPDFView else { return }
         
         if pdfView.document !== prax.editingPDFDocument {
             pdfView.document = prax.editingPDFDocument
@@ -136,7 +136,7 @@ struct DocumentEditingView: NSViewRepresentable {
         @State private var prax = PraxModel.shared
 
         weak var thumbnailController: PagesViewController?
-        weak var pdfView: PDFView?
+//        weak var pdfView: PDFView?
         
         var trimsLookup: ((Int) -> EdgeTrims)?
         var trimsSetter: ((Int, EdgeTrims) -> Void)?
@@ -149,8 +149,8 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         @objc func fileSelectionChanged(_ note: Notification) {
-            print("fileSelectionChanged")
-            prax.loadSelectedFiles()
+            print("DocumentEditingView fileSelectionChanged")
+       
             
         }
 
@@ -165,7 +165,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         
         @objc func widthGuideChanged(_ note: Notification) {
-            guard let pdfView = self.pdfView else { return }
+            guard let pdfView = note.object as? PDFView else { return }
             DispatchQueue.main.async {
                 pdfView.layoutDocumentView()
                 pdfView.needsDisplay = true
