@@ -163,7 +163,7 @@ final class PraxModel: Sendable {
         return pdfPages
     }
     
-    var currentIndex: Int = 0
+    var currentIndex: Int = -1
     
     var trims: [Int: EdgeTrims] = [:]
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }

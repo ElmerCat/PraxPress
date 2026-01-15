@@ -12,54 +12,14 @@ import UniformTypeIdentifiers
 internal import Combine
 
 // Minimal SwiftUI wrapper around PDFView
-struct MergedDocumentView: NSViewRepresentable {
+struct MergedDocumentView: View {
 
     @State private var prax = PraxModel.shared
     
-    func makeCoordinator() -> Coordinator {
-        print("Lessie Sheffield")
-        return Coordinator()
-    }
-    
-    func makeNSView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-        prax.mergedPDFView = pdfView
-        pdfView.displaysPageBreaks = true
-        pdfView.displayMode = .singlePageContinuous
-        pdfView.autoScales = true
-        pdfView.backgroundColor = .clear
-        
-        NotificationCenter.default.addObserver(
-            context.coordinator,
-            selector: #selector(Coordinator.fileSelectionChanged(_:)),
-            name: .praxFileSelectionChanged,
-            object: nil
-        )
-        
-        return pdfView
-
-    }
-    
-    func updateNSView(_ pdfView: PDFView, context: Context) {
-        print("Julie d'Prax - Da Prax is wrong!")
-        
-        if !prax.selectedFiles.isEmpty {
-            let needsReload = (pdfView.document == nil) || (pdfView.document?.documentURL != prax.mergedPDFURL)
-            if needsReload {
-                if let doc = PDFDocument(url: prax.mergedPDFURL) {
-                    pdfView.document = doc
-                    pdfView.layoutDocumentView()
-                    pdfView.autoScales = true
-                } else {
-                    pdfView.document = nil
-                }
-            } else {
-                pdfView.layoutDocumentView()
-            }
-        }
-     }
-    
     var body: some View {
+        
+        let _ = Self._printChanges()
+        
         Group {
             if let url = prax.fileURL {
                 PDFViewRepresentable(url: url)
@@ -68,15 +28,23 @@ struct MergedDocumentView: NSViewRepresentable {
             }
         }
 
+        .onAppear() {
+            print("Lessie Sheffield - MergedDocumentView .onAppear()  ")
+        }
+        
         .onChange(of: prax.trims) {
             DispatchQueue.main.async {
+                print("Lessie Sheffield - MergedDocumentView .onChange(of: prax.trims) ")
                 updateMergedDocument()
             }
         }
         
         .onChange(of: prax.selectedFiles) {
             
-            fatalError("Julie d'Prax - Da Prax is wrong!")
+            print("\nJulie d'Prax - Da Prax is wrong!\n")
+            
+            return
+            
             // Resolve selected entries in selection order
             let selectedIDs = Array(prax.selectedFiles)
             let entries: [PDFEntry] = selectedIDs.compactMap { id in
@@ -109,7 +77,9 @@ struct MergedDocumentView: NSViewRepresentable {
     }
 
     private func updateMergedDocument() {
-         fatalError("Julie d'Prax - Da Prax is wrong!")
+        
+        
+        print ("\nupdateMergedDocument Julie d'Prax - Da Prax is wrong!\n")
         // Resolve all selected URLs in selection order
         let selectedIDs = Array(prax.selectedFiles)
         let entries: [PDFEntry] = selectedIDs.compactMap { id in
@@ -154,6 +124,7 @@ struct PDFViewRepresentable: NSViewRepresentable {
     @State private var prax = PraxModel.shared
     
     func makeNSView(context: Context) -> PDFView {
+        print("PDFViewRepresentable - makeNSView")
         prax.mergedPDFView = PDFView()
         prax.mergedPDFView!.displaysPageBreaks = true
         prax.mergedPDFView!.displayMode = .singlePageContinuous
@@ -163,6 +134,7 @@ struct PDFViewRepresentable: NSViewRepresentable {
     }
     
     func updateNSView(_ pdfView: PDFView, context: Context) {
+        print("PDFViewRepresentable - updateNSView")
         let needsAccess = url.startAccessingSecurityScopedResource()
         defer { if needsAccess { url.stopAccessingSecurityScopedResource() } }
         let needsReload = (pdfView.document == nil) || (pdfView.document?.documentURL != url)
@@ -180,3 +152,53 @@ struct PDFViewRepresentable: NSViewRepresentable {
     }
 }
 
+/*
+ 
+ 
+ func makeCoordinator() -> Coordinator {
+ print("Lessie Sheffield - MergedDocumentView makeCoordinator")
+ return Coordinator()
+ }
+ 
+ func makeNSView(context: Context) -> PDFView {
+ print("Lessie Sheffield - MergedDocumentView makeNSView")
+ let pdfView = PDFView()
+ prax.mergedPDFView = pdfView
+ pdfView.displaysPageBreaks = true
+ pdfView.displayMode = .singlePageContinuous
+ pdfView.autoScales = true
+ pdfView.backgroundColor = .clear
+ 
+ NotificationCenter.default.addObserver(
+ context.coordinator,
+ selector: #selector(Coordinator.fileSelectionChanged(_:)),
+ name: .praxFileSelectionChanged,
+ object: nil
+ )
+ let julieDPrax = prax.pdfDisplayMode
+ return pdfView
+ 
+ }
+ 
+ func updateNSView(_ pdfView: PDFView, context: Context) {
+ print("Lessie Sheffield - MergedDocumentView updateNSView")
+ 
+ print("\nJulie d'Prax - Da Prax is wrong!\n")
+ 
+ if !prax.selectedFiles.isEmpty {
+ let needsReload = (pdfView.document == nil) || (pdfView.document?.documentURL != prax.mergedPDFURL)
+ if needsReload {
+ if let doc = PDFDocument(url: prax.mergedPDFURL) {
+ pdfView.document = doc
+ pdfView.layoutDocumentView()
+ pdfView.autoScales = true
+ } else {
+ pdfView.document = nil
+ }
+ } else {
+ pdfView.layoutDocumentView()
+ }
+ }
+ }
+
+ */

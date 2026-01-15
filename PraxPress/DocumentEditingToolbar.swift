@@ -41,7 +41,8 @@ struct DocumentEditingToolbar: View {
                         Button("Fit", systemImage: "1.magnifyingglass", action: prax.zoomToFitEditingPDFView)
                         Toggle("Auto", systemImage: "1.magnifyingglass", isOn: $prax.pdfAutoScales)
                     }
-                }
+                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument?.pageCount ?? 0) ")
+                    Text("Trims: \(prax.trims.count) ")                }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
             }

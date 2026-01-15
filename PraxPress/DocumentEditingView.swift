@@ -21,11 +21,12 @@ struct DocumentEditingView: NSViewRepresentable {
     var onTrimsChanged: (Int, EdgeTrims) -> Void = { _, _ in }
     
     func makeCoordinator() -> Coordinator {
-        print("Nadine Peeler")
+        print("Nadine Peeler- DocumentEditingView makeCoordinator")
         return Coordinator(prax: prax)
     }
     
     func makeNSView(context: Context) -> NSSplitView {
+        print("Nadine Peeler- DocumentEditingView makeNSView")
         let split = NSSplitView()
         split.delegate = context.coordinator
         split.isVertical = true
@@ -89,10 +90,14 @@ struct DocumentEditingView: NSViewRepresentable {
                 onPDFViewReady(pdfView: v)
             }
         }
+        
+        
+        
         return split
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
+        print("Nadine Peeler- DocumentEditingView updateNSView")
         guard let pdfView = prax.editingPDFView else { return }
         
         if pdfView.document !== prax.editingPDFDocument {
@@ -149,7 +154,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         @objc func fileSelectionChanged(_ note: Notification) {
-            print("DocumentEditingView fileSelectionChanged")
+            print("DocumentEditingView Coordinator - fileSelectionChanged")
        
             
         }
@@ -160,11 +165,12 @@ struct DocumentEditingView: NSViewRepresentable {
                   let doc = pdfView.document,
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
-            print("changed to page:", idx)
+            print("DocumentEditingView Coordinator - changed to page:", idx)
             if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
         
         @objc func widthGuideChanged(_ note: Notification) {
+            print("DocumentEditingView Coordinator - widthGuideChanged")
             guard let pdfView = note.object as? PDFView else { return }
             DispatchQueue.main.async {
                 pdfView.layoutDocumentView()
@@ -204,7 +210,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 let top = max(0, media.maxY - pageRect.maxY)
                 
                 let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-//                print("trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
+                print("DocumentEditingView Coordinator - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
                 
                 let idx = page.document?.index(for: page) ?? 0
                 prax.setTrims(trims, for: idx)
