@@ -16,6 +16,66 @@ struct MergedDocumentView: View {
 
     @State private var prax = PraxModel.shared
     
+<<<<<<< Updated upstream
+=======
+    func makeCoordinator() -> Coordinator {
+        print("Lessie Sheffield")
+        return Coordinator()
+    }
+    
+    func makeNSView(context: Context) -> PDFView {
+        
+        print("MergedDocumentView - makeNSView")
+
+        let pdfView = PDFView()
+        prax.mergedPDFView = pdfView
+        pdfView.displaysPageBreaks = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.autoScales = true
+        pdfView.backgroundColor = .clear
+        
+        if let pdfURL = Bundle.main.url(forResource: "PraxPress", withExtension: "pdf") {
+            let pdfDocument = PDFDocument(url: pdfURL)
+            pdfView.document = pdfDocument
+        } else {
+            print("PDF not found in bundle.")
+        }
+        
+
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.fileSelectionChanged(_:)),
+            name: .praxFileSelectionChanged,
+            object: nil
+        )
+        
+        return pdfView
+
+    }
+    
+    func updateNSView(_ pdfView: PDFView, context: Context) {
+        
+        print("MergedDocumentView - updateNSView")
+        
+        print("Julie d'Prax - Da Prax is wrong!")
+        
+        if !prax.selectedFiles.isEmpty {
+            let needsReload = (pdfView.document == nil) || (pdfView.document?.documentURL != prax.mergedPDFURL)
+            if needsReload {
+                if let doc = PDFDocument(url: prax.mergedPDFURL) {
+                    pdfView.document = doc
+                    pdfView.layoutDocumentView()
+                    pdfView.autoScales = true
+                } else {
+                    pdfView.document = nil
+                }
+            } else {
+                pdfView.layoutDocumentView()
+            }
+        }
+     }
+    
+>>>>>>> Stashed changes
     var body: some View {
         
         let _ = Self._printChanges()
@@ -27,12 +87,19 @@ struct MergedDocumentView: View {
                 ContentUnavailableView { Text("No PDF available") }
             }
         }
+<<<<<<< Updated upstream
 
         .onAppear() {
             print("Lessie Sheffield - MergedDocumentView .onAppear()  ")
         }
+=======
+        
+        .onChange(of: prax.pdfAutoScales) {
+            print(".onChange(of: prax.pdfAutoScales)")        }
+>>>>>>> Stashed changes
         
         .onChange(of: prax.trims) {
+            print(".onChange(of: prax.trims)")
             DispatchQueue.main.async {
                 print("Lessie Sheffield - MergedDocumentView .onChange(of: prax.trims) ")
                 updateMergedDocument()

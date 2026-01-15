@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PDFKit
 internal import Combine
 
 struct ContentView: View {
@@ -45,10 +46,13 @@ struct ContentView: View {
             .sheet(isPresented: $prax.showSavePanel) {
                 
                 if let id = prax.selectedFiles.first, let entry = prax.listOfFiles.first(where: { $0.id == id }) {
-                    SaveAsPanel(suggestedURL: entry.url.deletingPathExtension().appendingPathExtension("merged.pdf")) { destination in
+                    
+                    SaveAsPanel(suggestedURL: prax.mergedPDFURL) { destination in
                         
-                        fatalError("Julie d'Prax: This function is not currently implemented")
+                        prax.mergedPDFView?.document?.write(to: destination)
                         
+                    //    fatalError("Julie d'Prax: This function is not currently implemented")
+                    //
                         prax.mergeDocumentPages()
                         /*  do {
                          try prax.mergeDocumentPages()

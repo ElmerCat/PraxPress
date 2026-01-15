@@ -44,7 +44,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         
         observeDocumentChange = Task {
             for await _ in Observations({ self.prax.editingPDFDocument }) {
-                print("PagesViewController observeDocumentChange  ", self.prax.editingPDFDocument ?? "None")
+                print("PagesViewController observeDocumentChange  ", self.prax.editingPDFDocument)
                 
                 updateUI()
             }
@@ -132,7 +132,7 @@ extension PagesViewController {
             let item = collectionView.makeItem(withIdentifier: PageItem.reuseIdentifier, for: indexPath)
             guard let pageItem = item as? PageItem else { return nil }
             pageItem.pageIndex = identifier.index
-            if let page = self.prax.editingPDFDocument?.page(at: indexPath.item) {
+            if let page = self.prax.editingPDFDocument.page(at: indexPath.item) {
                 pageItem.imageView?.image = page.thumbnail(of: CGSize(width: 120, height: 160), for: .cropBox)
             } else {
                 pageItem.imageView?.image = nil
@@ -162,7 +162,7 @@ extension PagesViewController {
                     ofKind: kind,
                     withIdentifier: PagesSectionFooter.reuseIdentifier,
                     for: indexPath) as? PagesSectionFooter {
-                    supplementaryView.label.stringValue = String(self.prax.editingPDFDocument?.pageCount ?? 0)
+                    supplementaryView.label.stringValue = String(self.prax.editingPDFDocument.pageCount)
                     return supplementaryView
                 }
             }
@@ -281,8 +281,7 @@ extension PagesViewController {
 
     // Reorder the existing document in-place using PDFKit’s exchangePage(at:withPageAt:)
     private func reorderDocumentPagesInPlaceUsingExchange(to newOrder: [Int]) {
-        guard let doc = prax.editingPDFDocument else { return }
-        let pageCount = doc.pageCount
+        let pageCount = prax.editingPDFDocument.pageCount
         guard pageCount == newOrder.count else { return }
 
         // currentOrder[i] = logical page index currently at position i
@@ -292,7 +291,7 @@ extension PagesViewController {
             if currentOrder[i] == newOrder[i] { continue }
             guard let j = currentOrder.firstIndex(of: newOrder[i]) else { continue }
 
-            doc.exchangePage(at: i, withPageAt: j)
+            prax.editingPDFDocument.exchangePage(at: i, withPageAt: j)
             currentOrder.swapAt(i, j)
         }
 

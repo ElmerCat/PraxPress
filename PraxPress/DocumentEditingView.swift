@@ -7,9 +7,10 @@
 import SwiftUI
 import PDFKit
 import AppKit
+internal import Combine
 
 struct DocumentEditingView: NSViewRepresentable {
-    @State private var prax = PraxModel.shared
+    @State @Bindable private var prax = PraxModel.shared
  
     func onPDFViewReady (pdfView: PDFView) -> Void {
         prax.editingPDFView = pdfView
@@ -26,7 +27,13 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     func makeNSView(context: Context) -> NSSplitView {
+<<<<<<< Updated upstream
         print("Nadine Peeler- DocumentEditingView makeNSView")
+=======
+        
+        print("DocumentEditingView - makeNSView")
+        
+>>>>>>> Stashed changes
         let split = NSSplitView()
         split.delegate = context.coordinator
         split.isVertical = true
@@ -44,6 +51,14 @@ struct DocumentEditingView: NSViewRepresentable {
         pdfView.displaysPageBreaks = prax.pdfDisplayPageBreaks
         pdfView.backgroundColor = prax.pdfBackgroundColor
         pdfView.displaysAsBook = prax.pdfDisplaysAsBook
+        
+        if let pdfURL = Bundle.main.url(forResource: "PraxPress", withExtension: "pdf") {
+            let pdfDocument = PDFDocument(url: pdfURL)
+            pdfView.document = pdfDocument
+        } else {
+            print("PDF not found in bundle.")
+        }
+
         
         let thumbnailController = PagesViewController()
         thumbnailController.pdfView = pdfView
@@ -97,7 +112,15 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
+<<<<<<< Updated upstream
         print("Nadine Peeler- DocumentEditingView updateNSView")
+=======
+        let _ = Self._printChanges()
+        print("DocumentEditingView - updateNSView")
+       
+        
+        
+>>>>>>> Stashed changes
         guard let pdfView = prax.editingPDFView else { return }
         
         if pdfView.document !== prax.editingPDFDocument {
@@ -107,13 +130,12 @@ struct DocumentEditingView: NSViewRepresentable {
             prax.trims = [:]
             prax.clearWidthGuide()
             
-            if prax.editingPDFDocument != nil {
                 var pg = 0
-                while pg < prax.editingPDFDocument!.pageCount {
+                while pg < prax.editingPDFDocument.pageCount {
                     prax.setTrims(EdgeTrims.zero, for: pg)
                     pg += 1
                 }
-            }
+            
             // Nudge layout/refresh so PDFKit asks for overlays
             pdfView.layoutDocumentView()
             pdfView.needsDisplay = true
@@ -124,8 +146,8 @@ struct DocumentEditingView: NSViewRepresentable {
         if pdfView.displaysAsBook != prax.pdfDisplaysAsBook { pdfView.displaysAsBook = prax.pdfDisplaysAsBook }
         if pdfView.autoScales != prax.pdfAutoScales { pdfView.autoScales = prax.pdfAutoScales }
         
-        if (prax.editingPDFDocument != nil), prax.currentIndex >= 0, prax.currentIndex < prax.editingPDFDocument!.pageCount {
-            let page = prax.editingPDFDocument!.page(at: prax.currentIndex)!
+        if prax.currentIndex >= 0, prax.currentIndex < prax.editingPDFDocument.pageCount {
+            let page = prax.editingPDFDocument.page(at: prax.currentIndex)!
             if pdfView.currentPage !== page {
                 pdfView.go(to: page)
                 // Refresh overlay after page switch
@@ -154,7 +176,11 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         @objc func fileSelectionChanged(_ note: Notification) {
+<<<<<<< Updated upstream
             print("DocumentEditingView Coordinator - fileSelectionChanged")
+=======
+            print("DocumentEditingView Coordinator fileSelectionChanged")
+>>>>>>> Stashed changes
        
             
         }

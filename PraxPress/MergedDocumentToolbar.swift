@@ -22,7 +22,7 @@ struct MergedDocumentToolbar: View {
                 }
                 
                 // Left: Page indicator
-                Text("Document pages: \(prax.editingPDFDocument?.pageCount ?? 0)")
+                Text("Document pages: \(prax.editingPDFDocument.pageCount)")
                     .font(.subheadline)
                 
                 Spacer()

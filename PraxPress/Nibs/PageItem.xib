@@ -19,11 +19,11 @@
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" imageFrameStyle="grayBezel" id="OOm-sP-UIk"/>
                 </imageView>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="icb-ed-A7I">
-                    <rect key="frame" x="62" y="106" width="77" height="48"/>
-                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Label" id="q66-QZ-0oE">
+                    <rect key="frame" x="60" y="104" width="81" height="52"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" alignment="center" title="Label" drawsBackground="YES" id="q66-QZ-0oE">
                         <font key="font" size="30" name="Apple-Chancery"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" red="0.0048598507420000003" green="0.096086271109999996" blue="0.57499289509999996" alpha="0.294646786971831" colorSpace="custom" customColorSpace="sRGB"/>
                     </textFieldCell>
                 </textField>
                 <button translatesAutoresizingMaskIntoConstraints="NO" id="teO-fk-G83">
