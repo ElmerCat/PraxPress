@@ -13,27 +13,21 @@ struct DocumentEditingView: NSViewRepresentable {
     @State @Bindable private var prax = PraxModel.shared
  
     func onPDFViewReady (pdfView: PDFView) -> Void {
-        prax.editingPDFView = pdfView
+ //       prax.editingPDFView = pdfView
         print("Juliette M. Belanger")
     }
     
     // Hooks for per-page trims so the overlay can seed and persist rectangles
-    var trimsForPageIndex: (Int) -> EdgeTrims = { _ in .zero }
-    var onTrimsChanged: (Int, EdgeTrims) -> Void = { _, _ in }
+//    var trimsForPageIndex: (Int) -> EdgeTrims = { _ in .zero }
+//    var onTrimsChanged: (Int, EdgeTrims) -> Void = { _, _ in }
     
     func makeCoordinator() -> Coordinator {
         print("Nadine Peeler- DocumentEditingView makeCoordinator")
-        return Coordinator(prax: prax)
+        return Coordinator()
     }
     
     func makeNSView(context: Context) -> NSSplitView {
-<<<<<<< Updated upstream
         print("Nadine Peeler- DocumentEditingView makeNSView")
-=======
-        
-        print("DocumentEditingView - makeNSView")
-        
->>>>>>> Stashed changes
         let split = NSSplitView()
         split.delegate = context.coordinator
         split.isVertical = true
@@ -42,23 +36,16 @@ struct DocumentEditingView: NSViewRepresentable {
         
         // Main PDFView
         let pdfView = PDFView()
+        prax.editingPDFView = pdfView
         pdfView.pageOverlayViewProvider = context.coordinator
         
-      //  context.coordinator.pdfView = pdfView
+        pdfView.autoScales = prax.editingPDFAutoScales
+        pdfView.displayMode = prax.editingPDFDisplayMode
+        pdfView.displaysPageBreaks = prax.editingPDFDisplayPageBreaks
+        pdfView.backgroundColor = prax.editingPDFBackgroundColor
+        pdfView.displaysAsBook = prax.editingPDFDisplaysAsBook
         
-        pdfView.autoScales = prax.pdfAutoScales
-        pdfView.displayMode = prax.pdfDisplayMode
-        pdfView.displaysPageBreaks = prax.pdfDisplayPageBreaks
-        pdfView.backgroundColor = prax.pdfBackgroundColor
-        pdfView.displaysAsBook = prax.pdfDisplaysAsBook
-        
-        if let pdfURL = Bundle.main.url(forResource: "PraxPress", withExtension: "pdf") {
-            let pdfDocument = PDFDocument(url: pdfURL)
-            pdfView.document = pdfDocument
-        } else {
-            print("PDF not found in bundle.")
-        }
-
+        pdfView.document = prax.editingPDFDocument
         
         let thumbnailController = PagesViewController()
         thumbnailController.pdfView = pdfView
@@ -78,13 +65,6 @@ struct DocumentEditingView: NSViewRepresentable {
             let target: CGFloat = 150
            split.setPosition(target, ofDividerAt: 0)
         }
-
-       NotificationCenter.default.addObserver(
-            context.coordinator,
-            selector: #selector(Coordinator.fileSelectionChanged(_:)),
-            name: .praxFileSelectionChanged,
-            object: nil
-        )
 
         NotificationCenter.default.addObserver(
             context.coordinator,
@@ -112,15 +92,11 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
-<<<<<<< Updated upstream
         print("Nadine Peeler- DocumentEditingView updateNSView")
-=======
-        let _ = Self._printChanges()
-        print("DocumentEditingView - updateNSView")
+//        let _ = Self._printChanges()
+//        print("DocumentEditingView - updateNSView")
        
         
-        
->>>>>>> Stashed changes
         guard let pdfView = prax.editingPDFView else { return }
         
         if pdfView.document !== prax.editingPDFDocument {
@@ -140,11 +116,11 @@ struct DocumentEditingView: NSViewRepresentable {
             pdfView.layoutDocumentView()
             pdfView.needsDisplay = true
         }
-        if pdfView.displayMode != prax.pdfDisplayMode  { pdfView.displayMode = prax.pdfDisplayMode  }
-        if pdfView.displaysPageBreaks != prax.pdfDisplayPageBreaks { pdfView.displaysPageBreaks = prax.pdfDisplayPageBreaks }
-        if pdfView.backgroundColor != prax.pdfBackgroundColor { pdfView.backgroundColor = prax.pdfBackgroundColor }
-        if pdfView.displaysAsBook != prax.pdfDisplaysAsBook { pdfView.displaysAsBook = prax.pdfDisplaysAsBook }
-        if pdfView.autoScales != prax.pdfAutoScales { pdfView.autoScales = prax.pdfAutoScales }
+        if pdfView.displayMode != prax.editingPDFDisplayMode  { pdfView.displayMode = prax.editingPDFDisplayMode  }
+        if pdfView.displaysPageBreaks != prax.editingPDFDisplayPageBreaks { pdfView.displaysPageBreaks = prax.editingPDFDisplayPageBreaks }
+        if pdfView.backgroundColor != prax.editingPDFBackgroundColor { pdfView.backgroundColor = prax.editingPDFBackgroundColor }
+        if pdfView.displaysAsBook != prax.editingPDFDisplaysAsBook { pdfView.displaysAsBook = prax.editingPDFDisplaysAsBook }
+        if pdfView.autoScales != prax.editingPDFAutoScales { pdfView.autoScales = prax.editingPDFAutoScales }
         
         if prax.currentIndex >= 0, prax.currentIndex < prax.editingPDFDocument.pageCount {
             let page = prax.editingPDFDocument.page(at: prax.currentIndex)!
@@ -165,24 +141,14 @@ struct DocumentEditingView: NSViewRepresentable {
         weak var thumbnailController: PagesViewController?
 //        weak var pdfView: PDFView?
         
-        var trimsLookup: ((Int) -> EdgeTrims)?
-        var trimsSetter: ((Int, EdgeTrims) -> Void)?
-        init(prax: PraxModel) { self.prax = prax }
+//        var trimsLookup: ((Int) -> EdgeTrims)?
+//        var trimsSetter: ((Int, EdgeTrims) -> Void)?
+        
         
         func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
 
  //           print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
             return 100
-        }
-
-        @objc func fileSelectionChanged(_ note: Notification) {
-<<<<<<< Updated upstream
-            print("DocumentEditingView Coordinator - fileSelectionChanged")
-=======
-            print("DocumentEditingView Coordinator fileSelectionChanged")
->>>>>>> Stashed changes
-       
-            
         }
 
         
@@ -210,25 +176,19 @@ struct DocumentEditingView: NSViewRepresentable {
             
             
             view.onFinish = { [weak self, weak page] rectInOverlay in
-             //   print("rectInOverlay: ", rectInOverlay.debugDescription)
-                
-                guard let self, let page = page else { return }
+                 guard let self, let page = page else { return }
+       
                 // Convert overlay-local rect to PDFView coordinates
                 let rectInView = view.convert(rectInOverlay, to: pdfView)
                 
                 // Clamp to page bounds in PDFView coordinates
                 let pageBoundsInView = pdfView.convert(page.bounds(for: .cropBox), from: page)
-            //    print("pageBoundsInView: ", pageBoundsInView.debugDescription)
                 let clamped = rectInView.intersection(pageBoundsInView)
-          //     print("clamped: ", clamped.debugDescription)
                 guard !clamped.isEmpty else { return }
                 
                 // Convert to page coords
                 let pageRect = pdfView.convert(clamped, to: page)
-           //     print("pageRect ", pageRect.debugDescription)
-                
                 let media = page.bounds(for: .cropBox)
-          //      print("media: ", media.debugDescription)
                 
                 let left = max(0, pageRect.minX - media.minX)
                 let right = max(0, media.maxX - pageRect.maxX)

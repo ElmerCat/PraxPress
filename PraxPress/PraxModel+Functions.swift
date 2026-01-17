@@ -23,6 +23,7 @@ extension PraxModel {
         widthGuidePageIndex = index
         widthGuideLeftX = vis.minX
         widthGuideRightX = vis.maxX
+        if isLoadingPDF { return }
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
         }
@@ -33,6 +34,7 @@ extension PraxModel {
         widthGuidePageIndex = nil
         widthGuideLeftX = nil
         widthGuideRightX = nil
+        if isLoadingPDF { return }
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
         }
@@ -42,10 +44,10 @@ extension PraxModel {
         
         
         fatalError("Julie d'Prax: This function is not currently implemented")
-        guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
-        mergeDocumentPages()
+        //guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
+        //mergeDocumentPages()
         // Recompute metrics based on the new single-page doc
-        computePageMetrics(for: entry.url)
+        //computePageMetrics(for: entry.url)
         
     }
     
@@ -68,32 +70,26 @@ extension PraxModel {
             defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
             guard let doc = PDFDocument(url: url) else { continue }
             for i in 0..<doc.pageCount {
-                print("Sharon - page: ", i)
+        //        print("Sharon - page: ", i)
                 if let page = doc.page(at: i) {
                     mergedDoc.insert(page, at: insertIndex)
                     insertIndex += 1
                 }
             }
         }
-        mergedDoc.write(to: mergedPDFURL)
+        mergedDoc.write(to: editingPDFURL)
         return mergedDoc
     }
     
-    func mergeDocumentPages() {
-        
-        
-        
+    func mergeDocumentPages() -> PDFDocument {
         let pageCount = editingPDFDocument.pageCount
-        
         var pageRects: [CGRect] = []
         pageRects.reserveCapacity(pageCount)
-        
         for i in 0..<pageCount {
             guard let page = editingPDFDocument.page(at: i) else { continue }
             let rect = page.bounds(for: .cropBox)
             pageRects.append(rect)
         }
-        
         let canvas = PDFGeometry.canvasSize(for: pageRects, trims: trims, trimTop: 0, trimBottom: 0, interPageGap: 0)
         let canvasWidth = canvas.width
         let canvasHeight = canvas.height
@@ -101,7 +97,7 @@ extension PraxModel {
         // Temporarily remove annotations to avoid drawing their appearances twice
         var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageCount)
         for i in 0..<pageCount {
-            if let p = mergedPDFDocument?.page(at: i) {
+            if let p = editingPDFDocument.page(at: i) {
                 removedPerPage[i] = p.annotations
                 for a in p.annotations { p.removeAnnotation(a) }
             }
@@ -111,8 +107,8 @@ extension PraxModel {
         let fm = FileManager.default
         var mediaBox = CGRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight)
         let tmpOut = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
-        guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { return }
-        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { return }
+        guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
+        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { fatalError("CGContext failed") }
         
         ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
         
@@ -121,7 +117,7 @@ extension PraxModel {
         var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageCount)
         
         for i in 0..<pageCount {
-            guard let page = mergedPDFDocument?.page(at: i) else { continue }
+            guard let page = editingPDFDocument.page(at: i) else { continue }
             let rect = pageRects[i]
             let per = trims[i] ?? .zero
             let seamTop: CGFloat = 0
@@ -163,30 +159,27 @@ extension PraxModel {
         
         // Restore annotations to source pages
         for i in 0..<pageCount {
-            if let p = mergedPDFDocument?.page(at: i) {
+            if let p = editingPDFDocument.page(at: i) {
                 for a in removedPerPage[i] { p.addAnnotation(a) }
             }
         }
         
         // Move temp to destination
-        let needsStopDest = mergedPDFURL.startAccessingSecurityScopedResource()
-        defer { if needsStopDest { mergedPDFURL.stopAccessingSecurityScopedResource() } }
+        
         if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
         do {
-            print ("Move at ", tmpOut, " to ", mergedPDFURL)
+            //            print ("Move at ", tmpOut, " to ", mergedPDFURL)
             try fm.moveItem(at: tmpOut, to: mergedPDFURL)
         }
         catch {
-            print("Julie d'Prax: Move temp to destination failed", error.localizedDescription)
+            print("mergeDocumentPages() Error: Move temp to destination failed", error.localizedDescription)
         }
-        
         // Second pass: reopen merged and re-add cloned annotations with the SAME translation used above
-        let needsStopDest2 = mergedPDFURL.startAccessingSecurityScopedResource()
-        defer { if needsStopDest2 { mergedPDFURL.stopAccessingSecurityScopedResource() } }
-        guard let mergedDoc = PDFDocument(url: mergedPDFURL), let mergedPage = mergedDoc.page(at: 0) else { return }
+        
+        guard let mergedDoc = PDFDocument(url: mergedPDFURL), let mergedPage = mergedDoc.page(at: 0) else { fatalError("PDFDocument(url: mergedPDFURL) failed") }
         
         for i in 0..<pageCount {
-            guard let srcPage = mergedPDFDocument?.page(at: i) else { continue }
+            guard let srcPage = editingPDFDocument.page(at: i) else { continue }
             let rect = pageRects[i]
             let per = trims[i] ?? .zero
             let seamTop: CGFloat = 0
@@ -210,9 +203,10 @@ extension PraxModel {
             }
         }
         
+        
         // Save final merged doc safely
         let tmpFinal = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
-        guard mergedDoc.write(to: tmpFinal) else { return }
+        guard mergedDoc.write(to: tmpFinal) else { fatalError("mergedDoc.write(to: tmpFinal) failed")  }
         if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
         do {
             try fm.moveItem(at: tmpFinal, to: mergedPDFURL)
@@ -221,6 +215,9 @@ extension PraxModel {
             fatalError("Julie d'Prax: Mave final merged doc safely failed")
         }
         print("Julie d'Prax: Mave final merged doc safely ", mergedPDFURL)
+        
+        return mergedDoc
+        
     }
     
     func computePageMetrics(for url: URL) {

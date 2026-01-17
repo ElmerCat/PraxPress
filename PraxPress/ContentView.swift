@@ -43,33 +43,12 @@ struct ContentView: View {
                 }.background(.green).padding(20)
                     .frame(maxWidth: 1000, maxHeight: .infinity)
             }
+            
             .sheet(isPresented: $prax.showSavePanel) {
-                
-                if let id = prax.selectedFiles.first, let entry = prax.listOfFiles.first(where: { $0.id == id }) {
-                    
-                    SaveAsPanel(suggestedURL: prax.mergedPDFURL) { destination in
-                        
-                        prax.mergedPDFView?.document?.write(to: destination)
-                        
-                    //    fatalError("Julie d'Prax: This function is not currently implemented")
-                    //
-                        prax.mergeDocumentPages()
-                        /*  do {
-                         try prax.mergeDocumentPages()
-                         /*      sourceURL: entry.url,
-                          destinationURL: destination,
-                          trimTop: CGFloat(prax.mergeTopMargin),
-                          trimBottom: CGFloat(prax.mergeBottomMargin),
-                          interPageGap: CGFloat(prax.mergeInterPageGap),
-                          perPageTrims: prax.trims
-                          )
-                          */                  // Update preview to show merged result if overwriting selected file
-                         } catch {
-                         prax.saveError = error.localizedDescription
-                         }*/
-                    }
-                }
-            }
+                SaveAsPanel(suggestedURL: prax.mergedPDFURL) { destination in
+                    prax.mergedPDFView?.document?.write(to: destination)
+                }}
+            
             .inspector(isPresented: $prax.isShowingInspector) {
                 VStack {
                     GroupBox {
@@ -114,12 +93,12 @@ struct ContentView: View {
                 } label: {
                     Label("Select Files", systemImage: "folder.badge.plus")
                 }
-                Button("Save", systemImage: "square.and.arrow.down") {
-                    prax.handleMergePagesOverwrite()
+  //              Button("Save", systemImage: "square.and.arrow.down") {
+    //                prax.handleMergePagesOverwrite()
                     //            handleSaveCurrentSelection()
                     
-                }
-                .disabled(prax.selectedFiles.isEmpty)
+      //          }
+       //         .disabled(prax.selectedFiles.isEmpty)
                 
                 Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
                     //  prax.showSavePanel = true

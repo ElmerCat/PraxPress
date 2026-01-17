@@ -13,7 +13,7 @@ internal import Combine
 
 extension Notification.Name {
     static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
-    static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
+    //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 
 struct EdgeTrims: Codable, Hashable {
@@ -42,29 +42,75 @@ final class PraxModel: Sendable {
     init() { }
     static let shared = PraxModel()
     
-    var mergedPDFView: PDFView?
     
-    var editingPDFView: PDFView?
+
+    var editingPDFView: PDFView? { didSet {
+        editingPDFView!.document = editingPDFDocument
+        editingPDFView!.displaysPageBreaks = editingPDFDisplayPageBreaks
+        editingPDFView!.displayMode = editingPDFDisplayMode
+        editingPDFView!.displaysAsBook = editingPDFDisplaysAsBook
+        editingPDFView!.autoScales = editingPDFAutoScales
+        editingPDFView!.backgroundColor = editingPDFBackgroundColor
+    }}
+
+    var editingPDFDisplayMode: PDFDisplayMode = .singlePageContinuous { didSet {
+        editingPDFView?.displayMode = editingPDFDisplayMode
+        editingPDFView?.scaleFactor = editingPDFView?.scaleFactorForSizeToFit ?? 0
+
+    }}
     
-    func zoomToFitEditingPDFView() {
-        if let editingPDFView {
-            editingPDFView.scaleFactor = editingPDFView.scaleFactorForSizeToFit
-            pdfAutoScales = true
-        }
+    var editingPDFAutoScales: Bool = true
+    var editingPDFDisplayPageBreaks: Bool = true
+    
+    var editingPDFDisplaysAsBook: Bool = false {
+        didSet{ editingPDFView?.displaysAsBook = editingPDFDisplaysAsBook }
     }
+    
+    var editingPDFBackgroundColor: NSColor = .red { didSet {
+        editingPDFView?.backgroundColor = editingPDFBackgroundColor }
+    }
+    
+
     func zoomInEditingPDFView() {
-        if let editingPDFView {
-            editingPDFView.zoomIn(self)
-            pdfAutoScales = false
-        }
+        editingPDFView?.zoomIn(self)
+        editingPDFAutoScales = false
     }
     func zoomOutEditingPDFView() {
-        if let editingPDFView {
-            editingPDFView.zoomOut(self)
-            pdfAutoScales = false
-        }
+        editingPDFView?.zoomOut(self)
+        editingPDFAutoScales = false
     }
     
+    var mergedPDFView: PDFView? { didSet {
+        mergedPDFView!.document = mergedPDFDocument
+        mergedPDFView!.displaysPageBreaks = mergedPDFDisplayPageBreaks
+        mergedPDFView!.displayMode = mergedPDFDisplayMode
+        mergedPDFView!.displaysAsBook = mergedPDFDisplaysAsBook
+        mergedPDFView!.autoScales = mergedPDFAutoScales
+        mergedPDFView!.backgroundColor = mergedPDFBackgroundColor
+    }}
+    var mergedPDFDisplayMode: PDFDisplayMode = .singlePage { didSet {
+        mergedPDFView?.displayMode = mergedPDFDisplayMode
+        mergedPDFView?.scaleFactor = mergedPDFView?.scaleFactorForSizeToFit ?? 0
+    }}
+    
+    var mergedPDFAutoScales: Bool = true
+    var mergedPDFDisplayPageBreaks: Bool = true
+    
+    var mergedPDFDisplaysAsBook: Bool = false {
+        didSet{ mergedPDFView?.displaysAsBook = mergedPDFDisplaysAsBook }
+    }
+    var mergedPDFBackgroundColor: NSColor = .yellow { didSet {
+        mergedPDFView?.backgroundColor = mergedPDFBackgroundColor }
+    }
+    
+    func zoomInMergedPDFView() {
+        mergedPDFView?.zoomIn(self)
+    }
+    func zoomOutMergedPDFView() {
+        mergedPDFView?.zoomOut(self)
+    }
+    
+    var isLoadingPDF = false
     var isOn = false
     var isLarge: Bool = false
     var showingImporter: Bool = false
@@ -82,85 +128,78 @@ final class PraxModel: Sendable {
     var selectedFiles = Set<PDFEntry.ID>() {
         didSet {
             print ("PraxModel selectedFiles didSet ") //, selectedFiles.description)
-
+            
             if selectedFiles.isEmpty {
                 editingPDFDocument = PDFDocument(url: noFileURL)!
                 mergedPDFDocument = editingPDFDocument
             }
             else {
-                
-                editingPDFDocument = createMergedDocumentFromSelectedFiles()!
-                currentIndex = 0   //  }
-                trims = [:]
-                clearWidthGuide()
-                
+                isLoadingPDF = true
                 DispatchQueue.main.async {
-                    self.recomputeMergedMetrics()
-                    self.mergedPDFDocument = self.editingPDFDocument
-                    NotificationCenter.default.post(name: .praxFileSelectionChanged, object: nil)
+                    print ("self.editingPDFDocument = self.createMergedDocumentFromSelectedFiles()!")
+                    self.editingPDFDocument = self.createMergedDocumentFromSelectedFiles()!
                 }
             }
         }
     }
     
+    var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+        didSet {
+            print ("editingPDFDocument didSet ")
+            
+            pdfSections.removeAll()
+            pdfPages.removeAll()
+
+            pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
+            for idx in 0..<editingPDFDocument.pageCount {
+                pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
+            }
+
+            self.currentIndex = 0   //  }
+            self.trims = [:]
+            self.clearWidthGuide()
+            self.recomputeMergedMetrics()
+            DispatchQueue.main.async {
+                print ("self.mergedPDFDocument = self.mergeDocumentPages()")
+                self.mergedPDFDocument = self.mergeDocumentPages()
+                self.isLoadingPDF = false
+            }
+
+            
+            
+            //  }
+        }
+    }
+
     
+    var editingPDFURL: URL = {
+        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
+    }()
+    
+
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
     
-    var pdfDisplayMode: PDFDisplayMode = .singlePageContinuous
-    var pdfAutoScales: Bool = true
-    var pdfDisplayPageBreaks: Bool = true
-    var pdfDisplaysAsBook: Bool = false
-    
-    var pdfBackgroundColor: NSColor = .clear
     var saveError: String?
     
     var pdfSections: [PDFPageSection] = []
     var pdfPages: [PDFPageItem] = [] {
         didSet {
-            print ("pdfPages didSet ") //, pdfPages.description)
+//            print ("pdfPages didSet ") //, pdfPages.description)
         }
     }
     
     var mergedPDFURL: URL = {
-        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged-\(UUID().uuidString)").appendingPathExtension("pdf")
+        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
     }()
     
-    var mergedPDFDocument: PDFDocument? {
+    var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("mergedPDFDocument didSet ")
-            DispatchQueue.main.async {
-                
-                self.mergeDocumentPages()
-                
-                let pv = PDFDocument(url: self.mergedPDFURL)!
-                self.mergedPDFView?.document = pv
-                
-                self.mergedPDFView?.layoutDocumentView()
-                print ("Prax Model - mergedPDFDocument layoutDocumentView ")
-            }
-            
         }
     }
-    
-  
-    
-    
-    
-    var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
-        didSet {
-            print ("editingPDFDocument didSet ")
-            pdfSections.removeAll()
-            pdfPages.removeAll()
-          //  if let editingPDFDocument {
-                pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
-                for idx in 0..<editingPDFDocument.pageCount {
-                    pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
-                }
-          //  }
-        }
-    }
+
     
     func updateCurrentIndex(indexPaths: Set<IndexPath>) -> Void {
         if let first = indexPaths.first {
@@ -175,7 +214,16 @@ final class PraxModel: Sendable {
     
     var currentIndex: Int = -1
     
-    var trims: [Int: EdgeTrims] = [:]
+    var trims: [Int: EdgeTrims] = [:] {
+        didSet {
+ //           print("PraxModel.trims didSet")
+            if isLoadingPDF { return }
+            DispatchQueue.main.async {
+                self.mergedPDFDocument = self.mergeDocumentPages()
+                print("DispatchQueue PraxModel.trims didSet")
+            }
+        }
+    }
     func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
     func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
     
@@ -195,6 +243,6 @@ final class PraxModel: Sendable {
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-   
+    
 }
 

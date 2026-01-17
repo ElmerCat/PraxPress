@@ -27,21 +27,22 @@ struct DocumentEditingToolbar: View {
         GroupBox {
             VStack {
                 HStack {
-                    Picker("", selection: $prax.pdfDisplayMode) {
-                        Image(systemName: "square").tag(PDFDisplayMode.singlePage)
-                        Image(systemName: "square.stack.3d.down.right").tag(PDFDisplayMode.singlePageContinuous)
-                        Image(systemName: "rectangle.split.2x1").tag(PDFDisplayMode.twoUp)
-                        Image(systemName: "rectangle.split.2x1.fill").tag(PDFDisplayMode.twoUpContinuous)
-                    }
-                    .pickerStyle(.segmented)
                     ControlGroup("", systemImage: "magnifyingglass") {
-                        Toggle("", systemImage: "book", isOn: $prax.pdfDisplaysAsBook).toggleStyle(.button)
-                        Button("Increase", systemImage: "plus.magnifyingglass", action: prax.zoomInEditingPDFView)
-                        Button("Decrease", systemImage: "minus.magnifyingglass", action: prax.zoomOutEditingPDFView)
-                        Button("Fit", systemImage: "1.magnifyingglass", action: prax.zoomToFitEditingPDFView)
-                        Toggle("Auto", systemImage: "1.magnifyingglass", isOn: $prax.pdfAutoScales)
+                        Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInEditingPDFView)
+                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutEditingPDFView)
+                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
+                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.editingPDFDisplayMode = .singlePageContinuous}).disabled(prax.editingPDFDisplayMode == .singlePageContinuous)
+                        if prax.editingPDFDocument.pageCount > 1 {
+                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.editingPDFDisplayMode = .twoUp}).disabled(prax.editingPDFDisplayMode == .twoUp)
+                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.editingPDFDisplayMode = .twoUpContinuous}).disabled(prax.editingPDFDisplayMode == .twoUpContinuous)
+                        }
+                        if (prax.editingPDFDisplayMode == .twoUpContinuous || prax.editingPDFDisplayMode == .twoUp) {
+                            Toggle("", systemImage: "book", isOn: $prax.editingPDFDisplaysAsBook).toggleStyle(.button)
+                        }
                     }
-                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument?.pageCount ?? 0) ")
+                    Spacer()
+
+                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument.pageCount ) ")
                     Text("Trims: \(prax.trims.count) ")                }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
