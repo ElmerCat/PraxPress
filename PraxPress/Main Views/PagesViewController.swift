@@ -22,16 +22,6 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     @IBOutlet weak var collectionView: NSCollectionView!
     
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
-    
-    weak var pdfView: PDFView? {
-        didSet {
-            
-            print("PagesViewController pdfView didSet")
-            
-            //  reloadData()
-        }
-    }
-    
     private var observeDocumentChange: Task<Void, Never>?
     private var observeCurrentIndexChange: Task<Void, Never>?
     
@@ -40,7 +30,6 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         configureHierarchy()
         configureDataSource()
         updateUI(animated: false)
-        
         
         observeDocumentChange = Task {
             for await _ in Observations({ self.prax.editingPDFDocument }) {
@@ -58,10 +47,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             }
         }
     }
-    
-}
 
-extension PagesViewController {
     private func createLayout() -> NSCollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                               heightDimension: .fractionalWidth(1.3))
@@ -93,9 +79,7 @@ extension PagesViewController {
         let layout = NSCollectionViewCompositionalLayout(section: section)
         return layout
     }
-}
 
-extension PagesViewController {
     private func configureHierarchy() {
         var itemNib = NSNib(nibNamed: "PageItem", bundle: nil)
         collectionView.register(itemNib, forItemWithIdentifier: PageItem.reuseIdentifier)
@@ -121,12 +105,8 @@ extension PagesViewController {
         // Determine the kind of source drag originating from this app.
         // Note, if you want to allow your app to drag items to the Finder's trash can, add ".delete".
         collectionView.setDraggingSourceOperationMask([.copy, .delete], forLocal: false)
-        
-        
-        
-        
-        
     }
+
     private func configureDataSource() {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
