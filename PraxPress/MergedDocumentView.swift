@@ -5,127 +5,80 @@
 //  Created by Elmer Cat on 1/12/26.
 //
 
-
 import SwiftUI
 import PDFKit
-import UniformTypeIdentifiers
-internal import Combine
 
-// Minimal SwiftUI wrapper around PDFView
-struct MergedDocumentView: View {
-    
+struct MergedDocumentToolbar: View {
     @State private var prax = PraxModel.shared
     
+    private func title(for mode: PDFDisplayMode) -> String {
+        switch mode {
+        case .singlePage: return "Single"
+        case .singlePageContinuous: return "Continuous"
+        case .twoUp: return "Two Up"
+        case .twoUpContinuous: return "Two Up Cont."
+        @unknown default: return "Unknown"
+        }
+    }
+    
     var body: some View {
-        
-        let _ = Self._printChanges()
-        
-        MergedPDFView()
-        
-            .onAppear() {
-                print("Lessie Sheffield - MergedDocumentView .onAppear()  ")
-            }
-        
-            .onChange(of: prax.mergedPDFAutoScales) {
-                print("MergedDocumentView .onChange(of: prax.mergedPDFAutoScales)")        }
-        
-            .onChange(of: prax.mergedPDFDocument) {
-                print("Lessie Sheffield - MergedDocumentView .onChange(of: prax.mergedPDFDocument) ")
-                DispatchQueue.main.async {
-                    print("DispatchQueue Lessie Sheffield - MergedDocumentView .onChange(of: prax.mergedPDFDocument)  ")
-                    //        updateMergedDocument()
+        GroupBox {
+            VStack {
+                HStack {
+                    ControlGroup("", systemImage: "magnifyingglass") {
+                        Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInMergedPDFView)
+                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutMergedPDFView)
+                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .singlePage}).disabled(prax.mergedPDFDisplayMode == .singlePage)
+                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.mergedPDFDisplayMode = .singlePageContinuous}).disabled(prax.mergedPDFDisplayMode == .singlePageContinuous)
+                        if prax.mergedPDFDocument.pageCount > 1 {
+                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.mergedPDFDisplayMode = .twoUp}).disabled(prax.mergedPDFDisplayMode == .twoUp)
+                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .twoUpContinuous}).disabled(prax.mergedPDFDisplayMode == .twoUpContinuous)
+                        }
+                        if (prax.mergedPDFDisplayMode == .twoUpContinuous || prax.mergedPDFDisplayMode == .twoUp) {
+                            Toggle("", systemImage: "book", isOn: $prax.mergedPDFDisplaysAsBook).toggleStyle(.button)
+                        }
+                    }
+                    Spacer()
+                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument.pageCount ) ")
+                    Text("Trims: \(prax.trims.count) ")
+                    
+                    Spacer()
+                    if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
+                        let wIn = prax.mergedWidthPts / 72.0
+                        let hIn = prax.mergedHeightPts / 72.0
+                        Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", prax.mergedWidthPts, prax.mergedHeightPts, wIn, hIn))
+                            .font(.subheadline)
+                        //    .foregroundStyle(Color.white)
+                    } else {
+                        Text("Merged size: —")
+                            .font(.subheadline)
+                        //  .foregroundStyle(.tertiary)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+                .padding(8)
             }
+        }
+        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        .foregroundStyle(Color.white)
     }
 }
 
-struct MergedPDFView: NSViewRepresentable {
-    
+
+struct MergedDocumentView: NSViewRepresentable {
     @State private var prax = PraxModel.shared
     
     func makeNSView(context: Context) -> PDFView {
-        print("MergedPDFView - makeNSView")
-        let _ = Self._printChanges()
-        
-        let pdfView = PDFView()
-        prax.mergedPDFView = pdfView
-         
-        return pdfView
+        print("MergedDocumentView - makeNSView")
+        prax.mergedPDFView = PDFView()
+        return prax.mergedPDFView!
     }
-    
     func updateNSView(_ pdfView: PDFView, context: Context) {
-        print("MergedPDFView - updateNSView")
-//        let _ = Self._printChanges()
- 
-  //      if pdfView.displayMode != prax.mergedPDFDisplayMode {
-   //         pdfView.displayMode = prax.mergedPDFDisplayMode
-  //          print("MergedPDFView - pdfView.displayMode != prax.mergedPDFDisplayMode")
-  //      }
-        
-        
-        if pdfView.document != prax.mergedPDFDocument {
-            print("MergedPDFView - pdfView.document != prax.mergedPDFDocument")
-            pdfView.document = prax.mergedPDFDocument
-            pdfView.layoutDocumentView()
-       }
+        print("\n\nMergedDocumentView - updateNSView\n\n")
     }
-    
 }
 
-/*
- 
- final class Coordinator: NSObject {
- @State private var prax = PraxModel.shared
- 
- @objc func fileSelectionChanged(_ note: Notification) {
- print("MergedDocumentView - fileSelectionChanged")
- 
- }
- }
- func makeCoordinator() -> Coordinator {
- print("Lessie Sheffield - MergedDocumentView makeCoordinator")
- return Coordinator()
- }
- 
- func makeNSView(context: Context) -> PDFView {
- print("Lessie Sheffield - MergedDocumentView makeNSView")
- let pdfView = PDFView()
- prax.mergedPDFView = pdfView
- pdfView.displaysPageBreaks = true
- pdfView.displayMode = .singlePageContinuous
- pdfView.autoScales = true
- pdfView.backgroundColor = .clear
- 
- NotificationCenter.default.addObserver(
- context.coordinator,
- selector: #selector(Coordinator.fileSelectionChanged(_:)),
- name: .praxFileSelectionChanged,
- object: nil
- )
- let julieDPrax = prax.pdfDisplayMode
- return pdfView
- 
- }
- 
- func updateNSView(_ pdfView: PDFView, context: Context) {
- print("Lessie Sheffield - MergedDocumentView updateNSView")
- 
- print("\nJulie d'Prax - Da Prax is wrong!\n")
- 
- if !prax.selectedFiles.isEmpty {
- let needsReload = (pdfView.document == nil) || (pdfView.document?.documentURL != prax.mergedPDFURL)
- if needsReload {
- if let doc = PDFDocument(url: prax.mergedPDFURL) {
- pdfView.document = doc
- pdfView.layoutDocumentView()
- pdfView.autoScales = true
- } else {
- pdfView.document = nil
- }
- } else {
- pdfView.layoutDocumentView()
- }
- }
- }
- 
- */
+#Preview {
+    MergedDocumentToolbar()
+    MergedDocumentView()
+}

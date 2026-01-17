@@ -38,8 +38,7 @@ struct ContentView: View {
                 GroupBox {
                     MergedDocumentToolbar()
                     MergedDocumentView()
-                        
-                    
+
                 }.background(.green).padding(20)
                     .frame(maxWidth: 1000, maxHeight: .infinity)
             }

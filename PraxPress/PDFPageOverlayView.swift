@@ -21,7 +21,7 @@ final class PDFPageOverlayView: NSView {
     // Optional vertical guideline x-positions in overlay coordinates
     var guideXLeft: CGFloat?
     var guideXRight: CGFloat?
-    private let snapThreshold: CGFloat = 6.0
+    private let snapThreshold: CGFloat = 16.0
     
     private let handleSize: CGFloat = 8
     private let hitInset: CGFloat = 6
@@ -59,7 +59,7 @@ final class PDFPageOverlayView: NSView {
             let path = NSBezierPath()
             path.move(to: CGPoint(x: gxL, y: bounds.minY))
             path.line(to: CGPoint(x: gxL, y: bounds.maxY))
-            path.lineWidth = 1
+            path.lineWidth = 2
             path.stroke()
         }
         if let gxR = guideXRight {
@@ -67,7 +67,7 @@ final class PDFPageOverlayView: NSView {
             let path = NSBezierPath()
             path.move(to: CGPoint(x: gxR, y: bounds.minY))
             path.line(to: CGPoint(x: gxR, y: bounds.maxY))
-            path.lineWidth = 1
+            path.lineWidth = 2
             path.stroke()
         }
     }
@@ -79,6 +79,7 @@ final class PDFPageOverlayView: NSView {
            let guideRightX = prax.widthGuideRightX,
            let guidePage = prax.editingPDFDocument.page(at: guideIndex) {
             // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
+            
             let guideCrop = guidePage.bounds(for: .cropBox)
             let currentCrop = guidePage.bounds(for: .cropBox)
             guard guideCrop.width > 0, currentCrop.width > 0 else {

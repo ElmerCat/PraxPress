@@ -155,10 +155,18 @@ final class PraxModel: Sendable {
                 pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
             }
 
-            self.currentIndex = 0   //  }
-            self.trims = [:]
-            self.clearWidthGuide()
-            self.recomputeMergedMetrics()
+            currentIndex = 0   //  }
+            trims = [:]
+            clearWidthGuide()
+            recomputeMergedMetrics()
+            
+            var pg = 0
+            while pg < editingPDFDocument.pageCount {
+                setTrims(EdgeTrims.zero, for: pg)
+                pg += 1
+            }
+            editingPDFView?.document = editingPDFDocument
+            
             DispatchQueue.main.async {
                 print ("self.mergedPDFDocument = self.mergeDocumentPages()")
                 self.mergedPDFDocument = self.mergeDocumentPages()
@@ -197,6 +205,7 @@ final class PraxModel: Sendable {
     var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("mergedPDFDocument didSet ")
+            mergedPDFView?.document = mergedPDFDocument
         }
     }
 
