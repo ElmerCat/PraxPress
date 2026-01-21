@@ -39,11 +39,18 @@ struct MergedDocumentToolbar: View {
                         }
                     }
                     Spacer()
-                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument.pageCount ) ")
-                    Text("Trims: \(prax.trims.count) ")
+                    
+                    switch prax.selectionIndexPaths.count {
+                    case 0: Text("No Selection")
+                    case 1: Text("Page: \((prax.selectionIndexPaths.first!.item) + 1) of \(prax.editingPDFDocument.pageCount ) ")
+                    default: Text("Multiple Selection")
+                    }
                     
                     Spacer()
-                    if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
+                    
+                    Text(String("\(prax.pdfPageSections.count) Pages"))
+                        .font(.subheadline)
+   /*                 if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
                         let wIn = prax.mergedWidthPts / 72.0
                         let hIn = prax.mergedHeightPts / 72.0
                         Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", prax.mergedWidthPts, prax.mergedHeightPts, wIn, hIn))
@@ -54,7 +61,7 @@ struct MergedDocumentToolbar: View {
                             .font(.subheadline)
                         //  .foregroundStyle(.tertiary)
                     }
-                }
+     */           }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
             }

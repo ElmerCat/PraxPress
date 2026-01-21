@@ -12,30 +12,21 @@
             <rect key="frame" x="0.0" y="0.0" width="189" height="96"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fQH-sV-R8f">
-                    <rect key="frame" x="21" y="40" width="36" height="16"/>
-                    <textFieldCell key="cell" lineBreakMode="clipping" title="Doris" id="xaG-N4-nwW">
-                        <font key="font" usesAppearanceFont="YES"/>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fQH-sV-R8f">
+                    <rect key="frame" x="-2" y="80" width="193" height="16"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" title="Header Text" id="xaG-N4-nwW">
+                        <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
-                <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cpN-hh-f8b">
-                    <rect key="frame" x="63" y="40" width="106" height="16"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="106" id="8kz-Yj-dZY"/>
-                    </constraints>
-                    <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="ZqT-wq-e2T">
-                        <font key="font" metaFont="cellTitle"/>
-                    </sliderCell>
+                <slider horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bgZ-F8-SDf">
+                    <rect key="frame" x="165" y="0.0" width="24" height="24"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <sliderCell key="cell" controlSize="large" alignment="left" maxValue="100" doubleValue="50" sliderType="circular" id="sdp-9j-NMP"/>
                 </slider>
             </subviews>
-            <constraints>
-                <constraint firstAttribute="trailing" secondItem="cpN-hh-f8b" secondAttribute="trailing" constant="20" symbolic="YES" id="FTR-wg-2kR"/>
-                <constraint firstItem="cpN-hh-f8b" firstAttribute="leading" secondItem="fQH-sV-R8f" secondAttribute="trailing" constant="8" symbolic="YES" id="Ozk-cn-Wh8"/>
-                <constraint firstItem="cpN-hh-f8b" firstAttribute="top" secondItem="fQH-sV-R8f" secondAttribute="top" id="UDF-Pc-Diq"/>
-                <constraint firstItem="cpN-hh-f8b" firstAttribute="centerY" secondItem="Mpr-gh-nqm" secondAttribute="centerY" id="xm1-rm-9kQ"/>
-            </constraints>
             <connections>
                 <outlet property="label" destination="fQH-sV-R8f" id="HHM-n0-Tr3"/>
             </connections>

@@ -15,12 +15,11 @@ import UniformTypeIdentifiers
 extension PraxModel {
     
     /// Compute and store the width guide X positions (in page space of the guide page)
-    func setWidthGuide(fromPage index: Int) {
-        guard let page = editingPDFDocument.page(at: index) else { return }
-        let media = page.bounds(for: .cropBox)
-        let per = trims[index] ?? .zero
+    func setWidthGuide(fromPage pdfPageItem: PDFPageItem) {
+        let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
+        let per = pdfPageItem.trim
         let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
-        widthGuidePageIndex = index
+        widthGuidePage = pdfPageItem
         widthGuideLeftX = vis.minX
         widthGuideRightX = vis.maxX
         if isLoadingPDF { return }
@@ -31,7 +30,7 @@ extension PraxModel {
     
     /// Remove any active width guide
     func clearWidthGuide() {
-        widthGuidePageIndex = nil
+        widthGuidePage = nil
         widthGuideLeftX = nil
         widthGuideRightX = nil
         if isLoadingPDF { return }
@@ -51,243 +50,205 @@ extension PraxModel {
         
     }
     
-    func createMergedDocumentFromSelectedFiles () -> PDFDocument? {
+    func setEditingPDFDocumentFromPDFPageSections() {
+        isLoadingPDF = true
+        var insertIndex = 0
+        let pdfDocument = PDFDocument()
+        pdfPageSections.forEach {
+            pdfPageSection in
+            pdfPageSection.pdfPageItems.forEach {
+                pdfPageItem in
+                pdfDocument.insert(pdfPageItem.pdfPage, at: insertIndex)
+                insertIndex += 1
+            }
+        }
+        editingPDFDocument = pdfDocument
+    }
+    
+    func setEditingPDFDocumentFromSelectedFiles () {
+        isLoadingPDF = true
+        pdfPageSections.removeAll()
+        selectionIndexPaths = []
+        var insertIndex = 0
+        var pdfDocument = PDFDocument()
+        
         let entries: [PDFEntry] = selectedFiles.compactMap { id in
             listOfFiles.first(where: { $0.id == id })
         }
         let urls = entries.map { $0.url }
-        guard !urls.isEmpty else {
+        
+        if urls.isEmpty {
             
-            fatalError("Julie d'Prax: Da Prax is wrong!")
-            
+            let document = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+            insertIndex = addPDFPageSection(for: document, at: insertIndex, into: &pdfDocument)
         }
         
-        let mergedDoc = PDFDocument()
-        
-        var insertIndex = 0
-        for url in urls {
-            let needsStop = url.startAccessingSecurityScopedResource()
-            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            guard let doc = PDFDocument(url: url) else { continue }
-            for i in 0..<doc.pageCount {
-        //        print("Sharon - page: ", i)
-                if let page = doc.page(at: i) {
-                    mergedDoc.insert(page, at: insertIndex)
-                    insertIndex += 1
-                }
+        else {
+            for url in urls {
+                let needsStop = url.startAccessingSecurityScopedResource()
+                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+                guard let document = PDFDocument(url: url) else { fatalError("Could not load PDF at \(url)") }
+                insertIndex = addPDFPageSection(for: document, at: insertIndex, into: &pdfDocument)
             }
         }
-        mergedDoc.write(to: editingPDFURL)
-        return mergedDoc
+        
+        pdfDocument.write(to: editingPDFURL)
+        editingPDFDocument = pdfDocument
     }
     
-    func mergeDocumentPages() -> PDFDocument {
-        let pageCount = editingPDFDocument.pageCount
-        var pageRects: [CGRect] = []
-        pageRects.reserveCapacity(pageCount)
-        for i in 0..<pageCount {
-            guard let page = editingPDFDocument.page(at: i) else { continue }
-            let rect = page.bounds(for: .cropBox)
-            pageRects.append(rect)
-        }
-        let canvas = PDFGeometry.canvasSize(for: pageRects, trims: trims, trimTop: 0, trimBottom: 0, interPageGap: 0)
-        let canvasWidth = canvas.width
-        let canvasHeight = canvas.height
+    func mergeDocumentPagesForSections() -> PDFDocument {
         
-        // Temporarily remove annotations to avoid drawing their appearances twice
-        var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageCount)
-        for i in 0..<pageCount {
-            if let p = editingPDFDocument.page(at: i) {
-                removedPerPage[i] = p.annotations
-                for a in p.annotations { p.removeAnnotation(a) }
+        let mergedDocument = PDFDocument()
+        let sectionCount = pdfPageSections.count
+        for sectionIndex in 0..<sectionCount {
+            
+            print ("Julia Parr - pdfPageSection: ", sectionIndex)
+            
+            let pageCount = pdfPageSections[sectionIndex].pdfPageItems.count
+            var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageCount)
+            var pageRects: [CGRect] = []
+            pageRects.reserveCapacity(pageCount)
+            
+            
+            for pageIndex in 0..<pageCount {
+                let page = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].pdfPage
+                let rect = page.bounds(for: .cropBox)
+                pageRects.append(rect)
+                removedPerPage[pageIndex] = page.annotations
+                for annotation in page.annotations {
+                    page.removeAnnotation(annotation)
+                }
             }
-        }
-        
-        // Create a one-page PDF context
-        let fm = FileManager.default
-        var mediaBox = CGRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight)
-        let tmpOut = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
-        guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
-        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { fatalError("CGContext failed") }
-        
-        ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
-        
-        // Stack pages from top to bottom. Track the Y origin of each placed slice for annotation mapping.
-        var currentTop = canvasHeight
-        var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageCount)
-        
-        for i in 0..<pageCount {
-            guard let page = editingPDFDocument.page(at: i) else { continue }
-            let rect = pageRects[i]
-            let per = trims[i] ?? .zero
-            let seamTop: CGFloat = 0
-            let seamBottom: CGFloat = 0
+            // Create a one-page PDF context
+            var mediaBox = CGRect(x: 0, y: 0, width: pdfPageSections[sectionIndex].mergedWidthPts, height: pdfPageSections[sectionIndex].mergedHeightPts)
+            let tmpOut = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
+            guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
+            guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { fatalError("CGContext failed") }
             
-            let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-            //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
-            let visibleWidth = vis.width
-            let visibleHeight = vis.height
-            guard visibleWidth > 0, visibleHeight > 0 else {
-                currentTop -= (max(0, visibleHeight)) // + interPageGap)
-                continue
+            ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
+            
+            
+            // Stack pages from top to bottom. Track the Y origin of each placed slice for annotation mapping.
+            var currentTop = pdfPageSections[sectionIndex].mergedHeightPts
+            var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageCount)
+            
+            for pageIndex in 0..<pageCount {
+                let page = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].pdfPage
+                let rect = pageRects[pageIndex]
+                let per = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].trim
+                let seamTop: CGFloat = 0
+                let seamBottom: CGFloat = 0
+                
+                let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+                //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
+                let visibleWidth = vis.width
+                let visibleHeight = vis.height
+                guard visibleWidth > 0, visibleHeight > 0 else {
+                    currentTop -= (max(0, visibleHeight)) // + interPageGap)
+                    continue
+                }
+                
+                // Place the slice at the LEFT edge (x = 0) and directly under the running top
+                let destX: CGFloat = 0
+                let destY: CGFloat = currentTop - visibleHeight
+                placedOriginsY[pageIndex] = destY
+                
+                ctx.saveGState()
+                // Translate so that (vis.minX, vis.minY) in page space lands at (destX, destY) in canvas space
+                ctx.translateBy(x: destX - vis.minX, y: destY - vis.minY)
+                // Clip in the CURRENT (translated) coordinate system using a rect defined in PAGE space coordinates
+                // Because we translated by (-vis.minX, -vis.minY), the clip rect is simply:
+                ctx.clip(to: vis)
+                
+                if let cgPage = page.pageRef {
+                    ctx.drawPDFPage(cgPage)
+                } else {
+                    page.draw(with: .cropBox, to: ctx)
+                }
+                ctx.restoreGState()
+                
+                currentTop -= visibleHeight // (visibleHeight + interPageGap)
             }
             
-            // Place the slice at the LEFT edge (x = 0) and directly under the running top
-            let destX: CGFloat = 0
-            let destY: CGFloat = currentTop - visibleHeight
-            placedOriginsY[i] = destY
+            ctx.endPDFPage()
+            ctx.closePDF()
             
-            ctx.saveGState()
-            // Translate so that (vis.minX, vis.minY) in page space lands at (destX, destY) in canvas space
-            ctx.translateBy(x: destX - vis.minX, y: destY - vis.minY)
-            // Clip in the CURRENT (translated) coordinate system using a rect defined in PAGE space coordinates
-            // Because we translated by (-vis.minX, -vis.minY), the clip rect is simply:
-            ctx.clip(to: vis)
-            
-            if let cgPage = page.pageRef {
-                ctx.drawPDFPage(cgPage)
-            } else {
-                page.draw(with: .cropBox, to: ctx)
+            // Restore annotations to source pages
+            for pageIndex in 0..<pageCount {
+                let p = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].pdfPage
+                for a in removedPerPage[pageIndex] { p.addAnnotation(a) }
             }
-            ctx.restoreGState()
             
-            currentTop -= visibleHeight // (visibleHeight + interPageGap)
-        }
-        
-        ctx.endPDFPage()
-        ctx.closePDF()
-        
-        // Restore annotations to source pages
-        for i in 0..<pageCount {
-            if let p = editingPDFDocument.page(at: i) {
-                for a in removedPerPage[i] { p.addAnnotation(a) }
-            }
-        }
-        
-        // Move temp to destination
-        
-        if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
-        do {
-            //            print ("Move at ", tmpOut, " to ", mergedPDFURL)
-            try fm.moveItem(at: tmpOut, to: mergedPDFURL)
-        }
-        catch {
-            print("mergeDocumentPages() Error: Move temp to destination failed", error.localizedDescription)
-        }
-        // Second pass: reopen merged and re-add cloned annotations with the SAME translation used above
-        
-        guard let mergedDoc = PDFDocument(url: mergedPDFURL), let mergedPage = mergedDoc.page(at: 0) else { fatalError("PDFDocument(url: mergedPDFURL) failed") }
-        
-        for i in 0..<pageCount {
-            guard let srcPage = editingPDFDocument.page(at: i) else { continue }
-            let rect = pageRects[i]
-            let per = trims[i] ?? .zero
-            let seamTop: CGFloat = 0
-            let seamBottom: CGFloat = 0
+            // Second pass: reopen merged and re-add cloned annotations with the SAME translation used above
             
-            let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-            let dx = 0 - vis.minX
-            let dy = placedOriginsY[i] - vis.minY
-            //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
+            guard let tempDoc = PDFDocument(url: tmpOut) else { fatalError("PDFDocument(url: tmpOut) failed") }
+            guard let mergedPage = tempDoc.page(at: 0) else { fatalError("mergedDoc.page(at: 0) failed") }
             
-            for annot in srcPage.annotations {
-                guard annot.fieldName != nil else { continue }
-                guard let copied = annot.copy() as? PDFAnnotation else { continue }
-                copied.bounds = annot.bounds.offsetBy(dx: dx, dy: dy)
-                mergedPage.addAnnotation(copied)
-                if copied.widgetFieldType == .text {
-                    if let v = copied.widgetStringValue, !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        copied.widgetStringValue = v
+            for pageIndex in 0..<pageCount {
+                let srcPage = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].pdfPage
+                let rect = pageRects[pageIndex]
+                let per = pdfPageSections[sectionIndex].pdfPageItems[pageIndex].trim
+                let seamTop: CGFloat = 0
+                let seamBottom: CGFloat = 0
+                
+                let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+                let dx = 0 - vis.minX
+                let dy = placedOriginsY[pageIndex] - vis.minY
+                //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
+                
+                for annot in srcPage.annotations {
+                    guard annot.fieldName != nil else { continue }
+                    guard let copied = annot.copy() as? PDFAnnotation else { continue }
+                    copied.bounds = annot.bounds.offsetBy(dx: dx, dy: dy)
+                    mergedPage.addAnnotation(copied)
+                    if copied.widgetFieldType == .text {
+                        if let v = copied.widgetStringValue, !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            copied.widgetStringValue = v
+                        }
                     }
                 }
             }
+ 
+            pdfPageSections[sectionIndex].pdfPage = mergedPage
+            mergedDocument.insert(mergedPage, at: sectionIndex)
+            
+            do { try FileManager.default.removeItem(at: tmpOut) }
+            catch {  print("FileManager.default.removeItem(at: tmpOut) failed", error.localizedDescription) }
         }
         
-        
-        // Save final merged doc safely
-        let tmpFinal = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
-        guard mergedDoc.write(to: tmpFinal) else { fatalError("mergedDoc.write(to: tmpFinal) failed")  }
-        if fm.fileExists(atPath: mergedPDFURL.path) { try? fm.removeItem(at: mergedPDFURL) }
-        do {
-            try fm.moveItem(at: tmpFinal, to: mergedPDFURL)
-        }
-        catch {
-            fatalError("Julie d'Prax: Mave final merged doc safely failed")
-        }
-        print("Julie d'Prax: Mave final merged doc safely ", mergedPDFURL)
-        
-        return mergedDoc
-        
+        mergedDocument.write(to: mergedPDFURL)
+        return mergedDocument
     }
     
-    func computePageMetrics(for url: URL) {
-        let needsStop = url.startAccessingSecurityScopedResource()
-        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-        guard let doc = PDFDocument(url: url) else {
-            pageCount = nil
-            totalHeightPoints = nil
-            maxWidthPoints = nil
-            return
-        }
-        let count = doc.pageCount
-        let totalH: CGFloat = 0
-        let maxW: CGFloat = 0
-        /*        let knownFields = KnownFormFields.all
-         var foundUnknowns = Set<String>()
-         for i in 0..<count {
-         guard let page = doc.page(at: i) else { continue }
-         let rect = page.bounds(for: .mediaBox)
-         totalH += rect.height
-         if rect.width > maxW { maxW = rect.width }
-         for annot in page.annotations {
-         if let name = annot.fieldName, !name.isEmpty, !knownFields.contains(name) {
-         foundUnknowns.insert(name)
-         }
-         }
-         } */
-        pageCount = count
-        totalHeightPoints = totalH
-        maxWidthPoints = maxW
-        //     let sortedUnknowns = Array(foundUnknowns).sorted()
-        //    unknownFieldNames = sortedUnknowns
-        //    showUnknownFieldsAlert = !sortedUnknowns.isEmpty
-    }
-    
-    /// Build a temporary combined PDF by concatenating pages from the given URLs in order.
-    /// Returns the temporary file URL on success.
-    func buildTemporaryCombinedPDF(from urls: [URL]) throws -> URL {
-        if let old = lastCombinedSourceURL {
-            try? FileManager.default.removeItem(at: old)
-            lastCombinedSourceURL = nil
-        }
+    func recomputeMergedMetrics() {
+        let count = editingPDFDocument.pageCount
+        guard count > 0 else { fatalError("No pages in PDF!")}
         
-        let fm = FileManager.default
-        let tempURL = fm.temporaryDirectory.appendingPathComponent("combined-\(UUID().uuidString)").appendingPathExtension("pdf")
-        defer {
-            // No cleanup here; caller may want to keep it until replaced.
-        }
-        let combined = PDFDocument()
-        var insertIndex = 0
-        for url in urls {
-            let needsStop = url.startAccessingSecurityScopedResource()
-            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            guard let doc = PDFDocument(url: url) else { continue }
-            for i in 0..<doc.pageCount {
-                if let page = doc.page(at: i) {
-                    combined.insert(page, at: insertIndex)
-                    insertIndex += 1
-                }
+        var pageIndex = 0
+        let sectionCount = pdfPageSections.count
+        for sectionIndex in 0..<sectionCount {
+            var maxVisibleWidth: CGFloat = 0
+            var totalVisibleHeight: CGFloat = 0
+
+            pdfPageSections[sectionIndex].pdfPageItems.forEach {
+                pdfPageItem in
+                let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
+                let per = pdfPageItem.trim
+                let seamTop: CGFloat = (pageIndex == 0) ? 0 : 0
+                let seamBottom: CGFloat = (pageIndex == count - 1) ? 0 : 0
+                let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+                maxVisibleWidth = max(maxVisibleWidth, vis.width)
+                totalVisibleHeight += vis.height
+                pageIndex += 1
             }
+            pdfPageSections[sectionIndex].mergedWidthPts = maxVisibleWidth
+            pdfPageSections[sectionIndex].mergedHeightPts = totalVisibleHeight
         }
-        // Write to disk
-        guard combined.write(to: tempURL) else {
-            throw NSError(domain: "PraxPress", code: 2001, userInfo: [NSLocalizedDescriptionKey: "Failed to write combined PDF."])
-        }
-        lastCombinedSourceURL = tempURL
-        return tempURL
     }
     
     func cleanupTemporaryArtifacts() {
+        print("\n\ncleanupTemporaryArtifacts()\n\n")
+        
         let fm = FileManager.default
         if let oldPreview = lastPreviewURL {
             try? fm.removeItem(at: oldPreview)
@@ -297,68 +258,6 @@ extension PraxModel {
             try? fm.removeItem(at: oldCombined)
             lastCombinedSourceURL = nil
         }
-    }
-    
-    func recomputeMergedMetrics() {
-        
-        let count = editingPDFDocument.pageCount
-        guard count > 0 else {
-            mergedWidthPts = 0
-            mergedHeightPts = 0
-            return
-        }
-        var maxVisibleWidth: CGFloat = 0
-        var totalVisibleHeight: CGFloat = 0
-        for i in 0..<count {
-            guard let page = editingPDFDocument.page(at: i) else { continue }
-            let media = page.bounds(for: .cropBox)
-            let per = trims(for: i)
-            let seamTop: CGFloat = (i == 0) ? 0 : 0
-            let seamBottom: CGFloat = (i == count - 1) ? 0 : 0
-            let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-            maxVisibleWidth = max(maxVisibleWidth, vis.width)
-            totalVisibleHeight += vis.height
-        }
-        mergedWidthPts = maxVisibleWidth
-        mergedHeightPts = totalVisibleHeight
-    }
-    
-    func recomputeWidthGuideIfNeeded() {
-        guard let guideIndex = widthGuidePageIndex else { return }
-        // Recompute guide edges using current trims
-        setWidthGuide(fromPage: guideIndex)
-    }
-    
-    // Rebuild sections and page items from the current editingPDFDocument
-    // After any reordering, call this to keep the model in sync with the document.
-    func rebuildPagesFromDocument() {
-        pdfSections.removeAll()
-        pdfPages.removeAll()
-        // For now, single section; later, construct real sections as needed.
-        pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
-        for i in 0..<editingPDFDocument.pageCount {
-            pdfPages.append(PDFPageItem(index: i, name: "Page \(i + 1)"))
-        }
-        // After reordering, trims are keyed by page index; ensure width guide stays consistent
-        recomputeWidthGuideIfNeeded()
-    }
-    
-    // Remap trims using a permutation that maps from old logical indices to new positions.
-    // newOrder is an array where position p contains the old logical index now at p.
-    func remapTrims(using newOrder: [Int]) {
-        // Build inverse mapping: oldIndex -> newIndex
-        var newIndexForOld: [Int: Int] = [:]
-        for (newIndex, oldIndex) in newOrder.enumerated() {
-            newIndexForOld[oldIndex] = newIndex
-        }
-        var newTrims: [Int: EdgeTrims] = [:]
-        for (oldIndex, value) in trims {
-            if let newIndex = newIndexForOld[oldIndex] {
-                newTrims[newIndex] = value
-            }
-        }
-        trims = newTrims
-        recomputeWidthGuideIfNeeded()
     }
     
 }

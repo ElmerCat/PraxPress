@@ -74,14 +74,18 @@ final class PDFPageOverlayView: NSView {
     
     private func computeGuidelines() {
         
-        if let guideIndex = prax.widthGuidePageIndex,
-           let guideLeftX = prax.widthGuideLeftX,
+  
+        
+        
+        if let guideLeftX = prax.widthGuideLeftX,
            let guideRightX = prax.widthGuideRightX,
-           let guidePage = prax.editingPDFDocument.page(at: guideIndex) {
+           let widthGuidePage = prax.widthGuidePage  {
+            
+            
             // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
             
-            let guideCrop = guidePage.bounds(for: .cropBox)
-            let currentCrop = guidePage.bounds(for: .cropBox)
+            let guideCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
+            let currentCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
             guard guideCrop.width > 0, currentCrop.width > 0 else {
                 guideXLeft = nil
                 guideXRight = nil
@@ -95,8 +99,8 @@ final class PDFPageOverlayView: NSView {
             let leftRectInPage = CGRect(x: currentLeftX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
             let rightRectInPage = CGRect(x: currentRightX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
             // Convert to view space and then overlay space
-            let leftInView = (pdfView?.convert(leftRectInPage, from: guidePage))!
-            let rightInView = (pdfView?.convert(rightRectInPage, from: guidePage))!
+            let leftInView = (pdfView?.convert(leftRectInPage, from: widthGuidePage.pdfPage))!
+            let rightInView = (pdfView?.convert(rightRectInPage, from: widthGuidePage.pdfPage))!
             let leftInOverlay = self.convert(leftInView, from: pdfView)
             let rightInOverlay = self.convert(rightInView, from: pdfView)
             guideXLeft = leftInOverlay.midX

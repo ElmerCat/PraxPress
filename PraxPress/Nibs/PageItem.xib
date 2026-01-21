@@ -54,6 +54,15 @@
                         <action selector="clickedGuidePageButton:" target="Xlf-2q-nt8" id="uNF-YH-T5L"/>
                     </connections>
                 </button>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5g5-QD-HVg">
+                    <rect key="frame" x="20" y="224" width="31" height="25"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="bezel" title="Trim" bezelStyle="round" id="pxF-by-hTv">
+                        <font key="font" metaFont="system" size="14"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
             </subviews>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="teO-fk-G83" secondAttribute="bottom" constant="20" id="30x-sX-aWZ"/>
@@ -75,6 +84,7 @@
                 <outlet property="guidePageButton" destination="teO-fk-G83" id="Xqi-dB-cuz"/>
                 <outlet property="imageView" destination="vOR-lY-RYV" id="gBe-6i-2Aw"/>
                 <outlet property="textField" destination="icb-ed-A7I" id="LHp-CY-ESf"/>
+                <outlet property="trimLabel" destination="5g5-QD-HVg" id="YjR-5N-16J"/>
                 <outlet property="view" destination="c22-O7-iKe" id="PHF-YF-2Fe"/>
             </connections>
         </collectionViewItem>

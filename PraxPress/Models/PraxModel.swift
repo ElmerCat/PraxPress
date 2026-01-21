@@ -11,31 +11,6 @@ import UniformTypeIdentifiers
 
 internal import Combine
 
-extension Notification.Name {
-    static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
-    //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
-}
-
-struct EdgeTrims: Codable, Hashable {
-    var left: CGFloat
-    var right: CGFloat
-    var top: CGFloat
-    var bottom: CGFloat
-    
-    static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
-}
-
-struct PDFPageSection: Hashable {
-    let title: String
-    let id = UUID()
-}
-
-struct PDFPageItem: Hashable {
-    let index: Int
-    let name: String
-    let id = UUID()
-}
-
 //@Model
 @Observable
 final class PraxModel: Sendable {
@@ -43,7 +18,7 @@ final class PraxModel: Sendable {
     static let shared = PraxModel()
     
     
-
+    
     var editingPDFView: PDFView? { didSet {
         editingPDFView!.document = editingPDFDocument
         editingPDFView!.displaysPageBreaks = editingPDFDisplayPageBreaks
@@ -52,11 +27,11 @@ final class PraxModel: Sendable {
         editingPDFView!.autoScales = editingPDFAutoScales
         editingPDFView!.backgroundColor = editingPDFBackgroundColor
     }}
-
+    
     var editingPDFDisplayMode: PDFDisplayMode = .singlePageContinuous { didSet {
         editingPDFView?.displayMode = editingPDFDisplayMode
         editingPDFView?.scaleFactor = editingPDFView?.scaleFactorForSizeToFit ?? 0
-
+        
     }}
     
     var editingPDFAutoScales: Bool = true
@@ -70,7 +45,7 @@ final class PraxModel: Sendable {
         editingPDFView?.backgroundColor = editingPDFBackgroundColor }
     }
     
-
+    
     func zoomInEditingPDFView() {
         editingPDFView?.zoomIn(self)
         editingPDFAutoScales = false
@@ -124,21 +99,39 @@ final class PraxModel: Sendable {
         }
     }
     
-    let noFileURL = Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!
+    func addPDFPageSection(for document: PDFDocument, at insertIndex: Int, into mergedDoc: inout PDFDocument) -> Int {
+        
+        var insertIndex = insertIndex
+        
+        var section = PDFPageSection(title: document.documentURL?.lastPathComponent ?? "Prax")
+        
+        for i in 0..<document.pageCount {
+            //        print("Sharon - page: ", i)
+            if let docPage = document.page(at: i) {
+                section.pdfPageItems.append(
+                    PDFPageItem(
+                        //                               pageIndex: i,
+                        name: "Page \(i + 1)",
+                        pdfPage: docPage,
+                        thumbnail: docPage.thumbnail(of: CGSize(width: 120, height: 160), for: .cropBox)
+                    )
+                )
+                mergedDoc.insert(docPage, at: insertIndex)
+                insertIndex += 1
+            }
+        }
+        pdfPageSections.append(section)
+        return insertIndex
+    }
+    
     var selectedFiles = Set<PDFEntry.ID>() {
         didSet {
             print ("PraxModel selectedFiles didSet ") //, selectedFiles.description)
+            isLoadingPDF = true
             
-            if selectedFiles.isEmpty {
-                editingPDFDocument = PDFDocument(url: noFileURL)!
-                mergedPDFDocument = editingPDFDocument
-            }
-            else {
-                isLoadingPDF = true
-                DispatchQueue.main.async {
-                    print ("self.editingPDFDocument = self.createMergedDocumentFromSelectedFiles()!")
-                    self.editingPDFDocument = self.createMergedDocumentFromSelectedFiles()!
-                }
+            DispatchQueue.main.async {
+                print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
+                self.setEditingPDFDocumentFromSelectedFiles()
             }
         }
     }
@@ -147,57 +140,148 @@ final class PraxModel: Sendable {
         didSet {
             print ("editingPDFDocument didSet ")
             
-            pdfSections.removeAll()
-            pdfPages.removeAll()
+            if isLoadingPDF {
+                print ("isLoadingPDF - editingPDFDocument didSet ")
+                selectionIndexPaths = []
+                clearWidthGuide()
 
-            pdfSections.append(PDFPageSection(title: "Julie d'Prax"))
-            for idx in 0..<editingPDFDocument.pageCount {
-                pdfPages.append(PDFPageItem(index: idx, name:"Page \(idx + 1)"))
+                recomputeMergedMetrics()
             }
-
-            currentIndex = 0   //  }
-            trims = [:]
-            clearWidthGuide()
-            recomputeMergedMetrics()
             
-            var pg = 0
-            while pg < editingPDFDocument.pageCount {
-                setTrims(EdgeTrims.zero, for: pg)
-                pg += 1
-            }
             editingPDFView?.document = editingPDFDocument
             
             DispatchQueue.main.async {
-                print ("self.mergedPDFDocument = self.mergeDocumentPages()")
-                self.mergedPDFDocument = self.mergeDocumentPages()
-                self.isLoadingPDF = false
+                print ("self.mergedPDFDocument = self.mergeDocumentPagesForSections()")
+                self.mergedPDFDocument = self.mergeDocumentPagesForSections()
             }
-
-            
-            
-            //  }
         }
     }
-
+    
     
     var editingPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
     }()
     
-
     var fileURL: URL?
     var lastPreviewURL: URL? = nil
     var lastCombinedSourceURL: URL? = nil
     
+    
+    // Width Guide support
+    var widthGuidePage: PDFPageItem? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
+
+    
     var saveError: String?
     
-    var pdfSections: [PDFPageSection] = []
-    var pdfPages: [PDFPageItem] = [] {
-        didSet {
-//            print ("pdfPages didSet ") //, pdfPages.description)
+    var pdfPageSections: [PDFPageSection] = []
+    
+    
+    func movePDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
+        guard !items.isEmpty else { return }
+        // Ensure destination section exists
+        guard pdfPageSections.indices.contains(destination.section) else { return }
+        
+        // 1) Normalize and sort source indices so we can safely remove
+        //    from the back to the front (avoid index shifting issues)
+        let uniqueItems = Array(Set(items)).sorted { (a, b) -> Bool in
+            if a.section == b.section { return a.item > b.item } // higher item index first
+            return a.section > b.section                         // higher section index first
         }
+        
+        // 2) Extract the items being moved, preserving their original order
+        //    We collect them in reverse-removal order and then reverse to original order.
+        var movedItemsReversed: [PDFPageItem] = []
+        for source in uniqueItems {
+            guard pdfPageSections.indices.contains(source.section) else { continue }
+            var section = pdfPageSections[source.section]
+            guard section.pdfPageItems.indices.contains(source.item) else { continue }
+            let removed = section.pdfPageItems.remove(at: source.item)
+            pdfPageSections[source.section] = section
+            movedItemsReversed.append(removed)
+        }
+        let movedItems = movedItemsReversed.reversed()
+        
+        // Adjust destination index when moving within the same section and the destination is after removed items
+        var adjustedDestinationItem = destination.item
+        // Count how many removals in the same section were before the destination's original index
+        let removalsBeforeDestination = uniqueItems.filter {
+            $0.section == destination.section && $0.item < destination.item
+        }.count
+        adjustedDestinationItem -= removalsBeforeDestination
+        
+        // 3) Insert into the destination section at the specified index
+        var destSection = pdfPageSections[destination.section]
+        let insertIndex = min(max(0, adjustedDestinationItem), destSection.pdfPageItems.count)
+        destSection.pdfPageItems.insert(contentsOf: movedItems, at: insertIndex)
+        pdfPageSections[destination.section] = destSection
+        
+        
+        // 4) Update selection to the new positions of the moved items
+        //    We map the moved items to their new indices in the destination section.
+        var newSelection: Set<IndexPath> = selectionIndexPaths
+        // Remove the old selection indices for moved items
+        for source in uniqueItems {
+            newSelection.remove(source)
+        }
+        // Add new selection indices for the inserted range
+        for offset in 0..<movedItems.count {
+            newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
+        }
+        selectionIndexPaths = newSelection
+        
+        DispatchQueue.main.async {
+            print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
+            self.setEditingPDFDocumentFromPDFPageSections()
+        }
+        
     }
     
+    func pdfPageIndexPath(for pdfPage: PDFPage) -> IndexPath? {
+        for piSection in pdfPageSections.indices {
+            let section = pdfPageSections[piSection]
+            for piItem in section.pdfPageItems.indices {
+                let item = section.pdfPageItems[piItem]
+                if item.pdfPage.hashValue == pdfPage.hashValue {
+                    return IndexPath(item: piItem, section: piSection)
+                }
+            }
+        }
+        return nil
+
+        
+    }
+    
+    func pdfPageItem(for pdfPage: PDFPage) -> PDFPageItem? {
+        for piSection in pdfPageSections.indices {
+            let section = pdfPageSections[piSection]
+            for piItem in section.pdfPageItems.indices {
+                let item = section.pdfPageItems[piItem]
+                if item.pdfPage.hashValue == pdfPage.hashValue {
+                    return item
+                }
+            }
+        }
+        return nil
+    }
+    
+    func pdfPageItem(indexPath: IndexPath) -> PDFPageItem? {
+        let piSection = indexPath.section
+        let piItem = indexPath.item
+        if pdfPageSections.count > piSection {
+            let section = pdfPageSections[piSection]
+            if section.pdfPageItems.count > piItem {
+                return section.pdfPageItems[piItem]
+            }
+        }
+        return nil
+    }
+    
+    func pages(in section: PDFPageSection) -> [PDFPageItem] {
+        return section.pdfPageItems
+    }
+  
     var mergedPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
     }()
@@ -206,51 +290,20 @@ final class PraxModel: Sendable {
         didSet {
             print ("mergedPDFDocument didSet ")
             mergedPDFView?.document = mergedPDFDocument
+            self.isLoadingPDF = false
         }
     }
-
     
-    func updateCurrentIndex(indexPaths: Set<IndexPath>) -> Void {
-        if let first = indexPaths.first {
-            currentIndex = first.item
-        }
-        
-    }
-    
-    func pages(in section: PDFPageSection) -> [PDFPageItem] {
-        return pdfPages
-    }
-    
-    var currentIndex: Int = -1
-    
-    var trims: [Int: EdgeTrims] = [:] {
+    var selectionIndexPaths: Set<IndexPath> = [] {
         didSet {
- //           print("PraxModel.trims didSet")
-            if isLoadingPDF { return }
-            DispatchQueue.main.async {
-                self.mergedPDFDocument = self.mergeDocumentPages()
-                print("DispatchQueue PraxModel.trims didSet")
+            print("selectionIndexPaths didSet:  ", selectionIndexPaths)
+            selectionIndexPaths.forEach {
+                print("\($0)")
             }
+            
         }
     }
-    func trims(for index: Int) -> EdgeTrims { trims[index] ?? .zero }
-    func setTrims(_ value: EdgeTrims, for index: Int) { trims[index] = value }
     
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-    var pageCount: Int? = nil
-    var totalHeightPoints: CGFloat? = nil
-    var maxWidthPoints: CGFloat? = nil
-    
-    var mergeTopMargin: Double = 0
-    var mergeBottomMargin: Double = 0
-    var mergeInterPageGap: Double = 0
-    
-    // Width Guide support
-    var widthGuidePageIndex: Int? = nil
-    var widthGuideLeftX: CGFloat? = nil
-    var widthGuideRightX: CGFloat? = nil
     
     
 }

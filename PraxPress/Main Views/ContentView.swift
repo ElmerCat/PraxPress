@@ -106,22 +106,7 @@ struct ContentView: View {
                 .disabled(prax.selectedFiles.isEmpty)
             }
             
-            ToolbarItemGroup(placement: .navigation) {
-                Menu {
-                    Button {
-                        prax.setWidthGuide(fromPage: prax.currentIndex)
-                    } label: {
-                        Label("Set Width Guide to This Page", systemImage: "ruler")
-                    }
-                    Button(role: .destructive) {
-                        prax.clearWidthGuide()
-                    } label: {
-                        Label("Clear Width Guide", systemImage: "ruler.fill")
-                    }
-                } label: {
-                    Label("Width Guide", systemImage: "ruler")
-                }
-            }
+
             
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button {

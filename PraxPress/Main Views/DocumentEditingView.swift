@@ -42,8 +42,12 @@ struct DocumentEditingToolbar: View {
                     }
                     Spacer()
                     
-                    Text("Page: \((prax.currentIndex) + 1) of \(prax.editingPDFDocument.pageCount ) ")
-                    Text("Trims: \(prax.trims.count) ")                }
+                    switch prax.selectionIndexPaths.count {
+                    case 0: Text("No Selection")
+                    case 1: Text("Page: \((prax.selectionIndexPaths.first!.item) + 1) of \(prax.editingPDFDocument.pageCount ) ")
+                    default: Text("Multiple Selection")
+                    }
+                }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
             }
@@ -139,7 +143,7 @@ struct DocumentEditingView: NSViewRepresentable {
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
             print("DocumentEditingView Coordinator - changed to page:", idx)
-            if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+   //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
         
         @objc func widthGuideChanged(_ note: Notification) {
@@ -152,6 +156,11 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
+            
+     //       guard let idx = page.document?.index(for: page) else { fatalError("overlayViewFor page: - Couldn't find index for page")}
+            
+    //        var pdfPage = prax.pdfPages[idx]
+            
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             
@@ -175,16 +184,22 @@ struct DocumentEditingView: NSViewRepresentable {
                 let bottom = max(0, pageRect.minY - media.minY)
                 let top = max(0, media.maxY - pageRect.maxY)
                 
-                let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-                print("DocumentEditingView Coordinator - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
+                let trim = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
+                print("DocumentEditingView Coordinator - trim l:", trim.left, " r:", trim.right, " b:", trim.bottom, " t:", trim.top)
                 
-                let idx = page.document?.index(for: page) ?? 0
-                prax.setTrims(trims, for: idx)
+                // var pdfPageItem = prax.pdfPageItem(for: page)!
+                let indexPath = prax.pdfPageIndexPath(for: page)
+                prax.pdfPageSections[indexPath!.section].pdfPageItems[indexPath!.item].trim = trim
+//                prax.pdfPageItem(for: page)!.trim = trim
+
+          //      prax.pdfPageItem(for pdfPage: page).trim = trim
+          //      prax.pdfPages[idx].trim = trim //setTrims(trims, for: idx)
+           //     print("DocumentEditingView Coordinator - pdfPagres[idx].trim: [", idx, "]  ", prax.pdfPages[idx].trim)
             }
             
             // Seed current rect from trims
             if let doc = page.document {
-                let idx = doc.index(for: page)
+              //  let idx = doc.index(for: page)
                 
                 DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                     guard let view = view, let page = page, let pdfView = pdfView else { return }
@@ -193,7 +208,8 @@ struct DocumentEditingView: NSViewRepresentable {
                     let cropInOverlay = view.convert(cropInView, from: pdfView)
                     view.clampRect = cropInOverlay
                     // Recompute visible using current trims
-                    let trim = self.prax.trims(for: idx)
+   //                 fatalError()
+                    let trim = self.prax.pdfPageItem(for: page)!.trim
                     let visibleInPage = CGRect(
                         x: crop.minX + trim.left,
                         y: crop.minY + trim.bottom,
@@ -206,12 +222,13 @@ struct DocumentEditingView: NSViewRepresentable {
                     
                     view.needsDisplay = true
                 }
-                
             }
             return view
         }
-        
-        
     }
 }
 
+#Preview {
+    DocumentEditingToolbar()
+    DocumentEditingView()
+}
