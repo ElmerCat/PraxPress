@@ -8,12 +8,13 @@
 import SwiftUI
 import PDFKit
 import UniformTypeIdentifiers
-internal import Combine
+import Combine
 
 extension Notification.Name {
     static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
     //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
+
 
 struct EdgeTrims: Codable, Hashable {
     var left: CGFloat
@@ -25,67 +26,6 @@ struct EdgeTrims: Codable, Hashable {
 }
 
 
-
-enum MergeMode { case mergeDown, mergeRight, mergeSkip }
-
-struct PDFPageSection: Hashable {
-    var title: String
-    let id = UUID()
-    var pdfPage: PDFPage? = nil
-    
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-    //    var pageCount: Int? = nil
-    //    var totalHeightPoints: CGFloat? = nil
-    //    var maxWidthPoints: CGFloat? = nil
-    
-    //    var mergeTopMargin: Double = 0
-    //    var mergeBottomMargin: Double = 0
-    //    var mergeInterPageGap: Double = 0
-    
-
-
-    
-    var pdfPageItems: [PDFPageItem] = [] {
-        didSet {
-            print ("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
-        }
-    }
-}
-
-struct PDFPageItem: Hashable {
-    let id = UUID()
-    //    let pageIndex: Int
-    let name: String
-    let pdfPage: PDFPage
-    let thumbnail: NSImage
-    
-    var trim: EdgeTrims = .zero {
-        didSet {
-            print("PraxModel.trims didSet")
-            if PraxModel.shared.isLoadingPDF { return }
-            
-            DispatchQueue.main.async {
-                PraxModel.shared.recomputeMergedMetrics()
-                PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
-                print("DispatchQueue PraxModel.trims didSet")
-            }
-        }
-    }
-    var merge : MergeMode = .mergeDown
-    
-    mutating func setTrim(_ trim: EdgeTrims) {
-        self.trim = trim
-    }
-    
-    static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool {
-        return lhs.id == rhs.id
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
 
 
 func isPDF(_ url: URL) -> Bool {

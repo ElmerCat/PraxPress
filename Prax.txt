@@ -14,8 +14,3 @@ Despite always keeping the binoculars on (blue), you often don't have access to 
 If you don't see all those files now, or later in the conversation, please tell me. Otherwise you may not understand all that's going on in the app and will wind up making inappropriate changes.  Okay?
 
 
-Now, on my PDFThumbnailView, I set allowsDragging = true. However, instead of dragging to reorder pages, it duplicates dragged pages.  I'd also like to eventually allow dragging pages in and out of the PDFThumbnailView.
-
-Attempting to implement standard NSDragging delegate methods doesn't work because PDFThumbnailView has no delegate property.
-
-I think the solutiion may be to subclass PDFThumbnailView.  Do you have any other ideas to make this work?

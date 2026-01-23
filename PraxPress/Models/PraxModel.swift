@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
-internal import Combine
+import Combine
 
 //@Model
 @Observable

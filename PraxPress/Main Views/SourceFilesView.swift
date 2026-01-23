@@ -7,7 +7,7 @@
 import SwiftUI
 import PDFKit
 import UniformTypeIdentifiers
-internal import Combine
+import Combine
 
 private let DEBUG_LOGS = false
 

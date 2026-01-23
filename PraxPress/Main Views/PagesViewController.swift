@@ -5,6 +5,7 @@
 //  Created by Elmer Cat on 1/8/26.
 //
 
+
 import Cocoa
 import PDFKit
 import AppKit
@@ -15,6 +16,8 @@ import UniformTypeIdentifiers
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
     private var prax = PraxModel.shared
+    
+    private var selectedSections = Set<Int>()
     
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
@@ -27,14 +30,20 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureHierarchy()
         configureDataSource()
+        
+        collectionView.isSelectable = true
+        collectionView.allowsEmptySelection = false
+        collectionView.allowsMultipleSelection = true
+        collectionView.setDraggingSourceOperationMask([.copy], forLocal: false)
+        
         updateUI(animated: false)
         
         observeDocumentChange = Task {
             for await _ in Observations({ self.prax.editingPDFDocument }) {
                 print("PagesViewController observeDocumentChange  ", self.prax.editingPDFDocument)
-                
                 updateUI()
             }
         }
@@ -101,7 +110,8 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         
         collectionView.registerForDraggedTypes([
             .fileURL, // Accept dragging of image file URLs from other apps.
-            .itemDragType]) // Intra drag of row items numbers within the collection view.
+            .pdfPageDragType,
+            .pdfPageSectionType]) // Intra drag of row items numbers within the collection view.
         
         // Determine the kind of source drag originating from this app.
         // Note, if you want to allow your app to drag items to the Finder's trash can, add ".delete".
@@ -114,34 +124,54 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             let item = collectionView.makeItem(withIdentifier: PageItem.reuseIdentifier, for: indexPath)
             guard let pageItem = item as? PageItem else { return nil }
             pageItem.indexPath = indexPath
-           // pageItem.pageIndex = identifier.index
+            // pageItem.pageIndex = identifier.index
             pageItem.imageView?.image = identifier.thumbnail
             pageItem.textField?.stringValue = identifier.name
             pageItem.trimLabel?.stringValue = "\(identifier.trim.left)"
             pageItem.guidePageButton?.state = self.prax.widthGuidePage == identifier ? .on : .off
             return pageItem
         }
-        dataSource.supplementaryViewProvider = {
+        dataSource.supplementaryViewProvider = { [weak self]
             (collectionView: NSCollectionView, kind: String, indexPath: IndexPath) -> (NSView & NSCollectionViewElement)? in
+            guard let self else { return nil }
             
-            let pdfPageSection = self.prax.pdfPageSections[indexPath.section]
+            // Ensure section index is valid for current model snapshot
+            let sections = self.prax.pdfPageSections
+            guard indexPath.section >= 0 && indexPath.section < sections.count else {
+                // The layout asked for a view that doesn’t match current state; return nil safely.
+                return nil
+            }
             
             if kind == PagesViewController.sectionHeaderElementKind {
-                if let supplementaryView = collectionView.makeSupplementaryView(
+                guard let header = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: PagesSectionHeader.reuseIdentifier,
-                    for: indexPath) as? PagesSectionHeader {
-                    supplementaryView.label.stringValue = self.prax.pdfPageSections[indexPath.section].title
-                    return supplementaryView
+                    for: indexPath) as? PagesSectionHeader else { return nil }
+                
+                header.label.stringValue = self.prax.pdfPageSections[indexPath.section].title
+                header.isSelected = self.selectedSections.contains(indexPath.section)
+                
+                header.onToggleSelection = { [weak self] in
+                    guard let self else { return }
+                    if self.selectedSections.contains(indexPath.section) {
+                        self.selectedSections.remove(indexPath.section)
+                    } else {
+                        self.selectedSections.insert(indexPath.section)
+                    }
+                    // Refresh just this section’s header to reflect the new state.
+                    self.collectionView.reloadSections(IndexSet(integer: indexPath.section))
                 }
+                
+                return header
+                
             }
             else if kind == PagesViewController.sectionFooterElementKind {
-                if let supplementaryView = collectionView.makeSupplementaryView(
+                if let footer = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: PagesSectionFooter.reuseIdentifier,
                     for: indexPath) as? PagesSectionFooter {
-
-                    supplementaryView.configure(for: indexPath)
+                    
+                    footer.configure(for: indexPath)
                     
                     let w = self.prax.pdfPageSections[indexPath.section].mergedWidthPts
                     var text: String
@@ -154,22 +184,40 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                         text = "Merged size: —"
                     }
                     
-                    supplementaryView.label.stringValue = text
-                    return supplementaryView
+                    footer.label.stringValue = text
+                    return footer
                 }
             }
             fatalError("Cannot create new supplementary view of kind: \(kind)")
         }
     }
     
-    private func updateUI(animated: Bool = true) {
+     func updateUI(animated: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
         let secs = prax.pdfPageSections
         secs.forEach {
             snapshot.appendSections([$0])
             snapshot.appendItems($0.pdfPageItems)
         }
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: animated)
+        
+        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectionIndexPaths )
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            if self.collectionView.selectionIndexPaths.isEmpty,
+               let firstSection = secs.first,
+               !firstSection.pdfPageItems.isEmpty {
+                let firstIndexPath = IndexPath(item: 0, section: 0)
+                self.collectionView.selectionIndexPaths = [firstIndexPath]
+                self.collectionView.scrollToItems(at: [firstIndexPath], scrollPosition: .top)
+                self.prax.selectionIndexPaths = self.collectionView.selectionIndexPaths
+            }
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectionIndexPaths )
+        }
+        
+        
     }
     
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
@@ -184,150 +232,6 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     
-    func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
-    ) -> Bool {
-        print("PagesViewController canDragItemsAt  ", indexPaths, " event ", event)
-        return true
-    }
-    
-    func collectionView(_ collectionView: NSCollectionView,
-                        pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
-        
-        print("PagesViewController pasteboardWriterForItemAt  ", indexPath)
-        var provider: NSFilePromiseProvider?
-        
-        provider = FilePromiseProvider()
-        
- //       guard let pageItem = dataSource.itemIdentifier(for: IndexPath(item: indexPath.item, section: 0)) else { return provider }
-        
-        let typeIdentifier = UTType(filenameExtension: "pdf")
-        
-        provider = FilePromiseProvider()
-        provider!.fileType = typeIdentifier!.identifier
-        provider!.delegate = provider as? any NSFilePromiseProviderDelegate
-        // Send out the indexPath and photo's url dictionary.
-        do {
-            let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider!.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: prax.editingPDFURL as Any,FilePromiseProvider.UserInfoKeys.indexPathKey: data]
-        } catch {
-            fatalError("failed to archive indexPath to pasteboard")
-        }
-        return provider
-    }
-    
-    func collectionView(
-        _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
-    ) -> NSDragOperation {
-        
-   //     let indPth = proposedDropIndexPath.pointee
-   //     print("PagesViewController validateDrop  ", indPth.debugDescription)
-        
-        return [.move]
-    }
-    
-    func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
-        print("PagesViewController acceptDrop  ", indexPath.item)
-        
-        // Check where the dragged items are coming from.
-        if let draggingSource = draggingInfo.draggingSource as? NSCollectionView, draggingSource == collectionView {
-            // Drag source from your own collection view.
-            // Move each dragged item to their new place.
-            dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
-        } else {
-            // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
-            // Drop each dragged image file to their new place.
-            dropExternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
-        }
-        return true
-    }
-    
-    func dropExternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-        print("dropExternalPages  ", indexPath)
-        
-    }
-
-    func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-        print("dropInternalPages to: ", indexPath)
-        
-        var draggedItems: [IndexPath] = []
-
-        draggingInfo.enumerateDraggingItems(
-            options: NSDraggingItemEnumerationOptions.concurrent,
-            for: collectionView,
-            classes: [NSPasteboardItem.self],
-            searchOptions: [:],
-            using: {(draggingItem, idx, stop) in
-                if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
-                    do {
-                        if let data = pasteboardItem.data(forType: .itemDragType) {
-                            let nsIndexPath = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexPath.self, from: data)
-                            if let nsIndexPath {
-                                let pageIndexPath = nsIndexPath as IndexPath
-                                draggedItems.append(pageIndexPath)
-                            }
-                        }
-                    } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
-                    
-                    print ("elf.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                    self.prax.movePDFPageItems(draggedItems, to: indexPath)
-                    self.updateUI()
-                }
-            })
-    }
-    
-}
-
-extension NSPasteboard.PasteboardType {
-    static let itemDragType = NSPasteboard.PasteboardType("com.praxpress.pdfPageDragType")
-}
-
-
-class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
-    
-    struct UserInfoKeys {
-        static let indexPathKey = "indexPath"
-        static let urlKey = "url"
-    }
-
-    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
-        var types = super.writableTypes(for: pasteboard)
-        types.append(.itemDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
-        return types
-    }
-    
-    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
-        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
-        switch type {
-        case .fileURL:
-            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
-            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
-                return url.pasteboardPropertyList(forType: type)
-            }
-        case .itemDragType:
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-        default:
-            break
-        }
-        return super.pasteboardPropertyList(forType: type)
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
-        
-        print("filePromiseProvider fileNameForType: ", fileType)
-        return "Prax.pdf"
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
-        
-        print("filePromiseProvider writePromiseTo url:  ", url)
-        PraxModel.shared.editingPDFDocument.write(to: url)  
-        
-    }
     
 }
 

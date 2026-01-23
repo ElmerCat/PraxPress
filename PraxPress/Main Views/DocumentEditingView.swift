@@ -1,13 +1,12 @@
 //  DocumentEditingView.swift
 //  PraxPress - Prax=0104-1
 //
-//  SwiftUI wrapper for a full PDFKit PDFView with configurable display options and selection sync.
 //
 
 import SwiftUI
 import PDFKit
 import AppKit
-internal import Combine
+import Combine
 
 
 struct DocumentEditingToolbar: View {
@@ -157,10 +156,6 @@ struct DocumentEditingView: NSViewRepresentable {
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             
-     //       guard let idx = page.document?.index(for: page) else { fatalError("overlayViewFor page: - Couldn't find index for page")}
-            
-    //        var pdfPage = prax.pdfPages[idx]
-            
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             
@@ -189,18 +184,11 @@ struct DocumentEditingView: NSViewRepresentable {
                 
                 // var pdfPageItem = prax.pdfPageItem(for: page)!
                 let indexPath = prax.pdfPageIndexPath(for: page)
-                prax.pdfPageSections[indexPath!.section].pdfPageItems[indexPath!.item].trim = trim
-//                prax.pdfPageItem(for: page)!.trim = trim
-
-          //      prax.pdfPageItem(for pdfPage: page).trim = trim
-          //      prax.pdfPages[idx].trim = trim //setTrims(trims, for: idx)
-           //     print("DocumentEditingView Coordinator - pdfPagres[idx].trim: [", idx, "]  ", prax.pdfPages[idx].trim)
+                guard let indexPath = indexPath else { return }
+                prax.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
             }
             
             // Seed current rect from trims
-            if let doc = page.document {
-              //  let idx = doc.index(for: page)
-                
                 DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                     guard let view = view, let page = page, let pdfView = pdfView else { return }
                     let crop = page.bounds(for: .cropBox)
@@ -222,7 +210,7 @@ struct DocumentEditingView: NSViewRepresentable {
                     
                     view.needsDisplay = true
                 }
-            }
+            
             return view
         }
     }

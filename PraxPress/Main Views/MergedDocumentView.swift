@@ -71,18 +71,53 @@ struct MergedDocumentToolbar: View {
     }
 }
 
+final class Coordinator: NSObject {
+    @State private var prax = PraxModel.shared
+
+
+    
+    @objc func pageChanged(_ note: Notification) {
+        guard let pdfView = note.object as? PDFView,
+              let doc = pdfView.document,
+              let page = pdfView.currentPage else { return }
+        let idx = doc.index(for: page)
+        print("MergedDocumentView Coordinator - changed to page:", idx)
+        //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+    }
+    
+}
+
+
 
 struct MergedDocumentView: NSViewRepresentable {
     @State private var prax = PraxModel.shared
     
+    func makeCoordinator() -> Coordinator {
+        print("Erika daPrax - MergedDocumentView makeCoordinator")
+        return Coordinator()
+    }
+    
+    
     func makeNSView(context: Context) -> PDFView {
         print("MergedDocumentView - makeNSView")
         prax.mergedPDFView = PDFView()
+
+        
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.pageChanged(_:)),
+            name: Notification.Name.PDFViewPageChanged,
+            object: prax.mergedPDFView
+        )
+        
         return prax.mergedPDFView!
     }
+    
+    
     func updateNSView(_ pdfView: PDFView, context: Context) {
         print("\n\nMergedDocumentView - updateNSView\n\n")
     }
+
 }
 
 #Preview {
