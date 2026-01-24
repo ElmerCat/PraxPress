@@ -3,6 +3,7 @@
 //
 //
 
+
 import SwiftUI
 import PDFKit
 import AppKit
@@ -39,7 +40,9 @@ struct DocumentEditingToolbar: View {
                             Toggle("", systemImage: "book", isOn: $prax.editingPDFDisplaysAsBook).toggleStyle(.button)
                         }
                     }
-                    Spacer()
+                    Spacer().task {
+                        print("Sombody threw a sweater in the garbage!")
+                    }
                     
                     switch prax.selectionIndexPaths.count {
                     case 0: Text("No Selection")

@@ -14,7 +14,7 @@ import Combine
 
 enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
-struct PDFPageItem: Hashable, Codable {
+struct PDFPageItem: Hashable, Codable, Equatable {
     // Keep id stable after creation, but allow init/decoding to assign it
     private(set) var id: UUID
     

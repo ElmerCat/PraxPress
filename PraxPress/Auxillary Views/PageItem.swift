@@ -12,13 +12,13 @@ import SwiftUI
 import Combine
 import UniformTypeIdentifiers
 
-class PageItem: NSCollectionViewItem {
+/*class PageItem: NSCollectionViewItem {
     
     @State private var prax = PraxModel.shared
     
     var indexPath: IndexPath?
     
-    static let reuseIdentifier = NSUserInterfaceItemIdentifier("page-item-reuse-identifier")
+//    static let reuseIdentifier = NSUserInterfaceItemIdentifier("page-item-reuse-identifier")
     
     @IBOutlet weak open var guidePageButton: NSButton?
     @IBOutlet weak open var trimLabel: NSTextField?
@@ -109,6 +109,8 @@ class PageItem: NSCollectionViewItem {
         view.layer?.backgroundColor = showAsHighlighted ? NSColor.orange.cgColor : nil
     }
 }
+*/
+
 
 protocol PagesSectionHeaderDragDelegate: AnyObject {
     func sectionHeaderPasteboardItems(for section: Int) -> [NSDraggingItem]
@@ -260,8 +262,6 @@ class PagesSectionFooter: NSView, NSCollectionViewElement {
             for await _ in Observations({ PraxModel.shared.pdfPageItem(indexPath: indexPath)?.trim }) {
                 if Task.isCancelled { return }
                 
-                await MainActor.run {
-                    if Task.isCancelled { return }
                     let sections = PraxModel.shared.pdfPageSections
                     guard indexPath.section >= 0 && indexPath.section < sections.count else { return }
                     
@@ -273,6 +273,6 @@ class PagesSectionFooter: NSView, NSCollectionViewElement {
                                                          indexPath.section + 1, w / 72.0, h / 72.0)
                     } else {
                         self.label?.stringValue = "Merged size: Zero"
-                    }}}}
+                    }}}
     }
 }

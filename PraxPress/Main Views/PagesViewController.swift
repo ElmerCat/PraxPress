@@ -13,9 +13,10 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
+
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
-    private var prax = PraxModel.shared
+  //  private var prax = PraxModel.shared
     
     private var selectedSections = Set<Int>()
     
@@ -42,17 +43,17 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         updateUI(animated: false)
         
         observeDocumentChange = Task {
-            for await _ in Observations({ self.prax.editingPDFDocument }) {
-                print("PagesViewController observeDocumentChange  ", self.prax.editingPDFDocument)
+            for await _ in Observations({ PraxModel.shared.editingPDFDocument }) {
+                print("PagesViewController observeDocumentChange  ", PraxModel.shared.editingPDFDocument)
                 updateUI()
             }
         }
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ self.prax.selectionIndexPaths }) {
-                print("PagesViewController observeCurrentIndexChange  ", self.prax.selectionIndexPaths)
+            for await _ in Observations({ PraxModel.shared.selectionIndexPaths }) {
+                print("PagesViewController observeCurrentIndexChange  ", PraxModel.shared.selectionIndexPaths)
                 
-                if let firstIndexPath = prax.selectionIndexPaths.first {
-                    prax.editingPDFView?.go(to: prax.editingPDFDocument.page(at: (firstIndexPath.item))!)
+                if let firstIndexPath = PraxModel.shared.selectionIndexPaths.first {
+                    PraxModel.shared.editingPDFView?.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                 }
             }
         }
@@ -91,18 +92,10 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     private func configureHierarchy() {
-        var itemNib = NSNib(nibNamed: "PageItem", bundle: nil)
-        collectionView.register(itemNib, forItemWithIdentifier: PageItem.reuseIdentifier)
-        
-        itemNib = NSNib(nibNamed: "PagesSectionHeader", bundle: nil)
-        collectionView.register(itemNib,
-                                forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind,
-                                withIdentifier: PagesSectionHeader.reuseIdentifier)
-        itemNib = NSNib(nibNamed: "PagesSectionFooter", bundle: nil)
-        collectionView.register(itemNib,
-                                forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind,
-                                withIdentifier: PagesSectionFooter.reuseIdentifier)
-        
+        collectionView.register(PageItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
+        collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
+        collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
+         
         collectionView.collectionViewLayout = createLayout()
         
         collectionView.registerForDraggedTypes(
@@ -112,23 +105,17 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             .fileURL, // Accept dragging of image file URLs from other apps.
             .pdfPageDragType,
             .pdfPageSectionType]) // Intra drag of row items numbers within the collection view.
-        
-        // Determine the kind of source drag originating from this app.
-        // Note, if you want to allow your app to drag items to the Finder's trash can, add ".delete".
+
         collectionView.setDraggingSourceOperationMask([.copy, .delete], forLocal: false)
     }
     
     private func configureDataSource() {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
-            let item = collectionView.makeItem(withIdentifier: PageItem.reuseIdentifier, for: indexPath)
+            let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
             guard let pageItem = item as? PageItem else { return nil }
-            pageItem.indexPath = indexPath
-            // pageItem.pageIndex = identifier.index
-            pageItem.imageView?.image = identifier.thumbnail
-            pageItem.textField?.stringValue = identifier.name
-            pageItem.trimLabel?.stringValue = "\(identifier.trim.left)"
-            pageItem.guidePageButton?.state = self.prax.widthGuidePage == identifier ? .on : .off
+            pageItem.configure(at: indexPath,
+                                  isSelected: collectionView.selectionIndexPaths.contains(indexPath))
             return pageItem
         }
         dataSource.supplementaryViewProvider = { [weak self]
@@ -136,7 +123,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             guard let self else { return nil }
             
             // Ensure section index is valid for current model snapshot
-            let sections = self.prax.pdfPageSections
+            let sections = PraxModel.shared.pdfPageSections
             guard indexPath.section >= 0 && indexPath.section < sections.count else {
                 // The layout asked for a view that doesn’t match current state; return nil safely.
                 return nil
@@ -145,11 +132,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             if kind == PagesViewController.sectionHeaderElementKind {
                 guard let header = collectionView.makeSupplementaryView(
                     ofKind: kind,
-                    withIdentifier: PagesSectionHeader.reuseIdentifier,
-                    for: indexPath) as? PagesSectionHeader else { return nil }
+                    withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"),
+                    for: indexPath) as? SectionHeader else { return nil }
                 
-                header.label.stringValue = self.prax.pdfPageSections[indexPath.section].title
-                header.isSelected = self.selectedSections.contains(indexPath.section)
+ //               header.label.stringValue = PraxModel.shared.pdfPageSections[indexPath.section].title
+                header.configure(at: indexPath,
+                                 isSelected: self.selectedSections.contains(indexPath.section))
                 
                 header.onToggleSelection = { [weak self] in
                     guard let self else { return }
@@ -168,23 +156,11 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             else if kind == PagesViewController.sectionFooterElementKind {
                 if let footer = collectionView.makeSupplementaryView(
                     ofKind: kind,
-                    withIdentifier: PagesSectionFooter.reuseIdentifier,
-                    for: indexPath) as? PagesSectionFooter {
+                    withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"),
+                    for: indexPath) as? SectionFooter {
                     
-                    footer.configure(for: indexPath)
-                    
-                    let w = self.prax.pdfPageSections[indexPath.section].mergedWidthPts
-                    var text: String
-                    if w > 0 {
-                        let h = self.prax.pdfPageSections[indexPath.section].mergedHeightPts
-                        let wIn = w / 72.0
-                        let hIn = h / 72.0
-                        text = String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
-                    } else {
-                        text = "Merged size: —"
-                    }
-                    
-                    footer.label.stringValue = text
+                    footer.configure(at: indexPath,
+                                       isSelected: self.selectedSections.contains(indexPath.section))
                     return footer
                 }
             }
@@ -194,14 +170,14 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
      func updateUI(animated: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-        let secs = prax.pdfPageSections
+        let secs = PraxModel.shared.pdfPageSections
         secs.forEach {
             snapshot.appendSections([$0])
             snapshot.appendItems($0.pdfPageItems)
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectionIndexPaths )
+        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectionIndexPaths )
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -212,9 +188,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
                 self.collectionView.scrollToItems(at: [firstIndexPath], scrollPosition: .top)
-                self.prax.selectionIndexPaths = self.collectionView.selectionIndexPaths
+                PraxModel.shared.selectionIndexPaths = self.collectionView.selectionIndexPaths
             }
-            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectionIndexPaths )
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectionIndexPaths )
         }
         
         
@@ -223,12 +199,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
         
-        prax.selectionIndexPaths = collectionView.selectionIndexPaths
+        PraxModel.shared.selectionIndexPaths = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didDeselectItemsAt indexPaths ", indexPaths)
-        prax.selectionIndexPaths = collectionView.selectionIndexPaths
+        PraxModel.shared.selectionIndexPaths = collectionView.selectionIndexPaths
     }
     
     

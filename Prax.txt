@@ -14,3 +14,4 @@ Despite always keeping the binoculars on (blue), you often don't have access to 
 If you don't see all those files now, or later in the conversation, please tell me. Otherwise you may not understand all that's going on in the app and will wind up making inappropriate changes.  Okay?
 
 
+Main actor-isolated conformance of 'PDFPageItem' to 'Equatable' cannot be used in nonisolated context; this is an error in the Swift 6 language mode

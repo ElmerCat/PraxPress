@@ -10,9 +10,13 @@ import PDFKit
 import UniformTypeIdentifiers
 import Combine
 
-extension Notification.Name {
-    static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
-    //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
+
+
+func isPDF(_ url: URL) -> Bool {
+    if let type = UTType(filenameExtension: url.pathExtension) {
+        return type.conforms(to: .pdf)
+    }
+    return url.pathExtension.lowercased() == "pdf"
 }
 
 
@@ -24,17 +28,6 @@ struct EdgeTrims: Codable, Hashable {
     
     static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
-
-
-
-
-func isPDF(_ url: URL) -> Bool {
-    if let type = UTType(filenameExtension: url.pathExtension) {
-        return type.conforms(to: .pdf)
-    }
-    return url.pathExtension.lowercased() == "pdf"
-}
-
 
 struct PDFEntry: Identifiable, Hashable {
     let id: UUID

@@ -17,7 +17,7 @@ struct MainSceneRoot: View {
     var body: some View {
         ContentView()
             .environment(prax)
-            .overlay(TempCleanupLifecycleHook(onCleanup: { prax.cleanupTemporaryArtifacts() }))
+ //           .overlay(TempCleanupLifecycleHook(onCleanup: { prax.cleanupTemporaryArtifacts() }))
     }
 }
 

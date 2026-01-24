@@ -14,31 +14,7 @@ import UniformTypeIdentifiers
 
 extension PraxModel {
     
-    /// Compute and store the width guide X positions (in page space of the guide page)
-    func setWidthGuide(fromPage pdfPageItem: PDFPageItem) {
-        let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
-        let per = pdfPageItem.trim
-        let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
-        widthGuidePage = pdfPageItem
-        widthGuideLeftX = vis.minX
-        widthGuideRightX = vis.maxX
-        if isLoadingPDF { return }
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
-        }
-    }
-    
-    /// Remove any active width guide
-    func clearWidthGuide() {
-        widthGuidePage = nil
-        widthGuideLeftX = nil
-        widthGuideRightX = nil
-        if isLoadingPDF { return }
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .praxWidthGuideChanged, object: self.mergedPDFView)
-        }
-    }
-    
+   
     func handleMergePagesOverwrite() {
         
         
@@ -246,7 +222,7 @@ extension PraxModel {
         }
     }
     
-    func cleanupTemporaryArtifacts() {
+ /*   func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
         
         let fm = FileManager.default
@@ -259,5 +235,6 @@ extension PraxModel {
             lastCombinedSourceURL = nil
         }
     }
+*/
     
 }

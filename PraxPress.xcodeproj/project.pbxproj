@@ -17,6 +17,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Nibs/aPageItem.xib,
 			);
 			target = DACA214C2EF8DB9400E38A38 /* PraxPress */;
 		};

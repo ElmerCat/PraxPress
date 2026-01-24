@@ -74,13 +74,9 @@ final class PDFPageOverlayView: NSView {
     
     private func computeGuidelines() {
         
-  
-        
-        
         if let guideLeftX = prax.widthGuideLeftX,
            let guideRightX = prax.widthGuideRightX,
-           let widthGuidePage = prax.widthGuidePage  {
-            
+           let widthGuidePage = prax.widthGuidePage()  {
             
             // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
             
