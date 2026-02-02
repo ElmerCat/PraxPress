@@ -8,10 +8,12 @@ import SwiftUI
 import PDFKit
 import AppKit
 import Combine
+import UniformTypeIdentifiers
 
 
 struct DocumentEditingToolbar: View {
     @State private var prax = PraxModel.shared
+    @Environment(PraxContext.self) private var praxContext
     
     private func title(for mode: PDFDisplayMode) -> String {
         switch mode {
@@ -23,9 +25,36 @@ struct DocumentEditingToolbar: View {
         }
     }
     
+    let filenameStyle = URL.FormatStyle(scheme: .never,
+                                        user: .never,
+                                        password: .never,
+                                        host: .always,
+                                        port: .never,
+                                        path: .always,
+                                        query: .never,
+                                        fragment: .never)
+    
     var body: some View {
         GroupBox {
             VStack {
+                HStack {
+                    
+                    
+                    switch (prax.selectedFiles.count) {
+                    case 0:
+                        Text("No files selected")
+                    case 1:
+                        Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
+                    default:
+                        Text("\(prax.selectedFiles.count) Files selected")
+                    }
+                    Spacer()
+                    if prax.selectedFiles.count > 0 {
+                        Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
+                        
+                    }
+                }
+                
                 HStack {
                     ControlGroup("", systemImage: "magnifyingglass") {
                         Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInEditingPDFView)
@@ -40,23 +69,126 @@ struct DocumentEditingToolbar: View {
                             Toggle("", systemImage: "book", isOn: $prax.editingPDFDisplaysAsBook).toggleStyle(.button)
                         }
                     }
-                    Spacer().task {
-                        print("Sombody threw a sweater in the garbage!")
+                    Spacer()
+                    Button {
+                        prax.showingExportFolderSelector = true
+                    } label: {
+                        Label(prax.exportFolderURL?.lastPathComponent ?? "No folder selected", systemImage: "arrow.forward.folder")
                     }
                     
-                    switch prax.selectionIndexPaths.count {
-                    case 0: Text("No Selection")
-                    case 1: Text("Page: \((prax.selectionIndexPaths.first!.item) + 1) of \(prax.editingPDFDocument.pageCount ) ")
-                    default: Text("Multiple Selection")
+                    ZStack {
+                        TextField("Prefix", text: $prax.exportFilenamePrefix)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                            .overlay(alignment: .trailing) {
+                                if !prax.exportFilenamePrefix.isEmpty {
+                                    Button {
+                                        prax.exportFilenamePrefix = ""
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                            .padding(.trailing, 6) // adjust for your field style
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("Clear")
+                                }
+                            }
+                    }
+                    //     .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    
+                    
+                    TextField("Filename", text: Binding<String>(
+                        get: { prax.exportFilenameBody },
+                        set: { newValue in
+                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                            // Ensure we don't accidentally include a dot/extension typed by the user
+                            if let dotRange = newName.range(of: ".") {
+                                newName = String(newName[..<dotRange.lowerBound])}
+                            prax.exportFilenameBody = newName
+                        })
+                              
+                    )
+                    //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .disabled(prax.exportFolderURL == nil)
+                    
+                    Spacer()
+                    
+                    Button {
+                        prax.isOn = true
+                    } label: {
+                        Label(".pdf", systemImage: "arrow.right.doc.on.clipboard")
+                    }
+                    .disabled(prax.firstSelectedFileURL == nil)
+                    .draggable({ () -> MergedPDFTransfer? in
+                        
+                        guard let data = prax.mergedPDFDocument.dataRepresentation() else { return nil }
+                        return MergedPDFTransfer(data: data, filename: prax.exportFilename)
+                    }()!, preview: {
+                        dragPreviewView
+                    })
+                    
+                    
+                    if prax.multipleFilesSelected {
+                        Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
             }
         }
-        .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        
+        .fileImporter(
+            isPresented: $prax.showingExportFolderSelector,
+            allowedContentTypes: [.folder],
+            allowsMultipleSelection: false,
+            
+        )
+        { result in
+            switch result {
+            case .success(let urls):
+                prax.exportFolderURL = urls.first!
+                //                        prax.exportFolderURLBookmark = try? prax.exportFolderURL!.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)
+            case .failure(let error):
+                prax.saveError = error.localizedDescription
+            }
+            
+        }
+        .fileDialogDefaultDirectory(prax.sourceFolderURL)
+        .fileDialogMessage("Choose the Export Folder")
+        .fileDialogConfirmationLabel(Text("Choose Export Folder"))
+        
+        .background(Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3))
         .foregroundStyle(Color.white)
     }
+    
+    private var dragPreviewView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.accentColor.opacity(0.15))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                )
+                .frame(width: 180, height: 80)
+            
+            VStack(spacing: 6) {
+                Image(systemName: "doc.text.fill")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(.blue)
+                Text("\(prax.exportFilename).pdf")
+                    .font(.footnote)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+            }
+        }
+
+
+    }
+    
+    
 }
 
 #Preview {
@@ -65,8 +197,9 @@ struct DocumentEditingToolbar: View {
 
 
 struct DocumentEditingView: NSViewRepresentable {
+    
     @State @Bindable private var prax = PraxModel.shared
-   
+    
     func makeCoordinator() -> Coordinator {
         print("Nadine Peeler- DocumentEditingView makeCoordinator")
         return Coordinator()
@@ -84,9 +217,9 @@ struct DocumentEditingView: NSViewRepresentable {
         prax.editingPDFView!.pageOverlayViewProvider = context.coordinator
         
         let thumbnailController = PagesViewController()
-  //      thumbnailController.pdfView = prax.editingPDFView
+        //      thumbnailController.pdfView = prax.editingPDFView
         
- //       context.coordinator.thumbnailController = thumbnailController
+        //       context.coordinator.thumbnailController = thumbnailController
         
         split.addArrangedSubview(thumbnailController.view)
         split.addArrangedSubview(prax.editingPDFView!)
@@ -115,13 +248,13 @@ struct DocumentEditingView: NSViewRepresentable {
             object: nil
         )
         
- /*       DispatchQueue.main.async { [weak pdfView] in
-            if let v = pdfView {
-                print("Julie d'Prax")
-                onPDFViewReady(pdfView: v)
-            }
-        }
-   */
+        /*       DispatchQueue.main.async { [weak pdfView] in
+         if let v = pdfView {
+         print("Julie d'Prax")
+         onPDFViewReady(pdfView: v)
+         }
+         }
+         */
         
         
         return split
@@ -145,7 +278,7 @@ struct DocumentEditingView: NSViewRepresentable {
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
             print("DocumentEditingView Coordinator - changed to page:", idx)
-   //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
         
         @objc func widthGuideChanged(_ note: Notification) {
@@ -192,27 +325,28 @@ struct DocumentEditingView: NSViewRepresentable {
             }
             
             // Seed current rect from trims
-                DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
-                    guard let view = view, let page = page, let pdfView = pdfView else { return }
-                    let crop = page.bounds(for: .cropBox)
-                    let cropInView = pdfView.convert(crop, from: page)
-                    let cropInOverlay = view.convert(cropInView, from: pdfView)
-                    view.clampRect = cropInOverlay
-                    // Recompute visible using current trims
-   //                 fatalError()
-                    let trim = self.prax.pdfPageItem(for: page)!.trim
-                    let visibleInPage = CGRect(
-                        x: crop.minX + trim.left,
-                        y: crop.minY + trim.bottom,
-                        width: crop.width - trim.left - trim.right,
-                        height: crop.height - trim.top - trim.bottom
-                    )
-                    let visibleInView = pdfView.convert(visibleInPage, from: page)
-                    let visibleInOverlay = view.convert(visibleInView, from: pdfView)
-                    view.currentRect = visibleInOverlay
-                    
-                    view.needsDisplay = true
-                }
+            DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
+                guard let view = view, let page = page, let pdfView = pdfView else { return }
+                guard let pageItem = self.prax.pdfPageItem(for: page) else { return }
+                let crop = page.bounds(for: .cropBox)
+                let cropInView = pdfView.convert(crop, from: page)
+                let cropInOverlay = view.convert(cropInView, from: pdfView)
+                view.clampRect = cropInOverlay
+                // Recompute visible using current trims
+                //                 fatalError()
+                let trim = pageItem.trim
+                let visibleInPage = CGRect(
+                    x: crop.minX + trim.left,
+                    y: crop.minY + trim.bottom,
+                    width: crop.width - trim.left - trim.right,
+                    height: crop.height - trim.top - trim.bottom
+                )
+                let visibleInView = pdfView.convert(visibleInPage, from: page)
+                let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+                view.currentRect = visibleInOverlay
+                
+                view.needsDisplay = true
+            }
             
             return view
         }
@@ -223,3 +357,4 @@ struct DocumentEditingView: NSViewRepresentable {
     DocumentEditingToolbar()
     DocumentEditingView()
 }
+

@@ -55,53 +55,40 @@ struct SectionFooterView: View {
     let indexPath: IndexPath
     let isSelected: Bool
     
-    func pdfPageItem() -> PDFPageItem? {
+    func pdfPageSection() -> PDFPageSection? {
         if indexPath.section >= 0,
-           indexPath.section < PraxModel.shared.pdfPageSections.count,
-           indexPath.item >= 0,
-           indexPath.item < PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.count {
-            return PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item]
+           indexPath.section < PraxModel.shared.pdfPageSections.count {
+            return PraxModel.shared.pdfPageSections[indexPath.section]
         } else {
             return nil
         }
     }
     
-/*    let w = PraxModel.shared.pdfPageSections[indexPath.section].mergedWidthPts
-    var text: String
-    if w > 0 {
-        let h = PraxModel.shared.pdfPageSections[indexPath.section].mergedHeightPts
+    func mergedSizeText() -> String {
+        guard let section = pdfPageSection() else { return "Merged size: —" }
+        let w = section.mergedWidthPts
+        let h = section.mergedHeightPts
         let wIn = w / 72.0
         let hIn = h / 72.0
-        text = String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
-    } else {
-        text = "Merged size: —"
+        return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
     }
     
-    footer.label.stringValue = text
- */
+
  
     var body: some View {
-        if let page = pdfPageItem() {
+        @Bindable var prax = PraxModel.shared
+            
             VStack(spacing: 8) {
-                Image(nsImage: page.thumbnail)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .cornerRadius(6)
                 HStack {
-                    Text(page.name)
+                    Text("Footer \(indexPath.section + 1)")
                         .font(.caption)
                         .lineLimit(1)
-                    Spacer()
-                    Button(action: clickedGuidePageButton) {
-                        Image(systemName: "ruler")
-                    }
-                    .buttonStyle(.borderless)
-                    .help("Toggle width guide")
+                    Text(mergedSizeText())
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                Text("\(Int(page.trim.left))")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+ 
             }
             .padding(8)
             .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
@@ -109,19 +96,30 @@ struct SectionFooterView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
             )
-        } else {
-            EmptyView()
+            .inspector(isPresented: $prax.isLarge) {
+                VStack {
+                    GroupBox {
+                        
+                        Text("Inspector 1")
+                            .frame(minWidth: 100, maxWidth: 1000, maxHeight: 100)
+                            .background(.pink)
+                    }
+                    .padding(20)
+                    //  .background(.yellow)
+                    Button(prax.isLarge ? "Make Small" : "Make Large") {
+                        // Toggle the state when the button is tapped
+                        prax.isLarge.toggle()
+                    }
+                    Text("Inspector 2")
+                    //           .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    //               .background(.purple)
+                        .background(.purple)
+                }
+                Text("Inspector 3")
+                //    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .inspectorColumnWidth(min: 50, ideal: 150, max: 500)
+                    .background(.gray)
+            }
         }
-    }
-    
-    func clickedGuidePageButton() {
-        guard let page = pdfPageItem() else { return }
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(page.name)")
-        if PraxModel.shared.widthGuidePageID == page.id {
-            PraxModel.shared.clearWidthGuide()
-        } else {
-            PraxModel.shared.setWidthGuide(fromPage: page)
-        }
-    }
 }
 

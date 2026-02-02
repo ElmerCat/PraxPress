@@ -4,27 +4,29 @@
 <dict>
 	<key>NSObservationTrackingEnabled</key>
 	<true/>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.text</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>PraxPress PDFPageSection</string>
-            <key>UTTypeIcons</key>
-            <dict/>
-            <key>UTTypeIdentifier</key>
-            <string>com.praxpress.pdf-page-section</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>praxpress</string>
-                </array>
-            </dict>
-        </dict>
-    </array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PraxPress PDFPageSection</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.pdf-page-section</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>praxpress</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
 </dict>
 </plist>

@@ -77,7 +77,7 @@ extension PraxModel {
         
         // 4) Update selection to the new positions of the moved items
         //    We map the moved items to their new indices in the destination section.
-        var newSelection: Set<IndexPath> = selectionIndexPaths
+        var newSelection: Set<IndexPath> = selectedPageItems
         // Remove the old selection indices for moved items
         for source in uniqueItems {
             newSelection.remove(source)
@@ -86,7 +86,7 @@ extension PraxModel {
         for offset in 0..<movedItems.count {
             newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
         }
-        selectionIndexPaths = newSelection
+        selectedPageItems = newSelection
         
         DispatchQueue.main.async {
             print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")

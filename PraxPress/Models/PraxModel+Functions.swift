@@ -44,26 +44,32 @@ extension PraxModel {
     func setEditingPDFDocumentFromSelectedFiles () {
         isLoadingPDF = true
         pdfPageSections.removeAll()
-        selectionIndexPaths = []
+        selectedPageItems = []
         var insertIndex = 0
         var pdfDocument = PDFDocument()
         
-        let entries: [PDFEntry] = selectedFiles.compactMap { id in
-            listOfFiles.first(where: { $0.id == id })
-        }
-        let urls = entries.map { $0.url }
         
-        if urls.isEmpty {
-            
+        let entries: [PDFFile] = selectedFiles.compactMap { id in
+            pdfFiles.first(where: { $0.id == id })
+        }
+        let urlBookmarks: [(url: URL, data: Data)] = entries.map { ($0.url, $0.bookmarkData) }
+        multipleFilesSelected = urlBookmarks.count > 1
+        if urlBookmarks.isEmpty {
+            firstSelectedFileURL = nil
             let document = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
             insertIndex = addPDFPageSection(for: document, at: insertIndex, into: &pdfDocument)
         }
-        
         else {
-            for url in urls {
+            firstSelectedFileURL = urlBookmarks.first?.url
+            for urlBookmark in urlBookmarks {
+                var isStale = false
+                guard let url = try? URL(resolvingBookmarkData: urlBookmark.data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+                    print("Failed to resolve bookmark")
+                    continue
+                }
                 let needsStop = url.startAccessingSecurityScopedResource()
                 defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                guard let document = PDFDocument(url: url) else { fatalError("Could not load PDF at \(url)") }
+                guard let document = PDFDocument(url: url) else { return }
                 insertIndex = addPDFPageSection(for: document, at: insertIndex, into: &pdfDocument)
             }
         }
@@ -222,10 +228,16 @@ extension PraxModel {
         }
     }
     
- /*   func cleanupTemporaryArtifacts() {
+ /*
+  var fileURL: URL?
+  var lastPreviewURL: URL? = nil
+  var lastCombinedSourceURL: URL? = nil
+*/
+  
+  func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
         
-        let fm = FileManager.default
+/*        let fm = FileManager.default
         if let oldPreview = lastPreviewURL {
             try? fm.removeItem(at: oldPreview)
             lastPreviewURL = nil
@@ -234,7 +246,8 @@ extension PraxModel {
             try? fm.removeItem(at: oldCombined)
             lastCombinedSourceURL = nil
         }
-    }
 */
+  }
+
     
 }

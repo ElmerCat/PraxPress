@@ -135,7 +135,7 @@ extension NSPasteboard.PasteboardType {
 class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
     
     var pdfDocument: PDFDocument?
-    var fileName: String?
+    var fileName: String = "PraxPress-Prax.pdf"
     
     struct UserInfoKeys {
         static let indexPathKey = "indexPath"
@@ -177,7 +177,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
         
         print("filePromiseProvider fileNameForType: ", fileType)
-        return "PraxPress-PageSection.pdf"
+        return fileName
     }
     
     

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import SwiftData
 
 @main
 struct PraxPressApp: App {
@@ -14,33 +15,57 @@ struct PraxPressApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
     
-    
+    private let modelContainer: ModelContainer = {
+        let schema = Schema([PDFFile.self, PDFFileGroup.self])
+        let config = ModelConfiguration() // customize if needed
+        return try! ModelContainer(for: schema, configurations: [config])
+    }()
+
     var body: some Scene {
         WindowGroup(id: "main") {
             MainSceneRoot()
+                .environment(\.modelContext, modelContainer.mainContext)
                 .background(
                     WindowReader { window in
                         WindowCoordinator.shared.attachIfPending(newWindow: window)
                     }
                 )
-        }
+       }
         .commands {
             MainCommands()
         }
+        
         .windowToolbarStyle(.unified(showsTitle: true))
-      
         .windowToolbarLabelStyle($toolbarLabelStyle)
+        
+        
+
+        Settings {
+            SettingsView()
+                .environment(\.modelContext, modelContainer.mainContext)
+        }
     }
 }
-   
+
 
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
+    
+    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+        print("applicationSupportsSecureRestorableState")
+        return true }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        print("applicationDidFinishLaunching")
+        
         NSWindow.allowsAutomaticWindowTabbing = false
     }
+    func applicationWillTerminate(_ notification: Notification) {
+        print("applicationWillTerminate")
+        
+        
+    }
+    
 }
 
 
@@ -49,10 +74,12 @@ final class WindowCoordinator {
     private var pendingTargetWindowNumber: Int?
     
     func requestNewTab(in keyWindow: NSWindow?) {
+        print("requestNewTab")
         pendingTargetWindowNumber = keyWindow?.windowNumber
     }
     
     func attachIfPending(newWindow: NSWindow) {
+        print("attachIfPending")
         guard let targetNumber = pendingTargetWindowNumber else { return }
         // Clear pending so we only attach once
         pendingTargetWindowNumber = nil
@@ -77,6 +104,7 @@ struct WindowReader: NSViewRepresentable {
     private final class WindowAccessorView: NSView {
         var onResolve: ((NSWindow) -> Void)?
         override func viewDidMoveToWindow() {
+            print("viewDidMoveToWindow")
             super.viewDidMoveToWindow()
             if let window = window {
                 onResolve?(window)
@@ -90,9 +118,11 @@ struct TempCleanupLifecycleHook: View {
     var body: some View {
         Color.clear
             .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                print("TempCleanupLifecycleHook willTerminateNotification")
                 onCleanup()
             }
             .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { _ in
+                print("TempCleanupLifecycleHook willCloseNotification")
                 onCleanup()
             }
     }

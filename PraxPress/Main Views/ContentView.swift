@@ -12,183 +12,19 @@ import Combine
 
 
 
-enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
-
-struct PDFPageItem: Hashable, Codable, Equatable {
-    // Keep id stable after creation, but allow init/decoding to assign it
-    private(set) var id: UUID
-    
-    let name: String
-    let pdfPage: PDFPage
-    let thumbnail: NSImage
-    
-    var trim: EdgeTrims = .zero {
-        didSet {
-            print("PraxModel.trims didSet")
-            if PraxModel.shared.isLoadingPDF { return }
-            
-            DispatchQueue.main.async {
-                PraxModel.shared.recomputeMergedMetrics()
-                PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
-                print("DispatchQueue PraxModel.trims didSet")
-            }
-        }
-    }
-    var merge: MergeMode = .mergeDown
-    
-    // Single concrete initializer that initializes all stored properties
-    init(
-        id: UUID = UUID(),
-        name: String,
-        pdfPage: PDFPage,
-        thumbnail: NSImage,
-        trim: EdgeTrims = .zero,
-        merge: MergeMode = .mergeDown
-    ) {
-        self.id = id
-        self.name = name
-        self.pdfPage = pdfPage
-        self.thumbnail = thumbnail
-        self.trim = trim
-        self.merge = merge
-    }
-    
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case trim
-        case merge
-        // Exclude: pdfPage, thumbnail
-    }
-    
-    // Single decoding initializer: decode codable fields and supply placeholders
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let decodedID = try container.decode(UUID.self, forKey: .id)
-        let decodedName = try container.decode(String.self, forKey: .name)
-        let decodedTrim = try container.decode(EdgeTrims.self, forKey: .trim)
-        let decodedMerge = try container.decode(MergeMode.self, forKey: .merge)
-        
-        self = PDFPageItem(
-            id: decodedID,
-            name: decodedName,
-            pdfPage: PDFPage(),   // placeholder; replace with real page later in app logic
-            thumbnail: NSImage(), // placeholder; replace with real image later
-            trim: decodedTrim,
-            merge: decodedMerge
-        )
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(name, forKey: .name)
-        try container.encode(trim, forKey: .trim)
-        try container.encode(merge, forKey: .merge)
-    }
-    
-    mutating func setTrim(_ trim: EdgeTrims) {
-        self.trim = trim
-    }
-    
-    static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool {
-        lhs.id == rhs.id
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
-struct PDFPageSection: Hashable, Codable, Transferable {
-    var title: String
-    private(set) var id: UUID = UUID()
-    var pdfPage: PDFPage? = nil
-    
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-    var pdfPageItems: [PDFPageItem] = [] {
-        didSet {
-            print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
-        }
-    }
-    
-    private enum CodingKeys: String, CodingKey {
-        case title
-        case id
-        case mergedWidthPts
-        case mergedHeightPts
-        case pdfPageItems
-    }
-    
-    init(
-        title: String,
-        pdfPage: PDFPage? = nil,
-        mergedWidthPts: CGFloat = 0,
-        mergedHeightPts: CGFloat = 0,
-        pdfPageItems: [PDFPageItem] = []
-    ) {
-        self.title = title
-        self.pdfPage = pdfPage
-        self.mergedWidthPts = mergedWidthPts
-        self.mergedHeightPts = mergedHeightPts
-        self.pdfPageItems = pdfPageItems
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.title = try container.decode(String.self, forKey: .title)
-        self.mergedWidthPts = try container.decode(CGFloat.self, forKey: .mergedWidthPts)
-        self.mergedHeightPts = try container.decode(CGFloat.self, forKey: .mergedHeightPts)
-        self.pdfPageItems = try container.decode([PDFPageItem].self, forKey: .pdfPageItems)
-        // Decode id if present, otherwise generate a new one
-        self.id = (try? container.decode(UUID.self, forKey: .id)) ?? UUID()
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(title, forKey: .title)
-        try container.encode(id, forKey: .id)
-        try container.encode(mergedWidthPts, forKey: .mergedWidthPts)
-        try container.encode(mergedHeightPts, forKey: .mergedHeightPts)
-        try container.encode(pdfPageItems, forKey: .pdfPageItems)
-    }
-    
-    static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .data)
-    }
-    
-}
-
-struct MergedPDFTransfer: Transferable, Identifiable {
-    let id = UUID()
-    let data: Data
-    
-    static var transferRepresentation: some TransferRepresentation {
-        // Provide PDF data so other apps (Mail, Notes, Finder) can accept the drop
-        DataRepresentation(exportedContentType: .pdf) { item in
-            item.data
-        }
-    }
-}
-
-struct PDFPageSectionsPayload: Transferable, Codable, Hashable {
-    var sections: [PDFPageSection]
-    
-    static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .data)
-    }
-}
-
-
-
-
-
 
 struct ContentView: View {
-    @State private var prax = PraxModel.shared
+    //    @State private var praxContext = PraxContext()
+    
+    //    @State private var prax = PraxModel.shared
+    @Environment(PraxContext.self) private var praxContext
+    @Environment(PraxModel.self) private var prax
+    
+    
     
     var body: some View {
+        @Bindable var prax = prax
+        @Bindable var praxContext = praxContext
         
         let _ = Self._printChanges()
         
@@ -208,14 +44,39 @@ struct ContentView: View {
                     DocumentEditingView()
                     
                 }
+                
+                /*
+                 
+                 nonisolated public func fileExporter<T>(isPresented: Binding<Bool>, item: T?, contentTypes: [UTType] = [], defaultFilename: String? = nil, onCompletion: @escaping (Result<URL, any Error>) -> Void, onCancellation: @escaping () -> Void = { }) -> some View where T : Transferable
+                 */
+                
+                .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: prax.mergedPDFDocument.dataRepresentation()!, filename: prax.exportFilename), contentTypes: [.pdf], onCompletion: {
+                    result in
+                    switch result {
+                    case .success(let url):
+                        print ("Writing mergedPDFView to: ", url)
+                        prax.mergedPDFView?.document?.write(to: url)
+                    case .failure(let error):
+                        print (error.localizedDescription)
+                        prax.saveError = error.localizedDescription
+                    }
+                })
+                .fileDialogDefaultDirectory(prax.exportFolderURL)
+                .fileDialogMessage("Save the PraxPress Merged PDF")
+                .fileExporterFilenameLabel("Save Merged PDF as:")
+                .fileDialogConfirmationLabel(Text("Save Merged PDF"))
+                
+                
                 .frame(maxWidth: 1000, maxHeight: .infinity)
-                .background(.cyan).padding(20)
+                .padding(20)
+                .background(praxContext.optionKeyPressed ? .red : .cyan)
                 
                 GroupBox {
-                    MergedDocumentToolbar()
+                    MergedDocumentHeader()
                         .draggable {
                             if let data = prax.mergedPDFDocument.dataRepresentation() {
-                                return MergedPDFTransfer(data: data)
+                                return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+                                
                             } else {
                                 return nil
                             }
@@ -226,21 +87,26 @@ struct ContentView: View {
                     }
                     .draggable {
                         if let data = prax.mergedPDFDocument.dataRepresentation() {
-                            return MergedPDFTransfer(data: data)
+                            return MergedPDFTransfer(data: data, filename: "Nora Prax")
                         } else {
                             return nil
                         }
                     }
                     
-                }.background(.green).padding(20)
+                    MergedDocumentFooter()
+                    
+                }
+                .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 0.3))
+
+                .padding(20)
                     .frame(maxWidth: 1000, maxHeight: .infinity)
             }
             
-            .sheet(isPresented: $prax.showSavePanel) {
-                SaveAsPanel(suggestedURL: prax.mergedPDFURL) { destination in
+     /*       .sheet(isPresented: $prax.showSavePanel) {
+                SaveAsPanel(suggestedURL: (prax.exportFileURL ?? URL(filePath: "/PraxPress.pdf"))!) { destination in
                     prax.mergedPDFView?.document?.write(to: destination)
                 }}
-            
+       */
             .inspector(isPresented: $prax.isShowingInspector) {
                 VStack {
                     GroupBox {
@@ -269,13 +135,14 @@ struct ContentView: View {
         
         .navigationSplitViewColumnWidth(min: 150, ideal: 200, max: 400)
         .navigationSplitViewColumnWidth(min: (prax.isOn ? 0 : 500), ideal: (prax.isOn ? 0 : 500), max: (prax.isOn ? 1: 500))
+        .navigationTitle(prax.exportFilename)
         
         .toolbar() {
             ToolbarItemGroup(placement: .navigation) {
                 Button {
                     NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
                 } label: {
-                    Label("Sidebar", systemImage: "sidebar.left")
+                    Label("Files", systemImage: "sidebar.left")
                 }
                 Button {
                     if prax.columnVisibility == .detailOnly {
@@ -285,31 +152,110 @@ struct ContentView: View {
                 } label: {
                     Label("Select Files", systemImage: "folder.badge.plus")
                 }
-                //              Button("Save", systemImage: "square.and.arrow.down") {
-                //                prax.handleMergePagesOverwrite()
-                //            handleSaveCurrentSelection()
                 
-                //          }
-                //         .disabled(prax.selectedFiles.isEmpty)
-                
-                Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
+ /*               Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
                     //  prax.showSavePanel = true
                     prax.showSavePanel = true
                 }
                 .disabled(prax.selectedFiles.isEmpty)
-            }
-            
-            
-            
-            ToolbarItemGroup(placement: .secondaryAction) {
+                
                 Button {
-                    prax.isLarge.toggle()
+                    prax.showingExportFolderSelector = true
                 } label: {
-                    Label((prax.isLarge ? "Julie d'Prax" : "Juliette M. Belanger"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                    Label("Select Export Folder", systemImage: "arrow.forward.folder")
                 }
+                
+                RenameButton()
+                    .renameAction {
+                        print ("Jule d'Prax")
+                    }
+                
+                PasteButton(payloadType: String.self) { strings in
+                    prax.exportFilenamePrefix = strings[0]
+                }
+   */
+                Spacer()
             }
             
-            ToolbarItemGroup(placement: .status) {
+           
+            
+            ToolbarItemGroup(placement: .primaryAction) {
+                Spacer()
+                
+                /*               Button("Save", systemImage: "square.and.arrow.down") {
+                    
+                    prax.mergedPDFView?.document?.write(to: prax.firstSelectedFileURL!)
+                    //            handleSaveCurrentSelection()
+                    
+                }
+                .disabled(prax.selectedFiles.isEmpty)
+                
+                
+               Button {
+                    prax.showingExportFolderSelector = true
+                } label: {
+                    HStack {
+                        Image(systemName: "arrow.forward.folder")
+                        Text(prax.exportFolderURL?.lastPathComponent ?? "Choose Export Folder")
+                    }}
+   */
+                
+
+                
+                HStack {
+                    Spacer(minLength: 5)
+                    Text("Drag as...   ")
+                    Spacer(minLength: 5)
+                    Text(prax.exportFilenamePrefix)
+                //    Spacer(minLength: 5)
+                    TextField("Filename", text: Binding<String>(
+                        get: { prax.exportFilenameBody },
+                        set: { newValue in
+                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                            // Ensure we don't accidentally include a dot/extension typed by the user
+                            if let dotRange = newName.range(of: ".") {
+                                newName = String(newName[..<dotRange.lowerBound])}
+                            prax.exportFilenameBody = newName
+                        })
+                              
+                    )
+                    .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                    .textFieldStyle(SquareBorderTextFieldStyle())
+                    .disabled(prax.exportFolderURL == nil)
+                    .foregroundStyle(.cyan)
+                    .backgroundStyle(.yellow)
+                    
+                   // Spacer(minLength: 5)
+                    Text(prax.exportFilenameSuffix)
+                    Spacer(minLength: 5)
+                    
+                    Image(systemName: "arrow.right.doc.on.clipboard")
+                    Spacer(minLength: 5)
+                    Text(".\(prax.exportFilenameExtension)")
+                    Spacer(minLength: 15)
+                    
+                }
+                .draggable {
+                    if let data = prax.mergedPDFDocument.dataRepresentation() {
+                        return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+                        
+                    } else {
+                        return nil
+                    }
+                }
+                
+                Spacer()
+
+            }
+            
+            ToolbarItemGroup(placement: .primaryAction) {
+                
+                
+                Button("Save As …", systemImage: "arrow.down.document") {
+                    prax.showSavePanel.toggle()
+                }
+                
                 Button {
                     prax.isLarge.toggle()
                 } label: {
@@ -350,3 +296,4 @@ struct ContentView: View {
  .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
  }
  */
+

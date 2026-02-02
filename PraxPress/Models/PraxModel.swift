@@ -14,7 +14,11 @@ import Combine
 //@Model
 @Observable
 final class PraxModel: Sendable {
-    init() { }
+    
+
+    init() {
+        
+    }
     static let shared = PraxModel()
     
     // Width Guide support
@@ -22,38 +26,49 @@ final class PraxModel: Sendable {
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-    
     var pdfPageSections: [PDFPageSection] = []
+    var selectedSections: Set<Int> = [] { didSet {
+        print("selectedSections didSet:  ", selectedSections)
+        selectedSections.forEach {
+            print("\($0)") }}}
     
-    var fileURL: URL?
-    var lastPreviewURL: URL? = nil
-    var lastCombinedSourceURL: URL? = nil
+    var selectedPageItems: Set<IndexPath> = [] { didSet {
+        print("selectedPageItems didSet:  ", selectedPageItems)
+        selectedPageItems.forEach {
+            print("\($0)") }}}
+    
     var saveError: String?
     var isLoadingPDF = false
     var isOn = false
     var isLarge: Bool = false
     var showingImporter: Bool = false
+    var showingExportFolderSelector: Bool = false
     var isShowingInspector: Bool = false
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    var listOfFiles: [PDFEntry] = [] {
+//    var lastListOfFiles: [PDFEntry] = []
+/*    var listOfFiles: [PDFEntry] = [] {
+        willSet {
+            print ("PraxModel listOfFiles willSet ") //, listOfFiles.description)
+            lastListOfFiles = listOfFiles
+        }
         didSet {
             print ("PraxModel listOfFiles didSet ") //, listOfFiles.description)
         }
     }
-    var selectionIndexPaths: Set<IndexPath> = [] {
+*/
+
+    var pdfFiles: [PDFFile] = [] {
         didSet {
-            print("selectionIndexPaths didSet:  ", selectionIndexPaths)
-            selectionIndexPaths.forEach {
-                print("\($0)")
-            }
-            
+            print ("PraxModel pdfFiles didSet: ", pdfFiles.count)
         }
     }
-    var selectedFiles = Set<PDFEntry.ID>() {
+    
+    
+    var selectedFiles = Set<PDFFile.ID>() {
         didSet {
-            print ("PraxModel selectedFiles didSet ") //, selectedFiles.description)
+            print ("PraxModel selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
             isLoadingPDF = true
             
             DispatchQueue.main.async {
@@ -63,6 +78,40 @@ final class PraxModel: Sendable {
         }
     }
     
+    var replaceSourceFiles: Bool = true
+    var multipleFilesSelected: Bool = false
+    var sourceFolderURL: URL?
+    var exportFolderURL: URL?
+  //  var exportFolderURLBookmark: Data?
+    var exportFilenamePrefix: String = ""
+
+    var exportFilename: String {
+        exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix
+    }
+
+    var exportFilenameSuffix: String = ""
+    var exportFilenameExtension: String = "pdf"
+    
+    var firstSelectedFileURL: URL?  {
+        didSet {
+            if firstSelectedFileURL != nil {
+                sourceFolderURL = firstSelectedFileURL!.deletingLastPathComponent()
+                exportFilenameBody = firstSelectedFileURL!.deletingPathExtension().lastPathComponent
+                if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
+            }
+            else {
+                exportFilenameBody = ""
+            }
+        }
+    }
+    var exportFilenameBody: String = "" 
+    
+    var exportFileURL: URL? {
+        
+        if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
+        guard let folder = exportFolderURL else { return nil }
+        return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension)
+    }
     
     var editingPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
@@ -73,7 +122,7 @@ final class PraxModel: Sendable {
             
             if isLoadingPDF {
                 print ("isLoadingPDF - editingPDFDocument didSet ")
-                selectionIndexPaths = []
+                selectedPageItems = []
                 clearWidthGuide()
                 
                 recomputeMergedMetrics()

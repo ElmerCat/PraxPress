@@ -5,6 +5,7 @@
 //  Created by Elmer Cat on 12/21/25.
 //
 import SwiftUI
+import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
 import Combine
@@ -12,35 +13,112 @@ import Combine
 private let DEBUG_LOGS = false
 
 
+struct PDFFilesList: View {
+    
+
+    var body: some View {
+        @Bindable var prax = PraxModel.shared
+         
+        Group {
+            Table(prax.pdfFiles, selection: $prax.selectedFiles) {
+                TableColumn("File") { (entry: PDFFile) in
+                    let value = entry.fileName
+                    Text(value)
+                }
+                TableColumn("PcardHolderName") { (entry: PDFFile) in
+                    let value = entry.dataFields?.pcardHolderName ?? "—"
+                    Text(value)
+                }
+                TableColumn("DocumentNumber") { (entry: PDFFile) in
+                    let value = entry.dataFields?.documentNumber ?? "—"
+                    Text(value)
+                }
+                TableColumn("Date") { (entry: PDFFile) in
+                    let value = entry.dataFields?.date ?? "—"
+                    Text(value)
+                }
+                TableColumn("Amount") { (entry: PDFFile) in
+                    let value = entry.dataFields?.amount ?? "—"
+                    Text(value)
+                }
+                TableColumn("Vendor") { (entry: PDFFile) in
+                    let value = entry.dataFields?.vendor ?? "—"
+                    Text(value)
+                }
+                TableColumn("GLAccount") { (entry: PDFFile) in
+                    let value = entry.dataFields?.glAccount ?? "—"
+                    Text(value)
+                }
+                TableColumn("CostObject") { (entry: PDFFile) in
+                    let value = entry.dataFields?.costObject ?? "—"
+                    Text(value)
+                }
+                TableColumn("Justification") { (entry: PDFFile) in
+                    let value = entry.dataFields?.justification ?? "—"
+                    Text(value)
+                }
+            }
+        }
+    }
+}
+
+
+
+/*
+ ZStack {
+ RoundedRectangle(cornerRadius: 10)
+ .fill(Color.accentColor.opacity(0.15))
+ .overlay(
+ RoundedRectangle(cornerRadius: 10)
+ .stroke(Color.accentColor, lineWidth: 2)
+ )
+ .frame(width: 180, height: 80)
+ 
+ VStack(spacing: 6) {
+ Image(systemName: "doc.text.fill")
+ .font(.system(size: 28, weight: .medium))
+ .foregroundStyle(.blue)
+ Text("\(prax.exportFilename).pdf")
+ .font(.footnote)
+ .foregroundStyle(.primary)
+ .lineLimit(1)
+ .padding(.horizontal, 8)
+ }
+ }
+ */
+
+
+
 struct SourceFilesView: View {
     
-    @State private var prax = PraxModel.shared
-     
+    //   @State private var prax = PraxModel.shared
+    @Environment(\.modelContext) private var modelContext
+    @Environment(PraxModel.self) private var praxModel
+    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
+    //    @Query(sort: \PDFFile.filename) private var pdfFiles: [PDFFile]
+    
     @State private var importError: String?
     
+    
+    
     var body: some View {
+        @Bindable var prax = praxModel
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                if !prax.listOfFiles.isEmpty {
-                    
-                    
-                    Table(prax.listOfFiles, selection: $prax.selectedFiles) {
-                        TableColumn("File") { entry in Text(entry.fileName) }
-                        TableColumn("PcardHolderName") { entry in Text(entry.pcardHolderName ?? "—") }
-                        TableColumn("DocumentNumber") { entry in Text(entry.documentNumber ?? "—") }
-                        TableColumn("Date") { entry in Text(entry.date ?? "—") }
-                        TableColumn("Amount") { entry in Text(entry.amount ?? "—") }
-                        TableColumn("Vendor") { entry in Text(entry.vendor ?? "—") }
-                        TableColumn("GLAccount") { entry in Text(entry.glAccount ?? "—") }
-                        TableColumn("CostObject") { entry in Text(entry.costObject ?? "—") }
-                        TableColumn("Description") { entry in Text(entry.description ?? "—") }
-                    }
-                    .frame(minHeight: 200)
-                     
-                    Text("\(prax.selectedFiles.count)  of \(prax.listOfFiles.count) Files Selected")
-                        .font(.subheadline)
+                if !prax.pdfFiles.isEmpty {
+                    VSplitView {
                        
-
+                        GroupBox {
+                            PDFFilesList()
+                            
+                            Text("\(prax.selectedFiles.count)  of \(prax.pdfFiles.count) Files Selected")
+                                .font(.subheadline)
+                        }
+                        .frame(minHeight: 200)
+                        
+                    }
+                    
+                    
                 } else {
                     
                     Button (action: {
@@ -61,14 +139,14 @@ struct SourceFilesView: View {
             }
             .background(Color.blue.opacity(0.5))
         }
-        .navigationTitle("PraxPress")
+        .navigationTitle("Julie d'PraxPress")
         .navigationSplitViewColumnWidth(min: 100, ideal: 300, max: 1000)
         .toolbar(removing: .sidebarToggle)
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 if (prax.columnVisibility == .all && !prax.selectedFiles.isEmpty) {
                     Button {
-                        prax.listOfFiles.removeAll()
+                        //             prax.listOfFiles.removeAll()
                         prax.selectedFiles.removeAll()
                     } label: {
                         Label("Remove Files", systemImage: "folder.badge.minus")
@@ -82,21 +160,109 @@ struct SourceFilesView: View {
             allowedContentTypes: [.pdf, .folder],
             allowsMultipleSelection: true
         ) { result in
-            handleImportResult(result, forFiles:&prax.listOfFiles)
+            switch result {
+            case .success(let urls):
+                processImportedURLs(urls) //, listOfFiles: &forFiles)
+            case .failure(let error):
+                importError = error.localizedDescription
+            }
+            //            handleImportResult(result, forFiles:&prax.listOfFiles)
         }
-    }
+        
+        .task {
+            DispatchQueue.main.async {
+                
+                print ("Fortunareed")
   
-    private func handleImportResult(_ result: Result<[URL], Error>, forFiles: inout [PDFEntry]){
-        switch result {
-        case .success(let urls):
-            processImportedURLs(urls, listOfFiles: &forFiles)
-        case .failure(let error):
-            importError = error.localizedDescription
+            }
+            
+            
         }
     }
     
-    private func processImportedURLs(_ urls: [URL], listOfFiles: inout [PDFEntry]) {
-        var seen = Set<URL>(listOfFiles.map { $0.url })
+    private func pdfFileGroup(_ name: String) -> PDFFileGroup {
+        if let fileGroup = pdfFileGroups.first(where: { $0.name == name }) {
+            return fileGroup
+        }
+        else {
+            let fileGroup = PDFFileGroup(name: name)
+            modelContext.insert(fileGroup)
+            do {
+                try  modelContext.save()
+                
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+            return fileGroup
+        }
+    }
+    
+    
+    /*
+     private func handleImportResult(_ result: Result<[URL], Error>, forFiles: inout [PDFEntry]){
+     switch result {
+     case .success(let urls):
+     processImportedURLs(urls, listOfFiles: &forFiles)
+     case .failure(let error):
+     importError = error.localizedDescription
+     }
+     }
+     */
+    
+    private func processImportedURLs(_ urls: [URL]) //, listOfFiles: inout [PDFEntry]) {
+    {
+        
+        var expanded: [(url: URL, bookmark: Data)] = []
+        
+        for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
+            do {
+                let values = try url.resourceValues(forKeys: [.isDirectoryKey])
+                if values.isDirectory == true {
+                    let discovered = filesRecursively(in: url)
+                    for fileURL in discovered {
+                        guard isPDF(fileURL) else { continue }
+                        if let data = try? fileURL.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                            expanded.append((url: fileURL, bookmark: data))
+                        }
+                    }
+                } else {
+                    if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                        expanded.append((url: url, bookmark: data))
+                    }
+                }
+            } catch {
+                if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                    expanded.append((url: url, bookmark: data))
+                }
+            }
+        }
+        var seen = Set<URL>(PraxModel.shared.pdfFiles.map { $0.url })
+        
+        
+        let uniquePairs: [(url: URL, bookmark: Data)] = expanded.filter { pair in
+            seen.insert(pair.url).inserted
+        }
+        
+        let entries: [PDFEntry] = uniquePairs.compactMap { pair in
+            return extractFormFields(from: pair.bookmark)
+        }
+        
+        let mainFileGroup = pdfFileGroup("Main File Group")
+        
+        entries.forEach { entry in
+            
+            if !PraxModel.shared.pdfFiles.contains(where: { $0.url == entry.url }) {
+                let pdfFile = PDFFile(fileGroup: mainFileGroup, url: entry.url, bookmarkData: entry.bookmarkData)
+                pdfFile.dataFields = pdfFile.dataFieldsFromEntry(entry)
+                modelContext.insert(pdfFile)
+            }
+        }
+        
+        
+        
         
         func filesRecursively(in folderURL: URL) -> [URL] {
             var collected: [URL] = []
@@ -204,41 +370,7 @@ struct SourceFilesView: View {
             )
         }
         
-        var expanded: [(url: URL, bookmark: Data)] = []
-        for url in urls {
-            let needsStop = url.startAccessingSecurityScopedResource()
-            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            
-            do {
-                let values = try url.resourceValues(forKeys: [.isDirectoryKey])
-                if values.isDirectory == true {
-                    let discovered = filesRecursively(in: url)
-                    for fileURL in discovered {
-                        guard isPDF(fileURL) else { continue }
-                        if let data = try? fileURL.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                            expanded.append((url: fileURL, bookmark: data))
-                        }
-                    }
-                } else {
-                    if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                        expanded.append((url: url, bookmark: data))
-                    }
-                }
-            } catch {
-                if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                    expanded.append((url: url, bookmark: data))
-                }
-            }
-        }
         
-        let uniquePairs: [(url: URL, bookmark: Data)] = expanded.filter { pair in
-            seen.insert(pair.url).inserted
-        }
-        
-        let entries: [PDFEntry] = uniquePairs.compactMap { pair in
-            return extractFormFields(from: pair.bookmark)
-        }
-        listOfFiles.append(contentsOf: entries)
     }
 }
 

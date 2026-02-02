@@ -49,10 +49,10 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             }
         }
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ PraxModel.shared.selectionIndexPaths }) {
-                print("PagesViewController observeCurrentIndexChange  ", PraxModel.shared.selectionIndexPaths)
+            for await _ in Observations({ PraxModel.shared.selectedPageItems }) {
+                print("PagesViewController observeCurrentIndexChange  ", PraxModel.shared.selectedPageItems)
                 
-                if let firstIndexPath = PraxModel.shared.selectionIndexPaths.first {
+                if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     PraxModel.shared.editingPDFView?.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                 }
             }
@@ -177,7 +177,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectionIndexPaths )
+        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -188,9 +188,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
                 self.collectionView.scrollToItems(at: [firstIndexPath], scrollPosition: .top)
-                PraxModel.shared.selectionIndexPaths = self.collectionView.selectionIndexPaths
+                PraxModel.shared.selectedPageItems = self.collectionView.selectionIndexPaths
             }
-            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectionIndexPaths )
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
         }
         
         
@@ -199,12 +199,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
         
-        PraxModel.shared.selectionIndexPaths = collectionView.selectionIndexPaths
+        PraxModel.shared.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didDeselectItemsAt indexPaths ", indexPaths)
-        PraxModel.shared.selectionIndexPaths = collectionView.selectionIndexPaths
+        PraxModel.shared.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     

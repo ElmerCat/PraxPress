@@ -6,18 +6,39 @@
 //
 
 import SwiftUI
+import SwiftData
 import Combine
 import PDFKit
 
 
 struct MainSceneRoot: View {
 
-    @State private var prax = PraxModel.shared
-    
+    @State private var praxModel = PraxModel.shared
+    @State private var praxContext = PraxContext()
+    @Query() var pdfFiles: [PDFFile]
     var body: some View {
         ContentView()
-            .environment(prax)
- //           .overlay(TempCleanupLifecycleHook(onCleanup: { prax.cleanupTemporaryArtifacts() }))
+            .environment(praxModel)
+            .environment(praxContext)
+            .onModifierKeysChanged(mask: .option) { old, new in
+                if new.isEmpty {
+                    praxContext.optionKeyPressed = false
+                    // Option key released
+                    print("Option key released")
+                } else {
+                    praxContext.optionKeyPressed = true
+                    // Option key pressed
+                    print("Option key pressed")
+                }
+            }
+            .task {
+                praxModel.pdfFiles = pdfFiles
+            }
+            .onChange(of: pdfFiles) {
+                praxModel.pdfFiles = pdfFiles
+            }
+        
+            .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
     }
 }
 
