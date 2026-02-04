@@ -38,7 +38,7 @@ struct MainSceneRoot: View {
                 praxModel.pdfFiles = pdfFiles
             }
         
-            .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
+          //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
     }
 }
 

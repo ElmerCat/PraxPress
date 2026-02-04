@@ -19,22 +19,22 @@ extension Notification.Name {
 
 
 extension PraxModel {
-
+    
     func zoomInEditingPDFView() {
-        editingPDFView?.zoomIn(self)
+        editingPDFView.zoomIn(self)
         editingPDFAutoScales = false
     }
     func zoomOutEditingPDFView() {
-        editingPDFView?.zoomOut(self)
+        editingPDFView.zoomOut(self)
         editingPDFAutoScales = false
     }
     func zoomInMergedPDFView() {
-        mergedPDFView?.zoomIn(self)
+        mergedPDFView.zoomIn(self)
     }
     func zoomOutMergedPDFView() {
-        mergedPDFView?.zoomOut(self)
+        mergedPDFView.zoomOut(self)
     }
-
+    
     func movePDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
         guard !items.isEmpty else { return }
         // Ensure destination section exists
@@ -90,37 +90,52 @@ extension PraxModel {
         
         DispatchQueue.main.async {
             print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
-            self.setEditingPDFDocumentFromPDFPageSections()
+            self.refreshEditingDocument()
+            //        self.setEditingPDFDocumentFromPDFPageSections()
         }
         
     }
     
-    func addPDFPageSection(for document: PDFDocument, at insertIndex: Int, into mergedDoc: inout PDFDocument) -> Int {
-        
-        var insertIndex = insertIndex
-        
-        var section = PDFPageSection(title: document.documentURL?.lastPathComponent ?? "Prax")
-        
-        for i in 0..<document.pageCount {
-            //        print("Sharon - page: ", i)
-            if let docPage = document.page(at: i) {
-                section.pdfPageItems.append(
-                    PDFPageItem(
-                        //                               pageIndex: i,
-                        name: "Page \(i + 1)",
-                        pdfPage: docPage,
-                        thumbnail: docPage.thumbnail(of: CGSize(width: 120, height: 160), for: .cropBox)
-                    )
-                )
-                mergedDoc.insert(docPage, at: insertIndex)
-                insertIndex += 1
+    
+    func setPageSectionsFromSelectedFiles() {
+        let entries: [PDFFile] = selectedFiles.compactMap { id in
+            pdfFiles.first(where: { $0.id == id })
+        }
+        let urlBookmarks: [(url: URL, data: Data)] = entries.map { ($0.url, $0.bookmarkData) }
+        multipleFilesSelected = urlBookmarks.count > 1
+        if urlBookmarks.isEmpty {
+            firstSelectedFileURL = nil
+            pdfPageSections.removeAll()
+        }
+        else {
+            var sections: [PDFPageSection] = []
+            firstSelectedFileURL = urlBookmarks.first?.url
+            for urlBookmark in urlBookmarks {
+                var isStale = false
+                guard let url = try? URL(resolvingBookmarkData: urlBookmark.data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+                    fatalError("Failed to resolve bookmark")
+                    //  print("Failed to resolve bookmark")
+                    //  continue
+                }
+                let needsStop = url.startAccessingSecurityScopedResource()
+                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+                guard let document = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
+                var pages: [PDFPageItem] = []
+                let sectionName = url.deletingPathExtension().lastPathComponent
+                for i in 0..<document.pageCount {
+                    guard let docPage = document.page(at: i)  else { fatalError("No document.page(at: \(i)") }
+                    pages.append(PDFPageItem(
+                        name: "\(sectionName) - Page \(i + 1)",
+                        pdfPage: docPage //,
+                    ))
+                }
+                sections.append(PDFPageSection(title: sectionName, pdfPageItems: pages))
             }
+            pdfPageSections = sections
+            refreshEditingDocument()
         }
-        pdfPageSections.append(section)
-        return insertIndex
     }
-
-    
+        
     func pdfPageIndexPath(for pdfPage: PDFPage) -> IndexPath? {
         for piSection in pdfPageSections.indices {
             let section = pdfPageSections[piSection]
@@ -148,6 +163,8 @@ extension PraxModel {
         }
         return nil
     }
+    
+    
     
     func pdfPageItem(for pdfPage: PDFPage) -> PDFPageItem? {
         for piSection in pdfPageSections.indices {

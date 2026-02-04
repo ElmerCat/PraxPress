@@ -210,19 +210,24 @@ struct DocumentEditingView: NSViewRepresentable {
         let split = NSSplitView()
         split.delegate = context.coordinator
         split.isVertical = true
-        split.dividerStyle = .thin
+        split.dividerStyle = .thick
         split.translatesAutoresizingMaskIntoConstraints = false
         
-        prax.editingPDFView = PDFView()
-        prax.editingPDFView!.pageOverlayViewProvider = context.coordinator
+     //   prax.editingPDFView = PDFView()
+        prax.editingPDFView.pageOverlayViewProvider = context.coordinator
         
         let thumbnailController = PagesViewController()
+        thumbnailController.thumbnailViewer = true
         //      thumbnailController.pdfView = prax.editingPDFView
         
         //       context.coordinator.thumbnailController = thumbnailController
         
         split.addArrangedSubview(thumbnailController.view)
-        split.addArrangedSubview(prax.editingPDFView!)
+        split.addArrangedSubview(prax.editingPDFView)
+        let nailController = PagesViewController()
+        
+        split.addArrangedSubview(nailController.view)
+
         split.dividerStyle = .paneSplitter
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultHigh, forSubviewAt: 1)
@@ -233,6 +238,7 @@ struct DocumentEditingView: NSViewRepresentable {
         DispatchQueue.main.async {
             let target: CGFloat = 150
             split.setPosition(target, ofDividerAt: 0)
+    //    split.setPosition(target + 100, ofDividerAt: 1)
         }
         
         NotificationCenter.default.addObserver(
@@ -283,15 +289,16 @@ struct DocumentEditingView: NSViewRepresentable {
         
         @objc func widthGuideChanged(_ note: Notification) {
             print("DocumentEditingView Coordinator - widthGuideChanged")
-            guard let pdfView = note.object as? PDFView else { return }
+     //       guard let pdfView = note.object as? PDFView else { return }
             DispatchQueue.main.async {
-                pdfView.layoutDocumentView()
-                pdfView.needsDisplay = true
+                self.prax.editingPDFView.layoutDocumentView()
+                self.prax.editingPDFView.needsDisplay = true
+                
             }
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
-            
+            print("DocumentEditingView Coordinator - overlayViewFor page")
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             

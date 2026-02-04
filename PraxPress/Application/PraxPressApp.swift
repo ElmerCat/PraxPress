@@ -34,8 +34,8 @@ struct PraxPressApp: App {
         .commands {
             MainCommands()
         }
-        
-        .windowToolbarStyle(.unified(showsTitle: true))
+        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
         .windowToolbarLabelStyle($toolbarLabelStyle)
         
         
@@ -107,6 +107,7 @@ struct WindowReader: NSViewRepresentable {
             print("viewDidMoveToWindow")
             super.viewDidMoveToWindow()
             if let window = window {
+                print("onResolve?(window)")
                 onResolve?(window)
             }
         }
@@ -121,7 +122,13 @@ struct TempCleanupLifecycleHook: View {
                 print("TempCleanupLifecycleHook willTerminateNotification")
                 onCleanup()
             }
-            .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { notification in
+                if let window = notification.object as? NSWindow {
+                    // Add logic here to check if it's the specific window you care about
+                    print("Window \(window.title) is about to close.")
+                    // Perform cleanup actions...
+                }
+                
                 print("TempCleanupLifecycleHook willCloseNotification")
                 onCleanup()
             }

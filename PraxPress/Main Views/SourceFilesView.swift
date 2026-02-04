@@ -25,6 +25,10 @@ struct PDFFilesList: View {
                     let value = entry.fileName
                     Text(value)
                 }
+                TableColumn("Pages") { (entry: PDFFile) in
+                    let value = entry.pageCount
+                    Text(String(value))
+                }
                 TableColumn("PcardHolderName") { (entry: PDFFile) in
                     let value = entry.dataFields?.pcardHolderName ?? "—"
                     Text(value)
@@ -255,7 +259,7 @@ struct SourceFilesView: View {
         entries.forEach { entry in
             
             if !PraxModel.shared.pdfFiles.contains(where: { $0.url == entry.url }) {
-                let pdfFile = PDFFile(fileGroup: mainFileGroup, url: entry.url, bookmarkData: entry.bookmarkData)
+                let pdfFile = PDFFile(fileGroup: mainFileGroup, url: entry.url, bookmarkData: entry.bookmarkData, pageCount: entry.pageCount)
                 pdfFile.dataFields = pdfFile.dataFieldsFromEntry(entry)
                 modelContext.insert(pdfFile)
             }
@@ -359,6 +363,7 @@ struct SourceFilesView: View {
             return PDFEntry(
                 url: resolvedURL,
                 bookmarkData: bookmarkData,
+                pageCount: doc.pageCount,
                 pcardHolderName: pcardHolderName,
                 documentNumber: documentNumber,
                 date: date,

@@ -222,7 +222,7 @@ struct MergedDocumentView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> PDFView {
         print("MergedDocumentView - makeNSView")
-        prax.mergedPDFView = PDFView()
+      //  prax.mergedPDFView = PDFView()
         
         
         NotificationCenter.default.addObserver(
@@ -232,7 +232,7 @@ struct MergedDocumentView: NSViewRepresentable {
             object: prax.mergedPDFView
         )
         
-        return prax.mergedPDFView!
+        return prax.mergedPDFView
     }
     
     

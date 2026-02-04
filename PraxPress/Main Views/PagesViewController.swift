@@ -17,6 +17,7 @@ import UniformTypeIdentifiers
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
   //  private var prax = PraxModel.shared
+    var thumbnailViewer = false
     
     private var selectedSections = Set<Int>()
     
@@ -43,52 +44,92 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         updateUI(animated: false)
         
         observeDocumentChange = Task {
-            for await _ in Observations({ PraxModel.shared.editingPDFDocument }) {
-                print("PagesViewController observeDocumentChange  ", PraxModel.shared.editingPDFDocument)
+            for await _ in Observations({ PraxModel.shared.pdfPageSections }) {
+                print("PagesViewController observeDocumentChange  ") //, PraxModel.shared.pdfPageSections)
                 updateUI()
             }
         }
         observeCurrentIndexChange = Task {
             for await _ in Observations({ PraxModel.shared.selectedPageItems }) {
-                print("PagesViewController observeCurrentIndexChange  ", PraxModel.shared.selectedPageItems)
+                print("PagesViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
                 
                 if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
-                    PraxModel.shared.editingPDFView?.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
+                    if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
+                        PraxModel.shared.editingPDFView.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
+                        
+                    }
                 }
             }
         }
     }
     
     private func createLayout() -> NSCollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .fractionalWidth(1.3))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+        if thumbnailViewer {
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalWidth(1.3))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 5
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+            
+            let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                          heightDimension: .absolute(50))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerFooterSize,
+                elementKind: PagesViewController.sectionHeaderElementKind,
+                alignment: .top)
+            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerFooterSize,
+                elementKind: PagesViewController.sectionFooterElementKind,
+                alignment: .bottom)
+            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+            sectionHeader.pinToVisibleBounds = true
+            sectionHeader.zIndex = 2
+            sectionFooter.pinToVisibleBounds = true
+            sectionFooter.zIndex = 2
+            let layout = NSCollectionViewCompositionalLayout(section: section)
+            return layout
+
+        }
+        else {
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalWidth(1.3))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 5
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+            
+ /*           let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                          heightDimension: .absolute(50))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerFooterSize,
+                elementKind: PagesViewController.sectionHeaderElementKind,
+                alignment: .top)
+            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerFooterSize,
+                elementKind: PagesViewController.sectionFooterElementKind,
+                alignment: .bottom)
+            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+            sectionHeader.pinToVisibleBounds = true
+            sectionHeader.zIndex = 2
+            sectionFooter.pinToVisibleBounds = true
+            sectionFooter.zIndex = 2
+   */
+            let layout = NSCollectionViewCompositionalLayout(section: section)
+            return layout
+        }
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 5
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-        
-        let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                      heightDimension: .absolute(50))
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerFooterSize,
-            elementKind: PagesViewController.sectionHeaderElementKind,
-            alignment: .top)
-        let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerFooterSize,
-            elementKind: PagesViewController.sectionFooterElementKind,
-            alignment: .bottom)
-        section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-        sectionHeader.pinToVisibleBounds = true
-        sectionHeader.zIndex = 2
-        sectionFooter.pinToVisibleBounds = true
-        sectionFooter.zIndex = 2
-        let layout = NSCollectionViewCompositionalLayout(section: section)
-        return layout
+
     }
     
     private func configureHierarchy() {
@@ -115,7 +156,8 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
             guard let pageItem = item as? PageItem else { return nil }
             pageItem.configure(at: indexPath,
-                                  isSelected: collectionView.selectionIndexPaths.contains(indexPath))
+                                  isSelected: collectionView.selectionIndexPaths.contains(indexPath),
+                               thumbnailViewer: self.thumbnailViewer)
             return pageItem
         }
         dataSource.supplementaryViewProvider = { [weak self]
@@ -208,6 +250,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     
+    
+}
+
+#Preview {
+ 
+    PagesViewController()
     
 }
 

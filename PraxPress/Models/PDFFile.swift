@@ -32,15 +32,17 @@ final class PDFFile {
     var url: URL
     var bookmarkData: Data
     var fileName: String
+    var pageCount: Int
     var fileGroup: PDFFileGroup
     var dataFields: PDFDataFields?
     
-    init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, dataFields: PDFDataFields? = nil) {
+    init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: PDFDataFields? = nil) {
         self.id = UUID()
         self.fileGroup = fileGroup
         self.url = url
         self.bookmarkData = bookmarkData
         self.fileName = url.lastPathComponent
+        self.pageCount = pageCount
         self.dataFields = dataFields
     }
     

@@ -18,6 +18,8 @@ struct SettingsView: View {
 
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+
+    var praxLady = "Julie d'Prax"
     
     var body: some View {
         TabView(selection: $selectedSettingsTab) {

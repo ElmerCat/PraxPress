@@ -47,7 +47,7 @@ extension PagesViewController {
         // Send out the indexPath and photo's url dictionary.
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: PraxModel.shared.editingPDFURL as Any,
+            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: PraxModel.shared.mergedPDFURL as Any,
                                   FilePromiseProvider.UserInfoKeys.indexPathKey: data]
         } catch {
             fatalError("failed to archive indexPath to pasteboard")
@@ -144,6 +144,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     
     override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
         var types = super.writableTypes(for: pasteboard)
+        types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
         types.append(.pdfPageSectionType) // Add our own internal drag type (row drag and drop reordering).
         types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
         return types

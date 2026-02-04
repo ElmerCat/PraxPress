@@ -33,6 +33,7 @@ struct PDFEntry: Identifiable, Hashable {
     let id: UUID
     let url: URL
     let bookmarkData: Data
+    let pageCount: Int
     var fileName: String { url.lastPathComponent }
     let pcardHolderName: String?
     let documentNumber: String?
@@ -43,10 +44,11 @@ struct PDFEntry: Identifiable, Hashable {
     let costObject: String?
     let description: String?
     
-    init(id: UUID = UUID(), url: URL, bookmarkData: Data, pcardHolderName: String?, documentNumber: String?, date: String?, amount: String?, vendor: String?, glAccount: String?, costObject: String?, description: String?) {
+    init(id: UUID = UUID(), url: URL, bookmarkData: Data, pageCount: Int, pcardHolderName: String?, documentNumber: String?, date: String?, amount: String?, vendor: String?, glAccount: String?, costObject: String?, description: String?) {
         self.id = id
         self.url = url
         self.bookmarkData = bookmarkData
+        self.pageCount = pageCount
         self.pcardHolderName = pcardHolderName
         self.documentNumber = documentNumber
         self.date = date

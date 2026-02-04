@@ -26,7 +26,15 @@ final class PraxModel: Sendable {
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-    var pdfPageSections: [PDFPageSection] = []
+    var pdfPageSections: [PDFPageSection] = [] {
+        didSet {
+            print("pdfPageSections didSet:  ", pdfPageSections.count)
+         //   refreshEditingDocument()
+            
+        }
+    }
+    
+    
     var selectedSections: Set<Int> = [] { didSet {
         print("selectedSections didSet:  ", selectedSections)
         selectedSections.forEach {
@@ -38,7 +46,11 @@ final class PraxModel: Sendable {
             print("\($0)") }}}
     
     var saveError: String?
-    var isLoadingPDF = false
+    var isLoadingPDF = false {
+        didSet {
+            print ("\n isLoadingPDF: \(isLoadingPDF)\n")
+        }
+    }
     var isOn = false
     var isLarge: Bool = false
     var showingImporter: Bool = false
@@ -59,6 +71,51 @@ final class PraxModel: Sendable {
     }
 */
 
+    func refreshMergedDocument() {
+        if !refreshingMergedDocument {
+            refreshingMergedDocument = true
+            recomputeMergedMetrics()
+            mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
+            refreshingMergedDocument = false
+        }
+        
+    }
+        
+    var refreshingMergedDocument: Bool = false  {
+        didSet {
+            if refreshingMergedDocument {
+                print ("Refreshing Merged Document") }
+            else {
+                print ("Merged Document Refreshed") }
+        }
+    }
+        
+    func refreshEditingDocument() {
+        if !refreshingEditingDocument {
+            refreshingEditingDocument = true
+            if pdfPageSections.isEmpty {
+                editingPDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+                mergedPDFDocument = editingPDFDocument
+            }
+            else {
+                editingPDFDocument = pdfDocumentFromPDFPageSections(sections: pdfPageSections)
+                refreshMergedDocument()
+            }
+            refreshingEditingDocument = false
+        }
+    }
+
+    var refreshingEditingDocument: Bool = false {
+        didSet {
+            if refreshingEditingDocument {
+                print ("Refreshing Editing Document") }
+            else {
+                print ("Editing Document Refreshed") }
+        }
+    }
+    
+    
+    
     var pdfFiles: [PDFFile] = [] {
         didSet {
             print ("PraxModel pdfFiles didSet: ", pdfFiles.count)
@@ -70,10 +127,13 @@ final class PraxModel: Sendable {
         didSet {
             print ("PraxModel selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
             isLoadingPDF = true
+            selectedPageItems = []
+            clearWidthGuide()
+
             
             DispatchQueue.main.async {
                 print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
-                self.setEditingPDFDocumentFromSelectedFiles()
+                self.setPageSectionsFromSelectedFiles()
             }
         }
     }
@@ -113,48 +173,47 @@ final class PraxModel: Sendable {
         return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension)
     }
     
-    var editingPDFURL: URL = {
-        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
-    }()
+//    var editingPDFURL: URL = {
+//        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
+//    }()
+  
     var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("editingPDFDocument didSet ")
             
             if isLoadingPDF {
                 print ("isLoadingPDF - editingPDFDocument didSet ")
-                selectedPageItems = []
-                clearWidthGuide()
-                
-                recomputeMergedMetrics()
+                 
+  //              recomputeMergedMetrics()
             }
             
-            editingPDFView?.document = editingPDFDocument
+            editingPDFView.document = editingPDFDocument
             
             DispatchQueue.main.async {
                 print ("self.mergedPDFDocument = self.mergeDocumentPagesForSections()")
-                self.mergedPDFDocument = self.mergeDocumentPagesForSections()
+ //               self.mergedPDFDocument = self.mergeDocumentPagesForSections()
             }
         }
     }
-    var editingPDFView: PDFView? { didSet {
-        editingPDFView!.document = editingPDFDocument
-        editingPDFView!.displaysPageBreaks = editingPDFDisplayPageBreaks
-        editingPDFView!.displayMode = editingPDFDisplayMode
-        editingPDFView!.displaysAsBook = editingPDFDisplaysAsBook
-        editingPDFView!.autoScales = editingPDFAutoScales
-        editingPDFView!.backgroundColor = editingPDFBackgroundColor
+    var editingPDFView: PDFView = PDFView() { didSet {
+        editingPDFView.document = editingPDFDocument
+        editingPDFView.displaysPageBreaks = editingPDFDisplayPageBreaks
+        editingPDFView.displayMode = editingPDFDisplayMode
+        editingPDFView.displaysAsBook = editingPDFDisplaysAsBook
+        editingPDFView.autoScales = editingPDFAutoScales
+        editingPDFView.backgroundColor = editingPDFBackgroundColor
     }}
     var editingPDFDisplayMode: PDFDisplayMode = .singlePageContinuous { didSet {
-        editingPDFView?.displayMode = editingPDFDisplayMode
-        editingPDFView?.scaleFactor = editingPDFView?.scaleFactorForSizeToFit ?? 0
+        editingPDFView.displayMode = editingPDFDisplayMode
+        editingPDFView.scaleFactor = editingPDFView.scaleFactorForSizeToFit
     }}
     var editingPDFAutoScales: Bool = true
     var editingPDFDisplayPageBreaks: Bool = true
     var editingPDFDisplaysAsBook: Bool = false {
-        didSet{ editingPDFView?.displaysAsBook = editingPDFDisplaysAsBook }
+        didSet{ editingPDFView.displaysAsBook = editingPDFDisplaysAsBook }
     }
     var editingPDFBackgroundColor: NSColor = .red { didSet {
-        editingPDFView?.backgroundColor = editingPDFBackgroundColor }
+        editingPDFView.backgroundColor = editingPDFBackgroundColor }
     }
     
     var mergedPDFURL: URL = {
@@ -163,29 +222,29 @@ final class PraxModel: Sendable {
     var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("mergedPDFDocument didSet ")
-            mergedPDFView?.document = mergedPDFDocument
+            mergedPDFView.document = mergedPDFDocument
             self.isLoadingPDF = false
         }
     }
-    var mergedPDFView: PDFView? { didSet {
-        mergedPDFView!.document = mergedPDFDocument
-        mergedPDFView!.displaysPageBreaks = mergedPDFDisplayPageBreaks
-        mergedPDFView!.displayMode = mergedPDFDisplayMode
-        mergedPDFView!.displaysAsBook = mergedPDFDisplaysAsBook
-        mergedPDFView!.autoScales = mergedPDFAutoScales
-        mergedPDFView!.backgroundColor = mergedPDFBackgroundColor
+    var mergedPDFView: PDFView = PDFView() { didSet {
+        mergedPDFView.document = mergedPDFDocument
+        mergedPDFView.displaysPageBreaks = mergedPDFDisplayPageBreaks
+        mergedPDFView.displayMode = mergedPDFDisplayMode
+        mergedPDFView.displaysAsBook = mergedPDFDisplaysAsBook
+        mergedPDFView.autoScales = mergedPDFAutoScales
+        mergedPDFView.backgroundColor = mergedPDFBackgroundColor
     }}
     var mergedPDFDisplayMode: PDFDisplayMode = .singlePage { didSet {
-        mergedPDFView?.displayMode = mergedPDFDisplayMode
-        mergedPDFView?.scaleFactor = mergedPDFView?.scaleFactorForSizeToFit ?? 0
+        mergedPDFView.displayMode = mergedPDFDisplayMode
+        mergedPDFView.scaleFactor = mergedPDFView.scaleFactorForSizeToFit
     }}
     var mergedPDFAutoScales: Bool = true
     var mergedPDFDisplayPageBreaks: Bool = true
     var mergedPDFDisplaysAsBook: Bool = false {
-        didSet{ mergedPDFView?.displaysAsBook = mergedPDFDisplaysAsBook }
+        didSet{ mergedPDFView.displaysAsBook = mergedPDFDisplaysAsBook }
     }
     var mergedPDFBackgroundColor: NSColor = .yellow { didSet {
-        mergedPDFView?.backgroundColor = mergedPDFBackgroundColor }
+        mergedPDFView.backgroundColor = mergedPDFBackgroundColor }
     }
     
 }

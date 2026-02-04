@@ -44,18 +44,13 @@ struct ContentView: View {
                     DocumentEditingView()
                     
                 }
-                
-                /*
-                 
-                 nonisolated public func fileExporter<T>(isPresented: Binding<Bool>, item: T?, contentTypes: [UTType] = [], defaultFilename: String? = nil, onCompletion: @escaping (Result<URL, any Error>) -> Void, onCancellation: @escaping () -> Void = { }) -> some View where T : Transferable
-                 */
-                
+ 
                 .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: prax.mergedPDFDocument.dataRepresentation()!, filename: prax.exportFilename), contentTypes: [.pdf], onCompletion: {
                     result in
                     switch result {
                     case .success(let url):
                         print ("Writing mergedPDFView to: ", url)
-                        prax.mergedPDFView?.document?.write(to: url)
+                        prax.mergedPDFView.document?.write(to: url)
                     case .failure(let error):
                         print (error.localizedDescription)
                         prax.saveError = error.localizedDescription
@@ -104,7 +99,7 @@ struct ContentView: View {
             
      /*       .sheet(isPresented: $prax.showSavePanel) {
                 SaveAsPanel(suggestedURL: (prax.exportFileURL ?? URL(filePath: "/PraxPress.pdf"))!) { destination in
-                    prax.mergedPDFView?.document?.write(to: destination)
+                    prax.mergedPDFView.document?.write(to: destination)
                 }}
        */
             .inspector(isPresented: $prax.isShowingInspector) {
@@ -184,7 +179,7 @@ struct ContentView: View {
                 
                 /*               Button("Save", systemImage: "square.and.arrow.down") {
                     
-                    prax.mergedPDFView?.document?.write(to: prax.firstSelectedFileURL!)
+                    prax.mergedPDFView.document?.write(to: prax.firstSelectedFileURL!)
                     //            handleSaveCurrentSelection()
                     
                 }

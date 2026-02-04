@@ -20,6 +20,8 @@ struct PDFPageSection: Hashable, Codable, Transferable {
     
     var pdfPageItems: [PDFPageItem] = [] {
         didSet {
+   //         let prax = oldValue.count
+            
             print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
         }
     }

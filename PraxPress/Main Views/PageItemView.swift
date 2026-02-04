@@ -10,35 +10,60 @@ struct PDFPageItem: Hashable, Codable, Equatable {
     
     let name: String
     let pdfPage: PDFPage
-    let thumbnail: NSImage
+    var thumbnail: NSImage?
     
     var trim: EdgeTrims = .zero {
         didSet {
+            print(oldValue)
+            if PraxModel.shared.isLoadingPDF {
+                print("isLoadingPDF - PraxModel.trims didSet")
+                return }
             print("PraxModel.trims didSet")
-            if PraxModel.shared.isLoadingPDF { return }
-            
             DispatchQueue.main.async {
-                PraxModel.shared.recomputeMergedMetrics()
-                PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
+                PraxModel.shared.refreshMergedDocument()
+            //   PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
                 print("DispatchQueue PraxModel.trims didSet")
             }
         }
     }
-    var merge: MergeMode = .mergeDown
+    private var _merge: MergeMode = .mergeDown
+    var merge: MergeMode {
+        get { _merge }
+        set {
+            if _merge == newValue { return }
+            
+            if PraxModel.shared.editingPDFDocument.pageCount == 1 && newValue == .mergeSkip { return }
+            _merge = newValue
+            
+            
+            if PraxModel.shared.isLoadingPDF {
+                print("isLoadingPDF - PraxModel.merge didSet")
+                return }
+            
+            print("PraxModel.merge didSet")
+            DispatchQueue.main.async {
+                print ("DispatchQueue - refreshEditingDocument()")
+                PraxModel.shared.refreshEditingDocument()
+                
+
+            }
+        }
+    }
+    
     
     // Single concrete initializer that initializes all stored properties
     init(
         id: UUID = UUID(),
         name: String,
         pdfPage: PDFPage,
-        thumbnail: NSImage,
+       // thumbnail: NSImage,
         trim: EdgeTrims = .zero,
         merge: MergeMode = .mergeDown
     ) {
         self.id = id
         self.name = name
         self.pdfPage = pdfPage
-        self.thumbnail = thumbnail
+      //  self.thumbnail = thumbnail
         self.trim = trim
         self.merge = merge
     }
@@ -63,7 +88,7 @@ struct PDFPageItem: Hashable, Codable, Equatable {
             id: decodedID,
             name: decodedName,
             pdfPage: PDFPage(),   // placeholder; replace with real page later in app logic
-            thumbnail: NSImage(), // placeholder; replace with real image later
+   //         thumbnail: NSImage(), // placeholder; replace with real image later
             trim: decodedTrim,
             merge: decodedMerge
         )
@@ -77,9 +102,14 @@ struct PDFPageItem: Hashable, Codable, Equatable {
         try container.encode(merge, forKey: .merge)
     }
     
-    mutating func setTrim(_ trim: EdgeTrims) {
+/*    mutating func setTrim(_ trim: EdgeTrims) {
         self.trim = trim
     }
+    
+    mutating func setMerge(_ merge: MergeMode) {
+        self.merge = merge
+    }
+*/
     
     static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool {
         lhs.id == rhs.id
@@ -94,12 +124,15 @@ struct PDFPageItem: Hashable, Codable, Equatable {
 class PageItem: NSCollectionViewItem {
     private var hostingView: NSHostingView<PageItemView>?
     private var indexPath: IndexPath?
+    private var thumbnailViewer: Bool = false
     
     func configure(at atIndexPath: IndexPath,
-                   isSelected: Bool) {
+                   isSelected: Bool,
+                   thumbnailViewer: Bool) {
         indexPath = atIndexPath
+        self.thumbnailViewer = thumbnailViewer
         
-        let root = PageItemView(indexPath: indexPath!, isSelected: isSelected)
+        let root = PageItemView(indexPath: indexPath!, isSelected: isSelected, thumbnailViewer: thumbnailViewer)
         
         if let hostingView {
             hostingView.rootView = root
@@ -120,15 +153,17 @@ class PageItem: NSCollectionViewItem {
     override var isSelected: Bool {
         didSet {
             if let indexPath {
-                configure(at: indexPath, isSelected: isSelected)
+                configure(at: indexPath, isSelected: isSelected, thumbnailViewer: thumbnailViewer)
             }
         }
     }
 }
 
 struct PageItemView: View {
+    @Environment(PraxContext.self) private var praxContext
     let indexPath: IndexPath
     let isSelected: Bool
+    let thumbnailViewer: Bool
     
     func pdfPageItem() -> PDFPageItem? {
         if indexPath.section >= 0,
@@ -144,7 +179,10 @@ struct PageItemView: View {
     var body: some View {
         if let page = pdfPageItem() {
             VStack(spacing: 8) {
-                Image(nsImage: page.thumbnail)
+                MergedDocumentView()
+                
+                Image(nsImage: (page.thumbnail ?? NSImage(systemSymbolName: "multiply.circle.fill",
+                                                          accessibilityDescription: "A multiply symbol inside a filled circle."))! )
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(6)
@@ -153,9 +191,14 @@ struct PageItemView: View {
                         .font(.caption)
                         .lineLimit(1)
                     Spacer()
-                    Button(action: clickedGuidePageButton) {
-                        Image(systemName: "ruler")
-                    }
+
+                    Button { clickedIncludePageButton(page) }
+                    label: { Image(systemName: page.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                    .buttonStyle(.borderless)
+                    .help("Toggle include page")
+
+                    Button { clickedGuidePageButton(page) }
+                    label: { Image(systemName: "ruler") }
                     .buttonStyle(.borderless)
                     .help("Toggle width guide")
                 }
@@ -175,13 +218,49 @@ struct PageItemView: View {
         }
     }
     
-    func clickedGuidePageButton() {
-        guard let page = pdfPageItem() else { return }
+    func clickedIncludePageButton(_ page: PDFPageItem) {
+        
+        print("PageItem - clickedIncludePageButton pdfPageItem: \(page.name)")
+        if page.merge == .mergeSkip {
+            PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].merge = .mergeDown
+        }
+        else {
+            PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].merge = .mergeSkip
+        }
+
+        
+    }
+    
+    
+
+    func clickedGuidePageButton(_ page: PDFPageItem) {
+        
         print("PageItem - clickedGuidePageButton pdfPageItem: \(page.name)")
         if PraxModel.shared.widthGuidePageID == page.id {
             PraxModel.shared.clearWidthGuide()
         } else {
-            PraxModel.shared.setWidthGuide(fromPage: page)
+            if praxContext.optionKeyPressed {
+                if PraxModel.shared.widthGuidePageID == nil { return }
+                guard let guidePage = PraxModel.shared.pdfPageItem(id: PraxModel.shared.widthGuidePageID!) else { return }
+
+                var trim = page.trim
+                print ("old trim: ", PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim )
+                print (guidePage.trim)
+                print (trim)
+                
+                
+                trim.left = guidePage.trim.left
+                trim.right = guidePage.trim.right
+                PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
+                print("PageItem - clickedGuidePageButton copied guide page trim to current page")
+                print ("new trim: ",PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim )
+                
+            }
+            else {
+                PraxModel.shared.setWidthGuide(fromPage: page)
+
+            }
+
         }
     }
 }
