@@ -133,7 +133,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     private func configureHierarchy() {
-        collectionView.register(PageItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
+        collectionView.register(CollectionViewPDFPageItemThumbnail.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
         collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
          
@@ -154,7 +154,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
-            guard let pageItem = item as? PageItem else { return nil }
+            guard let pageItem = item as? CollectionViewPDFPageItemThumbnail else { return nil }
             pageItem.configure(at: indexPath,
                                   isSelected: collectionView.selectionIndexPaths.contains(indexPath),
                                thumbnailViewer: self.thumbnailViewer)

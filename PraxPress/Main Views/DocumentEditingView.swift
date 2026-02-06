@@ -224,9 +224,9 @@ struct DocumentEditingView: NSViewRepresentable {
         
         split.addArrangedSubview(thumbnailController.view)
         split.addArrangedSubview(prax.editingPDFView)
-        let nailController = PagesViewController()
+   //     let nailController = PagesViewController()
         
-        split.addArrangedSubview(nailController.view)
+     //   split.addArrangedSubview(nailController.view)
 
         split.dividerStyle = .paneSplitter
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
@@ -297,25 +297,26 @@ struct DocumentEditingView: NSViewRepresentable {
             }
         }
         
-        func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
+        func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
             print("DocumentEditingView Coordinator - overlayViewFor page")
+            guard let pdfPageItem = self.prax.pdfPageItem(for: pdfPage) else { return nil }
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             
-            view.onFinish = { [weak self, weak page] rectInOverlay in
-                guard let self, let page = page else { return }
+            view.onFinish = { [weak self, weak pdfPage] rectInOverlay in
+                guard let self, let pdfPage = pdfPage else { return }
                 
                 // Convert overlay-local rect to PDFView coordinates
                 let rectInView = view.convert(rectInOverlay, to: pdfView)
                 
                 // Clamp to page bounds in PDFView coordinates
-                let pageBoundsInView = pdfView.convert(page.bounds(for: .cropBox), from: page)
+                let pageBoundsInView = pdfView.convert(pdfPage.bounds(for: .cropBox), from: pdfPage)
                 let clamped = rectInView.intersection(pageBoundsInView)
                 guard !clamped.isEmpty else { return }
                 
                 // Convert to page coords
-                let pageRect = pdfView.convert(clamped, to: page)
-                let media = page.bounds(for: .cropBox)
+                let pageRect = pdfView.convert(clamped, to: pdfPage)
+                let media = pdfPage.bounds(for: .cropBox)
                 
                 let left = max(0, pageRect.minX - media.minX)
                 let right = max(0, media.maxX - pageRect.maxX)
@@ -325,30 +326,27 @@ struct DocumentEditingView: NSViewRepresentable {
                 let trim = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
                 print("DocumentEditingView Coordinator - trim l:", trim.left, " r:", trim.right, " b:", trim.bottom, " t:", trim.top)
                 
-                // var pdfPageItem = prax.pdfPageItem(for: page)!
-                let indexPath = prax.pdfPageIndexPath(for: page)
-                guard let indexPath = indexPath else { return }
-                prax.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
+                // var pdfPageItem = prax.pdfPageItem(for: pdfPage)!
+                pdfPageItem.trim = trim
             }
             
             // Seed current rect from trims
-            DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
-                guard let view = view, let page = page, let pdfView = pdfView else { return }
-                guard let pageItem = self.prax.pdfPageItem(for: page) else { return }
-                let crop = page.bounds(for: .cropBox)
-                let cropInView = pdfView.convert(crop, from: page)
+            DispatchQueue.main.async { [weak view, weak pdfPage, weak pdfView, weak pdfPageItem] in
+                guard let view = view, let pdfPage = pdfPage, let pdfView = pdfView, let pdfPageItem = pdfPageItem else { return }
+                let crop = pdfPage.bounds(for: .cropBox)
+                let cropInView = pdfView.convert(crop, from: pdfPage)
                 let cropInOverlay = view.convert(cropInView, from: pdfView)
                 view.clampRect = cropInOverlay
                 // Recompute visible using current trims
                 //                 fatalError()
-                let trim = pageItem.trim
+                let trim = pdfPageItem.trim
                 let visibleInPage = CGRect(
                     x: crop.minX + trim.left,
                     y: crop.minY + trim.bottom,
                     width: crop.width - trim.left - trim.right,
                     height: crop.height - trim.top - trim.bottom
                 )
-                let visibleInView = pdfView.convert(visibleInPage, from: page)
+                let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
                 let visibleInOverlay = view.convert(visibleInView, from: pdfView)
                 view.currentRect = visibleInOverlay
                 
