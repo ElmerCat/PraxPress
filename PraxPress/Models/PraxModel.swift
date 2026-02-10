@@ -16,9 +16,11 @@ import Combine
 final class PraxModel: Sendable {
     
 
+
     init() {
-        
+       
     }
+    
     static let shared = PraxModel()
     
     // Width Guide support
@@ -34,6 +36,7 @@ final class PraxModel: Sendable {
         }
     }
     
+
     
     var selectedSections: Set<Int> = [] { didSet {
         print("selectedSections didSet:  ", selectedSections)
@@ -53,6 +56,9 @@ final class PraxModel: Sendable {
     }
     var isOn = false
     var isLarge: Bool = false
+    var showFilesPanel = true
+    var showingMergedDocumentInspector = false
+    var showingPDFPageItemInspector = false
     var showingImporter: Bool = false
     var showingExportFolderSelector: Bool = false
     var isShowingInspector: Bool = false

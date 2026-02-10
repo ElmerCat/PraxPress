@@ -219,7 +219,7 @@ struct CollectionViewPDFPageItemView: View {
                         .buttonStyle(.borderless)
                         .help("Toggle width guide")
                 }
-                Text("\(Int(pdfPageItem!.trim.left))")
+                Text("L-\(Int(pdfPageItem!.trim.left)) T-\(Int(pdfPageItem!.trim.top)) B-\(Int(pdfPageItem!.trim.bottom)) R-\(Int(pdfPageItem!.trim.right))")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -307,8 +307,8 @@ final class PageItemPDFViewCoordinator: NSObject, PDFPageOverlayViewProvider {
         let view = PDFPageOverlayView()
         view.pdfView = pdfView
         
-        view.onFinish = { [weak self, weak page] rectInOverlay in
-            guard let self, let page = page else { return }
+        view.onFinish = { [weak page] rectInOverlay in
+            guard let page = page else { return }
             
             // Convert overlay-local rect to PDFView coordinates
             let rectInView = view.convert(rectInOverlay, to: pdfView)

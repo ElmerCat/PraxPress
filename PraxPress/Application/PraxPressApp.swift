@@ -13,7 +13,7 @@ import SwiftData
 struct PraxPressApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
+    @AppStorage("App.toolbarLabelStyle")  private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
     
     private let modelContainer: ModelContainer = {
         let schema = Schema([PDFFile.self, PDFFileGroup.self])
@@ -33,12 +33,30 @@ struct PraxPressApp: App {
        }
         .commands {
             MainCommands()
+            InspectorCommands()
         }
         .windowStyle(.hiddenTitleBar)
-        .windowToolbarStyle(.unified(showsTitle: false))
+        .windowToolbarStyle(.automatic)
         .windowToolbarLabelStyle($toolbarLabelStyle)
-        
-        
+        .windowResizability(.contentSize)
+    /*    .defaultWindowPlacement { content, context in
+            // 1. Get the usable screen area (excludes Dock/Menu Bar)
+            let displayRect = context.defaultDisplay.visibleRect
+            
+            // 2. Calculate a size (e.g., 50% of the screen)
+            let width = displayRect.width * 0.2
+            let height = displayRect.height * 0.5
+            let size = CGSize(width: width, height: height)
+            
+            // 3. Calculate position for centering
+            let position = CGPoint(
+                x: displayRect.midX - (width / 2),
+                y: displayRect.midY - (height / 2)
+            )
+            
+            return WindowPlacement(position, size: size)
+        }*/
+
 
         Settings {
             SettingsView()

@@ -54,7 +54,7 @@ extension PraxModel {
                     pageItems.append(pdfPageSections[sectionIndex].pdfPageItems[pageIndex])
                 }
             }
-            var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageItems.count)
+          //  var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageItems.count)
             var pageRects: [CGRect] = []
             pageRects.reserveCapacity(pageItems.count)
           
@@ -62,10 +62,10 @@ extension PraxModel {
                     let page = pageItems[pageIndex].pdfPage
                     let rect = page.bounds(for: .cropBox)
                     pageRects.append(rect)
-                    removedPerPage[pageIndex] = page.annotations
-                    for annotation in page.annotations {
-                        page.removeAnnotation(annotation)
-                    }
+              //      removedPerPage[pageIndex] = page.annotations
+              //      for annotation in page.annotations {
+                //    page.removeAnnotation(annotation)
+               //     }
             }
             
             var mediaBox = CGRect(x: 0, y: 0, width: pdfPageSections[sectionIndex].mergedWidthPts, height: pdfPageSections[sectionIndex].mergedHeightPts)
@@ -84,8 +84,10 @@ extension PraxModel {
                     let per = pageItems[pageIndex].trim
                     let seamTop: CGFloat = 0
                     let seamBottom: CGFloat = 0
+                 
+                    let vis = rect.trimmed(per) //: per, seamTop: seamTop, seamBottom: seamBottom)
                     
-                    let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+                 //   let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
                     //       print("merge draw page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription)
                     let visibleWidth = vis.width
                     let visibleHeight = vis.height
@@ -122,41 +124,98 @@ extension PraxModel {
             
             
             // Restore annotations to source pages
-            for pageIndex in 0..<pageItems.count {
-                let p = pageItems[pageIndex].pdfPage
-                for a in removedPerPage[pageIndex] { p.addAnnotation(a) }
-            }
+       //     for pageIndex in 0..<pageItems.count {
+       //         let p = pageItems[pageIndex].pdfPage
+      //          for a in removedPerPage[pageIndex] { p.addAnnotation(a) }
+       //     }
             
             // Second pass: reopen merged and re-add cloned annotations with the SAME translation used above
             
             guard let tempDoc = PDFDocument(url: tmpOut) else { fatalError("PDFDocument(url: tmpOut) failed") }
             guard let mergedPage = tempDoc.page(at: 0) else { fatalError("mergedDoc.page(at: 0) failed") }
             
-             for pageIndex in 0..<pageItems.count {
+            for pageIndex in 0..<pageItems.count {
                     let srcPage = pageItems[pageIndex].pdfPage
-                    let rect = pageRects[pageIndex]
-                    let per = pageItems[pageIndex].trim
-                    let seamTop: CGFloat = 0
-                    let seamBottom: CGFloat = 0
+                    let pageRect = pageRects[pageIndex]
+                    let trim = pageItems[pageIndex].trim
+                 //   let seamTop: CGFloat = 0
+                 //   let seamBottom: CGFloat = 0
                     
-                    let vis = PDFGeometry.visibleRect(media: rect, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-                    let dx = 0 - vis.minX
-                    let dy = placedOriginsY[pageIndex] - vis.minY
+                let trimmedPageRect = pageRect.trimmed(trim)
+                
+                    let dx = 0 - trimmedPageRect.minX
+                    let dy = placedOriginsY[pageIndex] - trimmedPageRect.minY
                     //   print("merge annot page \(i) rect:", rect.debugDescription, "trims:", per, "vis:", vis.debugDescription, "dx:", dx, "dy:", dy)
                     
-                    for annot in srcPage.annotations {
-                        guard annot.fieldName != nil else { continue }
-                        guard let copied = annot.copy() as? PDFAnnotation else { continue }
-                        copied.bounds = annot.bounds.offsetBy(dx: dx, dy: dy)
-                        mergedPage.addAnnotation(copied)
-                        if copied.widgetFieldType == .text {
-                            if let v = copied.widgetStringValue, !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                copied.widgetStringValue = v
-                            }
-                        }
+                for annotation in srcPage.annotations {
+                    // Only handle form fields; skip others as before
+                    guard annotation.fieldName != nil else { continue }
+                    guard let copiedAnnotation = annotation.copy() as? PDFAnnotation else { continue }
+                    
+                    // Translate annotation bounds from source page space into merged page space
+                    let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
+                    
+                    // Destination rect for this slice in merged page coordinates
+                    let destSliceRect = CGRect(x: 0,
+                                               y: placedOriginsY[pageIndex],
+                                               width: trimmedPageRect.width,
+                                               height: trimmedPageRect.height)
+                    
+                    // Fit while preserving center as much as possible
+                    let minSize: CGFloat = 2.0
+                    
+                    // Start from original center
+                    let centerX = translatedBounds.midX
+                    let centerY = translatedBounds.midY
+                    
+                    // Compute the max size that fits within the slice while centered at (centerX, centerY)
+                    var targetWidth = translatedBounds.width
+                    var targetHeight = translatedBounds.height
+                    
+                    // Limit size to slice dimensions
+                    targetWidth = min(targetWidth, destSliceRect.width)
+                    targetHeight = min(targetHeight, destSliceRect.height)
+                    
+                    // Ensure minimum size
+                    targetWidth = max(targetWidth, minSize)
+                    targetHeight = max(targetHeight, minSize)
+                    
+                    // Build a rect of the target size centered at original center
+                    var fitted = CGRect(x: centerX - targetWidth / 2.0,
+                                        y: centerY - targetHeight / 2.0,
+                                        width: targetWidth,
+                                        height: targetHeight)
+                    
+                    // If this centered rect spills outside the slice, clamp position while keeping size
+                    if fitted.minX < destSliceRect.minX {
+                        fitted.origin.x = destSliceRect.minX
+                    }
+                    if fitted.maxX > destSliceRect.maxX {
+                        fitted.origin.x = destSliceRect.maxX - fitted.width
+                    }
+                    if fitted.minY < destSliceRect.minY {
+                        fitted.origin.y = destSliceRect.minY
+                    }
+                    if fitted.maxY > destSliceRect.maxY {
+                        fitted.origin.y = destSliceRect.maxY - fitted.height
                     }
                     
+                    // Final safety: ensure we still overlap the slice (in case slice is extremely small)
+                    guard fitted.intersects(destSliceRect) else { continue }
+                    
+                    copiedAnnotation.bounds = fitted
+                    mergedPage.addAnnotation(copiedAnnotation)
+                    
+                    // Preserve text values for text widgets
+
+                    if copiedAnnotation.widgetFieldType == .text {
+                        if let v = copiedAnnotation.widgetStringValue, !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            copiedAnnotation.widgetStringValue = v
+                        }
+                    }
+                }
              }
+            
             
             pdfPageSections[sectionIndex].pdfPage = mergedPage
             mergedDocument.insert(mergedPage, at: sectionIndex)

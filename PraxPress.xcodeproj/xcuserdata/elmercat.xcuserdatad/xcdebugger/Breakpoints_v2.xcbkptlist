@@ -8,21 +8,12 @@
          BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
          <BreakpointContent
             uuid = "5D49EAD7-7582-4CDF-B52F-CD9CDE176423"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             symbolName = "LAYOUT_CONSTRAINTS_NOT_SATISFIABLE"
             moduleName = "">
             <Locations>
-               <Location
-                  uuid = "5D49EAD7-7582-4CDF-B52F-CD9CDE176423 - ca5a5abeb0dbd6ce"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "LAYOUT_CONSTRAINTS_NOT_SATISFIABLE"
-                  moduleName = "AppKit"
-                  usesParentBreakpointCondition = "Yes">
-               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>

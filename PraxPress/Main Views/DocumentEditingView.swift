@@ -214,7 +214,7 @@ struct DocumentEditingView: NSViewRepresentable {
         split.translatesAutoresizingMaskIntoConstraints = false
         
      //   prax.editingPDFView = PDFView()
-        prax.editingPDFView.pageOverlayViewProvider = context.coordinator
+    //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
         
         let thumbnailController = PagesViewController()
         thumbnailController.thumbnailViewer = true
@@ -223,10 +223,10 @@ struct DocumentEditingView: NSViewRepresentable {
         //       context.coordinator.thumbnailController = thumbnailController
         
         split.addArrangedSubview(thumbnailController.view)
-        split.addArrangedSubview(prax.editingPDFView)
-   //     let nailController = PagesViewController()
+   //     split.addArrangedSubview(prax.editingPDFView)
+        let nailController = PagesViewController()
         
-     //   split.addArrangedSubview(nailController.view)
+        split.addArrangedSubview(nailController.view)
 
         split.dividerStyle = .paneSplitter
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
@@ -303,8 +303,8 @@ struct DocumentEditingView: NSViewRepresentable {
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             
-            view.onFinish = { [weak self, weak pdfPage] rectInOverlay in
-                guard let self, let pdfPage = pdfPage else { return }
+            view.onFinish = { [weak pdfPage] rectInOverlay in
+                guard let pdfPage = pdfPage else { return }
                 
                 // Convert overlay-local rect to PDFView coordinates
                 let rectInView = view.convert(rectInOverlay, to: pdfView)

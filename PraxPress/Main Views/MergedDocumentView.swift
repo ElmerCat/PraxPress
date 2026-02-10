@@ -8,6 +8,36 @@
 import SwiftUI
 import PDFKit
 
+struct PDFPageItemInspector: View {
+    var body: some View {
+        VStack {
+            GroupBox {
+                
+                Text("Inspector 1")
+                    .frame(minWidth: 100, maxWidth: 1000, maxHeight: .infinity)
+                    .background(.pink)
+            }
+            .padding(20)
+            //  .background(.yellow)
+            Button(PraxModel.shared.isLarge ? "Make Small" : "Make Large") {
+                // Toggle the state when the button is tapped
+                PraxModel.shared.isLarge.toggle()
+            }
+            Text("Inspector 2")
+            //           .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //               .background(.purple)
+                .background(.purple)
+        }
+        Text("Inspector 3")
+        //    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .inspectorColumnWidth(min: 50, ideal: 150, max: 500)
+            .background(.gray)
+        
+        
+    }
+}
+
+
 struct MergedDocumentHeader: View {
     @Bindable private var prax = PraxModel.shared
     var body: some View {
@@ -209,6 +239,20 @@ final class Coordinator: NSObject {
     
 }
 
+
+
+struct praxMergedDocumentInspector: View {
+    var body: some View {
+        VStack {
+            Text("Hello, World!")
+                .padding()
+                .navigationBarBackButtonHidden(false)
+            
+          //  MergedDocumentView()
+        }
+    }
+        
+}
 
 
 struct MergedDocumentView: NSViewRepresentable {

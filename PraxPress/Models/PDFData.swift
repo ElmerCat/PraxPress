@@ -60,6 +60,18 @@ struct PDFEntry: Identifiable, Hashable {
     }
 }
 
+extension CGRect {
+    func trimmed(_ trim: EdgeTrims, seamTop: CGFloat = 0, seamBottom: CGFloat = 0) -> CGRect {
+        let minX = self.minX + trim.left
+        let maxX = self.maxX - trim.right
+        let minY = self.minY + trim.bottom + seamBottom
+        let maxY = self.maxY - trim.top - seamTop
+        let w = max(0, maxX - minX)
+        let h = max(0, maxY - minY)
+        return CGRect(x: minX, y: minY, width: w, height: h)
+    }
+}
+
 struct PDFGeometry {
     /// Compute the visible rect in page space given media box and trims.
     static func visibleRect(media: CGRect, trims: EdgeTrims, seamTop: CGFloat, seamBottom: CGFloat) -> CGRect {

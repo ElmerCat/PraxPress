@@ -10,7 +10,7 @@ import PDFKit
 import UniformTypeIdentifiers
 import Combine
 
-private let DEBUG_LOGS = false
+private let DEBUG_LOGS = true
 
 
 struct PDFFilesList: View {
@@ -145,20 +145,7 @@ struct SourceFilesView: View {
         }
         .navigationTitle("Julie d'PraxPress")
         .navigationSplitViewColumnWidth(min: 100, ideal: 300, max: 1000)
-        .toolbar(removing: .sidebarToggle)
-        .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
-                if (prax.columnVisibility == .all && !prax.selectedFiles.isEmpty) {
-                    Button {
-                        //             prax.listOfFiles.removeAll()
-                        prax.selectedFiles.removeAll()
-                    } label: {
-                        Label("Remove Files", systemImage: "folder.badge.minus")
-                    }
-                    .disabled(prax.selectedFiles.isEmpty)
-                }
-            }
-        }
+
         .fileImporter(
             isPresented: $prax.showingImporter,
             allowedContentTypes: [.pdf, .folder],
@@ -175,14 +162,21 @@ struct SourceFilesView: View {
         
         .task {
             DispatchQueue.main.async {
-                
                 print ("Fortunareed")
-  
-            }
-            
-            
+          }
         }
+  
+        .onAppear() {
+            print ("Sharon Eldon")
+        }
+        
+        .onDisappear() {
+            print ("Marsha Nolan")
+        }
+        
     }
+    
+
     
     private func pdfFileGroup(_ name: String) -> PDFFileGroup {
         if let fileGroup = pdfFileGroups.first(where: { $0.name == name }) {

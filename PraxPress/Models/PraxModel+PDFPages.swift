@@ -96,7 +96,7 @@ extension PraxModel {
         
     }
     
-    
+
     func setPageSectionsFromSelectedFiles() {
         let entries: [PDFFile] = selectedFiles.compactMap { id in
             pdfFiles.first(where: { $0.id == id })
@@ -135,7 +135,7 @@ extension PraxModel {
             refreshEditingDocument()
         }
     }
-        
+    
     func pdfPageIndexPath(for pdfPage: PDFPage) -> IndexPath? {
         for piSection in pdfPageSections.indices {
             let section = pdfPageSections[piSection]

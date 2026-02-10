@@ -12,260 +12,331 @@ import Combine
 
 
 
+public struct ASlideableDivider: View {
+    @Binding var dimension: Double
+    @Binding var otherDimension: Double
+    let position: Int
+    let isShowingOtherPane: Bool
+    let minDimension: Double
+    let maxDimension: Double
+    let windowWidth: Double
+    //   @Binding var collapse: Bool?
+    
+    @State private var dimensionStart: Double?
+    
+    public var body: some View {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 10)
+            .onHover { inside in
+                if inside {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(drag)
+    }
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
+            .onChanged { val in
+                if dimensionStart == nil {
+                    if position == 0 {
+                        dimensionStart = dimension
+                    }
+                    else {
+                        dimensionStart = otherDimension
+                    }
+                    dimensionStart = dimension
+                }
+                let delta = val.location.x - val.startLocation.x
+                let newDimension = dimensionStart! + Double(delta)
+                
+                
+                let difference = newDimension - dimension
+                
+                if difference > 0 {
+                    
+                    
+                    
+                }
+                else if difference < 0 {
+                    if position == 0 {
+                        if newDimension < minDimension {
+                            print("Julie d'Prax")
+                            //  collapse = false
+                        }
+                        else {
+                            dimension = newDimension
+                        }
+                    }
+                    else {
+                        if newDimension > maxDimension {
+                            print("Juliette M. Belanger")
+                            //  collapse = false
+                        }
+                        else {
+                            dimension = newDimension
+                        }
+                        
+                    }
+                    
+                }
+                
+                if position == 0 {
+                    if newDimension < minDimension {
+                        print("Julie d'Prax")
+                        //  collapse = false
+                        return
+                    }
+                    
+                    if newDimension < windowWidth - maxDimension {
+                        dimension = newDimension
+                        return
+                    }
+                }
+                
+                if newDimension + dimension < minDimension {
+                    
+                    print("Julie d'Prax")
+                    //  collapse = false
+                    return
+                }
+                else if isShowingOtherPane {
+                    
+                    if newDimension < windowWidth - dimension - otherDimension - maxDimension {
+                        dimension += difference / 2
+                        otherDimension += difference / 2
+                    }
+                    
+                    
+                }
+                else {
+                    
+                    if newDimension < windowWidth - maxDimension {
+                        dimension += difference
+                        otherDimension += difference
+                    }
+                    
+                    
+                }
+                
+                
+                print("dimension: ", dimension)
+                
+            }
+            .onEnded { val in
+                dimensionStart = nil
+            }
+    }
+}
+
+public struct SlideableDivider: View {
+    let dimension: Double
+    let position: Int
+    let onChangedDivider: (Double, Int) -> Void
+    
+    @State private var dimensionStart: Double?
+    
+    public var body: some View {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 10)
+            .onHover { inside in
+                if inside {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(drag)
+    }
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
+            .onChanged { val in
+                if dimensionStart == nil {
+                        dimensionStart = dimension
+                }
+                let delta = val.location.x - val.startLocation.x
+                let newDimension = dimensionStart! + Double(delta)
+                
+                onChangedDivider(newDimension, position)
+            }
+            .onEnded { val in
+                dimensionStart = nil
+            }
+    }
+}
 
 struct ContentView: View {
-    //    @State private var praxContext = PraxContext()
-    
-    //    @State private var prax = PraxModel.shared
     @Environment(PraxContext.self) private var praxContext
     @Environment(PraxModel.self) private var prax
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.displayScale) private var displayScale
     
+    @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true {
+        didSet {
+            if showFilesPanel == true {
+                let ratio = detailWidth / contentWidth
+                
+                if windowWidth - sidebarWidth > 200 {
+                    detailWidth -= sidebarWidth * ratio
+                }
+            }
+            else {
+                detailWidth += sidebarWidth
+            }
+            
+        }
+    }
+    
+    let maxWidth = (NSScreen.main?.visibleFrame.width ?? 800) * 0.8
+    
+    @SceneStorage("ContentView.sidebarWidth") var sidebarWidth: Double = 200
+    @SceneStorage("ContentView.contentWidth") var contentWidth: Double = 400
+    @SceneStorage("ContentView.detailWidth") var detailWidth: Double = 200
+    
+    @State var windowWidth: CGFloat = 0
+    
+    func onChangedDivider(_ newDimension: Double, at position: Int) {
+        switch position {
+        case 0:
+            let difference = newDimension - sidebarWidth
+            print("divider: ", position, " dragged to: ", newDimension, " difference: ", difference)
+            if newDimension < 200 {
+                print ("too narrow")
+                return }
+            
+            if newDimension > windowWidth - contentWidth + detailWidth - 200 {
+                print("too wide")
+                return }
+            
+            if detailWidth < windowWidth - 200 {
+                let differnce = newDimension - sidebarWidth
+                sidebarWidth += differnce
+                detailWidth -= differnce
+            }
+            
+        default:
+            let difference = newDimension - detailWidth
+            print("divider: ", position, " dragged to: ", newDimension, " difference: ", difference)
+            if newDimension < 200 {
+                print("too narrow")
+                return }
+
+            if showFilesPanel {
+                if newDimension + sidebarWidth > windowWidth - 200 {
+                    print("too wide")
+                    return }
+
+            }
+            if newDimension > windowWidth - 200 {
+                print("too wide")
+                return }
+            detailWidth = newDimension
+            
+            
+        }
+    }
+
     
     var body: some View {
         @Bindable var prax = prax
         @Bindable var praxContext = praxContext
         
+        
+        
+        var detailMaxWidth: Double {
+            if showFilesPanel {
+                return (windowWidth - sidebarWidth) - 20
+            }
+            else {
+                return windowWidth - 20
+            }
+            
+        }
+        
+        
         let _ = Self._printChanges()
         
-        
-        
-        NavigationSplitView(columnVisibility: $prax.columnVisibility
-        ) {
-            SourceFilesView()
-                .navigationSplitViewColumnWidth(min: 50, ideal: 300, max: 1000)
-        }
-        
-        detail:  {
-            HSplitView {
+        GeometryReader { geometry in
+            
+            HStack(spacing: 0) {
                 
-                GroupBox {
-                    DocumentEditingToolbar()
-                    DocumentEditingView()
+                if showFilesPanel {
+                    SourceFilesView()
+                        .frame(width: CGFloat(sidebarWidth))
+                        .layoutPriority(2)
+                    
+                    SlideableDivider(dimension: sidebarWidth, position: 0, onChangedDivider: onChangedDivider)
                     
                 }
- 
-                .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: prax.mergedPDFDocument.dataRepresentation()!, filename: prax.exportFilename), contentTypes: [.pdf], onCompletion: {
-                    result in
-                    switch result {
-                    case .success(let url):
-                        print ("Writing mergedPDFView to: ", url)
-                        prax.mergedPDFView.document?.write(to: url)
-                    case .failure(let error):
-                        print (error.localizedDescription)
-                        prax.saveError = error.localizedDescription
-                    }
-                })
-                .fileDialogDefaultDirectory(prax.exportFolderURL)
-                .fileDialogMessage("Save the PraxPress Merged PDF")
-                .fileExporterFilenameLabel("Save Merged PDF as:")
-                .fileDialogConfirmationLabel(Text("Save Merged PDF"))
                 
-                
-                .frame(maxWidth: 1000, maxHeight: .infinity)
-                .padding(20)
-                .background(praxContext.optionKeyPressed ? .red : .cyan)
-                
-                GroupBox {
-                    MergedDocumentHeader()
-                        .draggable {
-                            if let data = prax.mergedPDFDocument.dataRepresentation() {
-                                return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
-                                
-                            } else {
-                                return nil
+                HStack(spacing: 0) {
+                    
+                    VStack {
+                        Text("Window Width: \(windowWidth)")
+                        Text("Content Width: \(contentWidth)")
+                        Text("SidebarWidth: \(sidebarWidth)")
+                        Text("DetailWidth: \(detailWidth)")
+                        Text("DetailMaxWidth: \(detailMaxWidth)")
+                        Text("Max Width: \(maxWidth)")
+                        Text("Width: \(geometry.size.width)")
+                        Text("Height: \(geometry.size.height)")
+            //            Text("Local (x,y): \(geometry.frame(in: .local).origin)")
+            //            Text("Global (x,y): \(geometry.frame(in: .global).origin)")
+                        ContentDetailView()
+                            .frame(width: CGFloat(detailWidth))
+                            .layoutPriority(1)
+                            .onChange(of: prax.isLarge) {
+                                if prax.isLarge {
+                                    detailWidth = 1000
+                                }
+                                else {
+                                    detailWidth = 400
+                                }
                             }
-                        }
-                    GroupBox {
-                        MergedDocumentView()
                         
                     }
-                    .draggable {
-                        if let data = prax.mergedPDFDocument.dataRepresentation() {
-                            return MergedPDFTransfer(data: data, filename: "Nora Prax")
-                        } else {
-                            return nil
-                        }
-                    }
-                    
-                    MergedDocumentFooter()
+                    SlideableDivider(dimension: detailWidth, position: 1, onChangedDivider: onChangedDivider)
+
+                    MergedDocumentView()
+                }
+                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
+                    print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)
+                    return contentGeometry.size.width
                     
                 }
-                .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 0.3))
-
-                .padding(20)
-                    .frame(maxWidth: 1000, maxHeight: .infinity)
+                action: {newValue in
+                    print ("contentGeometry.size.width newValue: ", newValue )
+                    contentWidth = newValue
+                }
+                
             }
             
-     /*       .sheet(isPresented: $prax.showSavePanel) {
-                SaveAsPanel(suggestedURL: (prax.exportFileURL ?? URL(filePath: "/PraxPress.pdf"))!) { destination in
-                    prax.mergedPDFView.document?.write(to: destination)
-                }}
-       */
-            .inspector(isPresented: $prax.isShowingInspector) {
-                VStack {
-                    GroupBox {
-                        
-                        Text("Inspector 1")
-                            .frame(minWidth: 100, maxWidth: 1000, maxHeight: 100)
-                            .background(.pink)
-                    }
-                    .padding(20)
-                    //  .background(.yellow)
-                    Button(prax.isLarge ? "Make Small" : "Make Large") {
-                        // Toggle the state when the button is tapped
-                        prax.isLarge.toggle()
-                    }
-                    Text("Inspector 2")
-                    //           .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    //               .background(.purple)
-                        .background(.purple)
-                }
-                Text("Inspector 3")
-                //    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .inspectorColumnWidth(min: 50, ideal: 150, max: 500)
-                    .background(.gray)
-            }
+
+            
+        }
+        .frame(minWidth: 0, maxWidth: maxWidth, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
+        
+        .onGeometryChange(for: CGFloat.self) {  windowGeometry in
+            print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width, "  maxWidth: ", maxWidth)
+            return windowGeometry.size.width
+            
+        }
+        action: {oldValue, newValue in
+            print ("windowGeometry.size.width:  old: ", oldValue, "  new: ", newValue )
+            windowWidth = Double(newValue)
         }
         
-        .navigationSplitViewColumnWidth(min: 150, ideal: 200, max: 400)
-        .navigationSplitViewColumnWidth(min: (prax.isOn ? 0 : 500), ideal: (prax.isOn ? 0 : 500), max: (prax.isOn ? 1: 500))
-        .navigationTitle(prax.exportFilename)
         
-        .toolbar() {
-            ToolbarItemGroup(placement: .navigation) {
-                Button {
-                    NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
-                } label: {
-                    Label("Files", systemImage: "sidebar.left")
-                }
-                Button {
-                    if prax.columnVisibility == .detailOnly {
-                        NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
-                    }
-                    prax.showingImporter = true
-                } label: {
-                    Label("Select Files", systemImage: "folder.badge.plus")
-                }
-                
- /*               Button("Save As …", systemImage: "square.and.arrow.down.on.square") {
-                    //  prax.showSavePanel = true
-                    prax.showSavePanel = true
-                }
-                .disabled(prax.selectedFiles.isEmpty)
-                
-                Button {
-                    prax.showingExportFolderSelector = true
-                } label: {
-                    Label("Select Export Folder", systemImage: "arrow.forward.folder")
-                }
-                
-                RenameButton()
-                    .renameAction {
-                        print ("Jule d'Prax")
-                    }
-                
-                PasteButton(payloadType: String.self) { strings in
-                    prax.exportFilenamePrefix = strings[0]
-                }
-   */
-                Spacer()
-            }
-            
-           
-            
-            ToolbarItemGroup(placement: .primaryAction) {
-                Spacer()
-                
-                /*               Button("Save", systemImage: "square.and.arrow.down") {
-                    
-                    prax.mergedPDFView.document?.write(to: prax.firstSelectedFileURL!)
-                    //            handleSaveCurrentSelection()
-                    
-                }
-                .disabled(prax.selectedFiles.isEmpty)
-                
-                
-               Button {
-                    prax.showingExportFolderSelector = true
-                } label: {
-                    HStack {
-                        Image(systemName: "arrow.forward.folder")
-                        Text(prax.exportFolderURL?.lastPathComponent ?? "Choose Export Folder")
-                    }}
-   */
-                
-
-                
-                HStack {
-                    Spacer(minLength: 5)
-                    Text("Drag as...   ")
-                    Spacer(minLength: 5)
-                    Text(prax.exportFilenamePrefix)
-                //    Spacer(minLength: 5)
-                    TextField("Filename", text: Binding<String>(
-                        get: { prax.exportFilenameBody },
-                        set: { newValue in
-                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            // Ensure we don't accidentally include a dot/extension typed by the user
-                            if let dotRange = newName.range(of: ".") {
-                                newName = String(newName[..<dotRange.lowerBound])}
-                            prax.exportFilenameBody = newName
-                        })
-                              
-                    )
-                    .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    .textFieldStyle(SquareBorderTextFieldStyle())
-                    .disabled(prax.exportFolderURL == nil)
-                    .foregroundStyle(.cyan)
-                    .backgroundStyle(.yellow)
-                    
-                   // Spacer(minLength: 5)
-                    Text(prax.exportFilenameSuffix)
-                    Spacer(minLength: 5)
-                    
-                    Image(systemName: "arrow.right.doc.on.clipboard")
-                    Spacer(minLength: 5)
-                    Text(".\(prax.exportFilenameExtension)")
-                    Spacer(minLength: 15)
-                    
-                }
-                .draggable {
-                    if let data = prax.mergedPDFDocument.dataRepresentation() {
-                        return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
-                        
-                    } else {
-                        return nil
-                    }
-                }
-                
-                Spacer()
-
-            }
-            
-            ToolbarItemGroup(placement: .primaryAction) {
-                
-                
-                Button("Save As …", systemImage: "arrow.down.document") {
-                    prax.showSavePanel.toggle()
-                }
-                
-                Button {
-                    prax.isLarge.toggle()
-                } label: {
-                    Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                }
-            }
-            
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    prax.isShowingInspector.toggle()
-                } label: {
-                    Label((prax.isShowingInspector ? "Hide Inspector" : "Show Inspector"), systemImage: (prax.isShowingInspector ? "info.square.fill" : "info.square"))
-                }
-            }
+        .toolbar {
+            MainToolbar()
         }
+        
         .onAppear {
             print("ContentView  .onAppear ")
             //    prax.loadSelectedFiles()
@@ -273,22 +344,124 @@ struct ContentView: View {
         
     }
 }
+
+struct ContentDetailView: View {
+    
+    @Environment(PraxContext.self) private var praxContext
+    @Environment(PraxModel.self) private var prax
+    
+    var body: some View {
+        @Bindable var prax = prax
+        @Bindable var praxContext = praxContext
+        
+        HSplitView {
+            GroupBox {
+                /*          DocumentEditingToolbar()
+                 MergedDocumentHeader()
+                 .draggable {
+                 if let data = prax.mergedPDFDocument.dataRepresentation() {
+                 return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+                 } else {
+                 return nil
+                 }
+                 }
+                 MergedDocumentFooter()
+                 .alert(isPresented: $prax.isLarge) {
+                 Alert(title: Text("Order Complete"),
+                 message: Text("Thank you for shopping with us."),
+                 dismissButton: .default(Text("OK")))   }
+                 
+                 */        DocumentEditingView()
+                //               .inspector(isPresented: $prax.showingMergedDocumentInspector) {
+                //                 MergedDocumentInspector()
+                //           }
+                    .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                        PDFPageItemInspector()
+                    }
+            }
+            
+            
+            
+            .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: prax.mergedPDFDocument.dataRepresentation()!, filename: prax.exportFilename), contentTypes: [.pdf], onCompletion: {
+                result in
+                switch result {
+                case .success(let url):
+                    print ("Writing mergedPDFView to: ", url)
+                    prax.mergedPDFView.document?.write(to: url)
+                case .failure(let error):
+                    print (error.localizedDescription)
+                    prax.saveError = error.localizedDescription
+                }
+            })
+            .fileDialogDefaultDirectory(prax.exportFolderURL)
+            .fileDialogMessage("Save the PraxPress Merged PDF")
+            .fileExporterFilenameLabel("Save Merged PDF as:")
+            .fileDialogConfirmationLabel(Text("Save Merged PDF"))
+            
+            
+            //    .frame(maxWidth: 1000, maxHeight: .infinity)
+            .padding(20)
+            .background(praxContext.optionKeyPressed ? .red : .cyan)
+            
+        }
+        
+    }
+}
+
+
+
 #Preview {
     ContentView()
 }
 
 
-/*  .draggable(PDFPageSectionsPayload(sections: prax.pdfPageSections)){
- // Custom drag preview
- VStack(alignment: .leading) {
- Text("Dragging \(prax.pdfPageSections.count) section(s)")
- .font(.headline)
- Text("Drop to merge or reorder")
- .font(.caption)
- .foregroundStyle(.secondary)
+
+
+
+/*         NavigationSplitView(columnVisibility: $prax.columnVisibility) {
+ SourceFilesView()
+ .onGeometryChange(for: CGFloat.self) {  sidebarGeometry in
+ print("onGeometryChange - sidebarGeometry.size.width: ", sidebarGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)
+ return sidebarGeometry.size.width
+ 
  }
- .padding(8)
- .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+ action: {newValue in
+ print ("sidebarGeometry.size.width newValue: ", newValue )
+ sidebarWidth = newValue
+ }
+ .layoutPriority(0)
+ //           .navigationSplitViewColumnWidth(min: 100, ideal: 100, max: maxWidth / 2)
+ } detail: {
+ ContentDetailView()
+ .onGeometryChange(for: CGFloat.self) {  detailGeometry in
+ print("onGeometryChange - detailGeometry.size.width: ", detailGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)
+ return detailGeometry.size.width
+ 
+ }
+ action: {oldValue, newValue in
+ print ("detailGeometry.size.width old: ", oldValue, "  new: ", newValue )
+ detailWidth = Double(newValue)
+ }
+ .frame(maxWidth: detailMaxWidth)
+ .layoutPriority(0)
+ //    .navigationSplitViewColumnWidth(min: 100, ideal: 100, max: detailMaxWidth)
+ 
+ .inspector(isPresented: $prax.isShowingInspector) {
+ MergedDocumentInspector()
+ 
+ .onGeometryChange(for:  CGFloat.self) {  inspectorGeometry in
+ print("onGeometryChange - inspectorGeometry.size.width: ", inspectorGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)
+ return inspectorGeometry.size.width
+ 
+ }
+ action: {newValue in
+ print ("inspectorGeometry.size.width - new: ", newValue )
+ inspectorWidth = Double(newValue)
+ }
+ .interactiveDismissDisabled()
+ //        .inspectorColumnWidth(min:400, ideal: 600, max: 1000)
+ }
+ //
+ 
  }
  */
-
