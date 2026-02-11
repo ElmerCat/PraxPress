@@ -143,7 +143,7 @@ struct SourceFilesView: View {
             }
             .background(Color.blue.opacity(0.5))
         }
-        .navigationTitle("Julie d'PraxPress")
+        .navigationTitle("PDF Files")
         .navigationSplitViewColumnWidth(min: 100, ideal: 300, max: 1000)
 
         .fileImporter(

@@ -166,6 +166,15 @@ struct SectionHeaderView: View {
         }
     }
     
+    func pdfPageSection() -> PDFPageSection? {
+        if indexPath.section >= 0,
+           indexPath.section < PraxModel.shared.pdfPageSections.count {
+        return PraxModel.shared.pdfPageSections[indexPath.section]
+        }
+        else {
+            return nil
+        }
+    }
     enum DragState {
         case inactive
         case pressing
@@ -209,6 +218,8 @@ struct SectionHeaderView: View {
         let clickGesture = TapGesture()
             .onEnded { value in
                  print("View tapped! - \(indexPath) - praxContext.optionKeyPressed: \(praxContext.optionKeyPressed)")
+                
+                PraxModel.shared.mergedPDFView.go(to: (pdfPageSection()!.pdfPage)!)
             }
          
 

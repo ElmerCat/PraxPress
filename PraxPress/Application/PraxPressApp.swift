@@ -35,8 +35,8 @@ struct PraxPressApp: App {
             MainCommands()
             InspectorCommands()
         }
-        .windowStyle(.hiddenTitleBar)
-        .windowToolbarStyle(.automatic)
+        .windowStyle(.titleBar)
+        .windowToolbarStyle(.unified(showsTitle: true))
         .windowToolbarLabelStyle($toolbarLabelStyle)
         .windowResizability(.contentSize)
     /*    .defaultWindowPlacement { content, context in

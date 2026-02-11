@@ -138,7 +138,7 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
         if self.indexPath != nil {
             if let pdfPageItem = PraxModel.shared.pdfPageItem(indexPath: indexPath!) {
                 self.pdfPageItem = pdfPageItem
-                let root = PDFPageItemView(pdfPageItem: self.pdfPageItem, isSelected: isSelected)
+                let root = PDFPageItemView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, highlightState: highlightState)
                 if let hostingView {
                     print ("PageItem - hostingView")
                     hostingView.rootView = root
@@ -162,6 +162,12 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
         
     }
     
+    override var highlightState: NSCollectionViewItem.HighlightState {
+        didSet {
+            configure(at: indexPath, isSelected: isSelected)
+        }
+    }
+
     override var isSelected: Bool {
         didSet {
             configure(at: indexPath, isSelected: isSelected)
@@ -190,13 +196,50 @@ struct PDFPageItemView: View {
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
+    let highlightState: NSCollectionViewItem.HighlightState
+    
+    
    
     
-    
-    
-    
     var body: some View {
-      
+        
+        let backgroundColor: Color = {
+            switch highlightState {
+                //      case .forSelection:
+                //        Color.blue
+                //     case .forDeselection:
+                //         Color.yellow
+            case .asDropTarget:
+                Color.purple
+            default:
+                if isSelected {
+                    Color.blue
+                }
+                else {
+                    Color.clear
+                }
+            }
+        }()
+        
+        let foregroundColor: Color = {
+            switch highlightState {
+                //      case .forSelection:
+                //        Color.blue
+                //     case .forDeselection:
+                //         Color.yellow
+            case .asDropTarget:
+                Color.orange
+            default:
+                if isSelected {
+                    Color.white
+                }
+                else {
+                    Color.blue
+                }
+            }
+        }()
+        
+        
         if pdfPageItem != nil {
             VStack(spacing: 8) {
 
@@ -224,10 +267,13 @@ struct PDFPageItemView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(8)
-            .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
+            
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1) )
+                    .stroke(isSelected ? Color.accentColor : Color("PraxColor"), lineWidth: 3) )
+            .foregroundColor(foregroundColor)
+            .background(backgroundColor)
+
             
         } else {
             EmptyView()

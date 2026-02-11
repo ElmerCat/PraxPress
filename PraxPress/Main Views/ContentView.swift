@@ -278,7 +278,7 @@ struct ContentView: View {
                 HStack(spacing: 0) {
                     
                     VStack {
-                        Text("Window Width: \(windowWidth)")
+             /*           Text("Window Width: \(windowWidth)")
                         Text("Content Width: \(contentWidth)")
                         Text("SidebarWidth: \(sidebarWidth)")
                         Text("DetailWidth: \(detailWidth)")
@@ -288,6 +288,7 @@ struct ContentView: View {
                         Text("Height: \(geometry.size.height)")
             //            Text("Local (x,y): \(geometry.frame(in: .local).origin)")
             //            Text("Global (x,y): \(geometry.frame(in: .global).origin)")
+              */
                         ContentDetailView()
                             .frame(width: CGFloat(detailWidth))
                             .layoutPriority(1)
@@ -303,8 +304,14 @@ struct ContentView: View {
                     }
                     SlideableDivider(dimension: detailWidth, position: 1, onChangedDivider: onChangedDivider)
                     VStack {
+                        DocumentEditingToolbar()
                         MergedDocumentToolbar()
                         MergedDocumentView()
+                        MergedDocumentFooter()
+                            .alert(isPresented: $prax.isLarge) {
+                                Alert(title: Text("Order Complete"),
+                                      message: Text("Thank you for shopping with us."),
+                                      dismissButton: .default(Text("OK")))   }
                     }
                 }
                 .onGeometryChange(for: CGFloat.self) {  contentGeometry in
@@ -333,7 +340,7 @@ struct ContentView: View {
             print ("windowGeometry.size.width:  old: ", oldValue, "  new: ", newValue )
             windowWidth = Double(newValue)
         }
-        
+        .navigationTitle("Merge PDFs")
         
         .toolbar {
             MainToolbar()
@@ -373,13 +380,19 @@ struct ContentDetailView: View {
                  message: Text("Thank you for shopping with us."),
                  dismissButton: .default(Text("OK")))   }
                  
-                 */        DocumentEditingView()
-                //               .inspector(isPresented: $prax.showingMergedDocumentInspector) {
-                //                 MergedDocumentInspector()
-                //           }
+                 */
+                
+                DocumentEditingToolbar()
+                DocumentEditingView()
                     .inspector(isPresented: $prax.showingPDFPageItemInspector) {
                         PDFPageItemInspector()
                     }
+                DocumentEditingFooter()
+                
+                //               .inspector(isPresented: $prax.showingMergedDocumentInspector) {
+                //                 MergedDocumentInspector()
+                //           }
+                
             }
             
             

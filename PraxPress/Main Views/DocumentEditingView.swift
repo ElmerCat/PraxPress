@@ -37,23 +37,7 @@ struct DocumentEditingToolbar: View {
     var body: some View {
         GroupBox {
             VStack {
-                HStack {
-                    
-                    
-                    switch (prax.selectedFiles.count) {
-                    case 0:
-                        Text("No files selected")
-                    case 1:
-                        Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
-                    default:
-                        Text("\(prax.selectedFiles.count) Files selected")
-                    }
-                    Spacer()
-                    if prax.selectedFiles.count > 0 {
-                        Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
-                        
-                    }
-                }
+
                 
                 HStack {
                     ControlGroup("", systemImage: "magnifyingglass") {
@@ -193,6 +177,42 @@ struct DocumentEditingToolbar: View {
 
 #Preview {
     DocumentEditingToolbar()
+}
+
+
+struct DocumentEditingFooter: View {
+    @Bindable private var prax = PraxModel.shared
+    
+    let filenameStyle = URL.FormatStyle(scheme: .never,
+                                        user: .never,
+                                        password: .never,
+                                        host: .always,
+                                        port: .never,
+                                        path: .always,
+                                        query: .never,
+                                        fragment: .never)
+    var body: some View {
+        
+        HStack {
+            
+            
+            switch (prax.selectedFiles.count) {
+            case 0:
+                Text("No files selected")
+            case 1:
+                Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
+            default:
+                Text("\(prax.selectedFiles.count) Source files selected")
+            }
+   //         Spacer()
+   //         if prax.selectedFiles.count > 0 {
+   //             Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
+   //
+   //         }
+        }
+        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+        .padding(8)
+    }
 }
 
 
