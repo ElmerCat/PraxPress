@@ -302,8 +302,10 @@ struct ContentView: View {
                         
                     }
                     SlideableDivider(dimension: detailWidth, position: 1, onChangedDivider: onChangedDivider)
-
-                    MergedDocumentView()
+                    VStack {
+                        MergedDocumentToolbar()
+                        MergedDocumentView()
+                    }
                 }
                 .onGeometryChange(for: CGFloat.self) {  contentGeometry in
                     print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)

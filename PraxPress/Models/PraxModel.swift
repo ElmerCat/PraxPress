@@ -48,6 +48,11 @@ final class PraxModel: Sendable {
         selectedPageItems.forEach {
             print("\($0)") }}}
     
+    var selectedPages: Set<IndexPath> = [] { didSet {
+        print("selectedPages didSet:  ", selectedPages)
+        selectedPages.forEach {
+            print("\($0)") }}}
+    
     var saveError: String?
     var isLoadingPDF = false {
         didSet {

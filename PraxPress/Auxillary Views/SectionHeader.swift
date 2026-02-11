@@ -110,6 +110,9 @@ class SectionHeader: NSView, NSCollectionViewElement {
     private var hostingView: NSHostingView<SectionHeaderView>?
     private var indexPath: IndexPath?
     
+    
+    
+    
     func configure(at atIndexPath: IndexPath,
                    isSelected: Bool) {
         indexPath = atIndexPath
@@ -195,12 +198,17 @@ struct SectionHeaderView: View {
             }
         }
     }
-    @GestureState private var dragState = DragState.inactive
+    @GestureState private var dragState = DragState.inactive {
+        didSet {
+            print ("GestureState - dragState: ", dragState)
+        }
+    }
+    
     var body: some View {
         
         let clickGesture = TapGesture()
             .onEnded { value in
-                 print("View tapped! - \(value) - praxContext.optionKeyPressed: \(praxContext.optionKeyPressed)")
+                 print("View tapped! - \(indexPath) - praxContext.optionKeyPressed: \(praxContext.optionKeyPressed)")
             }
          
 

@@ -1,6 +1,12 @@
+//
+//  Untitled.swift
+//  PraxPress
+//
+//  Created by Elmer Cat on 2/10/26.
+//
+
 import SwiftUI
 import PDFKit
-
 
 enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
@@ -116,23 +122,23 @@ enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
     }
 }
 
-class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
-    private var hostingView: NSHostingView<CollectionViewPDFPageItemView>?
+
+class CollectionViewPDFPageItemView: NSCollectionViewItem {
+    private var hostingView: NSHostingView<PDFPageItemView>?
     private var indexPath: IndexPath?
     private var pdfPageItem: PDFPageItem?
     private var thumbnailViewer: Bool = false
     
     func configure(at atIndexPath: IndexPath?,
-                   isSelected: Bool,
-                   thumbnailViewer: Bool) {
-        print ("CollectionViewPDFPageItem - configure thumbnailViewer: ", thumbnailViewer)
+                   isSelected: Bool) {
+        print ("CollectionViewPDFPageItem - configure ", isSelected)
         self.indexPath = atIndexPath
-        self.thumbnailViewer = thumbnailViewer
+        
         
         if self.indexPath != nil {
             if let pdfPageItem = PraxModel.shared.pdfPageItem(indexPath: indexPath!) {
                 self.pdfPageItem = pdfPageItem
-                let root = CollectionViewPDFPageItemView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, thumbnailViewer: thumbnailViewer)
+                let root = PDFPageItemView(pdfPageItem: self.pdfPageItem, isSelected: isSelected)
                 if let hostingView {
                     print ("PageItem - hostingView")
                     hostingView.rootView = root
@@ -158,7 +164,7 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
     
     override var isSelected: Bool {
         didSet {
-            configure(at: indexPath, isSelected: isSelected, thumbnailViewer: thumbnailViewer)
+            configure(at: indexPath, isSelected: isSelected)
         }
     }
     
@@ -167,7 +173,7 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
         print ("PageItem: NSCollectionViewItem - prepareForReuse")
         super.prepareForReuse()
         pdfPageItem = nil
-        configure(at: nil, isSelected: isSelected, thumbnailViewer: thumbnailViewer)
+        configure(at: nil, isSelected: isSelected)
         
     }
     
@@ -179,30 +185,23 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
     
 }
 
-struct CollectionViewPDFPageItemView: View {
+struct PDFPageItemView: View {
     @Environment(PraxContext.self) private var praxContext
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
-    var thumbnailViewer: Bool
+   
     
     
     
     
     var body: some View {
-        let imageSize = thumbnailViewer ? CGSize(width: 120, height: 160) : CGSize(width: 2400, height: 3200)
-        
+      
         if pdfPageItem != nil {
             VStack(spacing: 8) {
-                if thumbnailViewer {
-                    Image(nsImage: pdfPageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(6)
-                }
-                else {
+
                     PDFViewRepresentable(pdfPageItem: pdfPageItem!)
-                }
+            
                 HStack {
                     Text(pdfPageItem!.name)
                         .font(.caption)
@@ -286,7 +285,7 @@ struct CollectionViewPDFPageItemView: View {
 }
 
 final class PageItemPDFViewCoordinator: NSObject, PDFPageOverlayViewProvider {
-
+    
     
     init(_ pdfPageItem: PDFPageItem) {
         self.pdfPageItem = pdfPageItem

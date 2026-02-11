@@ -7,7 +7,7 @@ A generic NSCollectionViewItem that has an NSTextField
 
 import Cocoa
 
-class ListItem: NSCollectionViewItem {
+class praxListItem: NSCollectionViewItem {
 
     static let reuseIdentifier = NSUserInterfaceItemIdentifier("list-item-reuse-identifier")
 

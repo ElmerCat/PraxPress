@@ -216,17 +216,17 @@ struct DocumentEditingView: NSViewRepresentable {
      //   prax.editingPDFView = PDFView()
     //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
         
-        let thumbnailController = PagesViewController()
-        thumbnailController.thumbnailViewer = true
+        let thumbnailViewController = ThumbnailViewController()
+       
         //      thumbnailController.pdfView = prax.editingPDFView
         
         //       context.coordinator.thumbnailController = thumbnailController
         
-        split.addArrangedSubview(thumbnailController.view)
+        split.addArrangedSubview(thumbnailViewController.view)
    //     split.addArrangedSubview(prax.editingPDFView)
-        let nailController = PagesViewController()
+        let pagesViewController = PagesViewController()
         
-        split.addArrangedSubview(nailController.view)
+        split.addArrangedSubview(pagesViewController.view)
 
         split.dividerStyle = .paneSplitter
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
