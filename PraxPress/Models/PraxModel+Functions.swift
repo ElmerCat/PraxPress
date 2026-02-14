@@ -15,6 +15,101 @@ import UniformTypeIdentifiers
 extension PraxModel {
     
     
+    func deleteSelectedFilesFromDatabase() {
+        selectedFiles.forEach({ id in
+            let pdfFile = pdfFiles.first(where: { $0.id == id })!
+            modelContext.delete(pdfFile)
+        })
+        selectedFiles.removeAll()
+    }
+
+    
+    func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
+        var urls: [URL] = []
+        for provider in providers {
+            
+            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (data, error) in
+                if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
+                    urls.append(url)
+                    print("Julie Belanger URL: ", url)
+                    
+                }
+            }
+            
+            
+            Task {
+                do {
+                    try await insertPDFPageSectionsFromDocumentURLS(urls, at: IndexPath(item: -1, section: -1))
+                } catch let error {
+                    print("Julie d Prax", urls, "Error: ", error)
+                   
+                }
+            }
+            
+        }
+        print("Julie d Prax", urls)
+        
+        return true
+        
+    }
+    
+    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            let pdfPageItem = PDFPageItem(
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            )
+            PraxModel.shared.pdfPageSections.append(PDFPageSection(title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
+        }
+        
+    }
+    
+    func insertPDFPageSectionsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath)  async throws {
+        
+        var pdfPageItems: [PDFPageItem] = []
+        for url in urls {
+            guard let document = PDFDocument(url: url) else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load PDF document at \(url)", userInfo: nil) as! any Error) }
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            for i in 0..<document.pageCount {
+                guard let docPage = document.page(at: i)  else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load document page at \(url)", userInfo: nil) as! any Error) }
+                pdfPageItems.append(PDFPageItem(
+                    name: "\(sourceFileName) - Page \(i + 1)",
+                    pdfPage: docPage
+                ))
+            }
+            PraxModel.shared.pdfPageSections.append(PDFPageSection(title: "PDF - \(sourceFileName)", pdfPageItems: pdfPageItems))
+        }
+        
+    }
+    
+    
+    func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) async throws {
+        
+
+        
+        
+        var pages: [PDFPageItem] = []
+        for url in urls {
+            guard let document = PDFDocument(url: url) else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load PDF document at \(url)", userInfo: nil) as! any Error) }
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            for i in 0..<document.pageCount {
+                guard let docPage = document.page(at: i)  else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load document page at \(url)", userInfo: nil) as! any Error) }
+                pages.append(PDFPageItem(
+                    name: "\(sourceFileName) - Page \(i + 1)",
+                    pdfPage: docPage
+                ))
+            }
+        }
+        pdfPageSections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+    }
+
+    
     func handleMergePagesOverwrite() {
         
         

@@ -11,211 +11,6 @@ import Combine
 import UniformTypeIdentifiers
 
 
-struct DocumentEditingToolbar: View {
-    @State private var prax = PraxModel.shared
-    @Environment(PraxContext.self) private var praxContext
-    
-    private func title(for mode: PDFDisplayMode) -> String {
-        switch mode {
-        case .singlePage: return "Single"
-        case .singlePageContinuous: return "Continuous"
-        case .twoUp: return "Two Up"
-        case .twoUpContinuous: return "Two Up Cont."
-        @unknown default: return "Unknown"
-        }
-    }
-    
-    let filenameStyle = URL.FormatStyle(scheme: .never,
-                                        user: .never,
-                                        password: .never,
-                                        host: .always,
-                                        port: .never,
-                                        path: .always,
-                                        query: .never,
-                                        fragment: .never)
-    
-    var body: some View {
-        GroupBox {
-            VStack {
-
-                
-                HStack {
-                    ControlGroup("", systemImage: "magnifyingglass") {
-                        Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInEditingPDFView)
-                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutEditingPDFView)
-                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
-                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.editingPDFDisplayMode = .singlePageContinuous}).disabled(prax.editingPDFDisplayMode == .singlePageContinuous)
-                        if prax.editingPDFDocument.pageCount > 1 {
-                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.editingPDFDisplayMode = .twoUp}).disabled(prax.editingPDFDisplayMode == .twoUp)
-                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.editingPDFDisplayMode = .twoUpContinuous}).disabled(prax.editingPDFDisplayMode == .twoUpContinuous)
-                        }
-                        if (prax.editingPDFDisplayMode == .twoUpContinuous || prax.editingPDFDisplayMode == .twoUp) {
-                            Toggle("", systemImage: "book", isOn: $prax.editingPDFDisplaysAsBook).toggleStyle(.button)
-                        }
-                    }
-                    Spacer()
-                    Button {
-                        prax.showingExportFolderSelector = true
-                    } label: {
-                        Label(prax.exportFolderURL?.lastPathComponent ?? "No folder selected", systemImage: "arrow.forward.folder")
-                    }
-                    
-                    ZStack {
-                        TextField("Prefix", text: $prax.exportFilenamePrefix)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
-                            .overlay(alignment: .trailing) {
-                                if !prax.exportFilenamePrefix.isEmpty {
-                                    Button {
-                                        prax.exportFilenamePrefix = ""
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.secondary)
-                                            .padding(.trailing, 6) // adjust for your field style
-                                    }
-                                    .buttonStyle(.plain)
-                                    .help("Clear")
-                                }
-                            }
-                    }
-                    //     .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                    
-                    
-                    TextField("Filename", text: Binding<String>(
-                        get: { prax.exportFilenameBody },
-                        set: { newValue in
-                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            // Ensure we don't accidentally include a dot/extension typed by the user
-                            if let dotRange = newName.range(of: ".") {
-                                newName = String(newName[..<dotRange.lowerBound])}
-                            prax.exportFilenameBody = newName
-                        })
-                              
-                    )
-                    //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .disabled(prax.exportFolderURL == nil)
-                    
-                    Spacer()
-                    
-                    Button {
-                        prax.isOn = true
-                    } label: {
-                        Label(".pdf", systemImage: "arrow.right.doc.on.clipboard")
-                    }
-                    .disabled(prax.firstSelectedFileURL == nil)
-                    .draggable({ () -> MergedPDFTransfer? in
-                        
-                        guard let data = prax.mergedPDFDocument.dataRepresentation() else { return nil }
-                        return MergedPDFTransfer(data: data, filename: prax.exportFilename)
-                    }()!, preview: {
-                        dragPreviewView
-                    })
-                    
-                    
-                    if prax.multipleFilesSelected {
-                        Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-                .padding(8)
-            }
-        }
-        
-        .fileImporter(
-            isPresented: $prax.showingExportFolderSelector,
-            allowedContentTypes: [.folder],
-            allowsMultipleSelection: false,
-            
-        )
-        { result in
-            switch result {
-            case .success(let urls):
-                prax.exportFolderURL = urls.first!
-                //                        prax.exportFolderURLBookmark = try? prax.exportFolderURL!.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)
-            case .failure(let error):
-                prax.saveError = error.localizedDescription
-            }
-            
-        }
-        .fileDialogDefaultDirectory(prax.sourceFolderURL)
-        .fileDialogMessage("Choose the Export Folder")
-        .fileDialogConfirmationLabel(Text("Choose Export Folder"))
-        
-        .background(Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3))
-        .foregroundStyle(Color.white)
-    }
-    
-    private var dragPreviewView: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.accentColor.opacity(0.15))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
-                .frame(width: 180, height: 80)
-            
-            VStack(spacing: 6) {
-                Image(systemName: "doc.text.fill")
-                    .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(.blue)
-                Text("\(prax.exportFilename).pdf")
-                    .font(.footnote)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .padding(.horizontal, 8)
-            }
-        }
-
-
-    }
-    
-    
-}
-
-#Preview {
-    DocumentEditingToolbar()
-}
-
-
-struct DocumentEditingFooter: View {
-    @Bindable private var prax = PraxModel.shared
-    
-    let filenameStyle = URL.FormatStyle(scheme: .never,
-                                        user: .never,
-                                        password: .never,
-                                        host: .always,
-                                        port: .never,
-                                        path: .always,
-                                        query: .never,
-                                        fragment: .never)
-    var body: some View {
-        
-        HStack {
-            
-            
-            switch (prax.selectedFiles.count) {
-            case 0:
-                Text("No files selected")
-            case 1:
-                Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
-            default:
-                Text("\(prax.selectedFiles.count) Source files selected")
-            }
-   //         Spacer()
-   //         if prax.selectedFiles.count > 0 {
-   //             Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
-   //
-   //         }
-        }
-        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-        .padding(8)
-    }
-}
-
-
 struct DocumentEditingView: NSViewRepresentable {
     
     @State @Bindable private var prax = PraxModel.shared
@@ -229,25 +24,26 @@ struct DocumentEditingView: NSViewRepresentable {
         print("Nadine Peeler- DocumentEditingView makeNSView")
         let split = NSSplitView()
         split.delegate = context.coordinator
+        split.registerForDraggedTypes([.fileURL])
         split.isVertical = true
         split.dividerStyle = .thick
         split.translatesAutoresizingMaskIntoConstraints = false
         
-     //   prax.editingPDFView = PDFView()
-    //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
+        //   prax.editingPDFView = PDFView()
+        //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
         
         let thumbnailViewController = ThumbnailViewController()
-       
+        
         //      thumbnailController.pdfView = prax.editingPDFView
         
         //       context.coordinator.thumbnailController = thumbnailController
         
         split.addArrangedSubview(thumbnailViewController.view)
-   //     split.addArrangedSubview(prax.editingPDFView)
+        //     split.addArrangedSubview(prax.editingPDFView)
         let pagesViewController = PagesViewController()
         
         split.addArrangedSubview(pagesViewController.view)
-
+        
         split.dividerStyle = .paneSplitter
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
         //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultHigh, forSubviewAt: 1)
@@ -258,7 +54,7 @@ struct DocumentEditingView: NSViewRepresentable {
         DispatchQueue.main.async {
             let target: CGFloat = 150
             split.setPosition(target, ofDividerAt: 0)
-    //    split.setPosition(target + 100, ofDividerAt: 1)
+            //    split.setPosition(target + 100, ofDividerAt: 1)
         }
         
         NotificationCenter.default.addObserver(
@@ -290,8 +86,29 @@ struct DocumentEditingView: NSViewRepresentable {
         print("Nadine Peeler- DocumentEditingView updateNSView")
     }
     
-    final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate {
+    final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate, NSDraggingDestination {
         @State private var prax = PraxModel.shared
+        
+        func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+            // Return .copy to show a "+" cursor if data is valid
+            print("Coordinator - draggingEntered")
+            return .copy
+        }
+        
+        func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+            let pboard = sender.draggingPasteboard
+            
+            // Extract file URLs from the pasteboard
+            if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
+                for url in urls {
+                    print("Coordinator - Dropped file: \(url.path)")
+                }
+                return true // Drop was successful
+            }
+            return false // Drop rejected
+        }
+        
+        
         
         func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
             //           print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
@@ -309,7 +126,7 @@ struct DocumentEditingView: NSViewRepresentable {
         
         @objc func widthGuideChanged(_ note: Notification) {
             print("DocumentEditingView Coordinator - widthGuideChanged")
-     //       guard let pdfView = note.object as? PDFView else { return }
+            //       guard let pdfView = note.object as? PDFView else { return }
             DispatchQueue.main.async {
                 self.prax.editingPDFView.layoutDocumentView()
                 self.prax.editingPDFView.needsDisplay = true
@@ -377,6 +194,233 @@ struct DocumentEditingView: NSViewRepresentable {
         }
     }
 }
+struct DocumentEditingToolbar: View, DropDelegate {
+    @State private var prax = PraxModel.shared
+    
+    
+    private func title(for mode: PDFDisplayMode) -> String {
+        switch mode {
+        case .singlePage: return "Single"
+        case .singlePageContinuous: return "Continuous"
+        case .twoUp: return "Two Up"
+        case .twoUpContinuous: return "Two Up Cont."
+        @unknown default: return "Unknown"
+        }
+    }
+    
+    let filenameStyle = URL.FormatStyle(scheme: .never,
+                                        user: .never,
+                                        password: .never,
+                                        host: .always,
+                                        port: .never,
+                                        path: .always,
+                                        query: .never,
+                                        fragment: .never)
+    
+    @State private var dropTargeted: Bool = false
+    
+    func validateDrop(info: DropInfo) -> Bool {
+        print("DocumentEditingToolbar - validateDrop")
+        return true
+    }
+    
+    func performDrop(info: DropInfo) -> Bool {
+        print("DocumentEditingToolbar - performDrop")
+        
+        return acceptDrop(info.itemProviders(for: [UTType.fileURL]))
+    }
+    
+    func dropEntered(info: DropInfo) {
+        print("DocumentEditingToolbar - dropEntered")    }
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        //       print("DocumentEditingToolbar - dropUpdated - phase: ", info.session.phase)
+        return DropProposal(operation: .copy)
+    }
+    
+    func dropExited(info: DropInfo) {
+        print("DocumentEditingToolbar - dropExited")
+    }
+    
+    func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
+        for provider in providers {
+            
+            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (data, error) in
+                if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
+                    
+                    print("Julie Belanger URL: ", url)
+                    
+                }
+            }
+            
+        }
+        print("Julie d Prax")
+        return true
+        
+    }
+    
+    var body: some View {
+        GroupBox {
+            
+            //    Text("Prax")
+            
+            HStack {
+                
+                Button {
+                    prax.showingFileImporter = true }
+                label: {
+                    Text("Import Files") //.frame(minWidth: 100, maxWidth: 200, alignment: .center)
+                }
+                
+                //       .background(dropTargeted ? Color.green : Color.blue)
+                .fileImporter(
+                    isPresented: $prax.showingFileImporter,
+                    allowedContentTypes: [.pdf, .image, .text, .video],
+                    allowsMultipleSelection: true
+                ) { result in
+                    switch result {
+                    case .success(let urls):
+                        print (urls)
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                    //            handleImportResult(result, forFiles:&prax.listOfFiles)
+                }
+                
+                
+                TextField("Filename", text: Binding<String>(
+                    get: { prax.exportFilenameBody },
+                    set: { newValue in
+                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        // Ensure we don't accidentally include a dot/extension typed by the user
+                        if let dotRange = newName.range(of: ".") {
+                            newName = String(newName[..<dotRange.lowerBound])}
+                        prax.exportFilenameBody = newName
+                    })
+                          
+                )
+                //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .disabled(prax.exportFolderURL == nil)
+                
+                Spacer()
+                
+                Button {
+                    prax.isOn = true
+                } label: {
+                    Label(".pdf", systemImage: "arrow.right.doc.on.clipboard")
+                }
+                .disabled(prax.firstSelectedFileURL == nil)
+                .draggable({ () -> MergedPDFTransfer? in
+                    
+                    guard let data = prax.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: prax.exportFilename)
+                }()!, preview: {
+                    dragPreviewView
+                })
+                
+                
+                if prax.multipleFilesSelected {
+                    Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
+                }
+                
+            }
+            .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+            .padding(8)
+            
+        }
+        //  .onDrop(of: [.fileURL], delegate: self)
+        
+        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
+            acceptDrop(providers)
+        }
+        .onDropSessionUpdated({ dropSession in
+            print("DocumentEditingToolbar - dropSessionUpdated phase: ", dropSession.phase)
+        })
+        
+        
+        
+        .fileDialogDefaultDirectory(prax.sourceFolderURL)
+        .fileDialogMessage("Choose the Export Folder")
+        .fileDialogConfirmationLabel(Text("Choose Export Folder"))
+        
+        .background(dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
+        .foregroundStyle(Color.white)
+        
+    }
+    
+    private var dragPreviewView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.accentColor.opacity(0.15))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                )
+                .frame(width: 180, height: 80)
+            
+            VStack(spacing: 6) {
+                Image(systemName: "doc.text.fill")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(.blue)
+                Text("\(prax.exportFilename).pdf")
+                    .font(.footnote)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    
+}
+
+#Preview {
+    DocumentEditingToolbar()
+}
+
+
+struct DocumentEditingFooter: View {
+    @Bindable private var prax = PraxModel.shared
+    
+    let filenameStyle = URL.FormatStyle(scheme: .never,
+                                        user: .never,
+                                        password: .never,
+                                        host: .always,
+                                        port: .never,
+                                        path: .always,
+                                        query: .never,
+                                        fragment: .never)
+    var body: some View {
+        
+        HStack {
+            
+            
+            switch (prax.selectedFiles.count) {
+            case 0:
+                Text("No files selected")
+            case 1:
+                Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
+            default:
+                Text("\(prax.selectedFiles.count) Source files selected")
+            }
+            //         Spacer()
+            //         if prax.selectedFiles.count > 0 {
+            //             Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
+            //
+            //         }
+        }
+        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+        .padding(8)
+    }
+}
+
+
 
 #Preview {
     DocumentEditingToolbar()

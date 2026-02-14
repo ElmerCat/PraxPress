@@ -43,7 +43,80 @@ struct MergedDocumentHeader: View {
     var body: some View {
         
         HStack {
-            
+            GroupBox {
+                
+                //    Text("Prax")
+                
+                HStack {
+                    ControlGroup("", systemImage: "magnifyingglass") {
+                        Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInEditingPDFView)
+                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutEditingPDFView)
+                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
+                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.editingPDFDisplayMode = .singlePageContinuous}).disabled(prax.editingPDFDisplayMode == .singlePageContinuous)
+                        if prax.editingPDFDocument.pageCount > 1 {
+                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.editingPDFDisplayMode = .twoUp}).disabled(prax.editingPDFDisplayMode == .twoUp)
+                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.editingPDFDisplayMode = .twoUpContinuous}).disabled(prax.editingPDFDisplayMode == .twoUpContinuous)
+                        }
+                        if (prax.editingPDFDisplayMode == .twoUpContinuous || prax.editingPDFDisplayMode == .twoUp) {
+                            Toggle("", systemImage: "book", isOn: $prax.editingPDFDisplaysAsBook).toggleStyle(.button)
+                        }
+                    }
+                    Spacer()
+                    Button {
+                        prax.showingExportFolderSelector = true
+                    } label: {
+                        Label(prax.exportFolderURL?.lastPathComponent ?? "No folder selected", systemImage: "arrow.forward.folder")
+                    }
+                    
+                    ZStack {
+                        TextField("Prefix", text: $prax.exportFilenamePrefix)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                            .overlay(alignment: .trailing) {
+                                if !prax.exportFilenamePrefix.isEmpty {
+                                    Button {
+                                        prax.exportFilenamePrefix = ""
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                            .padding(.trailing, 6) // adjust for your field style
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("Clear")
+                                }
+                            }
+                    }
+                    //     .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    
+                    
+                    TextField("Filename", text: Binding<String>(
+                        get: { prax.exportFilenameBody },
+                        set: { newValue in
+                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                            // Ensure we don't accidentally include a dot/extension typed by the user
+                            if let dotRange = newName.range(of: ".") {
+                                newName = String(newName[..<dotRange.lowerBound])}
+                            prax.exportFilenameBody = newName
+                        })
+                              
+                    )
+                    //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .disabled(prax.exportFolderURL == nil)
+                    
+                    Spacer()
+                    
+                    
+                    if prax.multipleFilesSelected {
+                        Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
+                    }
+                    
+                }
+                .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+                .padding(8)
+                
+            }
             GroupBox {
                 
                 HStack {

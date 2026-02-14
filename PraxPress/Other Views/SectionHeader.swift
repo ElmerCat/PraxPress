@@ -149,7 +149,6 @@ class SectionHeader: NSView, NSCollectionViewElement {
 
 
 struct SectionHeaderView: View {
-    @Environment(PraxContext.self) private var praxContext
     let indexPath: IndexPath
     var isSelected: Bool
     
@@ -217,7 +216,7 @@ struct SectionHeaderView: View {
         
         let clickGesture = TapGesture()
             .onEnded { value in
-                 print("View tapped! - \(indexPath) - praxContext.optionKeyPressed: \(praxContext.optionKeyPressed)")
+                 print("View tapped! - \(indexPath) - PraxModel.shared.optionKeyPressed: \(PraxModel.shared.optionKeyPressed)")
                 
                 PraxModel.shared.mergedPDFView.go(to: (pdfPageSection()!.pdfPage)!)
             }
@@ -233,7 +232,7 @@ struct SectionHeaderView: View {
         .font(.caption)
         .lineLimit(1)
         .padding(8)
-        .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
+        .background(PraxGradient())
         .overlay(RoundedRectangle(cornerRadius: 8)
             .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
         .gesture(clickGesture)

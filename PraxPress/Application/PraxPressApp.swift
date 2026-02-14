@@ -8,10 +8,17 @@
 import SwiftUI
 import AppKit
 import SwiftData
+import TipKit
 
 @main
 struct PraxPressApp: App {
     
+    init() {
+        try? Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
+        try? Tips.resetDatastore()
+        // Initializes TipKit with default settings
+    }
+
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @AppStorage("App.toolbarLabelStyle")  private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
     
@@ -35,8 +42,8 @@ struct PraxPressApp: App {
             MainCommands()
             InspectorCommands()
         }
-        .windowStyle(.titleBar)
-        .windowToolbarStyle(.unified(showsTitle: true))
+        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
         .windowToolbarLabelStyle($toolbarLabelStyle)
         .windowResizability(.contentSize)
     /*    .defaultWindowPlacement { content, context in

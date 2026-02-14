@@ -13,6 +13,7 @@ import Observation
 import UniformTypeIdentifiers
 
 extension ThumbnailViewController {
+    
          
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
     ) -> Bool {
@@ -50,10 +51,10 @@ extension ThumbnailViewController {
         _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
     ) -> NSDragOperation {
         
-        //     let indPth = proposedDropIndexPath.pointee
-        //     print("ThumbnailViewController validateDrop  ", indPth.debugDescription)
+             let indPth = proposedDropIndexPath.pointee
+             print("ThumbnailViewController validateDrop  ", indPth.debugDescription)
         
-        return [.move]
+        return [.move, .copy]
     }
     
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
@@ -71,12 +72,12 @@ extension ThumbnailViewController {
         else {
             // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
             // Drop each dragged image file to their new place.
-            dropExternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+            dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
         }
         return true
     }
     
-    func dropExternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+    func dropExternalPages(draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         let pasteboard = draggingInfo.draggingPasteboard
         let receivers = pasteboard.readObjects(forClasses: [NSFilePromiseReceiver.self], options: nil) as? [NSFilePromiseReceiver] ?? []
         if !receivers.isEmpty {
@@ -86,7 +87,7 @@ extension ThumbnailViewController {
 
         
         
-        var pdfURLs: [URL] = []
+        var droppedURLs: [URL] = []
         
         // 1) Prefer file URLs if available
         if let items = pasteboard.pasteboardItems {
@@ -97,7 +98,7 @@ extension ThumbnailViewController {
                 if let urlString = item.string(forType: .fileURL),
                    let url = URL(string: urlString) {
                     print("fileURL  ", url)
-                    pdfURLs.append(url)
+                    droppedURLs.append(url)
                     continue
                     
                 }
@@ -113,7 +114,7 @@ extension ThumbnailViewController {
                             .appendingPathExtension("\(type)")
                         do {
                             try data.write(to: tempURL, options: .atomic)
-                            pdfURLs.append(tempURL)
+                            droppedURLs.append(tempURL)
                         } catch {
                             Swift.debugPrint("Failed to write dropped PDFPage data to temp file: \(tempURL) - Error: \(error)")
                         }
@@ -143,7 +144,7 @@ extension ThumbnailViewController {
 
         
         // 2) Fallback: read URLs from the general property list if present
-        if pdfURLs.isEmpty, let propertyList = pasteboard.propertyList(forType: .fileURL) {
+        if droppedURLs.isEmpty, let propertyList = pasteboard.propertyList(forType: .fileURL) {
             // propertyList can be a String or array of Strings (file URL strings)
             func parseURLStrings(_ value: Any) -> [URL] {
                 var urls: [URL] = []
@@ -153,17 +154,28 @@ extension ThumbnailViewController {
                 }
                 return urls
             }
-            pdfURLs = parseURLStrings(propertyList)
+            droppedURLs = parseURLStrings(propertyList)
         }
         
-        for url in pdfURLs {
+        for url in droppedURLs {
             print ("\n\(url)")
         }
         
 
         // 3) Filter for PDFs (by path extension or UTI check)
-        let urls = pdfURLs.filter { $0.pathExtension.lowercased() == "pdf" }
-        self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+        let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
+        self.insertPDFPageItemsFromDocumentURLS(pdfURLs, at: indexPath)
+        
+        let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
+        let imageURLs = droppedURLs.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
+        if PraxModel.shared.optionKeyPressed {
+            self.insertPDFPageSectionsFromImageURLS(imageURLs, at: indexPath)
+
+        }
+        else {
+            self.insertPDFPageItemsFromImageURLS(imageURLs, at: indexPath)
+
+        }
         
         /*
  
@@ -269,6 +281,38 @@ extension ThumbnailViewController {
     
     // MARK: - Insert helper
     
+    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            let pdfPageItem = PDFPageItem(
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            )
+            PraxModel.shared.pdfPageSections.append(PDFPageSection(title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
+        }
+       
+    }
+    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        var pages: [PDFPageItem] = []
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            pages.append(PDFPageItem(
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            ))
+        }
+        PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+    }
+
     func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
         var pages: [PDFPageItem] = []
         for url in urls {
@@ -312,7 +356,7 @@ extension ThumbnailViewController {
                         }
                     } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                     
-                    print ("elf.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                    print ("self.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
                     PraxModel.shared.movePDFPageItems(draggedItems, to: indexPath)
                     self.updateUI()
                 }
@@ -324,3 +368,31 @@ extension ThumbnailViewController {
     
 }
 
+extension NSImage {
+    func resize(to newSize: NSSize) -> NSImage? {
+        guard let tiffData = self.tiffRepresentation,
+              let bitmapImageRep = NSBitmapImageRep(data: tiffData) else { return nil }
+        
+        let newRep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: Int(newSize.width),
+            pixelsHigh: Int(newSize.height),
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .calibratedRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        )
+        
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: newRep!)
+        bitmapImageRep.draw(in: NSRect(origin: .zero, size: newSize))
+        NSGraphicsContext.restoreGraphicsState()
+        
+        let resizedImage = NSImage(size: newSize)
+        resizedImage.addRepresentation(newRep!)
+        return resizedImage
+    }
+}

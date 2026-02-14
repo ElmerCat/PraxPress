@@ -14,19 +14,18 @@ import PDFKit
 struct MainSceneRoot: View {
 
     @State private var praxModel = PraxModel.shared
-    @State private var praxContext = PraxContext()
     @Query() var pdfFiles: [PDFFile]
     var body: some View {
         ContentView()
             .environment(praxModel)
-            .environment(praxContext)
             .onModifierKeysChanged(mask: .option) { old, new in
                 if new.isEmpty {
-                    praxContext.optionKeyPressed = false
+                    praxModel.optionKeyPressed = false
                     // Option key released
                     print("Option key released")
-                } else {
-                    praxContext.optionKeyPressed = true
+                }
+                else if new.contains(.option) {
+                    praxModel.optionKeyPressed = true
                     // Option key pressed
                     print("Option key pressed")
                 }

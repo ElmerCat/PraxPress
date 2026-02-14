@@ -86,7 +86,7 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
 }
 
 struct CollectionViewPDFPageThumbnailView: View {
-    @Environment(PraxContext.self) private var praxContext
+   
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
@@ -167,7 +167,7 @@ struct CollectionViewPDFPageThumbnailView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(foregroundColor, lineWidth: 3) )
                 .foregroundColor(foregroundColor)
-                .background(backgroundColor)
+                .background(PraxGradient())
                 
             }
 //            .background(backgroundColor)
@@ -200,7 +200,7 @@ struct CollectionViewPDFPageThumbnailView: View {
         if PraxModel.shared.widthGuidePageID == pdfPageItem.id {
             PraxModel.shared.clearWidthGuide()
         } else {
-            if praxContext.optionKeyPressed {
+            if PraxModel.shared.optionKeyPressed {
                 if PraxModel.shared.widthGuidePageID == nil { return }
                 guard let guidePage = PraxModel.shared.pdfPageItem(id: PraxModel.shared.widthGuidePageID!) else { return }
                 

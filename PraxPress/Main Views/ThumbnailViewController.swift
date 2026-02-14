@@ -15,10 +15,7 @@ import UniformTypeIdentifiers
 
 
 class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
-    
-    //  private var prax = PraxModel.shared
-    var thumbnailViewer = false
-    
+ 
     private var selectedSections = Set<Int>()
     
     static let sectionHeaderElementKind = "section-header-element-kind"
@@ -41,6 +38,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         collectionView.allowsEmptySelection = false
         collectionView.allowsMultipleSelection = true
         collectionView.setDraggingSourceOperationMask([.copy], forLocal: false)
+        collectionView.backgroundView = CollectionViewBackgroundView()
         
         updateUI(animated: false)
         
@@ -203,7 +201,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         
         print("ThumbnailViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
         
-        DispatchQueue.main.async { [weak self] in
+ /*       DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             if self.collectionView.selectionIndexPaths.isEmpty,
@@ -216,7 +214,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
             }
             print("DispatchQueue ThumbnailViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
         }
-        
+  */
         
     }
     
@@ -237,6 +235,77 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
 
 
 
+class CollectionViewBackgroundView: NSView {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+    required init?(coder: NSCoder) {
+        fatalError("not implemented")
+    }
+    
+    
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        
+        print("CollectionViewBackgroundView - draggingEntered")
+        layer?.backgroundColor = NSColor.green.cgColor
+        return .copy
+    }
+    
+    override func draggingExited(_ sender: NSDraggingInfo?)  {
+        print("CollectionViewBackgroundView - draggingExited")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+    
+    override func concludeDragOperation(_ sender: NSDraggingInfo?)  {
+        print("CollectionViewBackgroundView - concludeDragOperation")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+    
+    override func draggingEnded(_ sender: NSDraggingInfo)  {
+        print("CollectionViewBackgroundView - draggingEnded")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        print("CollectionViewBackgroundView - prepareForDragOperation")
+        return true
+    }
+    
+    func wantsPeriodicUpdates() -> Bool {
+        print("CollectionViewBackgroundView - wantsPeriodicUpdates")
+        return true
+    }
+    
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        let pboard = sender.draggingPasteboard
+        
+        // Extract file URLs from the pasteboard
+        if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
+            for url in urls {
+                print("CollectionViewBackgroundView - Dropped file: \(url.path)")
+            }
+            return true // Drop was successful
+        }
+        return false // Drop rejected
+    }
+    
+}
+
+extension CollectionViewBackgroundView {
+    func configure() {
+        registerForDraggedTypes([.fileURL])
+        
+        self.wantsLayer = true
+        layer?.backgroundColor = NSColor.cyan.cgColor
+        layer?.borderColor = NSColor.black.cgColor
+        layer?.borderWidth = 1
+        layer?.cornerRadius = 12
+    }
+}
+
+
 class SectionBackgroundDecorationView: NSView, NSCollectionViewElement {
     
     override init(frame: CGRect) {
@@ -246,10 +315,13 @@ class SectionBackgroundDecorationView: NSView, NSCollectionViewElement {
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
+    
+ 
 }
 
 extension SectionBackgroundDecorationView {
     func configure() {
+       
         self.wantsLayer = true
         layer?.backgroundColor = NSColor.yellow.cgColor
         layer?.borderColor = NSColor.black.cgColor

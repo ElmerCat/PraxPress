@@ -192,7 +192,6 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
 }
 
 struct PDFPageItemView: View {
-    @Environment(PraxContext.self) private var praxContext
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
@@ -304,7 +303,7 @@ struct PDFPageItemView: View {
         if PraxModel.shared.widthGuidePageID == pdfPageItem.id {
             PraxModel.shared.clearWidthGuide()
         } else {
-            if praxContext.optionKeyPressed {
+            if PraxModel.shared.optionKeyPressed {
                 if PraxModel.shared.widthGuidePageID == nil { return }
                 guard let guidePage = PraxModel.shared.pdfPageItem(id: PraxModel.shared.widthGuidePageID!) else { return }
                 
@@ -438,4 +437,35 @@ struct PDFViewRepresentable: NSViewRepresentable {
         pdfView.document = pdfDocument
     }
     
+}
+
+
+class praxListItem: NSCollectionViewItem {
+    
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("list-item-reuse-identifier")
+    
+    override var highlightState: NSCollectionViewItem.HighlightState {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    private func updateSelectionHighlighting() {
+        if !isViewLoaded {
+            return
+        }
+        
+        let showAsHighlighted = (highlightState == .forSelection) ||
+        (isSelected && highlightState != .forDeselection) ||
+        (highlightState == .asDropTarget)
+        
+        textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
+        view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
+    }
 }

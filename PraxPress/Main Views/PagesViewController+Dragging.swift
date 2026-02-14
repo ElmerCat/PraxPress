@@ -172,7 +172,16 @@ extension PagesViewController {
 
         // 3) Filter for PDFs (by path extension or UTI check)
         let urls = pdfURLs.filter { $0.pathExtension.lowercased() == "pdf" }
-        self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+        
+        Task {
+            do {
+                try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
+            } catch let error {
+                print("Julie d Prax", urls, "Error: ", error)
+                
+            }
+        }
+        
         
         /*
  
@@ -268,31 +277,20 @@ extension PagesViewController {
             
             print (urls)
             
-            self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+            Task {
+                do {
+                    try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
+                } catch let error {
+                    print("Julie d Prax", urls, "Error: ", error)
+                    
+                }
+            }
             
-  //          self.insertPDFs(at: pdfs, dropIndex: indexPath.item)
-//            self.updateUI()
         }
     }
     
     
     // MARK: - Insert helper
-    
-    func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
-        var pages: [PDFPageItem] = []
-        for url in urls {
-            guard let document = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
-            let sourceFileName = url.deletingPathExtension().lastPathComponent
-            for i in 0..<document.pageCount {
-                guard let docPage = document.page(at: i)  else { fatalError("No document.page(at: \(i)") }
-                pages.append(PDFPageItem(
-                    name: "\(sourceFileName) - Page \(i + 1)",
-                    pdfPage: docPage
-                ))
-            }
-        }
-        PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.append(contentsOf: pages)
-    }
 
     func dropInternalSections(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalSections to: ", indexPath)

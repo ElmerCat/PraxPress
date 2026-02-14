@@ -110,6 +110,23 @@ struct SourceFilesView: View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 if !prax.pdfFiles.isEmpty {
+                    HStack {
+                        Button {
+                            prax.showingImporter = true
+                        } label: {
+                            Label("Add Files", systemImage: "folder.badge.plus")
+                        }
+                        
+                        if !prax.selectedFiles.isEmpty {
+                            Button {
+                                prax.deleteSelectedFilesFromDatabase()
+                            } label: {
+                                Label("Remove Files", systemImage: "folder.badge.minus")
+                            }
+                            .disabled(prax.selectedFiles.isEmpty)
+                        }
+
+                    }
                     VSplitView {
                        
                         GroupBox {
@@ -374,6 +391,7 @@ struct SourceFilesView: View {
 }
 
 #Preview {
+   
     SourceFilesView()
 }
 

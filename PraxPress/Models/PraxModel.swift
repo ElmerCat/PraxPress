@@ -15,13 +15,42 @@ import Combine
 @Observable
 final class PraxModel: Sendable {
     
-
-
+    
     init() {
-       
+        @Environment(\.modelContext) var _modelContext
+        modelContext = _modelContext
     }
+    let modelContext: ModelContext
     
     static let shared = PraxModel()
+    
+    enum PraxPressMode: String, CaseIterable {
+        case data = "Data Mode"
+        case merge = "Merge Mode"
+        
+        var color: Color {
+            switch self {
+            case .merge:
+                return .pink
+            case .data:
+                return .blue
+            }
+        }
+        
+        // And an icon, because why not?
+        var icon: String {
+            switch self {
+            case .merge:
+                return "apple.logo"
+            case .data:
+                return "swift"
+             }
+        }
+    }
+    var praxPressMode: PraxPressMode = .merge
+    
+    var dropTargeted = false
+    var optionKeyPressed = false
     
     // Width Guide support
     var widthGuidePageID: UUID? = nil
@@ -62,9 +91,12 @@ final class PraxModel: Sendable {
     var isOn = false
     var isLarge: Bool = false
     var showFilesPanel = true
+    var showingFileImportOptions: Bool = false
+    var showingFileExportOptions: Bool = false
     var showingMergedDocumentInspector = false
     var showingPDFPageItemInspector = false
     var showingImporter: Bool = false
+    var showingFileImporter: Bool = false
     var showingExportFolderSelector: Bool = false
     var isShowingInspector: Bool = false
     var showSavePanel: Bool = false

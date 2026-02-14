@@ -91,7 +91,7 @@ struct SectionFooterView: View {
  
             }
             .padding(8)
-            .background(isSelected ? Color.accentColor.opacity(0.2) : Color.clear)
+            .background(PraxGradient())
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)

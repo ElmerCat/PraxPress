@@ -8,14 +8,15 @@
 import SwiftUI
 import SwiftData
 
-
 struct SettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
-    @AppStorage("selectedSettingsTab")
- 
-    private var selectedSettingsTab = SettingsTab.general
-
+    
+    @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
+     
+    @AppStorage("selectedPDFFileGroupId") private var selectedPDFFileGroupId: Int?
+   
+    
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
 
