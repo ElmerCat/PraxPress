@@ -2,6 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>PDF Document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.adobe.pdf</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSObservationTrackingEnabled</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
@@ -11,10 +26,10 @@
 			<array>
 				<string></string>
 			</array>
-			<key>UTTypeIcons</key>
-			<dict/>
 			<key>UTTypeDescription</key>
 			<string>PraxPress PDFPageItem</string>
+			<key>UTTypeIcons</key>
+			<dict/>
 			<key>UTTypeIdentifier</key>
 			<string>com.praxpress.pdf-page-item</string>
 			<key>UTTypeTagSpecification</key>

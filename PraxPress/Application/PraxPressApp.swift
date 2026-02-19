@@ -9,6 +9,7 @@ import SwiftUI
 import AppKit
 import SwiftData
 import TipKit
+import Carbon.HIToolbox
 
 @main
 struct PraxPressApp: App {
@@ -80,14 +81,92 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         print("applicationSupportsSecureRestorableState")
         return true }
     
+    private var pendingOpenURLs: [URL] = []
+    
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Register early Apple Event handler for 'odoc' (open documents)
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleOpenDocumentsAppleEvent(event:replyEvent:)),
+            forEventClass: AEEventClass(kCoreEventClass),
+            andEventID: AEEventID(kAEOpenDocuments)
+        )
+    }
+    
+    
+    @objc private func handleOpenDocumentsAppleEvent(event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor) {
+        
+        print("handleOpenDocumentsAppleEvent")
+        // Extract file URLs from the event
+        var urls: [URL] = []
+        if let listDesc = event.paramDescriptor(forKeyword: keyDirectObject) {
+            for index in 1...listDesc.numberOfItems {
+                if let item = listDesc.atIndex(index), let url = item.fileURLValue {
+                    urls.append(url)
+                }
+            }
+        }
+        
+        // Keep only PDFs (if that’s your intent)
+        urls = urls.filter { $0.pathExtension.lowercased() == "pdf" }
+        guard !urls.isEmpty else { return }
+        
+        pendingOpenURLs = urls
+        
+        if NSRunningApplication.current.isFinishedLaunching {
+            insertPDFPageSectionsFromPendingURLs()
+            
+        }
+        
+        // Store them for processing once the app is ready
+       
+    }
+        
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("applicationDidFinishLaunching")
+        
+        if !pendingOpenURLs.isEmpty {
+            // Bring app to front but don’t create extra windows
+            NSApp.activate(ignoringOtherApps: true)
+            
+            insertPDFPageSectionsFromPendingURLs()
+            
+            
+        }
         
         NSWindow.allowsAutomaticWindowTabbing = false
     }
     func applicationWillTerminate(_ notification: Notification) {
         print("applicationWillTerminate")
+    }
+  
+    
+    func insertPDFPageSectionsFromPendingURLs() {
         
+        
+        Task {
+            do {
+                try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(pendingOpenURLs, at: IndexPath(item: -1, section: -1))
+                pendingOpenURLs.removeAll()
+                PraxModel.shared.refreshMergedDocument()
+                
+            } catch let error {
+                print("Julie d Prax", pendingOpenURLs, "Error: ", error)
+                
+            }
+        }
+        
+
+    }
+    
+    // Handle files opened from Finder (Open With) and double-clicks on associated documents
+    func application(_ application: NSApplication, open urls: [URL]) {
+        print("application(_:open:) received URLs: \(urls)")
+        // Example: handle only PDFs and route to your model
+        
+        NSApp.activate(ignoringOtherApps: true)
+        
+ 
         
     }
     
