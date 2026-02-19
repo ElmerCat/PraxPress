@@ -9,8 +9,25 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.text</string>
+				<string></string>
 			</array>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeDescription</key>
+			<string>PraxPress PDFPageItem</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.pdf-page-item</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>praxpress</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array/>
 			<key>UTTypeDescription</key>
 			<string>PraxPress PDFPageSection</string>
 			<key>UTTypeIcons</key>

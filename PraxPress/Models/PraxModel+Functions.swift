@@ -25,6 +25,8 @@ extension PraxModel {
 
     
     func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
+        
+        
         var urls: [URL] = []
         for provider in providers {
             
@@ -40,6 +42,7 @@ extension PraxModel {
             Task {
                 do {
                     try await insertPDFPageSectionsFromDocumentURLS(urls, at: IndexPath(item: -1, section: -1))
+                    refreshMergedDocument()
                 } catch let error {
                     print("Julie d Prax", urls, "Error: ", error)
                    
@@ -91,9 +94,7 @@ extension PraxModel {
     
     func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) async throws {
         
-
-        
-        
+      
         var pages: [PDFPageItem] = []
         for url in urls {
             guard let document = PDFDocument(url: url) else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load PDF document at \(url)", userInfo: nil) as! any Error) }
@@ -323,8 +324,16 @@ extension PraxModel {
         return mergedDocument
     }
     
+    func totalPDFPageItems() -> Int {
+        var total = 0
+        for section in pdfPageSections {
+            total += section.pdfPageItems.count
+        }
+        return total
+    }
+    
     func recomputeMergedMetrics() {
-        let count = editingPDFDocument.pageCount
+        let count = totalPDFPageItems()
         guard count > 0 else { fatalError("No pages in PDF!")}
         
         var pageIndex = 0

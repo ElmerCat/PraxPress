@@ -36,13 +36,39 @@ struct MainToolbar: ToolbarContent {
             }
         }
         
-
+        
         ToolbarItemGroup(placement: .secondaryAction) {
             DropTargetControl()
             
         }
         
         ToolbarItemGroup(placement: .principal) {
+        
+            Button {
+                withAnimation(.bouncy) {
+                    prax.columnVisibility = .detailOnly
+                }
+            } label: {
+                Label("Detail Only", systemImage: "1.circle")  // .symbolEffect(.wiggle.byLayer, options: .repeat(.continuous))
+            }
+            
+            Button {
+                withAnimation(.bouncy) {
+                    prax.columnVisibility = .doubleColumn
+                }
+            } label: {
+                Label("Double Column", systemImage: "2.circle")
+            }
+            
+            Button {
+                withAnimation(.bouncy) {
+                    prax.columnVisibility = .all
+                }
+            } label: {
+                Label("All", systemImage: "3.circle")
+            }
+            
+            
             OptionKeyPressedToolbarItem()
         }
         
@@ -66,66 +92,66 @@ struct MainToolbar: ToolbarContent {
         }
         
         
-       /* ToolbarItemGroup(placement: .principal) {
-            Button("Save As …", systemImage: "arrow.down.document") {
-                    prax.showSavePanel.toggle()
-                }
-                HStack {
-                    Text("          Drag as...   ")
-                    Spacer(minLength: 5)
-                    Text(prax.exportFilenamePrefix)
-                    TextField("Filename", text: Binding<String>(
-                        get: { prax.exportFilenameBody },
-                        set: { newValue in
-                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            if let dotRange = newName.range(of: ".") {
-                                newName = String(newName[..<dotRange.lowerBound])
-                            }
-                            prax.exportFilenameBody = newName
-                        })
-                    )
-                    .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    .textFieldStyle(SquareBorderTextFieldStyle())
-                    .disabled(prax.exportFolderURL == nil)
-                    .foregroundStyle(.cyan)
-                    .backgroundStyle(.yellow)
-                    
-                    Text(prax.exportFilenameSuffix)
-                    Spacer(minLength: 5)
-                    Image(systemName: "arrow.right.doc.on.clipboard")
-                    Spacer(minLength: 5)
-                    Text(".\(prax.exportFilenameExtension)          ")
-                    
-                }
-                .draggable {
-                    if let data = prax.mergedPDFDocument.dataRepresentation() {
-                        return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
-                    } else { return nil }
-                }
-        }
-        */
-
-   /*     ToolbarItemGroup(placement: .primaryAction) {
-            Text(prax.optionKeyPressed ? "Julie d'Prax" : "Juliette M. Belanger")
-        }
-        ToolbarItemGroup(placement: .status) {
-            Button {
-                prax.showingMergedDocumentInspector.toggle()
-            } label: {
-                Label((prax.showingMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showingMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-            }
-            Button {
-                prax.showingPDFPageItemInspector.toggle()
-            } label: {
-                Label((prax.showingPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showingPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-            }
-            Button {
-                prax.isLarge.toggle()
-            } label: {
-                Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-            }
-        }
-      */
+        /* ToolbarItemGroup(placement: .principal) {
+         Button("Save As …", systemImage: "arrow.down.document") {
+         prax.showSavePanel.toggle()
+         }
+         HStack {
+         Text("          Drag as...   ")
+         Spacer(minLength: 5)
+         Text(prax.exportFilenamePrefix)
+         TextField("Filename", text: Binding<String>(
+         get: { prax.exportFilenameBody },
+         set: { newValue in
+         var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+         if let dotRange = newName.range(of: ".") {
+         newName = String(newName[..<dotRange.lowerBound])
+         }
+         prax.exportFilenameBody = newName
+         })
+         )
+         .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+         .textFieldStyle(SquareBorderTextFieldStyle())
+         .disabled(prax.exportFolderURL == nil)
+         .foregroundStyle(.cyan)
+         .backgroundStyle(.yellow)
+         
+         Text(prax.exportFilenameSuffix)
+         Spacer(minLength: 5)
+         Image(systemName: "arrow.right.doc.on.clipboard")
+         Spacer(minLength: 5)
+         Text(".\(prax.exportFilenameExtension)          ")
+         
+         }
+         .draggable {
+         if let data = prax.mergedPDFDocument.dataRepresentation() {
+         return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+         } else { return nil }
+         }
+         }
+         */
+        
+        /*     ToolbarItemGroup(placement: .primaryAction) {
+         Text(prax.optionKeyPressed ? "Julie d'Prax" : "Juliette M. Belanger")
+         }
+         ToolbarItemGroup(placement: .status) {
+         Button {
+         prax.showingMergedDocumentInspector.toggle()
+         } label: {
+         Label((prax.showingMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showingMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+         }
+         Button {
+         prax.showingPDFPageItemInspector.toggle()
+         } label: {
+         Label((prax.showingPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showingPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+         }
+         Button {
+         prax.isLarge.toggle()
+         } label: {
+         Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+         }
+         }
+         */
     }
 }
 
@@ -212,7 +238,7 @@ struct BottomLabelGroupBoxStyle: GroupBoxStyle {
 
 // Usage
 /*
-
+ 
  
  Menu("More") {
  Button("Settings") {

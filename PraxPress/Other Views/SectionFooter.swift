@@ -5,15 +5,6 @@
 //  Created by Elmer Cat on 1/24/26.
 //
 
-
-//
-//  PageItem 2.swift
-//  PraxPress
-//
-//  Created by Elmer Cat on 1/24/26.
-//
-
-
 import SwiftUI
 
 class SectionFooter: NSView, NSCollectionViewElement {

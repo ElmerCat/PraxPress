@@ -77,16 +77,7 @@ struct ContentView: View {
         @Bindable var prax = prax
         let _ = Self._printChanges()
         
-        var detailMaxWidth: Double {
-            if showFilesPanel {
-                return (windowWidth - sidebarWidth) - 20
-            }
-            else {
-                return windowWidth - 20
-            }
-        }
-        
-        GeometryReader { geometry in
+        GeometryReader { proxy in
             HStack(spacing: 0) {
                 
                 if prax.praxPressMode == .data { // && showFilesPanel {
@@ -96,38 +87,38 @@ struct ContentView: View {
                     //           SlideableDivider(dimension: sidebarWidth, position: 0, onChangedDivider: onChangedDivider)
                 }
                 else {
-                    if showFilesPanel {
+                    
+                    NavigationSplitView(columnVisibility: $prax.columnVisibility) {
                         SourceFilesView()
-                            .frame(width: CGFloat(sidebarWidth))
-                            .layoutPriority(2)
-                        SlideableDivider(dimension: sidebarWidth, position: 0, onChangedDivider: onChangedDivider)
+                         //   .navigationTitle("PDF Files")
+                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.75)
                     }
-                    HStack(spacing: 0) {
+                    content: {
                         ContentDetailView()
-                            .frame(width: CGFloat(detailWidth))
-                            .layoutPriority(1)
-                            .onChange(of: prax.isLarge) {
-                                if prax.isLarge {
-                                    detailWidth = 1000
-                                }
-                                else {
-                                    detailWidth = 400
-                                }
-                            }
-                        SlideableDivider(dimension: detailWidth, position: 1, onChangedDivider: onChangedDivider)
+                  //          .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
+                  //              PraxModel.shared.acceptDrop(providers)
+                  //          }
+                  //          .onDropSessionUpdated({ dropSession in
+                  //              print("ContentDetailView - dropSessionUpdated phase: ", dropSession.phase)
+                  //          })
+                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                    }
+                    detail: {
                         VStack {
-                        //    DocumentEditingToolbar()
+                            //    DocumentEditingToolbar()
                             MergedDocumentToolbar()
                             MergedDocumentView()
                             MergedDocumentFooter()
-                         //       .alert(isPresented: $prax.isLarge) {
-                         //           Alert(title: Text("Order Complete"),
-                         //                 message: Text("Thank you for shopping with us."),
-                         //                 dismissButton: .default(Text("OK")))   }
+                            //       .alert(isPresented: $prax.isLarge) {
+                            //           Alert(title: Text("Order Complete"),
+                            //                 message: Text("Thank you for shopping with us."),
+                            //                 dismissButton: .default(Text("OK")))   }
                         }
+                        .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
                     }
-                    .onGeometryChange(for: CGFloat.self) {  contentGeometry in
-                        print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width, "  maxWidth: ", maxWidth, "detailMaxWidth", detailMaxWidth)
+               
+  /*                  .onGeometryChange(for: CGFloat.self) {  contentGeometry in
+                        print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width, "  maxWidth: ", maxWidth,)
                         return contentGeometry.size.width
                         
                     }
@@ -135,6 +126,7 @@ struct ContentView: View {
                         print ("contentGeometry.size.width newValue: ", newValue )
                         contentWidth = newValue
                     }
+*/
                 }
             }
             .background(Color.indigo.opacity(0.5))
@@ -148,7 +140,7 @@ struct ContentView: View {
             print ("windowGeometry.size.width:  old: ", oldValue, "  new: ", newValue )
             windowWidth = Double(newValue)
         }
-        .navigationTitle(prax.praxPressMode == .merge ? "Merge PDFs" : "Data File PDFs")
+     //   .navigationTitle(prax.praxPressMode == .merge ? "Merge PDFs" : "Data File PDFs")
         .toolbar { MainToolbar() }
         .onAppear { print("ContentView  .onAppear ") }
     }
@@ -181,10 +173,18 @@ struct ContentDetailView: View {
              */
             
             DocumentEditingToolbar()
-            DocumentEditingView()
-                .inspector(isPresented: $prax.showingPDFPageItemInspector) {
-                    PDFPageItemInspector()
-                }
+            if prax.pdfPageSections.count > 0 {
+                DocumentEditingView()
+                    .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                        PDFPageItemInspector()
+                    }
+                
+            }
+            else {
+                Text("Drag files into PraxPress")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .font(Font.custom("BrushScriptMT", size: 30))
+            }
             DocumentEditingFooter()
             
             //               .inspector(isPresented: $prax.showingMergedDocumentInspector) {
@@ -221,6 +221,55 @@ struct ContentDetailView: View {
     }
 }
 
+/*struct aContentView: View {
+    
+    @Environment(PraxModel.self) private var prax
+    
+    var body: some View {
+        @Bindable var prax = prax
+        let _ = Self._printChanges()
+        
+        NavigationSplitView(columnVisibility: $prax.columnVisibility) {
+            SourceFilesView()
+        }
+        
+        detail: {
+            
+            HStack(spacing: 0) {
+                ContentDetailView()
+                //    .frame(width: CGFloat(detailWidth))
+                    .layoutPriority(1)
+                    .onChange(of: prax.isLarge) {
+                        if prax.isLarge {
+                            //       detailWidth = 1000
+                        }
+                        else {
+                            //   detailWidth = 400
+                            //     }
+                        }
+                    }
+
+          //      SlideableDivider(dimension: detailWidth, position: 1, onChangedDivider: onChangedDivider)
+                VStack {
+                    //    DocumentEditingToolbar()
+                    MergedDocumentToolbar()
+                    MergedDocumentView()
+                    MergedDocumentFooter()
+                    //       .alert(isPresented: $prax.isLarge) {
+                    //           Alert(title: Text("Order Complete"),
+                    //                 message: Text("Thank you for shopping with us."),
+                    //                 dismissButton: .default(Text("OK")))   }
+                }
+            }
+       
+        }
+        .navigationTitle(prax.praxPressMode == .merge ? "Merge PDFs" : "Data File PDFs")
+        .toolbar { MainToolbar() }
+        .onAppear { print("ContentView  .onAppear ") }
+        
+    }
+}
+*/
 
 
 #Preview {

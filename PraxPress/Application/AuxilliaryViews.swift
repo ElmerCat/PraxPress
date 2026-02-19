@@ -383,6 +383,7 @@ struct DragOutControl: View {
 
 struct DropTargetControl: View {
     
+    
     var body: some View {
         @Bindable var prax = PraxModel.shared
         
@@ -420,15 +421,7 @@ struct DropTargetControl: View {
             }
         }
         
-        .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
-            prax.acceptDrop(providers)
-        }
-        .onDropSessionUpdated({ dropSession in
-            print("DragIntoControl - dropSessionUpdated phase: ", dropSession.phase)
-        })
-        
-        
-        //    .padding(.horizontal, 10)
+        .onDrop(of: [.fileURL, .pdfPageSectionType, .pdfPageDragType], delegate: PraxDropDelegate())
         
         
     }
@@ -458,6 +451,37 @@ struct OptionKeyPressedToolbarItem: View {
     }
 }
 
+
+
+class praxListItem: NSCollectionViewItem {
+    
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("list-item-reuse-identifier")
+    
+    override var highlightState: NSCollectionViewItem.HighlightState {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    private func updateSelectionHighlighting() {
+        if !isViewLoaded {
+            return
+        }
+        
+        let showAsHighlighted = (highlightState == .forSelection) ||
+        (isSelected && highlightState != .forDeselection) ||
+        (highlightState == .asDropTarget)
+        
+        textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
+        view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
+    }
+}
 
 
 #Preview {

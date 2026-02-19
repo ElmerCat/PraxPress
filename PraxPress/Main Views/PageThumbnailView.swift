@@ -2,22 +2,21 @@ import SwiftUI
 import PDFKit
 
 
-class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
-    private var hostingView: NSHostingView<CollectionViewPDFPageThumbnailView>?
+class PDFPageThumbnail: NSCollectionViewItem {
+    private var hostingView: NSHostingView<PDFPageThumbnailView>?
     private var indexPath: IndexPath?
     private var pdfPageItem: PDFPageItem?
-    private var thumbnailViewer: Bool = false
-    
+   
     func configure(at atIndexPath: IndexPath?,
                    isSelected: Bool) {
-        print ("CollectionViewPDFPageItem - configure thumbnailViewer: ", thumbnailViewer)
+        print ("PDFPageThumbnailView - configure ")
         self.indexPath = atIndexPath
         
         
         if self.indexPath != nil {
             if let pdfPageItem = PraxModel.shared.pdfPageItem(indexPath: indexPath!) {
                 self.pdfPageItem = pdfPageItem
-                let root = CollectionViewPDFPageThumbnailView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, highlightState: highlightState)
+                let root = PDFPageThumbnailView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, highlightState: highlightState)
                 if let hostingView {
                     print ("PageItem - hostingView")
                     hostingView.rootView = root
@@ -35,10 +34,7 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
                     hostingView = hosting
                 }
             }
-            
         }
-        
-        
     }
     
     override var highlightState: NSCollectionViewItem.HighlightState {
@@ -49,24 +45,9 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
     
     override var isSelected: Bool {
         didSet {
-           
             configure(at: indexPath, isSelected: isSelected)
         }
     }
-    
- /*   private func updateSelectionHighlighting() {
-        if !isViewLoaded {
-            return
-        }
-        
-        let showAsHighlighted = (highlightState == .forSelection) ||
-        (isSelected && highlightState != .forDeselection) ||
-        (highlightState == .asDropTarget)
-        
-        textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
-        view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
-    }
-*/
     
     // Called by the collection view before the view is reused
     override func prepareForReuse() {
@@ -74,24 +55,18 @@ class CollectionViewPDFPageItemThumbnail: NSCollectionViewItem {
         super.prepareForReuse()
         pdfPageItem = nil
         configure(at: nil, isSelected: isSelected)
-        
     }
     
     deinit {
         print ("PageItem: NSCollectionViewItem - deinit")
-        
-        
     }
-    
 }
 
-struct CollectionViewPDFPageThumbnailView: View {
-   
+struct PDFPageThumbnailView: View {
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
-    
     
     var body: some View {
         let imageSize = CGSize(width: 120, height: 160)
@@ -132,44 +107,48 @@ struct CollectionViewPDFPageThumbnailView: View {
         }()
         
         if pdfPageItem != nil {
-            GroupBox {
-                VStack(spacing: 8) {
-                    
-                    Image(nsImage: pdfPageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(6)
-                    
-                    HStack {
+            GeometryReader { proxy in
+                GroupBox {
+                    VStack {
+                        HStack(spacing: 0) {
+                            
+                            Image(nsImage: pdfPageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .cornerRadius(6)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                            
+                            VStack {
+                                Button { clickedIncludePageButton(pdfPageItem!) }
+                                label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                                    .buttonStyle(.borderless)
+                                    .help("Toggle include page")
+                                
+                                Button { clickedGuidePageButton(pdfPageItem!) }
+                                label: { Image(systemName: "ruler") }
+                                    .buttonStyle(.borderless)
+                                    .help("Toggle width guide")
+                            }
+                        }
+                        
                         Text(pdfPageItem!.name)
                             .font(.caption)
                             .lineLimit(1)
                         
-                        Spacer()
-                        
-                        Button { clickedIncludePageButton(pdfPageItem!) }
-                        label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
-                            .buttonStyle(.borderless)
-                            .help("Toggle include page")
-                        
-                        Button { clickedGuidePageButton(pdfPageItem!) }
-                        label: { Image(systemName: "ruler") }
-                            .buttonStyle(.borderless)
-                            .help("Toggle width guide")
                     }
-                    Text("L-\(Int(pdfPageItem!.trim.left)) T-\(Int(pdfPageItem!.trim.top)) B-\(Int(pdfPageItem!.trim.bottom)) R-\(Int(pdfPageItem!.trim.right))")
-                        .font(.caption2)
-                        .foregroundStyle(foregroundColor)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(proxy.size.width * 0.01)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(foregroundColor, lineWidth: 3) )
+                    .foregroundColor(foregroundColor)
+                    .background(backgroundColor)
+                    
                 }
-                .padding(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(foregroundColor, lineWidth: 3) )
-                .foregroundColor(foregroundColor)
-                .background(PraxGradient())
-                
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: proxy.size.width * 0.01))
+                .frame(width: proxy.size.width * 0.69)
+                .position(x: proxy.size.width * 0.65, y: proxy.size.height * 0.5)
             }
+            
 //            .background(backgroundColor)
         } else {
             EmptyView()

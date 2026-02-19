@@ -32,7 +32,7 @@ extension ThumbnailViewController {
         let typeIdentifier = UTType(filenameExtension: "pdf")
         
         let provider = FilePromiseProvider()
-        provider.pdfDocument = PraxModel.shared.editingPDFDocument
+        provider.pdfDocument = PraxModel.shared.mergedPDFDocument
         provider.fileName = "PraxPress-Page.pdf"
         provider.fileType = typeIdentifier!.identifier
         provider.delegate = provider
@@ -51,10 +51,18 @@ extension ThumbnailViewController {
         _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
     ) -> NSDragOperation {
         
-             let indPth = proposedDropIndexPath.pointee
-             print("ThumbnailViewController validateDrop  ", indPth.debugDescription)
-        
-        return [.move, .copy]
+             let indexPath = proposedDropIndexPath.pointee
+         
+        if PraxModel.shared.optionKeyPressed {
+            print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
+           return [.copy]
+
+        }
+        else {
+            print("ThumbnailViewController validateDrop [.move]  ", indexPath)
+            return [.move]
+
+        }
     }
     
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
@@ -85,8 +93,6 @@ extension ThumbnailViewController {
             return
         }
 
-        
-        
         var droppedURLs: [URL] = []
         
         // 1) Prefer file URLs if available

@@ -40,7 +40,7 @@ extension PagesViewController {
         let typeIdentifier = UTType(filenameExtension: "pdf")
         
         let provider = FilePromiseProvider()
-        provider.pdfDocument = PraxModel.shared.editingPDFDocument
+        provider.pdfDocument = PraxModel.shared.mergedPDFDocument
         provider.fileName = "PraxPress-Page.pdf"
         provider.fileType = typeIdentifier!.identifier
         provider.delegate = provider
@@ -332,10 +332,14 @@ extension PagesViewController {
 }
 
 extension NSPasteboard.PasteboardType {
-    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdfPageDragType")
-    static let pdfPageSectionType = NSPasteboard.PasteboardType("com.praxpress.pdfPageSectionType")
+    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
+    static let pdfPageSectionType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
 }
 
+extension UTType {
+    static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
+    static let pdfPageSectionType = UTType(exportedAs: "com.praxpress.pdf-page-section")
+}
 
 class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
     

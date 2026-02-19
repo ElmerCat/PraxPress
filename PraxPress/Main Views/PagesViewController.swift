@@ -53,81 +53,34 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             for await _ in Observations({ PraxModel.shared.selectedPageItems }) {
                 print("PagesViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
                 
-                if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
+              /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
                         PraxModel.shared.editingPDFView.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                         
                     }
-                }
+                } */
             }
         }
     }
     
     private func createLayout() -> NSCollectionViewLayout {
-        if thumbnailViewer {
+       
+        
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .fractionalWidth(1.3))
+                                                  heightDimension: .fractionalWidth(1.4))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+         //   item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
             
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.4))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+     //       section.interGroupSpacing = 5
+     //       section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
             
-            let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(50))
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionHeaderElementKind,
-                alignment: .top)
-            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionFooterElementKind,
-                alignment: .bottom)
-            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-            sectionHeader.pinToVisibleBounds = true
-            sectionHeader.zIndex = 2
-            sectionFooter.pinToVisibleBounds = true
-            sectionFooter.zIndex = 2
-            let layout = NSCollectionViewCompositionalLayout(section: section)
-            return layout
 
-        }
-        else {
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .fractionalWidth(1.3))
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
-            
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-            
-            let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-            
- /*           let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(50))
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionHeaderElementKind,
-                alignment: .top)
-            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionFooterElementKind,
-                alignment: .bottom)
-            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-            sectionHeader.pinToVisibleBounds = true
-            sectionHeader.zIndex = 2
-            sectionFooter.pinToVisibleBounds = true
-            sectionFooter.zIndex = 2
-   */
             let layout = NSCollectionViewCompositionalLayout(section: section)
             return layout
-        }
         
 
     }

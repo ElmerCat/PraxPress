@@ -9,89 +9,7 @@ import SwiftUI
 import AppKit
 import PDFKit
 import UniformTypeIdentifiers
-
-struct PDFPageSection: Hashable, Codable, Transferable {
-    var title: String
-    private(set) var id: UUID = UUID()
-    var pdfPage: PDFPage? = nil
-    
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-    var pdfPageItems: [PDFPageItem] = [] {
-        didSet {
-   //         let prax = oldValue.count
-            
-            print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
-        }
-    }
-    
-    private enum CodingKeys: String, CodingKey {
-        case title
-        case id
-        case mergedWidthPts
-        case mergedHeightPts
-        case pdfPageItems
-    }
-    
-    init(
-        title: String,
-        pdfPage: PDFPage? = nil,
-        mergedWidthPts: CGFloat = 0,
-        mergedHeightPts: CGFloat = 0,
-        pdfPageItems: [PDFPageItem] = []
-    ) {
-        self.title = title
-        self.pdfPage = pdfPage
-        self.mergedWidthPts = mergedWidthPts
-        self.mergedHeightPts = mergedHeightPts
-        self.pdfPageItems = pdfPageItems
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.title = try container.decode(String.self, forKey: .title)
-        self.mergedWidthPts = try container.decode(CGFloat.self, forKey: .mergedWidthPts)
-        self.mergedHeightPts = try container.decode(CGFloat.self, forKey: .mergedHeightPts)
-        self.pdfPageItems = try container.decode([PDFPageItem].self, forKey: .pdfPageItems)
-        // Decode id if present, otherwise generate a new one
-        self.id = (try? container.decode(UUID.self, forKey: .id)) ?? UUID()
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(title, forKey: .title)
-        try container.encode(id, forKey: .id)
-        try container.encode(mergedWidthPts, forKey: .mergedWidthPts)
-        try container.encode(mergedHeightPts, forKey: .mergedHeightPts)
-        try container.encode(pdfPageItems, forKey: .pdfPageItems)
-    }
-    
-    static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .data)
-    }
-    
-}
-
-
-
-struct MergedPDFTransfer: Transferable, Identifiable {
-    let id = UUID()
-    let data: Data
-    let filename: String
-    
-    static var transferRepresentation: some TransferRepresentation {
-        // Provide PDF data so other apps (Mail, Notes, Finder) can accept the drop
-        DataRepresentation(exportedContentType: .pdf) { pdf in
-            pdf.data
-        }
-        .suggestedFileName { value in
-            value.filename
-        }
-    }
-}
-
-
+/*
 struct PDFPageSectionsPayload: Transferable, Codable, Hashable {
     var sections: [PDFPageSection]
     
@@ -99,7 +17,7 @@ struct PDFPageSectionsPayload: Transferable, Codable, Hashable {
         CodableRepresentation(contentType: .data)
     }
 }
-
+*/
 
 
 
@@ -109,38 +27,47 @@ struct PDFPageSectionsPayload: Transferable, Codable, Hashable {
 class SectionHeader: NSView, NSCollectionViewElement {
     private var hostingView: NSHostingView<SectionHeaderView>?
     private var indexPath: IndexPath?
+    private var pdfPageSection: PDFPageSection?
     
     
     
     
     func configure(at atIndexPath: IndexPath,
                    isSelected: Bool) {
+        print ("SectionHeader- configure ")
         indexPath = atIndexPath
+        
         guard let indexPath else { fatalError("index path is missing") }
         
-        let root = SectionHeaderView(indexPath: indexPath, isSelected: isSelected)
         
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        if PraxModel.shared.pdfPageSections.count > indexPath.section {
+            let pdfPageSection = PraxModel.shared.pdfPageSections[self.indexPath!.section]
+            self.pdfPageSection = pdfPageSection
+            
+            let root = SectionHeaderView(pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
+            
+            if let hostingView {
+                hostingView.rootView = root
+            } else {
+                let hosting = NSHostingView(rootView: root)
+                hosting.translatesAutoresizingMaskIntoConstraints = false
+                self.addSubview(hosting)
+                NSLayoutConstraint.activate([
+                    hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                    hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                    hosting.topAnchor.constraint(equalTo: self.topAnchor),
+                    hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+                ])
+                self.hostingView = hosting
+            }
         }
     }
     
     var isSelected: Bool = false {
         didSet {
-            if let indexPath {
-                configure(at: indexPath, isSelected: isSelected)
-            }
+            
+                configure(at: indexPath!, isSelected: isSelected)
+          
         }
     }
     var onToggleSelection: (() -> Void)?
@@ -149,12 +76,12 @@ class SectionHeader: NSView, NSCollectionViewElement {
 
 
 struct SectionHeaderView: View {
-    let indexPath: IndexPath
+    let pdfPageSection: PDFPageSection
     var isSelected: Bool
     
 
     
-    func pdfPageItem() -> PDFPageItem? {
+/*    func pdfPageItem() -> PDFPageItem? {
         if indexPath.section >= 0,
            indexPath.section < PraxModel.shared.pdfPageSections.count,
            indexPath.item >= 0,
@@ -174,7 +101,8 @@ struct SectionHeaderView: View {
             return nil
         }
     }
-    enum DragState {
+    
+   enum DragState {
         case inactive
         case pressing
         case dragging(translation: CGSize)
@@ -211,31 +139,40 @@ struct SectionHeaderView: View {
             print ("GestureState - dragState: ", dragState)
         }
     }
-    
+*/
     var body: some View {
         
         let clickGesture = TapGesture()
             .onEnded { value in
-                 print("View tapped! - \(indexPath) - PraxModel.shared.optionKeyPressed: \(PraxModel.shared.optionKeyPressed)")
+                print("View tapped! - \(pdfPageSection.title) - PraxModel.shared.optionKeyPressed: \(PraxModel.shared.optionKeyPressed)")
                 
-                PraxModel.shared.mergedPDFView.go(to: (pdfPageSection()!.pdfPage)!)
+                PraxModel.shared.mergedPDFView.go(to: pdfPageSection.pdfPage!)
             }
          
+        GroupBox {
+            Group { Text("Merged Page \(pdfPageSection.title)") }
+            
+                .draggable({ () -> MergedPDFTransfer? in
+                      guard let data = PraxModel.shared.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: PraxModel.shared.exportFilename)
+                }()!, preview: {
+                    PraxDragPreview()
+                })
+            
 
-        
-        Group { Text("Merged Page \(indexPath.section + 1)") }
-        .draggable {
-            if let data = PraxModel.shared.mergedPDFDocument.dataRepresentation() {
-                return MergedPDFTransfer(data: data, filename: "MergedPage\(indexPath.section + 1).pdf")
-            } else { return nil}
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .font(.caption)
+                .lineLimit(1)
+                .padding(8)
+            
+                .background(Color.black.opacity(0.7))
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
+                .gesture(clickGesture)
+
         }
-        .font(.caption)
-        .lineLimit(1)
-        .padding(8)
-        .background(PraxGradient())
-        .overlay(RoundedRectangle(cornerRadius: 8)
-            .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
-        .gesture(clickGesture)
+        .padding(20)
+        
         
 
 
@@ -281,11 +218,11 @@ struct SectionHeaderView: View {
             print("Plain Click detected")
         }
         
-        if PraxModel.shared.selectedSections.contains(indexPath.section) {
-            PraxModel.shared.selectedSections.remove(indexPath.section)
-        } else {
-            PraxModel.shared.selectedSections.insert(indexPath.section)
-        }
+   //     if PraxModel.shared.selectedSections.contains(indexPath.section) {
+  //          PraxModel.shared.selectedSections.remove(indexPath.section)
+  //      } else {
+  //          PraxModel.shared.selectedSections.insert(indexPath.section)
+  //      }
         // self.isSelected = PraxModel.shared.selectedSections.contains(indexPath.section)
         // Refresh just this section’s header to reflect the new state.
         //       self.collectionView.reloadSections(IndexSet(integer: indexPath.section))

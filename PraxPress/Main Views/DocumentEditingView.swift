@@ -24,7 +24,7 @@ struct DocumentEditingView: NSViewRepresentable {
         print("Nadine Peeler- DocumentEditingView makeNSView")
         let split = NSSplitView()
         split.delegate = context.coordinator
-        split.registerForDraggedTypes([.fileURL])
+   //     split.registerForDraggedTypes([.fileURL])
         split.isVertical = true
         split.dividerStyle = .thick
         split.translatesAutoresizingMaskIntoConstraints = false
@@ -57,12 +57,12 @@ struct DocumentEditingView: NSViewRepresentable {
             //    split.setPosition(target + 100, ofDividerAt: 1)
         }
         
-        NotificationCenter.default.addObserver(
+        /*NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.pageChanged(_:)),
             name: Notification.Name.PDFViewPageChanged,
             object: prax.editingPDFView
-        )
+        )*/
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.widthGuideChanged(_:)),
@@ -127,11 +127,11 @@ struct DocumentEditingView: NSViewRepresentable {
         @objc func widthGuideChanged(_ note: Notification) {
             print("DocumentEditingView Coordinator - widthGuideChanged")
             //       guard let pdfView = note.object as? PDFView else { return }
-            DispatchQueue.main.async {
+        /*    DispatchQueue.main.async {
                 self.prax.editingPDFView.layoutDocumentView()
                 self.prax.editingPDFView.needsDisplay = true
                 
-            }
+            }*/
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
@@ -194,7 +194,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
     }
 }
-struct DocumentEditingToolbar: View, DropDelegate {
+struct DocumentEditingToolbar: View {
     @State private var prax = PraxModel.shared
     
     
@@ -217,47 +217,6 @@ struct DocumentEditingToolbar: View, DropDelegate {
                                         query: .never,
                                         fragment: .never)
     
-    @State private var dropTargeted: Bool = false
-    
-    func validateDrop(info: DropInfo) -> Bool {
-        print("DocumentEditingToolbar - validateDrop")
-        return true
-    }
-    
-    func performDrop(info: DropInfo) -> Bool {
-        print("DocumentEditingToolbar - performDrop")
-        
-        return acceptDrop(info.itemProviders(for: [UTType.fileURL]))
-    }
-    
-    func dropEntered(info: DropInfo) {
-        print("DocumentEditingToolbar - dropEntered")    }
-    
-    func dropUpdated(info: DropInfo) -> DropProposal? {
-        //       print("DocumentEditingToolbar - dropUpdated - phase: ", info.session.phase)
-        return DropProposal(operation: .copy)
-    }
-    
-    func dropExited(info: DropInfo) {
-        print("DocumentEditingToolbar - dropExited")
-    }
-    
-    func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
-        for provider in providers {
-            
-            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (data, error) in
-                if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
-                    
-                    print("Julie Belanger URL: ", url)
-                    
-                }
-            }
-            
-        }
-        print("Julie d Prax")
-        return true
-        
-    }
     
     var body: some View {
         GroupBox {
@@ -304,7 +263,7 @@ struct DocumentEditingToolbar: View, DropDelegate {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disabled(prax.exportFolderURL == nil)
                 
-                Spacer()
+               /* Spacer()
                 
                 Button {
                     prax.isOn = true
@@ -323,21 +282,21 @@ struct DocumentEditingToolbar: View, DropDelegate {
                 
                 if prax.multipleFilesSelected {
                     Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
-                }
+                }*/
                 
             }
             .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
             .padding(8)
             
         }
-        //  .onDrop(of: [.fileURL], delegate: self)
+          .onDrop(of: [.fileURL], delegate: PraxDropDelegate())
         
-        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
-            acceptDrop(providers)
-        }
-        .onDropSessionUpdated({ dropSession in
-            print("DocumentEditingToolbar - dropSessionUpdated phase: ", dropSession.phase)
-        })
+//        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
+//            acceptDrop(providers)
+//        }
+//        .onDropSessionUpdated({ dropSession in
+//            print("DocumentEditingToolbar - dropSessionUpdated phase: ", dropSession.phase)
+//        })
         
         
         
@@ -345,7 +304,7 @@ struct DocumentEditingToolbar: View, DropDelegate {
         .fileDialogMessage("Choose the Export Folder")
         .fileDialogConfirmationLabel(Text("Choose Export Folder"))
         
-        .background(dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
+        .background(prax.dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
         .foregroundStyle(Color.white)
         
     }

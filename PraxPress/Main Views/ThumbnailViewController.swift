@@ -16,12 +16,15 @@ import UniformTypeIdentifiers
 
 class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
  
-    private var selectedSections = Set<Int>()
+ //   private var selectedSections = Set<Int>()
     
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
     static let sectionBackgroundElementKind = "section-background-element-kind"
     
+    static let sectionHeaderHeight: CGFloat = 50
+    static let sectionFooterHeight: CGFloat = 50
+
     @IBOutlet weak var collectionView: NSCollectionView!
     
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
@@ -38,7 +41,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         collectionView.allowsEmptySelection = false
         collectionView.allowsMultipleSelection = true
         collectionView.setDraggingSourceOperationMask([.copy], forLocal: false)
-        collectionView.backgroundView = CollectionViewBackgroundView()
+        collectionView.backgroundView = CollectionViewBackground()
         
         updateUI(animated: false)
         
@@ -52,12 +55,12 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
             for await _ in Observations({ PraxModel.shared.selectedPageItems }) {
                 print("ThumbnailViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
                 
-                if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
+              /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
                         PraxModel.shared.editingPDFView.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                         
                     }
-                }
+                } */
             }
         }
     }
@@ -65,58 +68,84 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     
     
     private func createLayout() -> NSCollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .fractionalWidth(1.3))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-        
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 5
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-        
-        let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                      heightDimension: .absolute(50))
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerFooterSize,
-            elementKind: ThumbnailViewController.sectionHeaderElementKind,
-            alignment: .top)
-        let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerFooterSize,
-            elementKind: ThumbnailViewController.sectionFooterElementKind,
-            alignment: .bottom)
-        
-        let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: ThumbnailViewController.sectionBackgroundElementKind)
-        
-        
-        section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-        
-        section.decorationItems = [sectionBackground]
-        
-        section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
-            // Perform animations on the visible items.
-            print("Julie")
+        let layout = NSCollectionViewCompositionalLayout {
+            (sectionIndex: Int,
+             layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalWidth(0.5))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+   //         item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+     //       item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+            
+ //           item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
+            
+//            item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
+//                leading: nil,
+//                top: nil,
+//                trailing: .fixed(0),
+//                bottom: nil
+//            )
+            
+ 
+            let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: ThumbnailViewController.sectionBackgroundElementKind)
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            
+            
+      //      group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
+            
+            let section = NSCollectionLayoutSection(group: group)
+     //       section.interGroupSpacing = 5
+     //       section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
+     //       section.supplementariesFollowContentInsets = false
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                    heightDimension: .absolute(ThumbnailViewController.sectionHeaderHeight))
+            
+            let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(ThumbnailViewController.sectionFooterHeight))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerSize,
+                elementKind: ThumbnailViewController.sectionHeaderElementKind,
+                alignment: .top,)
+           sectionHeader.extendsBoundary = true
+           let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: footerSize,
+                elementKind: ThumbnailViewController.sectionFooterElementKind,
+                alignment: .bottom)
+
+            
+            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+            
+            section.decorationItems = [sectionBackground]
+            
+     //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                // Perform animations on the visible items.
+     //           print("section.visibleItemsInvalidationHandler")
+     //       }
+    
+            sectionHeader.pinToVisibleBounds = true
+            sectionHeader.zIndex = 2
+ //           sectionFooter.pinToVisibleBounds = true
+ //           sectionFooter.zIndex = 2
+       
+            return section
         }
-        
-        sectionHeader.pinToVisibleBounds = true
-        sectionHeader.zIndex = 2
-        sectionFooter.pinToVisibleBounds = true
-        sectionFooter.zIndex = 2
-        let layout = NSCollectionViewCompositionalLayout(section: section)
-        layout.register(SectionBackgroundDecorationView.self, forDecorationViewOfKind: ThumbnailViewController.sectionBackgroundElementKind)
+       
+        layout.register(SectionBackground.self, forDecorationViewOfKind: ThumbnailViewController.sectionBackgroundElementKind)
         
         return layout
         
     }
     
     private func configureHierarchy() {
-        collectionView.register(CollectionViewPDFPageItemThumbnail.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"))
+        collectionView.register(PDFPageThumbnail.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"))
+  
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: ThumbnailViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
-        collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: ThumbnailViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
         
+        collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: ThumbnailViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
         
         collectionView.collectionViewLayout = createLayout()
         
@@ -135,7 +164,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"), for: indexPath)
-            guard let pageItem = item as? CollectionViewPDFPageItemThumbnail else { return nil }
+            guard let pageItem = item as? PDFPageThumbnail else { return nil }
             pageItem.configure(at: indexPath,
                                isSelected: collectionView.selectionIndexPaths.contains(indexPath))
             return pageItem
@@ -159,14 +188,14 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                 
                 //               header.label.stringValue = PraxModel.shared.pdfPageSections[indexPath.section].title
                 header.configure(at: indexPath,
-                                 isSelected: self.selectedSections.contains(indexPath.section))
+                                 isSelected: PraxModel.shared.selectedSections.contains(indexPath.section))
                 
                 header.onToggleSelection = { [weak self] in
                     guard let self else { return }
-                    if self.selectedSections.contains(indexPath.section) {
-                        self.selectedSections.remove(indexPath.section)
+                    if PraxModel.shared.selectedSections.contains(indexPath.section) {
+                        PraxModel.shared.selectedSections.remove(indexPath.section)
                     } else {
-                        self.selectedSections.insert(indexPath.section)
+                        PraxModel.shared.selectedSections.insert(indexPath.section)
                     }
                     // Refresh just this section’s header to reflect the new state.
                     self.collectionView.reloadSections(IndexSet(integer: indexPath.section))
@@ -182,12 +211,14 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                     for: indexPath) as? SectionFooter {
                     
                     footer.configure(at: indexPath,
-                                     isSelected: self.selectedSections.contains(indexPath.section))
+                                     isSelected: PraxModel.shared.selectedSections.contains(indexPath.section))
                     return footer
                 }
             }
             fatalError("Cannot create new supplementary view of kind: \(kind)")
         }
+   
+        
     }
     
     func updateUI(animated: Bool = true) {
@@ -231,103 +262,6 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     
     
     
-}
-
-
-
-class CollectionViewBackgroundView: NSView {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        configure()
-    }
-    required init?(coder: NSCoder) {
-        fatalError("not implemented")
-    }
-    
-    
-    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        
-        print("CollectionViewBackgroundView - draggingEntered")
-        layer?.backgroundColor = NSColor.green.cgColor
-        return .copy
-    }
-    
-    override func draggingExited(_ sender: NSDraggingInfo?)  {
-        print("CollectionViewBackgroundView - draggingExited")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-    
-    override func concludeDragOperation(_ sender: NSDraggingInfo?)  {
-        print("CollectionViewBackgroundView - concludeDragOperation")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-    
-    override func draggingEnded(_ sender: NSDraggingInfo)  {
-        print("CollectionViewBackgroundView - draggingEnded")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-
-    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        print("CollectionViewBackgroundView - prepareForDragOperation")
-        return true
-    }
-    
-    func wantsPeriodicUpdates() -> Bool {
-        print("CollectionViewBackgroundView - wantsPeriodicUpdates")
-        return true
-    }
-    
-    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        let pboard = sender.draggingPasteboard
-        
-        // Extract file URLs from the pasteboard
-        if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
-            for url in urls {
-                print("CollectionViewBackgroundView - Dropped file: \(url.path)")
-            }
-            return true // Drop was successful
-        }
-        return false // Drop rejected
-    }
-    
-}
-
-extension CollectionViewBackgroundView {
-    func configure() {
-        registerForDraggedTypes([.fileURL])
-        
-        self.wantsLayer = true
-        layer?.backgroundColor = NSColor.cyan.cgColor
-        layer?.borderColor = NSColor.black.cgColor
-        layer?.borderWidth = 1
-        layer?.cornerRadius = 12
-    }
-}
-
-
-class SectionBackgroundDecorationView: NSView, NSCollectionViewElement {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        configure()
-    }
-    required init?(coder: NSCoder) {
-        fatalError("not implemented")
-    }
-    
- 
-}
-
-extension SectionBackgroundDecorationView {
-    func configure() {
-       
-        self.wantsLayer = true
-        layer?.backgroundColor = NSColor.yellow.cgColor
-        layer?.borderColor = NSColor.black.cgColor
-        layer?.borderWidth = 1
-        layer?.cornerRadius = 12
-    }
 }
 
 

@@ -133,7 +133,7 @@ final class PraxModel: Sendable {
         }
     }
         
-    func refreshEditingDocument() {
+  /* func refreshEditingDocument() {
         if !refreshingEditingDocument {
             refreshingEditingDocument = true
             if pdfPageSections.isEmpty {
@@ -146,17 +146,17 @@ final class PraxModel: Sendable {
             }
             refreshingEditingDocument = false
         }
-    }
+    } */
 
-    var refreshingEditingDocument: Bool = false {
+/*    var refreshingEditingDocument: Bool = false {
         didSet {
             if refreshingEditingDocument {
                 print ("Refreshing Editing Document") }
             else {
                 print ("Editing Document Refreshed") }
         }
-    }
-    
+    } */
+
     
     
     var pdfFiles: [PDFFile] = [] {
@@ -177,6 +177,7 @@ final class PraxModel: Sendable {
             DispatchQueue.main.async {
                 print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
                 self.setPageSectionsFromSelectedFiles()
+         //       self.refreshMergedDocument()
             }
         }
     }
@@ -220,7 +221,7 @@ final class PraxModel: Sendable {
 //        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-editing").appendingPathExtension("pdf")
 //    }()
   
-    var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+ /*   var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("editingPDFDocument didSet ")
             
@@ -238,7 +239,9 @@ final class PraxModel: Sendable {
             }
         }
     }
-    var editingPDFView: PDFView = PDFView() { didSet {
+ */
+    
+/*    var editingPDFView: PDFView = PDFView() { didSet {
         editingPDFView.document = editingPDFDocument
         editingPDFView.displaysPageBreaks = editingPDFDisplayPageBreaks
         editingPDFView.displayMode = editingPDFDisplayMode
@@ -246,6 +249,7 @@ final class PraxModel: Sendable {
         editingPDFView.autoScales = editingPDFAutoScales
         editingPDFView.backgroundColor = editingPDFBackgroundColor
     }}
+    
     var editingPDFDisplayMode: PDFDisplayMode = .singlePageContinuous { didSet {
         editingPDFView.displayMode = editingPDFDisplayMode
         editingPDFView.scaleFactor = editingPDFView.scaleFactorForSizeToFit
@@ -258,7 +262,8 @@ final class PraxModel: Sendable {
     var editingPDFBackgroundColor: NSColor = .red { didSet {
         editingPDFView.backgroundColor = editingPDFBackgroundColor }
     }
-    
+ */
+ 
     var mergedPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
     }()
@@ -270,6 +275,7 @@ final class PraxModel: Sendable {
         }
     }
     var mergedPDFView: PDFView = PDFView() { didSet {
+        print ("mergedPDFView didSet ")
         mergedPDFView.document = mergedPDFDocument
         mergedPDFView.displaysPageBreaks = mergedPDFDisplayPageBreaks
         mergedPDFView.displayMode = mergedPDFDisplayMode

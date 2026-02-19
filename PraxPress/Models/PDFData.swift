@@ -10,6 +10,122 @@ import PDFKit
 import UniformTypeIdentifiers
 import Combine
 
+enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
+
+
+struct PDFPageSection: Hashable, Identifiable {
+    var title: String
+    private(set) var id: UUID = UUID()
+    var pdfPage: PDFPage? = nil
+    
+    var mergedWidthPts: CGFloat = 0
+    var mergedHeightPts: CGFloat = 0
+    
+    var pdfPageItems: Array<PDFPageItem> = [] {
+        didSet {
+            //         let prax = oldValue.count
+            
+            print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
+        }
+    }
+    
+}
+
+struct MergedPDFTransfer: Transferable, Identifiable {
+    let id = UUID()
+    let data: Data
+    let filename: String
+    
+    static var transferRepresentation: some TransferRepresentation {
+        // Provide PDF data so other apps (Mail, Notes, Finder) can accept the drop
+        DataRepresentation(exportedContentType: .pdf) { pdf in
+            pdf.data
+        }
+        .suggestedFileName { value in
+            value.filename
+        }
+    }
+}
+
+
+
+@Observable class PDFPageItem: Sendable, Hashable, Equatable, Identifiable {
+    // Keep id stable after creation, but allow init/decoding to assign it
+    private(set) var id: UUID
+    
+    let name: String
+    let pdfPage: PDFPage
+    let aspectRatio: CGFloat
+    
+    var thumbnail: NSImage?
+    
+    var trim: EdgeTrims = .zero {
+        didSet {
+            print(oldValue)
+            if PraxModel.shared.isLoadingPDF {
+                print("isLoadingPDF - PraxModel.trims didSet")
+                return }
+            print("PraxModel.trims didSet")
+            DispatchQueue.main.async {
+                PraxModel.shared.refreshMergedDocument()
+                //   PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
+                print("DispatchQueue PraxModel.trims didSet")
+            }
+        }
+    }
+    private var _merge: MergeMode = .mergeDown
+    var merge: MergeMode {
+        get { _merge }
+        set {
+            if _merge == newValue { return }
+            
+         //   if PraxModel.shared.editingPDFDocument.pageCount == 1 && newValue == .mergeSkip { return }
+            _merge = newValue
+            
+            
+            if PraxModel.shared.isLoadingPDF {
+                print("isLoadingPDF - PraxModel.merge didSet")
+                return }
+            
+            print("PraxModel.merge didSet")
+            DispatchQueue.main.async {
+                print ("DispatchQueue - refreshEditingDocument()")
+                PraxModel.shared.refreshMergedDocument()
+                
+                
+            }
+        }
+    }
+    
+    
+    // Single concrete initializer that initializes all stored properties
+    init(
+        id: UUID = UUID(),
+        name: String,
+        pdfPage: PDFPage,
+        trim: EdgeTrims = .zero,
+        merge: MergeMode = .mergeDown
+    ) {
+        self.id = id
+        self.name = name
+        self.pdfPage = pdfPage
+        
+        self.aspectRatio = {
+            let bounds = pdfPage.bounds(for: .cropBox)
+            return bounds.size.width / bounds.size.height
+        }()
+        
+        self.trim = trim
+        self.merge = merge
+    }
+    
+    static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool {
+        lhs.id == rhs.id
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
 
 
 func isPDF(_ url: URL) -> Bool {

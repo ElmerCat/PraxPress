@@ -20,7 +20,7 @@ extension Notification.Name {
 
 extension PraxModel {
     
-    func zoomInEditingPDFView() {
+    /*func zoomInEditingPDFView() {
         editingPDFView.zoomIn(self)
         editingPDFAutoScales = false
     }
@@ -28,6 +28,8 @@ extension PraxModel {
         editingPDFView.zoomOut(self)
         editingPDFAutoScales = false
     }
+    */
+    
     func zoomInMergedPDFView() {
         mergedPDFView.zoomIn(self)
     }
@@ -90,7 +92,7 @@ extension PraxModel {
         
         DispatchQueue.main.async {
             print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
-            self.refreshEditingDocument()
+       //     self.refreshEditingDocument()
             //        self.setEditingPDFDocumentFromPDFPageSections()
         }
         
@@ -105,7 +107,7 @@ extension PraxModel {
         multipleFilesSelected = urlBookmarks.count > 1
         if urlBookmarks.isEmpty {
             firstSelectedFileURL = nil
-            pdfPageSections.removeAll()
+ //           pdfPageSections.removeAll()
         }
         else {
             var sections: [PDFPageSection] = []
@@ -132,7 +134,7 @@ extension PraxModel {
                 sections.append(PDFPageSection(title: sectionName, pdfPageItems: pages))
             }
             pdfPageSections = sections
-            refreshEditingDocument()
+            refreshMergedDocument()
         }
     }
     
