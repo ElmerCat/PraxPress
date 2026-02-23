@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct PraxDragPreview: View {
-    
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @State private var rotate = false
     
     var body: some View {
@@ -28,7 +28,7 @@ struct PraxDragPreview: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .rotationEffect(.degrees(rotate ? 180 : 0))
-                Text("\(PraxModel.shared.exportFilename).pdf")
+                Text("\(document.exportFilename).pdf")
                     .font(.footnote)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
@@ -51,7 +51,14 @@ struct PraxDragPreview: View {
 
 
 final class PraxDropDelegate: DropDelegate {
-
+    var document: MergedPDFDocument
+    var prax: PraxModel
+    
+    init(_ document: MergedPDFDocument, _ praxModel: PraxModel) {
+        self.document = document
+        self.prax = praxModel
+    }
+    
     func validateDrop(info: DropInfo) -> Bool {
         print("DropTargetControl - validateDrop")
         
@@ -60,14 +67,14 @@ final class PraxDropDelegate: DropDelegate {
             return false
         }
         else {
-            PraxModel.shared.dropTargeted = true
+            prax.dropTargeted = true
             return true
         }
     }
     
     func performDrop(info: DropInfo) -> Bool { //  print("DropTargetControl - performDrop")
-        PraxModel.shared.dropTargeted = false
-        return PraxModel.shared.acceptDrop(info.itemProviders(for: [UTType.fileURL]))
+        prax.dropTargeted = false
+        return document.acceptDrop(info.itemProviders(for: [UTType.fileURL]))
     }
     
     func dropEntered(info: DropInfo) {
@@ -93,7 +100,7 @@ final class PraxDropDelegate: DropDelegate {
     
     func dropExited(info: DropInfo) {
         print("DropTargetControl - dropExited")
-        PraxModel.shared.dropTargeted = false
+        prax.dropTargeted = false
     }
     
     

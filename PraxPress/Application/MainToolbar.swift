@@ -12,12 +12,12 @@ import PDFKit
 struct MainToolbar: ToolbarContent {
     
     @Environment(\.modelContext) private var modelContext
-    @Bindable var prax = PraxModel.shared
-    
+    @Environment(PraxModel.self) private var praxModel
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
     
     
     var body: some ToolbarContent {
+        @Bindable var prax = praxModel
         
         ToolbarItemGroup(placement: .navigation) {
             
@@ -156,70 +156,9 @@ struct MainToolbar: ToolbarContent {
 }
 
 
-struct SegmentedControlSwiftUI: View {
-    @State private var selectedTab: AppTab = .swiftUI
-    @Namespace private var animation
-    
-    var body: some View {
-        NavigationStack {
-            VStack {
-                Spacer()
-                // A fun display area that changes with the selection
-                VStack {
-                    Image(systemName: selectedTab.icon)
-                        .font(.system(size: 80))
-                        .foregroundColor(selectedTab.color)
-                    Text(selectedTab.rawValue)
-                        .font(.largeTitle.bold())
-                }
-                .padding(60)
-                .frame(width: 300, height: 200)
-                .background(selectedTab.color.opacity(0.15).gradient, in: RoundedRectangle(cornerRadius: 20))
-                
-                Spacer()
-                
-                // Here is our custom segmented control!
-                ReusableSegmentedControl(selection: $selectedTab, colorProvider: { $0.color })
-                
-                Spacer()
-            }
-            .navigationTitle("DevTechie.com")
-        }
-    }
-    
-}
-import SwiftUI
 
-// Our menu of options!
-enum AppTab: String, CaseIterable {
-    case swiftUI = "SwiftUI"
-    case iOS = "iOS"
-    case uIKit = "UIKit"
-    
-    // Let's give each tab a unique color for fun
-    var color: Color {
-        switch self {
-        case .iOS:
-            return .pink
-        case .swiftUI:
-            return .blue
-        case .uIKit:
-            return .purple
-        }
-    }
-    
-    // And an icon, because why not?
-    var icon: String {
-        switch self {
-        case .iOS:
-            return "apple.logo"
-        case .swiftUI:
-            return "swift"
-        case .uIKit:
-            return "macwindow"
-        }
-    }
-}
+
+
 struct BottomLabelGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
         VStack(alignment: .center, spacing: 8) {

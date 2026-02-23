@@ -290,13 +290,14 @@ struct ReusableSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: 
 }
 
 struct DragOutControl: View {
-    
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
     @FocusState private var isFocused: Bool
     // 2. Track the text selection
     @State private var selection: TextSelection?
     
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
         
         Group {
             HStack {
@@ -326,20 +327,20 @@ struct DragOutControl: View {
                 }
                 
                 Spacer(minLength: 5)
-                Text(prax.exportFilenamePrefix)
+                Text(document.exportFilenamePrefix)
                 TextField("Filename", text: Binding<String>(
-                    get: { prax.exportFilenameBody },
+                    get: { document.exportFilenameBody },
                     set: { newValue in
                         var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if let dotRange = newName.range(of: ".") {
                             newName = String(newName[..<dotRange.lowerBound])
                         }
-                        prax.exportFilenameBody = newName
+                        document.exportFilenameBody = newName
                     }),selection: $selection).focused($isFocused)
                 .onChange(of: isFocused) {
                     if isFocused {
                         // Select the entire string range
-                        selection = .init(range: prax.exportFilenameBody.startIndex..<prax.exportFilenameBody.endIndex)
+                        selection = .init(range: document.exportFilenameBody.startIndex..<document.exportFilenameBody.endIndex)
                     }
                 }
                 .font(.headline)
@@ -354,17 +355,17 @@ struct DragOutControl: View {
 //                .foregroundStyle(.cyan)
  //               .backgroundStyle(.yellow)
                 
-                Text(prax.exportFilenameSuffix)
+                Text(document.exportFilenameSuffix)
                 Spacer(minLength: 5)
                 Image(systemName: "arrow.right.doc.on.clipboard")
                 Spacer(minLength: 5)
-                Text(".\(prax.exportFilenameExtension)          ")
+                Text(".\(document.exportFilenameExtension)          ")
 
                 Spacer(minLength: 25)
             }
             .draggable {
-                if let data = prax.mergedPDFDocument.dataRepresentation() {
-                    return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+                if let data = document.mergedPDFDocument.dataRepresentation() {
+                    return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                 } else { return nil }
             }
             .background {
@@ -382,10 +383,11 @@ struct DragOutControl: View {
 }
 
 struct DropTargetControl: View {
-    
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
     
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
         
         Group {
             HStack {
@@ -421,16 +423,17 @@ struct DropTargetControl: View {
             }
         }
         
-        .onDrop(of: [.fileURL, .pdfPageSectionType, .pdfPageDragType], delegate: PraxDropDelegate())
+        .onDrop(of: [.fileURL, .pdfPageSectionType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
         
         
     }
 }
 
 struct OptionKeyPressedToolbarItem: View {
-    
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
         
         Group {
             HStack {

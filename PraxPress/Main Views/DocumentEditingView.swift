@@ -7,13 +7,13 @@
 import SwiftUI
 import PDFKit
 import AppKit
-import Combine
+//import Combine
 import UniformTypeIdentifiers
 
 
 struct DocumentEditingView: NSViewRepresentable {
-    
-    @State @Bindable private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
     
     func makeCoordinator() -> Coordinator {
         print("Nadine Peeler- DocumentEditingView makeCoordinator")
@@ -32,7 +32,8 @@ struct DocumentEditingView: NSViewRepresentable {
         //   prax.editingPDFView = PDFView()
         //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
         
-        let thumbnailViewController = ThumbnailViewController()
+        let thumbnailViewController = ThumbnailViewController(document, praxModel)
+        
         
         //      thumbnailController.pdfView = prax.editingPDFView
         
@@ -41,6 +42,7 @@ struct DocumentEditingView: NSViewRepresentable {
         split.addArrangedSubview(thumbnailViewController.view)
         //     split.addArrangedSubview(prax.editingPDFView)
         let pagesViewController = PagesViewController()
+        pagesViewController.document = document
         
         split.addArrangedSubview(pagesViewController.view)
         
@@ -87,7 +89,6 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate, NSDraggingDestination {
-        @State private var prax = PraxModel.shared
         
         func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             // Return .copy to show a "+" cursor if data is valid
@@ -136,7 +137,9 @@ struct DocumentEditingView: NSViewRepresentable {
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
             print("DocumentEditingView Coordinator - overlayViewFor page")
-            guard let pdfPageItem = self.prax.pdfPageItem(for: pdfPage) else { return nil }
+            @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+            
+            guard let pdfPageItem = document.pdfPageItem(for: pdfPage) else { return nil }
             let view = PDFPageOverlayView()
             view.pdfView = pdfView
             
@@ -195,7 +198,8 @@ struct DocumentEditingView: NSViewRepresentable {
     }
 }
 struct DocumentEditingToolbar: View {
-    @State private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
     
     
     private func title(for mode: PDFDisplayMode) -> String {
@@ -219,6 +223,7 @@ struct DocumentEditingToolbar: View {
     
     
     var body: some View {
+        @Bindable var prax = praxModel
         GroupBox {
             
             //    Text("Prax")
@@ -248,20 +253,20 @@ struct DocumentEditingToolbar: View {
                 
                 
                 TextField("Filename", text: Binding<String>(
-                    get: { prax.exportFilenameBody },
+                    get: { document.exportFilenameBody },
                     set: { newValue in
                         var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         // Ensure we don't accidentally include a dot/extension typed by the user
                         if let dotRange = newName.range(of: ".") {
                             newName = String(newName[..<dotRange.lowerBound])}
-                        prax.exportFilenameBody = newName
+                        document.exportFilenameBody = newName
                     })
                           
                 )
                 //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
                 //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .disabled(prax.exportFolderURL == nil)
+                .disabled(document.exportFolderURL == nil)
                 
                /* Spacer()
                 
@@ -289,7 +294,7 @@ struct DocumentEditingToolbar: View {
             .padding(8)
             
         }
-          .onDrop(of: [.fileURL], delegate: PraxDropDelegate())
+        .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
         
 //        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
 //            acceptDrop(providers)
@@ -300,7 +305,7 @@ struct DocumentEditingToolbar: View {
         
         
         
-        .fileDialogDefaultDirectory(prax.sourceFolderURL)
+        .fileDialogDefaultDirectory(document.sourceFolderURL)
         .fileDialogMessage("Choose the Export Folder")
         .fileDialogConfirmationLabel(Text("Choose Export Folder"))
         
@@ -323,7 +328,7 @@ struct DocumentEditingToolbar: View {
                 Image(systemName: "doc.text.fill")
                     .font(.system(size: 28, weight: .medium))
                     .foregroundStyle(.blue)
-                Text("\(prax.exportFilename).pdf")
+                Text("\(document.exportFilename).pdf")
                     .font(.footnote)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
@@ -345,7 +350,8 @@ struct DocumentEditingToolbar: View {
 
 
 struct DocumentEditingFooter: View {
-    @Bindable private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
     
     let filenameStyle = URL.FormatStyle(scheme: .never,
                                         user: .never,
@@ -356,17 +362,17 @@ struct DocumentEditingFooter: View {
                                         query: .never,
                                         fragment: .never)
     var body: some View {
-        
+        @Bindable var prax = praxModel
         HStack {
             
             
-            switch (prax.selectedFiles.count) {
+            switch (document.selectedFiles.count) {
             case 0:
                 Text("No files selected")
             case 1:
-                Text("Source file: \(prax.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
+                Text("Source file: \(document.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
             default:
-                Text("\(prax.selectedFiles.count) Source files selected")
+                Text("\(document.selectedFiles.count) Source files selected")
             }
             //         Spacer()
             //         if prax.selectedFiles.count > 0 {

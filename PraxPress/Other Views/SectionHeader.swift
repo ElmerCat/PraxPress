@@ -25,26 +25,23 @@ struct PDFPageSectionsPayload: Transferable, Codable, Hashable {
 
 
 class SectionHeader: NSView, NSCollectionViewElement {
+    private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<SectionHeaderView>?
     private var indexPath: IndexPath?
     private var pdfPageSection: PDFPageSection?
     
-    
-    
-    
-    func configure(at atIndexPath: IndexPath,
+    func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath,
                    isSelected: Bool) {
         print ("SectionHeader- configure ")
-        indexPath = atIndexPath
-        
+        self.indexPath = atIndexPath
+        self.document = document
         guard let indexPath else { fatalError("index path is missing") }
         
-        
-        if PraxModel.shared.pdfPageSections.count > indexPath.section {
-            let pdfPageSection = PraxModel.shared.pdfPageSections[self.indexPath!.section]
+        if document!.sections.count > indexPath.section {
+            let pdfPageSection = document!.sections[self.indexPath!.section]
             self.pdfPageSection = pdfPageSection
             
-            let root = SectionHeaderView(pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
+            let root = SectionHeaderView(document: document!, pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
             
             if let hostingView {
                 hostingView.rootView = root
@@ -65,9 +62,7 @@ class SectionHeader: NSView, NSCollectionViewElement {
     
     var isSelected: Bool = false {
         didSet {
-            
-                configure(at: indexPath!, isSelected: isSelected)
-          
+            configure(for: document, at: indexPath!, isSelected: isSelected)
         }
     }
     var onToggleSelection: (() -> Void)?
@@ -76,6 +71,8 @@ class SectionHeader: NSView, NSCollectionViewElement {
 
 
 struct SectionHeaderView: View {
+    @Environment(PraxModel.self) private var praxModel
+    let document: MergedPDFDocument
     let pdfPageSection: PDFPageSection
     var isSelected: Bool
     
@@ -83,10 +80,10 @@ struct SectionHeaderView: View {
     
 /*    func pdfPageItem() -> PDFPageItem? {
         if indexPath.section >= 0,
-           indexPath.section < PraxModel.shared.pdfPageSections.count,
+           indexPath.section < document.sections.count,
            indexPath.item >= 0,
-           indexPath.item < PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.count {
-            return PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item]
+           indexPath.item < document.sections[indexPath.section].pdfPageItems.count {
+            return document.sections[indexPath.section].pdfPageItems[indexPath.item]
         } else {
             return nil
         }
@@ -94,8 +91,8 @@ struct SectionHeaderView: View {
     
     func pdfPageSection() -> PDFPageSection? {
         if indexPath.section >= 0,
-           indexPath.section < PraxModel.shared.pdfPageSections.count {
-        return PraxModel.shared.pdfPageSections[indexPath.section]
+           indexPath.section < document.sections.count {
+        return document.sections[indexPath.section]
         }
         else {
             return nil
@@ -141,20 +138,21 @@ struct SectionHeaderView: View {
     }
 */
     var body: some View {
+        @Bindable var prax = praxModel
         
         let clickGesture = TapGesture()
             .onEnded { value in
-                print("View tapped! - \(pdfPageSection.title) - PraxModel.shared.optionKeyPressed: \(PraxModel.shared.optionKeyPressed)")
+                print("View tapped! - \(pdfPageSection.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
                 
-                PraxModel.shared.mergedPDFView.go(to: pdfPageSection.pdfPage!)
+     //           PraxModel.shared.mergedPDFView.go(to: pdfPageSection.pdfPage!)
             }
          
         GroupBox {
             Group { Text("Merged Page \(pdfPageSection.title)") }
             
                 .draggable({ () -> MergedPDFTransfer? in
-                      guard let data = PraxModel.shared.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: PraxModel.shared.exportFilename)
+                      guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
                 }()!, preview: {
                     PraxDragPreview()
                 })

@@ -8,55 +8,57 @@
 import SwiftUI
 
 class SectionFooter: NSView, NSCollectionViewElement {
+    private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<SectionFooterView>?
     private var indexPath: IndexPath?
+    private var pdfPageSection: PDFPageSection?
     
-    func configure(at atIndexPath: IndexPath,
+    func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath,
                    isSelected: Bool) {
-        indexPath = atIndexPath
+        print ("SectionHeader- configure ")
+        self.indexPath = atIndexPath
+        self.document = document
+        guard let indexPath else { fatalError("index path is missing") }
         
-        let root = SectionFooterView(indexPath: indexPath!, isSelected: isSelected)
-        
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        if document!.sections.count > indexPath.section {
+            let pdfPageSection = document!.sections[self.indexPath!.section]
+            self.pdfPageSection = pdfPageSection
+            
+            let root = SectionFooterView(document: document!, pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
+            
+            if let hostingView {
+                hostingView.rootView = root
+            } else {
+                let hosting = NSHostingView(rootView: root)
+                hosting.translatesAutoresizingMaskIntoConstraints = false
+                self.addSubview(hosting)
+                NSLayoutConstraint.activate([
+                    hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                    hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                    hosting.topAnchor.constraint(equalTo: self.topAnchor),
+                    hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+                ])
+                self.hostingView = hosting
+            }
         }
     }
     
+    
     var isSelected: Bool = false {
         didSet {
-            if let indexPath {
-                configure(at: indexPath, isSelected: isSelected)
-            }
+                configure(for: document, at: indexPath!, isSelected: isSelected)
         }
     }
 }
 
 struct SectionFooterView: View {
-    let indexPath: IndexPath
+    @Environment(PraxModel.self) private var praxModel
+    let document: MergedPDFDocument
+    let pdfPageSection: PDFPageSection
     let isSelected: Bool
     
-    func pdfPageSection() -> PDFPageSection? {
-        if indexPath.section >= 0,
-           indexPath.section < PraxModel.shared.pdfPageSections.count {
-            return PraxModel.shared.pdfPageSections[indexPath.section]
-        } else {
-            return nil
-        }
-    }
-    
     func mergedSizeText() -> String {
-        guard let section = pdfPageSection() else { return "Merged size: —" }
+        let section = pdfPageSection
         let w = section.mergedWidthPts
         let h = section.mergedHeightPts
         let wIn = w / 72.0
@@ -67,11 +69,11 @@ struct SectionFooterView: View {
 
  
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
             
             VStack(spacing: 8) {
                 HStack {
-                    Text("Footer \(indexPath.section + 1)")
+                    Text("Footer \(pdfPageSection.title)")
                         .font(.caption)
                         .lineLimit(1)
                     Text(mergedSizeText())

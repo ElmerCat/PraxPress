@@ -3,20 +3,22 @@ import PDFKit
 
 
 class PDFPageThumbnail: NSCollectionViewItem {
+    private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<PDFPageThumbnailView>?
     private var indexPath: IndexPath?
     private var pdfPageItem: PDFPageItem?
-   
-    func configure(at atIndexPath: IndexPath?,
+    
+    
+    func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath?,
                    isSelected: Bool) {
         print ("PDFPageThumbnailView - configure ")
         self.indexPath = atIndexPath
+        self.document = document
         
-        
-        if self.indexPath != nil {
-            if let pdfPageItem = PraxModel.shared.pdfPageItem(indexPath: indexPath!) {
+        if self.indexPath != nil && document != nil {
+            if let pdfPageItem = document!.pdfPageItem(indexPath: indexPath!) {
                 self.pdfPageItem = pdfPageItem
-                let root = PDFPageThumbnailView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, highlightState: highlightState)
+                let root = PDFPageThumbnailView(document: document!, pdfPageItem: self.pdfPageItem!, isSelected: isSelected, highlightState: highlightState)
                 if let hostingView {
                     print ("PageItem - hostingView")
                     hostingView.rootView = root
@@ -39,13 +41,13 @@ class PDFPageThumbnail: NSCollectionViewItem {
     
     override var highlightState: NSCollectionViewItem.HighlightState {
         didSet {
-            configure(at: indexPath, isSelected: isSelected)
+            configure(for: document, at: indexPath, isSelected: isSelected)
         }
     }
     
     override var isSelected: Bool {
         didSet {
-            configure(at: indexPath, isSelected: isSelected)
+            configure(for: document, at: indexPath, isSelected: isSelected)
         }
     }
     
@@ -54,7 +56,7 @@ class PDFPageThumbnail: NSCollectionViewItem {
         print ("PageItem: NSCollectionViewItem - prepareForReuse")
         super.prepareForReuse()
         pdfPageItem = nil
-        configure(at: nil, isSelected: isSelected)
+        configure(for: document, at: nil, isSelected: isSelected)
     }
     
     deinit {
@@ -63,12 +65,16 @@ class PDFPageThumbnail: NSCollectionViewItem {
 }
 
 struct PDFPageThumbnailView: View {
-    
+    let document: MergedPDFDocument
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
+    @Environment(PraxModel.self) private var prax
+    
     var body: some View {
+       
+        
         let imageSize = CGSize(width: 120, height: 160)
         let backgroundColor: Color = {
             switch highlightState {
@@ -176,12 +182,12 @@ struct PDFPageThumbnailView: View {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if PraxModel.shared.widthGuidePageID == pdfPageItem.id {
-            PraxModel.shared.clearWidthGuide()
+        if document.widthGuidePageID == pdfPageItem.id {
+            document.clearWidthGuide()
         } else {
-            if PraxModel.shared.optionKeyPressed {
-                if PraxModel.shared.widthGuidePageID == nil { return }
-                guard let guidePage = PraxModel.shared.pdfPageItem(id: PraxModel.shared.widthGuidePageID!) else { return }
+            if prax.optionKeyPressed {
+                if document.widthGuidePageID == nil { return }
+                guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
                 
                 var trim = pdfPageItem.trim
                 print ("old trim: ", pdfPageItem.trim )
@@ -197,7 +203,7 @@ struct PDFPageThumbnailView: View {
                 
             }
             else {
-                PraxModel.shared.setWidthGuide(fromPage: pdfPageItem)
+                document.setWidthGuide(fromPage: pdfPageItem)
                 
             }
             

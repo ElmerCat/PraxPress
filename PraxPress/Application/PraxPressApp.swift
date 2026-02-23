@@ -144,18 +144,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func insertPDFPageSectionsFromPendingURLs() {
         
         
-        Task {
+      /*  Task {
             do {
-                try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(pendingOpenURLs, at: IndexPath(item: -1, section: -1))
-                pendingOpenURLs.removeAll()
-                PraxModel.shared.refreshMergedDocument()
+ //               try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(pendingOpenURLs, at: IndexPath(item: -1, section: -1))
+ //               pendingOpenURLs.removeAll()
+ //               PraxModel.shared.refreshMergedDocument()
                 
             } catch let error {
                 print("Julie d Prax", pendingOpenURLs, "Error: ", error)
                 
             }
         }
-        
+      */
 
     }
     

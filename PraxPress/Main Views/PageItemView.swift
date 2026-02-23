@@ -11,19 +11,20 @@ import PDFKit
 
 
 class CollectionViewPDFPageItemView: NSCollectionViewItem {
+    private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<PDFPageItemView>?
     private var indexPath: IndexPath?
     private var pdfPageItem: PDFPageItem?
-    private var thumbnailViewer: Bool = false
     
-    func configure(at atIndexPath: IndexPath?,
+    
+    func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath?,
                    isSelected: Bool) {
         print ("CollectionViewPDFPageItem - configure ", isSelected)
         self.indexPath = atIndexPath
-        
+        self.document = document
         
         if self.indexPath != nil {
-            if let pdfPageItem = PraxModel.shared.pdfPageItem(indexPath: indexPath!) {
+            if let pdfPageItem = document!.pdfPageItem(indexPath: indexPath!) {
                 self.pdfPageItem = pdfPageItem
                 let root = PDFPageItemView(pdfPageItem: self.pdfPageItem, isSelected: isSelected, highlightState: highlightState)
                 if let hostingView {
@@ -51,13 +52,13 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
     
     override var highlightState: NSCollectionViewItem.HighlightState {
         didSet {
-            configure(at: indexPath, isSelected: isSelected)
+            configure(for: document, at: indexPath, isSelected: isSelected)
         }
     }
 
     override var isSelected: Bool {
         didSet {
-            configure(at: indexPath, isSelected: isSelected)
+            configure(for: document, at: indexPath, isSelected: isSelected)
         }
     }
     
@@ -66,7 +67,7 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
         print ("PageItem: NSCollectionViewItem - prepareForReuse")
         super.prepareForReuse()
         pdfPageItem = nil
-        configure(at: nil, isSelected: isSelected)
+        configure(for: document, at: nil, isSelected: isSelected)
         
     }
     
@@ -79,10 +80,10 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
 }
 
 struct PDFPageItemToolbar: View {
+    let document: MergedPDFDocument
     let pdfPageItem: PDFPageItem
     let pdfViewRef: WeakPDFViewRef
     
-    @Bindable private var prax = PraxModel.shared
     var body: some View {
         
         HStack {
@@ -143,6 +144,8 @@ final class WeakPDFViewRef {
     weak var view: PDFView?
 }
 struct PDFPageItemView: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
     
     let pdfPageItem: PDFPageItem?
     let isSelected: Bool
@@ -151,6 +154,7 @@ struct PDFPageItemView: View {
     @State private var pdfViewRef = WeakPDFViewRef()
    
     var body: some View {
+        @Bindable var prax = prax
         
         GeometryReader { geometry in
             
@@ -180,6 +184,7 @@ struct PDFPageItemView: View {
                         
                         GroupBox {
                             PDFViewRepresentable(
+                                document: document,
                                 pdfPageItem: pdfPageItem!,
                                 onPDFViewReady: { pdfView in
                                     // Store a weak reference so buttons can use it
@@ -193,7 +198,7 @@ struct PDFPageItemView: View {
                         
                     }
                     
-                    PDFPageItemToolbar(pdfPageItem: pdfPageItem!, pdfViewRef: pdfViewRef)   
+                    PDFPageItemToolbar(document: document, pdfPageItem: pdfPageItem!, pdfViewRef: pdfViewRef)   
                     HStack {
                         Text(pdfPageItem!.name)
                             .font(.caption)
@@ -264,7 +269,7 @@ struct PDFPageItemView: View {
                 action: {newValue in
                     print ("contentGeometry.size.width newValue: ", newValue )
                     
-                    print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox))
+                    print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
                     //         contentWidth = newValue
                 }
                 
@@ -330,12 +335,12 @@ struct PDFPageItemView: View {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if PraxModel.shared.widthGuidePageID == pdfPageItem.id {
-            PraxModel.shared.clearWidthGuide()
+        if document.widthGuidePageID == pdfPageItem.id {
+            document.clearWidthGuide()
         } else {
-            if PraxModel.shared.optionKeyPressed {
-                if PraxModel.shared.widthGuidePageID == nil { return }
-                guard let guidePage = PraxModel.shared.pdfPageItem(id: PraxModel.shared.widthGuidePageID!) else { return }
+            if prax.optionKeyPressed {
+                if document.widthGuidePageID == nil { return }
+                guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
                 
                 var trim = pdfPageItem.trim
                 print ("old trim: ", pdfPageItem.trim )
@@ -351,7 +356,7 @@ struct PDFPageItemView: View {
                 
             }
             else {
-                PraxModel.shared.setWidthGuide(fromPage: pdfPageItem)
+                document.setWidthGuide(fromPage: pdfPageItem)
                 
             }
             
@@ -359,11 +364,14 @@ struct PDFPageItemView: View {
     }
     final class Coordinator: NSObject, PDFPageOverlayViewProvider {
         
-        init(_ pdfPageItem: PDFPageItem) {
+        
+        init(_ document: MergedPDFDocument,_ pdfPageItem: PDFPageItem) {
+            self.document = document
             self.pdfPageItem = pdfPageItem
          //   self.pdfPageItemView = pdfPageItemView
         }
         
+        let document: MergedPDFDocument
         let pdfPageItem: PDFPageItem
         
         var pdfView: PDFView?
@@ -383,6 +391,7 @@ struct PDFPageItemView: View {
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             print("PageItemPDFViewCoordinator - overlayViewFor page")
             let view = PDFPageOverlayView()
+            view.document = document
             view.pdfView = pdfView
             
             view.onFinish = { [weak page] rectInOverlay in
@@ -409,15 +418,15 @@ struct PDFPageItemView: View {
                 print("DocumentEditingView Coordinator - trim l:", trim.left, " r:", trim.right, " b:", trim.bottom, " t:", trim.top)
                 
                 // var pdfPageItem = prax.pdfPageItem(for: page)!
-                let indexPath = PraxModel.shared.pdfPageIndexPath(for: page)
+                let indexPath = self.document.pdfPageIndexPath(for: page)
                 guard let indexPath = indexPath else { return }
-                PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
+                self.document.sections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
             }
             
             // Seed current rect from trims
             DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                 guard let view = view, let page = page, let pdfView = pdfView else { return }
-                guard let pageItem = PraxModel.shared.pdfPageItem(for: page) else { return }
+                guard let pageItem = self.document.pdfPageItem(for: page) else { return }
                 let crop = page.bounds(for: .cropBox)
                 let cropInView = pdfView.convert(crop, from: page)
                 let cropInOverlay = view.convert(cropInView, from: pdfView)
@@ -445,12 +454,13 @@ struct PDFPageItemView: View {
     
     
     struct PDFViewRepresentable: NSViewRepresentable {
+        let document: MergedPDFDocument
         let pdfPageItem: PDFPageItem
         let onPDFViewReady: (PDFView) -> Void
 
         func makeCoordinator() -> Coordinator {
             print("Erika daPrax - PageItemPDFViewCoordinator makeCoordinator")
-            return Coordinator(pdfPageItem)
+            return Coordinator(document, pdfPageItem)
         }
         
         

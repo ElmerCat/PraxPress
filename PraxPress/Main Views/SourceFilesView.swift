@@ -8,19 +8,20 @@ import SwiftUI
 import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
-import Combine
+//import Combine
 
 private let DEBUG_LOGS = true
 
 
 struct PDFFilesList: View {
-    
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+
 
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var document = document
          
         Group {
-            Table(prax.pdfFiles, selection: $prax.selectedFiles) {
+            Table(document.pdfFiles, selection: $document.selectedFiles) {
                 TableColumn("File") { (entry: PDFFile) in
                     let value = entry.fileName
                     Text(value)
@@ -94,7 +95,7 @@ struct PDFFilesList: View {
 
 
 struct SourceFilesView: View {
-    
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     //   @State private var prax = PraxModel.shared
     @Environment(\.modelContext) private var modelContext
     @Environment(PraxModel.self) private var praxModel
@@ -109,7 +110,7 @@ struct SourceFilesView: View {
         @Bindable var prax = praxModel
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                if !prax.pdfFiles.isEmpty {
+                if !document.pdfFiles.isEmpty {
                     HStack {
                         Button {
                             prax.showingImporter = true
@@ -117,13 +118,13 @@ struct SourceFilesView: View {
                             Label("Add Files", systemImage: "folder.badge.plus")
                         }
                         
-                        if !prax.selectedFiles.isEmpty {
+                        if !document.selectedFiles.isEmpty {
                             Button {
-                                prax.deleteSelectedFilesFromDatabase()
+                                document.deleteSelectedFilesFromDatabase()
                             } label: {
                                 Label("Remove Files", systemImage: "folder.badge.minus")
                             }
-                            .disabled(prax.selectedFiles.isEmpty)
+                            .disabled(document.selectedFiles.isEmpty)
                         }
 
                     }
@@ -132,7 +133,7 @@ struct SourceFilesView: View {
                         GroupBox {
                             PDFFilesList()
                             
-                            Text("\(prax.selectedFiles.count)  of \(prax.pdfFiles.count) Files Selected")
+                            Text("\(document.selectedFiles.count)  of \(document.pdfFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
@@ -253,7 +254,7 @@ struct SourceFilesView: View {
                 }
             }
         }
-        var seen = Set<URL>(PraxModel.shared.pdfFiles.map { $0.url })
+        var seen = Set<URL>(document.pdfFiles.map { $0.url })
         
         
         let uniquePairs: [(url: URL, bookmark: Data)] = expanded.filter { pair in
@@ -268,7 +269,7 @@ struct SourceFilesView: View {
         
         entries.forEach { entry in
             
-            if !PraxModel.shared.pdfFiles.contains(where: { $0.url == entry.url }) {
+            if !document.pdfFiles.contains(where: { $0.url == entry.url }) {
                 let pdfFile = PDFFile(fileGroup: mainFileGroup, url: entry.url, bookmarkData: entry.bookmarkData, pageCount: entry.pageCount)
                 pdfFile.dataFields = pdfFile.dataFieldsFromEntry(entry)
                 modelContext.insert(pdfFile)

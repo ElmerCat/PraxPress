@@ -32,14 +32,14 @@ extension ThumbnailViewController {
         let typeIdentifier = UTType(filenameExtension: "pdf")
         
         let provider = FilePromiseProvider()
-        provider.pdfDocument = PraxModel.shared.mergedPDFDocument
+        provider.pdfDocument = document.mergedPDFDocument
         provider.fileName = "PraxPress-Page.pdf"
         provider.fileType = typeIdentifier!.identifier
         provider.delegate = provider
         // Send out the indexPath and photo's url dictionary.
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: PraxModel.shared.mergedPDFURL as Any,
+            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document.mergedPDFURL as Any,
                                   FilePromiseProvider.UserInfoKeys.indexPathKey: data]
         } catch {
             fatalError("failed to archive indexPath to pasteboard")
@@ -53,7 +53,7 @@ extension ThumbnailViewController {
         
              let indexPath = proposedDropIndexPath.pointee
          
-        if PraxModel.shared.optionKeyPressed {
+        if prax.optionKeyPressed {
             print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
            return [.copy]
 
@@ -174,7 +174,7 @@ extension ThumbnailViewController {
         
         let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
         let imageURLs = droppedURLs.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
-        if PraxModel.shared.optionKeyPressed {
+        if prax.optionKeyPressed {
             self.insertPDFPageSectionsFromImageURLS(imageURLs, at: indexPath)
 
         }
@@ -296,10 +296,11 @@ extension ThumbnailViewController {
             let sourceFileName = url.deletingPathExtension().lastPathComponent
             guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
             let pdfPageItem = PDFPageItem(
+                document: document,
                 name: "Image - \(sourceFileName)",
                 pdfPage: docPage
             )
-            PraxModel.shared.pdfPageSections.append(PDFPageSection(title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
+            document.sections.append(PDFPageSection(document: document, title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
         }
        
     }
@@ -312,27 +313,29 @@ extension ThumbnailViewController {
             let sourceFileName = url.deletingPathExtension().lastPathComponent
             guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
             pages.append(PDFPageItem(
+                document: document,
                 name: "Image - \(sourceFileName)",
                 pdfPage: docPage
             ))
         }
-        PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+        document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
     }
 
     func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
         var pages: [PDFPageItem] = []
         for url in urls {
-            guard let document = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
+            guard let doc = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
             let sourceFileName = url.deletingPathExtension().lastPathComponent
-            for i in 0..<document.pageCount {
-                guard let docPage = document.page(at: i)  else { fatalError("No document.page(at: \(i)") }
+            for i in 0..<doc.pageCount {
+                guard let docPage = doc.page(at: i)  else { fatalError("No document.page(at: \(i)") }
                 pages.append(PDFPageItem(
+                    document: document,
                     name: "\(sourceFileName) - Page \(i + 1)",
                     pdfPage: docPage
                 ))
             }
         }
-        PraxModel.shared.pdfPageSections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+        document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
     }
 
     func dropInternalSections(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
@@ -363,7 +366,7 @@ extension ThumbnailViewController {
                     } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                     
                     print ("self.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                    PraxModel.shared.movePDFPageItems(draggedItems, to: indexPath)
+                    self.document.movePDFPageItems(draggedItems, to: indexPath)
                     self.updateUI()
                 }
             })

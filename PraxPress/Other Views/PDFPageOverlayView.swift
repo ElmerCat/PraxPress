@@ -10,8 +10,8 @@ import AppKit
 
 // Minimal trim overlay handle view reused per page by the provider
 final class PDFPageOverlayView: NSView {
-    
-    @State private var prax = PraxModel.shared
+    var document: MergedPDFDocument?
+   
     
     var pdfView: PDFView?
     var onFinish: ((CGRect) -> Void)?
@@ -74,9 +74,9 @@ final class PDFPageOverlayView: NSView {
     
     private func computeGuidelines() {
         
-        if let guideLeftX = prax.widthGuideLeftX,
-           let guideRightX = prax.widthGuideRightX,
-           let widthGuidePage = prax.widthGuidePage()  {
+        if let guideLeftX = document!.widthGuideLeftX,
+           let guideRightX = document!.widthGuideRightX,
+           let widthGuidePage = document!.widthGuidePage()  {
             
             // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
             

@@ -9,7 +9,11 @@ import SwiftUI
 import PDFKit
 
 struct PDFPageItemInspector: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    
     var body: some View {
+        @Bindable var prax = praxModel
         VStack {
             GroupBox {
                 
@@ -19,9 +23,9 @@ struct PDFPageItemInspector: View {
             }
             .padding(20)
             //  .background(.yellow)
-            Button(PraxModel.shared.isLarge ? "Make Small" : "Make Large") {
+            Button(prax.isLarge ? "Make Small" : "Make Large") {
                 // Toggle the state when the button is tapped
-                PraxModel.shared.isLarge.toggle()
+                prax.isLarge.toggle()
             }
             Text("Inspector 2")
             //           .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -39,56 +43,60 @@ struct PDFPageItemInspector: View {
 
 
 struct MergedDocumentHeader: View {
-    @Bindable private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    
+    
     var body: some View {
+        @Bindable var prax = praxModel
         
         HStack {
-           
+            
             GroupBox {
                 
                 HStack {
                     Spacer(minLength: 5)
                     Text("Drag as...   ")
                     Spacer(minLength: 5)
-                    Text(prax.exportFilenamePrefix)
+                    Text(document.exportFilenamePrefix)
                     //    Spacer(minLength: 5)
                     TextField("Filename", text: Binding<String>(
-                        get: { prax.exportFilenameBody },
+                        get: { document.exportFilenameBody },
                         set: { newValue in
                             var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                             // Ensure we don't accidentally include a dot/extension typed by the user
                             if let dotRange = newName.range(of: ".") {
                                 newName = String(newName[..<dotRange.lowerBound])}
-                            prax.exportFilenameBody = newName
+                            document.exportFilenameBody = newName
                         })
                               
                     )
                     .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
                     //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
                     .textFieldStyle(SquareBorderTextFieldStyle())
-                    .disabled(prax.exportFolderURL == nil)
+                    .disabled(document.exportFolderURL == nil)
                     .foregroundStyle(.cyan)
                     .backgroundStyle(.yellow)
                     
                     // Spacer(minLength: 5)
-                    Text(prax.exportFilenameSuffix)
+                    Text(document.exportFilenameSuffix)
                     Spacer(minLength: 5)
                     
                     Image(systemName: "arrow.right.doc.on.clipboard")
                     Spacer(minLength: 5)
-                    Text(".\(prax.exportFilenameExtension)")
+                    Text(".\(document.exportFilenameExtension)")
                     Spacer(minLength: 15)
                     
                 }
                 .draggable {
-                    if let data = prax.mergedPDFDocument.dataRepresentation() {
-                        return MergedPDFTransfer(data: data, filename: (prax.exportFilename))
+                    if let data = document.mergedPDFDocument.dataRepresentation() {
+                        return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                         
                     } else {
                         return nil
                     }
                 }
-
+                
             }
             
             
@@ -108,19 +116,22 @@ struct MergedDocumentHeader: View {
 
 
 struct MergedDocumentFooter: View {
-    @Bindable private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    
     var body: some View {
+        @Bindable var prax = praxModel
         
         HStack {
             
-            ControlGroup("", systemImage: "magnifyingglass") {
+       /*     ControlGroup("", systemImage: "magnifyingglass") {
                 Text("View")
                 Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInMergedPDFView)
                 Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutMergedPDFView)
                 Spacer()
                 Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .singlePage}).disabled(prax.mergedPDFDisplayMode == .singlePage)
                 Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.mergedPDFDisplayMode = .singlePageContinuous}).disabled(prax.mergedPDFDisplayMode == .singlePageContinuous)
-                if prax.mergedPDFDocument.pageCount > 1 {
+                if document.sections.count > 1 {
                     Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.mergedPDFDisplayMode = .twoUp}).disabled(prax.mergedPDFDisplayMode == .twoUp)
                     Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .twoUpContinuous}).disabled(prax.mergedPDFDisplayMode == .twoUpContinuous)
                 }
@@ -129,16 +140,16 @@ struct MergedDocumentFooter: View {
                 }
             }
             Spacer()
-            
-            switch prax.selectedPageItems.count {
-            case 0: Text("No Selection")
-            case 1: Text("Page: \((prax.selectedPageItems.first!.item) + 1) of \(prax.mergedPDFDocument.pageCount ) ")
-            default: Text("Multiple Selection")
-            }
+       */
+            //    switch prax.selectedPageItems.count {
+            //    case 0: Text("No Selection")
+            //    case 1: Text("Page: \((prax.selectedPageItems.first!.item) + 1) of \(prax.mergedPDFDocument.pageCount ) ")
+            //    default: Text("Multiple Selection")
+            //    }
             
             Spacer()
             
-            Text(String("\(prax.pdfPageSections.count) Pages"))
+            Text(String("\(document.sections.count) Pages"))
                 .font(.subheadline)
             /*                 if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
              let wIn = prax.mergedWidthPts / 72.0
@@ -160,7 +171,8 @@ struct MergedDocumentFooter: View {
 
 
 struct MergedDocumentToolbar: View {
-    @State private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //    @State private var prax = PraxModel.shared
     
     private func title(for mode: PDFDisplayMode) -> String {
         switch mode {
@@ -177,54 +189,55 @@ struct MergedDocumentToolbar: View {
             VStack {
                 HStack {
                     AdvancedSettingsButton()
-                    ControlGroup("", systemImage: "magnifyingglass") {
-                        Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInMergedPDFView)
-                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutMergedPDFView)
-                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .singlePage}).disabled(prax.mergedPDFDisplayMode == .singlePage)
-                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.mergedPDFDisplayMode = .singlePageContinuous}).disabled(prax.mergedPDFDisplayMode == .singlePageContinuous)
-                        if prax.mergedPDFDocument.pageCount > 1 {
-                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.mergedPDFDisplayMode = .twoUp}).disabled(prax.mergedPDFDisplayMode == .twoUp)
-                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .twoUpContinuous}).disabled(prax.mergedPDFDisplayMode == .twoUpContinuous)
+    /*                ControlGroup("", systemImage: "magnifyingglass") {
+                        Button("Increase", systemImage: "plus.rectangle.portrait", action: document.zoomInMergedPDFView)
+                        Button("Decrease", systemImage: "minus.rectangle.portrait", action: document.zoomOutMergedPDFView)
+                        Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {document.mergedPDFDisplayMode = .singlePage}).disabled(document.mergedPDFDisplayMode == .singlePage)
+                        Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {document.mergedPDFDisplayMode = .singlePageContinuous}).disabled(document.mergedPDFDisplayMode == .singlePageContinuous)
+                        if document.sections.count > 1 {
+                            Button("", systemImage: "rectangle.portrait.split.2x1", action: {document.mergedPDFDisplayMode = .twoUp}).disabled(document.mergedPDFDisplayMode == .twoUp)
+                            Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {document.mergedPDFDisplayMode = .twoUpContinuous}).disabled(document.mergedPDFDisplayMode == .twoUpContinuous)
                         }
-                        if (prax.mergedPDFDisplayMode == .twoUpContinuous || prax.mergedPDFDisplayMode == .twoUp) {
-                            Toggle("", systemImage: "book", isOn: $prax.mergedPDFDisplaysAsBook).toggleStyle(.button)
+                        if (document.mergedPDFDisplayMode == .twoUpContinuous || document.mergedPDFDisplayMode == .twoUp) {
+                            Toggle("", systemImage: "book", isOn: document.mergedPDFDisplaysAsBook).toggleStyle(.button)
                         }
                     }
-                    Spacer()
+ */                   Spacer()
                     
-                    switch prax.selectedPageItems.count {
+                    switch document.selectedPageItems.count {
                     case 0: Text("No Selection")
-                    case 1: Text("Page: \((prax.selectedPageItems.first!.item) + 1) of \(prax.mergedPDFDocument.pageCount ) ")
+                    case 1: Text("Page: \((document.selectedPageItems.first!.item) + 1) of \(document.mergedPDFDocument.pageCount ) ")
                     default: Text("Multiple Selection")
                     }
                     
                     Spacer()
                     
-                    Text(String("\(prax.pdfPageSections.count) Pages"))
+                    Text(String("\(document.sections.count) Pages"))
                         .font(.subheadline)
-                    /*                 if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
-                     let wIn = prax.mergedWidthPts / 72.0
-                     let hIn = prax.mergedHeightPts / 72.0
-                     Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", prax.mergedWidthPts, prax.mergedHeightPts, wIn, hIn))
-                     .font(.subheadline)
-                     //    .foregroundStyle(Color.white)
-                     } else {
-                     Text("Merged size: —")
-                     .font(.subheadline)
-                     //  .foregroundStyle(.tertiary)
-                     }
-                     */           }
+           /*         if document.mergedWidthPts > 0, document.mergedHeightPts > 0 {
+                        let wIn = document.mergedWidthPts / 72.0
+                        let hIn = document.mergedHeightPts / 72.0
+                        Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", document.mergedWidthPts, document.mergedHeightPts, wIn, hIn))
+                            .font(.subheadline)
+                        //    .foregroundStyle(Color.white)
+                    } else {
+                        Text("Merged size: —")
+                            .font(.subheadline)
+                        //  .foregroundStyle(.tertiary)
+                    }
+           */
+                }
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(8)
             }
         }
-   //     .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
-   //     .foregroundStyle(Color.white)
+        //     .background(Color(red: 0.0, green: 0.0, blue: 0.8, opacity: 1.0))
+        //     .foregroundStyle(Color.white)
     }
 }
 
 final class Coordinator: NSObject {
-    @State private var prax = PraxModel.shared
+  //  @State private var prax = PraxModel.shared
     
     
     
@@ -248,15 +261,16 @@ struct praxMergedDocumentInspector: View {
                 .padding()
                 .navigationBarBackButtonHidden(false)
             
-          //  MergedDocumentView()
+            //  MergedDocumentView()
         }
     }
-        
+    
 }
 
 
 struct MergedDocumentView: NSViewRepresentable {
-    @State private var prax = PraxModel.shared
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    
     
     func makeCoordinator() -> Coordinator {
         print("Erika daPrax - MergedDocumentView makeCoordinator")
@@ -266,17 +280,20 @@ struct MergedDocumentView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> PDFView {
         print("MergedDocumentView - makeNSView")
-        prax.mergedPDFView = PDFView()
+        
+        document.mergedPDFView.document = document.mergedPDFDocument
         
         
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.pageChanged(_:)),
             name: Notification.Name.PDFViewPageChanged,
-            object: prax.mergedPDFView
+            object: document.mergedPDFView
         )
+        document.mergedPDFView.backgroundColor = .yellow
         
-        return prax.mergedPDFView
+        
+        return document.mergedPDFView
     }
     
     
@@ -284,10 +301,12 @@ struct MergedDocumentView: NSViewRepresentable {
         print("\n\nMergedDocumentView - updateNSView\n\n")
     }
     
+   
+    
 }
 
 #Preview {
     //MergedDocumentHeader()
     //    MergedDocumentView()
-        MergedDocumentFooter()
+    MergedDocumentFooter()
 }

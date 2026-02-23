@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
-import SwiftData
-import Combine
-import PDFKit
 
+//import Combine
+import PDFKit
+import SwiftData
 
 struct MainSceneRoot: View {
 
-    @State private var praxModel = PraxModel.shared
+    @Environment(\.modelContext) private var modelContext
+    @State private var praxModel = PraxModel()
+    @State private var document = MergedPDFDocument()
     @Query() var pdfFiles: [PDFFile]
+    
     var body: some View {
         ContentView()
+           
+            .environment(document)
             .environment(praxModel)
             .onModifierKeysChanged(mask: .option) { old, new in
                 if new.isEmpty {
@@ -31,10 +36,12 @@ struct MainSceneRoot: View {
                 }
             }
             .task {
-                praxModel.pdfFiles = pdfFiles
+                praxModel.documment = document
+                document.modelContext = modelContext
+                document.pdfFiles = pdfFiles
             }
             .onChange(of: pdfFiles) {
-                praxModel.pdfFiles = pdfFiles
+                document.pdfFiles = pdfFiles
             }
         
           //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))

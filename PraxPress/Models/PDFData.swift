@@ -4,31 +4,38 @@
 //
 //  Created by Elmer Cat on 12/22/25.
 //
-
 import SwiftUI
+import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
-import Combine
-
-enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
 
-struct PDFPageSection: Hashable, Identifiable {
+@Observable @MainActor
+final class PDFPageSection: Identifiable, Equatable, Hashable {
+    nonisolated static func == (lhs: PDFPageSection, rhs: PDFPageSection) -> Bool { lhs.id == rhs.id }
+    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    let id: UUID
+    let document: MergedPDFDocument
     var title: String
-    private(set) var id: UUID = UUID()
+    init(
+        id: UUID = UUID(),
+        document: MergedPDFDocument,
+        title: String,
+        pdfPageItems: [PDFPageItem]?
+    ) {
+        self.id = id
+        self.document = document
+        self.title = title
+        self.pdfPageItems = pdfPageItems ?? []
+    }
+
     var pdfPage: PDFPage? = nil
-    
+    var aspectRatio: CGFloat?
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
-    
-    var pdfPageItems: Array<PDFPageItem> = [] {
-        didSet {
-            //         let prax = oldValue.count
-            
-            print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n")
-        }
+    var pdfPageItems: [PDFPageItem] = [] {
+        didSet { print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n") }
     }
-    
 }
 
 struct MergedPDFTransfer: Transferable, Identifiable {
@@ -48,29 +55,38 @@ struct MergedPDFTransfer: Transferable, Identifiable {
 }
 
 
-
-@Observable class PDFPageItem: Sendable, Hashable, Equatable, Identifiable {
-    // Keep id stable after creation, but allow init/decoding to assign it
-    private(set) var id: UUID
-    
-    let name: String
+@Observable @MainActor
+final class PDFPageItem: Identifiable, Equatable, Hashable {
+    nonisolated static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool { lhs.id == rhs.id }
+    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    let id: UUID
+    let document: MergedPDFDocument
+    var name: String
     let pdfPage: PDFPage
     let aspectRatio: CGFloat
     
-    var thumbnail: NSImage?
+    init(
+        id: UUID = UUID(),
+        document: MergedPDFDocument,
+        name: String,
+        pdfPage: PDFPage,
+    ) {
+        self.id = id
+        self.document = document
+        self.name = name
+        self.pdfPage = pdfPage
+        self.aspectRatio = {
+            let bounds = pdfPage.bounds(for: .cropBox)
+            return bounds.size.width / bounds.size.height
+        }()
+    }
     
+    var thumbnail: NSImage?
     var trim: EdgeTrims = .zero {
         didSet {
             print(oldValue)
-            if PraxModel.shared.isLoadingPDF {
-                print("isLoadingPDF - PraxModel.trims didSet")
-                return }
             print("PraxModel.trims didSet")
-            DispatchQueue.main.async {
-                PraxModel.shared.refreshMergedDocument()
-                //   PraxModel.shared.mergedPDFDocument = PraxModel.shared.mergeDocumentPagesForSections()
-                print("DispatchQueue PraxModel.trims didSet")
-            }
+            document.refreshMergedDocument()
         }
     }
     private var _merge: MergeMode = .mergeDown
@@ -78,55 +94,12 @@ struct MergedPDFTransfer: Transferable, Identifiable {
         get { _merge }
         set {
             if _merge == newValue { return }
-            
-         //   if PraxModel.shared.editingPDFDocument.pageCount == 1 && newValue == .mergeSkip { return }
             _merge = newValue
-            
-            
-            if PraxModel.shared.isLoadingPDF {
-                print("isLoadingPDF - PraxModel.merge didSet")
-                return }
-            
             print("PraxModel.merge didSet")
-            DispatchQueue.main.async {
-                print ("DispatchQueue - refreshEditingDocument()")
-                PraxModel.shared.refreshMergedDocument()
-                
-                
-            }
+            document.refreshMergedDocument()
         }
     }
-    
-    
-    // Single concrete initializer that initializes all stored properties
-    init(
-        id: UUID = UUID(),
-        name: String,
-        pdfPage: PDFPage,
-        trim: EdgeTrims = .zero,
-        merge: MergeMode = .mergeDown
-    ) {
-        self.id = id
-        self.name = name
-        self.pdfPage = pdfPage
-        
-        self.aspectRatio = {
-            let bounds = pdfPage.bounds(for: .cropBox)
-            return bounds.size.width / bounds.size.height
-        }()
-        
-        self.trim = trim
-        self.merge = merge
-    }
-    
-    static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool {
-        lhs.id == rhs.id
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
-
 
 func isPDF(_ url: URL) -> Bool {
     if let type = UTType(filenameExtension: url.pathExtension) {
@@ -142,7 +115,7 @@ struct EdgeTrims: Codable, Hashable {
     var top: CGFloat
     var bottom: CGFloat
     
-    static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
+    nonisolated static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
 }
 
 struct PDFEntry: Identifiable, Hashable {
@@ -201,21 +174,21 @@ struct PDFGeometry {
     }
     
     /// Computes the final canvas size for the merged PDF using the same rules as the merge routine.
-/*    static func canvasSize(for pageRects: [CGRect], pdfPages: [PDFPageItem], trimTop: CGFloat, trimBottom: CGFloat, interPageGap: CGFloat) -> CGSize {
-        var maxVisibleWidth: CGFloat = 0
-        var totalVisibleHeight: CGFloat = 0
-        let count = pageRects.count
-        for i in 0..<count {
-            let per = pdfPages[i].trim
-            let seamTop: CGFloat = (i == 0) ? 0 : trimTop
-            let seamBottom: CGFloat = (i == count - 1) ? 0 : trimBottom
-            let vis = visibleRect(media: pageRects[i], trims: per, seamTop: seamTop, seamBottom: seamBottom)
-            maxVisibleWidth = max(maxVisibleWidth, vis.width)
-            totalVisibleHeight += vis.height
-        }
-        let internalSeams = max(0, count - 1)
-        let gapsTotal = interPageGap * CGFloat(internalSeams)
-        return CGSize(width: maxVisibleWidth, height: totalVisibleHeight + gapsTotal)
-    }*/
+    /*    static func canvasSize(for pageRects: [CGRect], pdfPages: [PDFPageItem], trimTop: CGFloat, trimBottom: CGFloat, interPageGap: CGFloat) -> CGSize {
+     var maxVisibleWidth: CGFloat = 0
+     var totalVisibleHeight: CGFloat = 0
+     let count = pageRects.count
+     for i in 0..<count {
+     let per = pdfPages[i].trim
+     let seamTop: CGFloat = (i == 0) ? 0 : trimTop
+     let seamBottom: CGFloat = (i == count - 1) ? 0 : trimBottom
+     let vis = visibleRect(media: pageRects[i], trims: per, seamTop: seamTop, seamBottom: seamBottom)
+     maxVisibleWidth = max(maxVisibleWidth, vis.width)
+     totalVisibleHeight += vis.height
+     }
+     let internalSeams = max(0, count - 1)
+     let gapsTotal = interPageGap * CGFloat(internalSeams)
+     return CGSize(width: maxVisibleWidth, height: totalVisibleHeight + gapsTotal)
+     }*/
 }
 

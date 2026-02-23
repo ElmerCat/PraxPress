@@ -14,6 +14,9 @@ import UniformTypeIdentifiers
 
 class SectionBackground: NSView, NSCollectionViewElement {
     
+    private var hostingView: NSHostingView<SectionBackgroundView>?
+    private var indexPath: IndexPath?
+   
     override init(frame: CGRect) {
         super.init(frame: frame)
         //       configure()
@@ -27,19 +30,15 @@ class SectionBackground: NSView, NSCollectionViewElement {
         }
         
     }
-    
-    private var hostingView: NSHostingView<SectionBackgroundView>?
-    private var indexPath: IndexPath?
+  
     
     func configure(at atIndexPath: IndexPath?,
                    isSelected: Bool) {
         indexPath = atIndexPath
         
         if let indexPath {
-            if PraxModel.shared.pdfPageSections.count > indexPath.section {
-                let pdfPageSection = PraxModel.shared.pdfPageSections[indexPath.section]
-                
-                let root = SectionBackgroundView(pdfPageSection: pdfPageSection, isSelected: isSelected, highlightState: highlightState)
+                 
+                let root = SectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState)
                 
                 if let hostingView {
                     hostingView.rootView = root
@@ -55,8 +54,6 @@ class SectionBackground: NSView, NSCollectionViewElement {
                     ])
                     self.hostingView = hosting
                 }
-                
-            }
             
         }
         
@@ -80,42 +77,56 @@ class SectionBackground: NSView, NSCollectionViewElement {
 }
 
 struct SectionBackgroundView: View {
-    let pdfPageSection: PDFPageSection
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    
+    let indexPath: IndexPath
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
+        
+    
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
         
-        let imageSize = CGSize(width: 1200, height: 1600)
-        
-        GroupBox {
-            GeometryReader { proxy in
-                HStack {
-          //          Spacer()
-                    if let pdfPage = pdfPageSection.pdfPage {
-                        Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: proxy.size.width * 0.28) // 40% of GroupBox width
-                        //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
-                            .cornerRadius(6)
-                            .padding(EdgeInsets(top: ThumbnailViewController.sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
-
+        if document.sections.count > indexPath.section {
+           let pdfPageSection = document.sections[indexPath.section]
+            
+            
+            let imageSize = CGSize(width: 1200, height: 1600)
+            
+            GroupBox {
+                GeometryReader { proxy in
+                    HStack {
+                        //          Spacer()
+                        if let pdfPage = pdfPageSection.pdfPage {
+                            Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: proxy.size.width * 0.28) // 40% of GroupBox width
+                            //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
+                                .cornerRadius(6)
+                                .padding(EdgeInsets(top: ThumbnailViewController.sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
+                            
+                        }
                     }
-                   }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                
-              //  .position(x: 0, y: 16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    
+                    //  .position(x: 0, y: 16)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(0)
+            .background(PraxGradient())
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.accentColor : Color.orange, lineWidth: 5)
+            )
+
+            
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(0)
-        .background(PraxGradient())
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(isSelected ? Color.accentColor : Color.orange, lineWidth: 5)
-        )
+        
+        else { EmptyView() }
     }
 }
 
@@ -208,9 +219,10 @@ class CollectionViewBackground: NSView {
 }
 
 struct CollectionViewBackgroundView: View {
-    
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
     var body: some View {
-        @Bindable var prax = PraxModel.shared
+        @Bindable var prax = praxModel
         
         GroupBox {
             GeometryReader { proxy in

@@ -1,0 +1,171 @@
+//
+//  MergedPDFDocument.swift
+//  PraxPress
+//
+//  Created by Elmer Cat on 2/22/26.
+//
+
+import SwiftUI
+import SwiftData
+import PDFKit
+import UniformTypeIdentifiers
+
+
+enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
+
+@Observable @MainActor class MergedPDFDocument  {
+    var prax: PraxModel?
+    
+    var mergedPDFView: PDFView = {
+        let v = PDFView()
+        v.displaysPageBreaks = true
+        v.displayMode = .singlePageContinuous
+        v.displaysAsBook = false
+        v.autoScales = true
+        return v
+    }()
+    
+    var modelContext: ModelContext?
+    var sections: [PDFPageSection] = [] {
+        didSet {
+            print("sections didSet:  ", sections.count)
+            //   refreshEditingDocument()
+            
+        }
+    }
+    
+    
+    var pdfFiles: [PDFFile] = [] {
+        didSet {
+            print ("PraxModel pdfFiles didSet: ", pdfFiles.count)
+        }
+    }
+    
+    
+    
+    var selectedFiles = Set<PDFFile.ID>() {
+        didSet {
+            print ("PraxModel selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
+            //         isLoadingPDF = true
+            //            selectedPageItems = []
+            //           clearWidthGuide()
+            
+            
+            DispatchQueue.main.async {
+                print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
+                       self.setPageSectionsFromSelectedFiles()
+                       self.refreshMergedDocument()
+            }
+        }
+    }
+    
+  
+    
+    
+    var isLoadingPDF = false {
+        didSet {
+            print ("\n isLoadingPDF: \(isLoadingPDF)\n")
+        }
+    }
+    
+    var selectedSections: Set<Int> = [] { didSet {
+        print("selectedSections didSet:  ", selectedSections)
+        selectedSections.forEach {
+            print("\($0)") }}}
+    
+    var selectedPageItems: Set<IndexPath> = [] { didSet {
+        print("selectedPageItems didSet:  ", selectedPageItems)
+        selectedPageItems.forEach {
+            print("\($0)") }}}
+    
+    var selectedPages: Set<IndexPath> = [] { didSet {
+        print("selectedPages didSet:  ", selectedPages)
+        selectedPages.forEach {
+            print("\($0)") }}}
+    
+    var mergedPDFURL: URL = {
+        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
+    }()
+    var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+        didSet {
+            print ("mergedPDFDocument didSet ")
+            mergedPDFView.document = mergedPDFDocument
+            isLoadingPDF = false
+        }
+    }
+   
+    
+
+    var refreshingMergedDocument: Bool = false  {
+        didSet {
+            if refreshingMergedDocument {
+                print ("Refreshing Merged Document") }
+            else {
+                print ("Merged Document Refreshed") }
+        }
+    }
+    
+
+    
+    func handleMergePagesOverwrite() {
+        
+        
+        fatalError("Julie d'Prax: This function is not currently implemented")
+        //guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
+        //mergeDocumentPages()
+        // Recompute metrics based on the new single-page doc
+        //computePageMetrics(for: entry.url)
+        
+    }
+    
+ 
+    
+    var replaceSourceFiles: Bool = true
+    var multipleFilesSelected: Bool = false
+    var sourceFolderURL: URL?
+    var exportFolderURL: URL?
+    //  var exportFolderURLBookmark: Data?
+    var exportFilenamePrefix: String = ""
+    
+    var exportFilename: String {
+        exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix
+    }
+    
+    var exportFilenameSuffix: String = ""
+    var exportFilenameExtension: String = "pdf"
+    
+    var firstSelectedFileURL: URL?  {
+        didSet {
+            if firstSelectedFileURL != nil {
+                sourceFolderURL = firstSelectedFileURL!.deletingLastPathComponent()
+                exportFilenameBody = firstSelectedFileURL!.deletingPathExtension().lastPathComponent
+                if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
+            }
+            else {
+                exportFilenameBody = ""
+            }
+        }
+    }
+    var exportFilenameBody: String = ""
+    
+    var exportFileURL: URL? {
+        
+        if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
+        guard let folder = exportFolderURL else { return nil }
+        return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension)
+    }
+    
+
+    
+   
+    var widthGuidePageID: UUID? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
+    
+   
+    
+    
+    
+    
+}
+
