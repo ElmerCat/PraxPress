@@ -12,6 +12,7 @@ import SwiftUI
 
 extension Notification.Name {
     static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
+    static let praxSelectedPageItemsChanged = Notification.Name("PraxSelectedPageItemsChanged")
     //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 

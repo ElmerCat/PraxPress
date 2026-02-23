@@ -11,7 +11,6 @@ import AppKit
 // Minimal trim overlay handle view reused per page by the provider
 final class PDFPageOverlayView: NSView {
     var document: MergedPDFDocument?
-   
     
     var pdfView: PDFView?
     var onFinish: ((CGRect) -> Void)?
@@ -123,14 +122,212 @@ final class PDFPageOverlayView: NSView {
         
     }
     
+    private func rectAdjusted(byClick point: CGPoint, from rect: CGRect) -> CGRect {
+        let pageRect = clampRect ?? bounds
+        var newRect = rect
+        
+        let minWidth = handleSize * 2
+        let minHeight = handleSize * 2
+        
+        // Determine if the click is inside or outside the existing rect
+        let isInside = rect.contains(point)
+        
+        if isInside {
+            // Contract: move the nearest single edge toward the click
+            let distances: [(edge: String, dist: CGFloat)] = [
+                ("left", abs(point.x - rect.minX)),
+                ("right", abs(point.x - rect.maxX)),
+                ("bottom", abs(point.y - rect.minY)),
+                ("top", abs(point.y - rect.maxY))
+            ].sorted { $0.dist < $1.dist }
+            
+            switch distances.first?.edge {
+            case "left":
+                let newMinX = min(point.x, rect.maxX - minWidth)
+                newRect.origin.x = newMinX
+                newRect.size.width = max(minWidth, rect.maxX - newMinX)
+            case "right":
+                let newMaxX = max(point.x, rect.minX + minWidth)
+                newRect.size.width = newMaxX - rect.minX
+            case "bottom":
+                let newMinY = min(point.y, rect.maxY - minHeight)
+                newRect.origin.y = newMinY
+                newRect.size.height = max(minHeight, rect.maxY - newMinY)
+            case "top":
+                let newMaxY = max(point.y, rect.minY + minHeight)
+                newRect.size.height = newMaxY - rect.minY
+            default:
+                break
+            }
+        } else {
+            // Expand: extend edges outward to include the click point
+            var minX = rect.minX
+            var maxX = rect.maxX
+            var minY = rect.minY
+            var maxY = rect.maxY
+            
+            if point.x < rect.minX { minX = point.x }
+            if point.x > rect.maxX { maxX = point.x }
+            if point.y < rect.minY { minY = point.y }
+            if point.y > rect.maxY { maxY = point.y }
+            
+            newRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+            
+            // Ensure minimum size by expanding around the rect center if needed
+            if newRect.width < minWidth {
+                let centerX = rect.midX
+                newRect.origin.x = centerX - minWidth / 2
+                newRect.size.width = minWidth
+            }
+            if newRect.height < minHeight {
+                let centerY = rect.midY
+                newRect.origin.y = centerY - minHeight / 2
+                newRect.size.height = minHeight
+            }
+        }
+        
+        // Clamp to page bounds
+        newRect = newRect.intersection(pageRect)
+        
+        // Snap left/right to vertical guidelines if within threshold
+        if let gxL = guideXLeft {
+            if abs(newRect.minX - gxL) <= snapThreshold {
+                let snappedWidth = newRect.maxX - gxL
+                if snappedWidth >= minWidth {
+                    newRect.origin.x = gxL
+                    newRect.size.width = snappedWidth
+                }
+            }
+            if abs(newRect.maxX - gxL) <= snapThreshold {
+                let snappedWidth = gxL - newRect.minX
+                if snappedWidth >= minWidth {
+                    newRect.size.width = snappedWidth
+                }
+            }
+        }
+        if let gxR = guideXRight {
+            if abs(newRect.minX - gxR) <= snapThreshold {
+                let snappedWidth = newRect.maxX - gxR
+                if snappedWidth >= minWidth {
+                    newRect.origin.x = gxR
+                    newRect.size.width = snappedWidth
+                }
+            }
+            if abs(newRect.maxX - gxR) <= snapThreshold {
+                let snappedWidth = gxR - newRect.minX
+                if snappedWidth >= minWidth {
+                    newRect.size.width = snappedWidth
+                }
+            }
+        }
+        
+        return newRect
+    }
+    
+    
+    private func initialRectForClick(_ point: CGPoint) -> CGRect {
+        // Start with full page rect (clampRect if provided, else bounds)
+        let pageRect = clampRect ?? bounds
+        // Clamp the click into the pageRect to avoid NaNs/out-of-bounds
+        let clampedX = max(pageRect.minX, min(pageRect.maxX, point.x))
+        let clampedY = max(pageRect.minY, min(pageRect.maxY, point.y))
+        let p = CGPoint(x: clampedX, y: clampedY)
+        
+        // Choose the opposite corner that maximizes area: pick the farthest corner from the click
+        let corners = [
+            CGPoint(x: pageRect.minX, y: pageRect.minY),
+            CGPoint(x: pageRect.minX, y: pageRect.maxY),
+            CGPoint(x: pageRect.maxX, y: pageRect.minY),
+            CGPoint(x: pageRect.maxX, y: pageRect.maxY)
+        ]
+        let farCorner = corners.max { a, b in
+            let da = hypot(a.x - p.x, a.y - p.y)
+            let db = hypot(b.x - p.x, b.y - p.y)
+            return da < db
+        } ?? CGPoint(x: pageRect.maxX, y: pageRect.maxY)
+        
+        // Build rect with p and farCorner as opposite corners
+        let minX = min(p.x, farCorner.x)
+        let maxX = max(p.x, farCorner.x)
+        let minY = min(p.y, farCorner.y)
+        let maxY = max(p.y, farCorner.y)
+        var rect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        
+        // Enforce minimum size using existing handleSize*2 constraint
+        let minWidth = handleSize * 2
+        let minHeight = handleSize * 2
+        if rect.width < minWidth {
+            // Expand toward farCorner along X if possible
+            if farCorner.x > p.x {
+                rect.size.width = minWidth
+            } else {
+                rect.origin.x = max(pageRect.minX, rect.maxX - minWidth)
+                rect.size.width = minWidth
+            }
+        }
+        if rect.height < minHeight {
+            // Expand toward farCorner along Y if possible
+            if farCorner.y > p.y {
+                rect.size.height = minHeight
+            } else {
+                rect.origin.y = max(pageRect.minY, rect.maxY - minHeight)
+                rect.size.height = minHeight
+            }
+        }
+        
+        // Finally, clamp to pageRect
+        rect = rect.intersection(pageRect)
+        
+        // Optional: snap left/right edges to vertical guides if within threshold
+        var snapped = rect
+        if let gxL = guideXLeft {
+            if abs(snapped.minX - gxL) <= snapThreshold {
+                let newW = snapped.maxX - gxL
+                if newW >= minWidth { snapped.origin.x = gxL; snapped.size.width = newW }
+            }
+            if abs(snapped.maxX - gxL) <= snapThreshold {
+                let newW = gxL - snapped.minX
+                if newW >= minWidth { snapped.size.width = newW }
+            }
+        }
+        if let gxR = guideXRight {
+            if abs(snapped.minX - gxR) <= snapThreshold {
+                let newW = snapped.maxX - gxR
+                if newW >= minWidth { snapped.origin.x = gxR; snapped.size.width = newW }
+            }
+            if abs(snapped.maxX - gxR) <= snapThreshold {
+                let newW = gxR - snapped.minX
+                if newW >= minWidth { snapped.size.width = newW }
+            }
+        }
+        
+        return snapped
+    }
+    
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         dragStart = point
+        
+        // If we have an existing rect, allow click-to-adjust as before (expand/contract),
+        // otherwise initialize to the largest crop with one corner at the click.
         if let rect = currentRect {
             if let handle = hitTestHandle(point, in: rect) {
+                // Preserve handle-based resize on handle hit
                 dragMode = .resize(handle)
                 originalRect = rect
-            } else if rect.insetBy(dx: hitInset, dy: hitInset).contains(point) {
+                return
+            }
+            // Click-to-expand/contract behavior using existing helper if present; otherwise move/resize fallback
+            if let adjustedMethod = Optional(rectAdjusted) {
+                let adjusted = adjustedMethod(point, rect)
+                if adjusted.width >= handleSize * 2 && adjusted.height >= handleSize * 2 {
+                    currentRect = adjusted
+                    onFinish?(adjusted)
+                    return
+                }
+            }
+            // Fallback to move/resize start if adjustment did not apply
+            if rect.insetBy(dx: hitInset, dy: hitInset).contains(point) {
                 dragMode = .move
                 originalRect = rect
             } else {
@@ -139,9 +336,13 @@ final class PDFPageOverlayView: NSView {
                 originalRect = nil
             }
         } else {
-            dragMode = .resize(.bottomLeft)
-            currentRect = CGRect(origin: point, size: .zero)
+            // Initialize to full-page-based largest crop with click as a corner
+            let initRect = initialRectForClick(point)
+            currentRect = initRect
+            onFinish?(initRect)
+            dragMode = .none
             originalRect = nil
+            return
         }
     }
     

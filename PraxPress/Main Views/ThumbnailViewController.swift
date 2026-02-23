@@ -42,7 +42,8 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
     private var observeDocumentChange: Task<Void, Never>?
     private var observeCurrentIndexChange: Task<Void, Never>?
-    
+    private var pendingSelectionUpdate: DispatchWorkItem?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -264,16 +265,41 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("ThumbnailViewController didSelectItemsAt indexPaths ", indexPaths)
+  
+        scheduleDebouncedSelectionUpdate()
         
-        document.selectedPageItems = collectionView.selectionIndexPaths
+//        document.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("ThumbnailViewController didDeselectItemsAt indexPaths ", indexPaths)
-        document.selectedPageItems = collectionView.selectionIndexPaths
+        
+        scheduleDebouncedSelectionUpdate()
+        
+//        document.selectedPageItems = collectionView.selectionIndexPaths
     }
     
-    
+    private func scheduleDebouncedSelectionUpdate(delay: TimeInterval = 0.05) {
+        // Cancel any in-flight update
+        pendingSelectionUpdate?.cancel()
+        
+        // Create a new work item that applies the final selection
+        let work = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            // Snapshot the final selection after deselect/select pair completes
+            let finalSelection = self.collectionView.selectionIndexPaths
+            self.document.selectedPageItems = finalSelection
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .praxSelectedPageItemsChanged, object: finalSelection, userInfo: ["praxLady": "Juliette M. Belanger"])
+            }
+
+        }
+        
+        pendingSelectionUpdate = work
+        
+        // Schedule on main queue with a short delay to coalesce deselect/select
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
     
 }
 

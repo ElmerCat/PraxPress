@@ -65,12 +65,14 @@ struct DocumentEditingView: NSViewRepresentable {
             name: Notification.Name.PDFViewPageChanged,
             object: prax.editingPDFView
         )*/
+        
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.widthGuideChanged(_:)),
             name: .praxWidthGuideChanged,
             object: nil
         )
+        
         
         /*       DispatchQueue.main.async { [weak pdfView] in
          if let v = pdfView {
@@ -124,15 +126,15 @@ struct DocumentEditingView: NSViewRepresentable {
             print("DocumentEditingView Coordinator - changed to page:", idx)
             //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
-        
+       
         @objc func widthGuideChanged(_ note: Notification) {
             print("DocumentEditingView Coordinator - widthGuideChanged")
             //       guard let pdfView = note.object as? PDFView else { return }
-        /*    DispatchQueue.main.async {
-                self.prax.editingPDFView.layoutDocumentView()
-                self.prax.editingPDFView.needsDisplay = true
-                
-            }*/
+            /*    DispatchQueue.main.async {
+             self.prax.editingPDFView.layoutDocumentView()
+             self.prax.editingPDFView.needsDisplay = true
+             
+             }*/
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {

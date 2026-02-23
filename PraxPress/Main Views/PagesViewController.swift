@@ -51,7 +51,17 @@ var document: MergedPDFDocument?
         }
         observeCurrentIndexChange = Task {
             for await _ in Observations({ self.document!.selectedPageItems }) {
-                print("PagesViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
+                print("PagesViewController observeCurrentIndexChange  ", self.document!.selectedPageItems)
+ 
+                await NSAnimationContext.runAnimationGroup { context in
+                    // Optional: set duration or timing function
+                    context.duration = 0.8
+                    context.allowsImplicitAnimation = true
+                    
+                    // Call through the animator() proxy
+                    collectionView.animator().scrollToItems(at: self.document!.selectedPageItems, scrollPosition: .top)
+                }
+                
                 
               /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
