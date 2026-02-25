@@ -189,22 +189,77 @@ extension MergedPDFDocument {
                     
                 }
             }
-            
-            
-            Task {
-                do {
-                    try await insertPDFPageSectionsFromDocumentURLS(urls, at: IndexPath(item: -1, section: -1))
-                    refreshMergedDocument()
-                } catch let error {
-                    print("Julie d Prax", urls, "Error: ", error)
-                    
+            if urls.isEmpty {
+                provider.loadFileRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (url, error) in
+                    if let url = url {
+                        urls.append(url)
+                        print("Julie Belanger URL: ", url)
+                    }
                 }
             }
+
             
+            let pdfURLs = urls.filter { $0.pathExtension.lowercased() == "pdf" }
+            if !pdfURLs.isEmpty {
+                Task {
+                    do {
+                        try await insertPDFPageItemsFromDocumentURLS(pdfURLs, at: IndexPath(item: -1, section: -1))
+                        refreshMergedDocument()
+                    } catch let error {
+                        print("Julie d Prax", urls, "Error: ", error)
+                        
+                    }
+                }
+                
+            }
+            
+            
+            let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
+            let imageURLs = urls.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
+      
+            if !imageURLs.isEmpty {
+                if prax!.optionKeyPressed {
+                    self.insertPDFPageSectionsFromImageURLS(imageURLs, at: IndexPath(item: -1, section: -1))
+                }
+                else {
+                    self.insertPDFPageItemsFromImageURLS(imageURLs, at: IndexPath(item: -1, section: -1))
+                }
+            }
         }
+
         print("Julie d Prax", urls)
         
         return true
+        
+    }
+    
+    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        var pages: [PDFPageItem] = []
+        var sourceFileName = ""
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            let pdfPageItem = PDFPageItem(
+                document: self,
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            )
+            pages.append(pdfPageItem)
+        }
+        if indexPath.section >= 0 {
+            if indexPath.item < 0 || indexPath.item >= sections[indexPath.section].pdfPageItems.count {
+                sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+            }
+            else {
+                sections[indexPath.section].pdfPageItems.insert(contentsOf: pages, at: indexPath.item)
+            }
+        }
+        else {
+            sections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pdfPageItems: pages))
+        }
         
     }
     
@@ -225,7 +280,7 @@ extension MergedPDFDocument {
         }
         
     }
-    
+
     func insertPDFPageSectionsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath)  async throws {
         
         var pdfPageItems: [PDFPageItem] = []
@@ -250,9 +305,10 @@ extension MergedPDFDocument {
         
         
         var pages: [PDFPageItem] = []
+        var sourceFileName = ""
         for url in urls {
             guard let doc = PDFDocument(url: url) else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load PDF document at \(url)", userInfo: nil) as! any Error) }
-            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            sourceFileName = url.deletingPathExtension().lastPathComponent
             for i in 0..<doc.pageCount {
                 guard let docPage = doc.page(at: i)  else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load document page at \(url)", userInfo: nil) as! any Error) }
                 pages.append(PDFPageItem(
@@ -262,7 +318,19 @@ extension MergedPDFDocument {
                 ))
             }
         }
-        sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+        
+        if indexPath.section >= 0 {
+            if indexPath.item < 0 || indexPath.item >= sections[indexPath.section].pdfPageItems.count {
+                sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+            }
+            else {
+                sections[indexPath.section].pdfPageItems.insert(contentsOf: pages, at: indexPath.item)
+            }
+        }
+        else {
+            sections.append(PDFPageSection(document: self, title: sourceFileName, pdfPageItems: pages))
+        }
+
     }
     
     
@@ -313,6 +381,23 @@ extension MergedPDFDocument {
         }
     }
     
+    func addPageSectionFromPDFFile(pdfFile: PDFFile) {
+
+        guard let doc = PDFDocument(url: pdfFile.url) else { fatalError("Failed to open PDFDocument at \(pdfFile.url)") }
+        var pages: [PDFPageItem] = []
+            let sectionName = pdfFile.url.deletingPathExtension().lastPathComponent
+        for i in 0..<doc.pageCount {
+            guard let docPage = doc.page(at: i)  else { fatalError("No document.page(at: \(i)") }
+            pages.append(PDFPageItem(
+                document: self,
+                name: "\(sectionName) - Page \(i + 1)",
+                pdfPage: docPage //,
+            ))
+        }
+        sections.append(PDFPageSection(document: self, title: sectionName, pdfPageItems: pages))
+        refreshMergedDocument()
+
+    }
     
     func setPageSectionsFromSelectedFiles() {
         let entries: [PDFFile] = selectedFiles.compactMap { id in

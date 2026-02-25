@@ -185,9 +185,47 @@ struct MergedDocumentToolbar: View {
     }
     
     var body: some View {
+        @Bindable var document = self.document
         GroupBox {
             VStack {
                 HStack {
+                    
+                    ZStack {
+                        TextField("Prefix", text: $document.exportFilenamePrefix)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                            .overlay(alignment: .trailing) {
+                                if !document.exportFilenamePrefix.isEmpty {
+                                    Button {
+                                        document.exportFilenamePrefix = ""
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                            .padding(.trailing, 6) // adjust for your field style
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("Clear")
+                                }
+                            }
+                    }
+                    
+                    TextField("Filename", text: Binding<String>(
+                        get: { document.exportFilenameBody },
+                        set: { newValue in
+                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                            // Ensure we don't accidentally include a dot/extension typed by the user
+                            if let dotRange = newName.range(of: ".") {
+                                newName = String(newName[..<dotRange.lowerBound])}
+                            document.exportFilenameBody = newName
+                        })
+                              
+                    )
+                    //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .disabled(document.exportFolderURL == nil)
+                    
+                    
                     AdvancedSettingsButton()
     /*                ControlGroup("", systemImage: "magnifyingglass") {
                         Button("Increase", systemImage: "plus.rectangle.portrait", action: document.zoomInMergedPDFView)

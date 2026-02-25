@@ -17,5 +17,67 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1523E779-D523-45FA-91A9-38659AB59E25"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PraxPress/Main Views/ThumbnailViewController+Dragging.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
+            landmarkName = "dropExternalPages(draggingInfo:indexPath:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8F2830AC-2CF7-4A02-A88A-E4149E79BE13"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PraxPress/Models/MergedPDFDocument+Functions.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
+            landmarkName = "acceptDrop(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "8F2830AC-2CF7-4A02-A88A-E4149E79BE13 - acb4fa2e335a7151"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "PraxPress.MergedPDFDocument.acceptDrop(Swift.Array&lt;__C.NSItemProvider&gt;) -&gt; Swift.Bool"
+                  moduleName = "PraxPress.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elmercat/MIT%20Dropbox/Elmer%20Cat/Elmer/Projects/PraxPress/PraxPress/Models/MergedPDFDocument+Functions.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "193"
+                  endingLineNumber = "193">
+               </Location>
+               <Location
+                  uuid = "8F2830AC-2CF7-4A02-A88A-E4149E79BE13 - 87de5feafc94a2b3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 @Sendable (Swift.Optional&lt;Foundation.URL&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in PraxPress.MergedPDFDocument.acceptDrop(Swift.Array&lt;__C.NSItemProvider&gt;) -&gt; Swift.Bool"
+                  moduleName = "PraxPress.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elmercat/MIT%20Dropbox/Elmer%20Cat/Elmer/Projects/PraxPress/PraxPress/Models/MergedPDFDocument+Functions.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "182"
+                  endingLineNumber = "182">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

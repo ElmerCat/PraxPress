@@ -37,6 +37,7 @@ struct MainSceneRoot: View {
             }
             .task {
                 praxModel.documment = document
+                document.prax = praxModel
                 document.modelContext = modelContext
                 document.pdfFiles = pdfFiles
             }

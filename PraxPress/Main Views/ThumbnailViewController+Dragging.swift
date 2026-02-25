@@ -76,7 +76,10 @@ extension ThumbnailViewController {
         else if draggingTypes.contains(.pdfPageSectionType) {
             dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         }
-        
+        else if draggingTypes.contains(.pdfFileType) {
+            dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+        }
+
         else {
             // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
             // Drop each dragged image file to their new place.
@@ -321,9 +324,51 @@ extension ThumbnailViewController {
         document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
     }
 
+    func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+        print("dropPDFFiles to: ", indexPath)
+        
+        var urls: [URL] = []
+        
+        struct Payload: Codable {
+            let fileName: String
+            let bookmarkData: Data
+        }
+        
+        draggingInfo.enumerateDraggingItems(
+            options: NSDraggingItemEnumerationOptions.concurrent,
+            for: collectionView,
+            classes: [NSPasteboardItem.self],
+            searchOptions: [:],
+            using: {(draggingItem, idx, stop) in
+                if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
+                    do {
+                        if let data = pasteboardItem.data(forType: .pdfFileType) {
+                            
+                            let payload = try JSONDecoder().decode(Payload.self, from: data)
+                            // Resolve the URL from the bookmark to rebuild a PDFFile
+                            var isStale = false
+                            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+                            
+                            urls.append(url)
+                            
+                            
+                        }
+                    } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
+                    
+                    print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
+                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+                    self.updateUI()
+                }
+            })
+    }
+    
+    
     func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
         var pages: [PDFPageItem] = []
         for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
             guard let doc = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
             let sourceFileName = url.deletingPathExtension().lastPathComponent
             for i in 0..<doc.pageCount {
@@ -333,16 +378,18 @@ extension ThumbnailViewController {
                     name: "\(sourceFileName) - Page \(i + 1)",
                     pdfPage: docPage
                 ))
+                print ("\(sourceFileName) - Page \(i + 1)")
             }
         }
         document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+        self.updateUI()
     }
 
     func dropInternalSections(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalSections to: ", indexPath)
         
     }
-    
+
     func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalPages to: ", indexPath)
         
@@ -372,6 +419,8 @@ extension ThumbnailViewController {
             })
     }
     
+    
+   
     
     
     

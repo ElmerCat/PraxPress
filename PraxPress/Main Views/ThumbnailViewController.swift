@@ -51,7 +51,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         configureDataSource()
         
         collectionView.isSelectable = true
-        collectionView.allowsEmptySelection = false
+        collectionView.allowsEmptySelection = true
         collectionView.allowsMultipleSelection = true
         collectionView.setDraggingSourceOperationMask([.copy], forLocal: false)
         collectionView.backgroundView = CollectionViewBackground()
@@ -169,7 +169,8 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         collectionView.registerForDraggedTypes([
             .fileURL, // Accept dragging of image file URLs from other apps.
             .pdfPageDragType,
-            .pdfPageSectionType]) // Intra drag of row items numbers within the collection view.
+            .pdfPageSectionType,
+            .pdfFileType]) // Intra drag of row items numbers within the collection view.
         
         collectionView.setDraggingSourceOperationMask([.copy, .delete], forLocal: false)
     }

@@ -19,7 +19,7 @@ struct MainToolbar: ToolbarContent {
     var body: some ToolbarContent {
         @Bindable var prax = praxModel
         
-        ToolbarItemGroup(placement: .navigation) {
+        ToolbarItemGroup(placement: .status) {
             
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
             

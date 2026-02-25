@@ -35,21 +35,26 @@ struct ContentView: View {
                             .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.75)
                     }
                     content: {
-                        ContentDetailView()
-                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                        
+                            ContentDetailView()
+                                .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+
+                        
                     }
                     detail: {
-                        VStack {
-                            MergedDocumentToolbar()
-                            MergedDocumentView()
-                            MergedDocumentFooter()
-                            //       .alert(isPresented: $prax.isLarge) {
-                            //           Alert(title: Text("Order Complete"),
-                            //                 message: Text("Thank you for shopping with us."),
-                            //                 dismissButton: .default(Text("OK")))   }
+                        
+                            VStack {
+                                MergedDocumentToolbar()
+                                MergedDocumentView()
+                                MergedDocumentFooter()
+                                //       .alert(isPresented: $prax.isLarge) {
+                                //           Alert(title: Text("Order Complete"),
+                                //                 message: Text("Thank you for shopping with us."),
+                                //                 dismissButton: .default(Text("OK")))   }
+                            }
+                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                       
                         }
-                        .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-                    }
                 }
             }
             .background(Color.indigo.opacity(0.5))

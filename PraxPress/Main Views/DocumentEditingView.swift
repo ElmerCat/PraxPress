@@ -229,9 +229,13 @@ struct DocumentEditingToolbar: View {
         GroupBox {
             
             //    Text("Prax")
-            
+            let pageCount = "Pages: " + String(document.totalPDFPageItems())
             HStack {
-                
+                Text(pageCount)
+                Button("Clear All", systemImage: "document.on.trash", action: {
+                    print (pageCount)
+                    
+                })
                 Button {
                     prax.showingFileImporter = true }
                 label: {
@@ -253,23 +257,7 @@ struct DocumentEditingToolbar: View {
                     //            handleImportResult(result, forFiles:&prax.listOfFiles)
                 }
                 
-                
-                TextField("Filename", text: Binding<String>(
-                    get: { document.exportFilenameBody },
-                    set: { newValue in
-                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        // Ensure we don't accidentally include a dot/extension typed by the user
-                        if let dotRange = newName.range(of: ".") {
-                            newName = String(newName[..<dotRange.lowerBound])}
-                        document.exportFilenameBody = newName
-                    })
-                          
-                )
-                //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .disabled(document.exportFolderURL == nil)
-                
+               
                /* Spacer()
                 
                 Button {

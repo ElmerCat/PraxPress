@@ -22,14 +22,14 @@
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string></string>
-			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.pdf-file-item</string>
+			<key>UTTypeDescription</key>
+			<string>PraxPress PDFFile Item</string>
+		</dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>PraxPress PDFPageItem</string>
-			<key>UTTypeIcons</key>
-			<dict/>
 			<key>UTTypeIdentifier</key>
 			<string>com.praxpress.pdf-page-item</string>
 			<key>UTTypeTagSpecification</key>
@@ -41,12 +41,8 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UTTypeConformsTo</key>
-			<array/>
 			<key>UTTypeDescription</key>
 			<string>PraxPress PDFPageSection</string>
-			<key>UTTypeIcons</key>
-			<dict/>
 			<key>UTTypeIdentifier</key>
 			<string>com.praxpress.pdf-page-section</string>
 			<key>UTTypeTagSpecification</key>

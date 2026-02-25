@@ -73,6 +73,10 @@ extension PagesViewController {
         if draggingTypes.contains(.pdfPageDragType) {
             dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         }
+        else if draggingTypes.contains(.pdfFileType) {
+            dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+        }
+        
         else if draggingTypes.contains(.pdfPageSectionType) {
             dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         }
@@ -334,11 +338,13 @@ extension PagesViewController {
 extension NSPasteboard.PasteboardType {
     static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
     static let pdfPageSectionType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
+    static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
 }
 
 extension UTType {
     static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
     static let pdfPageSectionType = UTType(exportedAs: "com.praxpress.pdf-page-section")
+    static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
 }
 
 class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
