@@ -473,6 +473,7 @@ struct PDFPageItemView: View {
             pdfView.document = pdfDocument
             pdfView.autoScales = true
             pdfView.displayDirection = .vertical
+            pdfView.backgroundColor = .clear
             context.coordinator.pdfView = pdfView
             onPDFViewReady(pdfView)
             return pdfView

@@ -20,62 +20,43 @@ struct MainToolbar: ToolbarContent {
         @Bindable var prax = praxModel
         
         ToolbarItemGroup(placement: .status) {
-            
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
-            
-            Group {
-                if prax.praxPressMode == .merge {
-                    Button {
-                        withAnimation(.bouncy) {
-                            showFilesPanel.toggle()
-                        }
-                    } label: {
-                        Label((showFilesPanel ? "Hide Files" : "Show Files"), systemImage: (showFilesPanel ? "sidebar.squares.left" : "sidebar.left"))
-                    }
-                }
-            }
         }
-        
         
         ToolbarItemGroup(placement: .secondaryAction) {
             DropTargetControl()
-            
         }
         
         ToolbarItemGroup(placement: .principal) {
-        
-            Button {
-                withAnimation(.bouncy) {
-                    prax.columnVisibility = .detailOnly
-                }
-            } label: {
-                Label("Detail Only", systemImage: "1.circle")  // .symbolEffect(.wiggle.byLayer, options: .repeat(.continuous))
-            }
-            
-            Button {
-                withAnimation(.bouncy) {
-                    prax.columnVisibility = .doubleColumn
-                }
-            } label: {
-                Label("Double Column", systemImage: "2.circle")
-            }
-            
-            Button {
-                withAnimation(.bouncy) {
-                    prax.columnVisibility = .all
-                }
-            } label: {
-                Label("All", systemImage: "3.circle")
-            }
-            
-            
             OptionKeyPressedToolbarItem()
         }
         
-        ToolbarItemGroup(placement: .status) {
+        ToolbarItemGroup(placement: .secondaryAction) {
             DragOutControl()
         }
         
+        ToolbarItemGroup(placement: .primaryAction) {
+            Text(prax.optionKeyPressed ? "Julie d'Prax" : "Juliette M. Belanger")
+        }
+      
+        ToolbarItemGroup(placement: .status) {
+            Button {
+                prax.showingMergedDocumentInspector.toggle()
+            } label: {
+                Label((prax.showingMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showingMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+            }
+            Button {
+                prax.showingPDFPageItemInspector.toggle()
+            } label: {
+                Label((prax.showingPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showingPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+            }
+            Button {
+                prax.isLarge.toggle()
+            } label: {
+                Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+            }
+        }
+
         ToolbarItemGroup(placement: .primaryAction) {
             
             Text("Save As")
@@ -131,26 +112,7 @@ struct MainToolbar: ToolbarContent {
          }
          */
         
-        /*     ToolbarItemGroup(placement: .primaryAction) {
-         Text(prax.optionKeyPressed ? "Julie d'Prax" : "Juliette M. Belanger")
-         }
-         ToolbarItemGroup(placement: .status) {
-         Button {
-         prax.showingMergedDocumentInspector.toggle()
-         } label: {
-         Label((prax.showingMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showingMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-         }
-         Button {
-         prax.showingPDFPageItemInspector.toggle()
-         } label: {
-         Label((prax.showingPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showingPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-         }
-         Button {
-         prax.isLarge.toggle()
-         } label: {
-         Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-         }
-         }
+        /*
          */
     }
 }

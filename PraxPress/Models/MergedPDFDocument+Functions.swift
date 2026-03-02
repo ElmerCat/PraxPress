@@ -21,15 +21,7 @@ extension MergedPDFDocument {
         }
         
     }
-    
-    func zoomInMergedPDFView() {
-        //    mergedPDFView.zoomIn(self)
-    }
-    func zoomOutMergedPDFView() {
-        //    mergedPDFView.zoomOut(self)
-    }
-
-    
+   
     func deleteSelectedFilesFromDatabase() {
         selectedFiles.forEach({ id in
             let pdfFile = pdfFiles.first(where: { $0.id == id })!

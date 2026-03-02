@@ -114,58 +114,93 @@ struct MergedDocumentHeader: View {
 }
 
 
-
 struct MergedDocumentFooter: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    enum PraxFocus: Hashable {
+        case firstButton
+        case secondButton
+        case textField
+        // add more if needed
+    }
+    @FocusState private var focusedField: PraxFocus?
+    @Environment(MergedPDFDocument.self) var _document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
+    let praxTheme = PraxTheme(.erika)
+    
+    @State private var hoveredButton: Int? = nil
     
     var body: some View {
         @Bindable var prax = praxModel
-        
+        @Bindable var document = _document
         HStack {
             
-       /*     ControlGroup("", systemImage: "magnifyingglass") {
-                Text("View")
-                Button("Increase", systemImage: "plus.rectangle.portrait", action: prax.zoomInMergedPDFView)
-                Button("Decrease", systemImage: "minus.rectangle.portrait", action: prax.zoomOutMergedPDFView)
-                Spacer()
-                Button("", systemImage: "inset.filled.center.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .singlePage}).disabled(prax.mergedPDFDisplayMode == .singlePage)
-                Button("", systemImage: "rectangle.portrait.tophalf.inset.filled", action: {prax.mergedPDFDisplayMode = .singlePageContinuous}).disabled(prax.mergedPDFDisplayMode == .singlePageContinuous)
-                if document.sections.count > 1 {
-                    Button("", systemImage: "rectangle.portrait.split.2x1", action: {prax.mergedPDFDisplayMode = .twoUp}).disabled(prax.mergedPDFDisplayMode == .twoUp)
-                    Button("", systemImage: "inset.filled.topleft.rectangle.portrait", action: {prax.mergedPDFDisplayMode = .twoUpContinuous}).disabled(prax.mergedPDFDisplayMode == .twoUpContinuous)
-                }
-                if (prax.mergedPDFDisplayMode == .twoUpContinuous || prax.mergedPDFDisplayMode == .twoUp) {
-                    Toggle("", systemImage: "book", isOn: $prax.mergedPDFDisplaysAsBook).toggleStyle(.button)
-                }
+            
+           
+            
+            Button("", systemImage: "plus.circle", action: {
+                document.autoScales = false
+                document.mergedPDFView.zoomIn(self)
+            })
+            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
+            .onHover { hovering in
+                hoveredButton = hovering ? 1 : nil
             }
-            Spacer()
-       */
-            //    switch prax.selectedPageItems.count {
-            //    case 0: Text("No Selection")
-            //    case 1: Text("Page: \((prax.selectedPageItems.first!.item) + 1) of \(prax.mergedPDFDocument.pageCount ) ")
-            //    default: Text("Multiple Selection")
-            //    }
+            .focusable(true)
+            .focused($focusedField, equals: .firstButton)
+            .keyboardShortcut(.space, modifiers: [])
             
-            Spacer()
+            Button("", systemImage: "minus.circle", action: {
+                document.autoScales = false
+                document.mergedPDFView.zoomOut(self)
+            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
+                .onHover { hovering in
+                    hoveredButton = hovering ? 2 : nil
+                }
+                .focusable(true)
+                .focused($focusedField, equals: .secondButton)
+                .keyboardShortcut(.space, modifiers: [])
             
-            Text(String("\(document.sections.count) Pages"))
-                .font(.subheadline)
-            /*                 if prax.mergedWidthPts > 0, prax.mergedHeightPts > 0 {
-             let wIn = prax.mergedWidthPts / 72.0
-             let hIn = prax.mergedHeightPts / 72.0
-             Text(String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", prax.mergedWidthPts, prax.mergedHeightPts, wIn, hIn))
-             .font(.subheadline)
-             //    .foregroundStyle(Color.white)
-             } else {
-             Text("Merged size: —")
-             .font(.subheadline)
-             //  .foregroundStyle(.tertiary)
-             }
-             */
+            Toggle("", systemImage: document.autoScales ? "circle.inset.filled" : "equal.circle", isOn: $document.autoScales).toggleStyle(.button)
+                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
+                .onHover { hovering in
+                    hoveredButton = hovering ? 3 : nil
+                }
+                .focusable(true)
+                .focused($focusedField, equals: .textField)
+                .keyboardShortcut(.space, modifiers: [])
+            
+            
+                     Picker("", selection: $document.mergedPDFView.displayMode, content: {
+                         
+                         Image(systemName: "inset.filled.center.rectangle.portrait").tag(PDFDisplayMode.singlePage)
+                         Image(systemName: "rectangle.portrait.tophalf.inset.filled").tag(PDFDisplayMode.singlePageContinuous)
+                       
+                         if document.sections.count > 1 {
+                         
+                             Image(systemName: "rectangle.portrait.split.2x1").tag(PDFDisplayMode.twoUp)
+                             
+                             Image(systemName: "inset.filled.topleft.rectangle.portrait").tag(PDFDisplayMode.twoUpContinuous)
+                         }
+                              
+                     }).pickerStyle(.segmented)
+          
+                     if (document.mergedPDFView.displayMode == .twoUpContinuous || document.displayMode == .twoUp) {
+                         Toggle("", systemImage: "book", isOn: $document.mergedPDFView.displaysAsBook).toggleStyle(.button)
+                     }
+
+                
+             
+                 Spacer()
+                 
+                 Text(String("Page \(document.selectedSections.first) of \(document.sections.count)"))
+                     .font(.subheadline)
+            Spacer(minLength: 10)
+            
         }
+        .background(Rectangle().foregroundColor(.black).opacity(0.50).cornerRadius(4))
         .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-        .padding(8)
+        .padding(.horizontal, 10)
+        .padding(.bottom, 4)
+
     }
 }
 
@@ -328,7 +363,7 @@ struct MergedDocumentView: NSViewRepresentable {
             name: Notification.Name.PDFViewPageChanged,
             object: document.mergedPDFView
         )
-        document.mergedPDFView.backgroundColor = .yellow
+        document.mergedPDFView.backgroundColor = .lightGray
         
         
         return document.mergedPDFView
@@ -344,7 +379,10 @@ struct MergedDocumentView: NSViewRepresentable {
 }
 
 #Preview {
-    //MergedDocumentHeader()
-    //    MergedDocumentView()
+    
+   
+//    MergedDocumentHeader()
+ //       MergedDocumentView()
     MergedDocumentFooter()
+   
 }

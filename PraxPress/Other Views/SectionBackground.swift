@@ -243,8 +243,8 @@ struct CollectionViewBackgroundView: View {
         .padding(0)
         .background(PraxGradient())
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.yellow, lineWidth: 5)
+            RoundedRectangle(cornerRadius: 5)
+                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
         )
  //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
  //           PraxModel.shared.acceptDrop(providers)

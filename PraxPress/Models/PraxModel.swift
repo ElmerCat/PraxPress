@@ -11,6 +11,30 @@ import UniformTypeIdentifiers
 
 //import Combine
 
+extension PDFDisplayMode {
+    var color: Color {
+        switch self {
+            
+        case .singlePage: return .pink
+        case .singlePageContinuous: return .blue
+        case .twoUp: return .orange
+        case .twoUpContinuous: return .yellow
+        default: return .black
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .singlePage: return "inset.filled.center.rectangle.portrait"
+        case .singlePageContinuous: return "inset.filled.center.rectangle.portrait"
+        case .twoUp: return "inset.filled.center.rectangle.portrait"
+        case .twoUpContinuous: return "inset.filled.center.rectangle.portrait"
+        default: return "inset.filled.center.rectangle.portrait"
+         }
+    }
+    
+}
+
 //@Model
 @Observable
 final class PraxModel {

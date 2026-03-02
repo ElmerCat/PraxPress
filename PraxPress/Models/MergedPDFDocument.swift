@@ -25,6 +25,17 @@ enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
         return v
     }()
     
+    var displayMode: PDFDisplayMode = .singlePageContinuous {
+        didSet {
+            mergedPDFView.displayMode = displayMode
+        }
+    }
+    var autoScales = true {
+        didSet {
+            mergedPDFView.autoScales = autoScales
+        }
+    }
+    
     var modelContext: ModelContext?
     var sections: [PDFPageSection] = [] {
         didSet {

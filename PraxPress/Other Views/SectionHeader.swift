@@ -76,75 +76,14 @@ struct SectionHeaderView: View {
     let pdfPageSection: PDFPageSection
     var isSelected: Bool
     
-
-    
-/*    func pdfPageItem() -> PDFPageItem? {
-        if indexPath.section >= 0,
-           indexPath.section < document.sections.count,
-           indexPath.item >= 0,
-           indexPath.item < document.sections[indexPath.section].pdfPageItems.count {
-            return document.sections[indexPath.section].pdfPageItems[indexPath.item]
-        } else {
-            return nil
-        }
-    }
-    
-    func pdfPageSection() -> PDFPageSection? {
-        if indexPath.section >= 0,
-           indexPath.section < document.sections.count {
-        return document.sections[indexPath.section]
-        }
-        else {
-            return nil
-        }
-    }
-    
-   enum DragState {
-        case inactive
-        case pressing
-        case dragging(translation: CGSize)
-        
-        var translation: CGSize {
-            switch self {
-            case .inactive, .pressing:
-                return .zero
-            case .dragging(let translation):
-                return translation
-            }
-        }
-        
-        var isActive: Bool {
-            switch self {
-            case .inactive:
-                return false
-            case .pressing, .dragging:
-                return true
-            }
-        }
-        
-        var isDragging: Bool {
-            switch self {
-            case .inactive, .pressing:
-                return false
-            case .dragging:
-                return true
-            }
-        }
-    }
-    @GestureState private var dragState = DragState.inactive {
-        didSet {
-            print ("GestureState - dragState: ", dragState)
-        }
-    }
-*/
     var body: some View {
         @Bindable var prax = praxModel
         
         let clickGesture = TapGesture()
             .onEnded { value in
                 print("View tapped! - \(pdfPageSection.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
+                clickedSectionHeader()
                 
-     //           PraxModel.shared.mergedPDFView.go(to: pdfPageSection.pdfPage!)
             }
          
         GroupBox {
@@ -214,6 +153,7 @@ struct SectionHeaderView: View {
         }
         else {
             print("Plain Click detected")
+            document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
         }
         
    //     if PraxModel.shared.selectedSections.contains(indexPath.section) {
