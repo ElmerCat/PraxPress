@@ -363,7 +363,7 @@ struct MergedDocumentView: NSViewRepresentable {
             name: Notification.Name.PDFViewPageChanged,
             object: document.mergedPDFView
         )
-        document.mergedPDFView.backgroundColor = .lightGray
+        document.mergedPDFView.backgroundColor = .mergedPDFViewBackground
         
         
         return document.mergedPDFView

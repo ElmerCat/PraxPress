@@ -13,11 +13,13 @@ import SwiftData
 
 struct MainSceneRoot: View {
 
-    @Environment(\.modelContext) private var modelContext
+    @Environment(PersistenceController.self) private var persistence
+//    @Environment(\.modelContext) private var modelContext
     @State private var praxModel = PraxModel()
     @State private var document = MergedPDFDocument()
-    @Query() var pdfFiles: [PDFFile]
-    
+ //   @Query() var pdfFiles: [PDFFile]
+ //   @Query() var pdfFileGroups: [PDFFileGroup]
+
     var body: some View {
         ContentView()
            
@@ -38,12 +40,14 @@ struct MainSceneRoot: View {
             .task {
                 praxModel.documment = document
                 document.prax = praxModel
-                document.modelContext = modelContext
-                document.pdfFiles = pdfFiles
+                document.persistence = persistence
+ //               document.pdfFiles = pdfFiles
+ //               document.pdfFileGroups = pdfFileGroups
             }
-            .onChange(of: pdfFiles) {
-                document.pdfFiles = pdfFiles
-            }
+  //          .onChange(of: pdfFiles) {
+  //              document.pdfFiles = pdfFiles
+  //              document.pdfFileGroups = pdfFileGroups
+  //          }
         
           //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
     }

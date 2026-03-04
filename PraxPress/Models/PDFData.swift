@@ -101,12 +101,6 @@ final class PDFPageItem: Identifiable, Equatable, Hashable {
     }
 }
 
-func isPDF(_ url: URL) -> Bool {
-    if let type = UTType(filenameExtension: url.pathExtension) {
-        return type.conforms(to: .pdf)
-    }
-    return url.pathExtension.lowercased() == "pdf"
-}
 
 
 struct EdgeTrims: Codable, Hashable {

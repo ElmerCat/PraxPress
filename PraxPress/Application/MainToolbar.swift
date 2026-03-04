@@ -11,10 +11,9 @@ import PDFKit
 
 struct MainToolbar: ToolbarContent {
     
-    @Environment(\.modelContext) private var modelContext
     @Environment(PraxModel.self) private var praxModel
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
-    
+    @Environment(PersistenceController.self) private var persistence
     
     var body: some ToolbarContent {
         @Bindable var prax = praxModel
@@ -52,6 +51,13 @@ struct MainToolbar: ToolbarContent {
             }
             Button {
                 prax.isLarge.toggle()
+                Task {
+                    do {
+                        await persistence.praxTest()
+                    }
+                }
+                
+                
             } label: {
                 Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
             }

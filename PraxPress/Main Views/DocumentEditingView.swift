@@ -22,49 +22,26 @@ struct DocumentEditingView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> NSSplitView {
         print("Nadine Peeler- DocumentEditingView makeNSView")
-        let split = NSSplitView()
-        split.delegate = context.coordinator
-   //     split.registerForDraggedTypes([.fileURL])
-        split.isVertical = true
-        split.dividerStyle = .thick
-        split.translatesAutoresizingMaskIntoConstraints = false
-        
-        //   prax.editingPDFView = PDFView()
-        //    prax.editingPDFView.pageOverlayViewProvider = context.coordinator
+        let splitView = NSSplitView()
+        context.coordinator.splitView = splitView
+        splitView.delegate = context.coordinator
+        splitView.isVertical = true
+        splitView.dividerStyle = .thick
+        splitView.translatesAutoresizingMaskIntoConstraints = false
         
         let thumbnailViewController = ThumbnailViewController(document, praxModel)
+        splitView.addArrangedSubview(thumbnailViewController.view)
+
+        let pagesViewController = PagesViewController(document)
         
+        splitView.addArrangedSubview(pagesViewController.view)
         
-        //      thumbnailController.pdfView = prax.editingPDFView
-        
-        //       context.coordinator.thumbnailController = thumbnailController
-        
-        split.addArrangedSubview(thumbnailViewController.view)
-        //     split.addArrangedSubview(prax.editingPDFView)
-        let pagesViewController = PagesViewController()
-        pagesViewController.document = document
-        
-        split.addArrangedSubview(pagesViewController.view)
-        
-        split.dividerStyle = .paneSplitter
-        //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultLow, forSubviewAt: 0)
-        //        split.setHoldingPriority(NSLayoutConstraint.Priority.defaultHigh, forSubviewAt: 1)
-        
-        //        split.setPosition(CGFloat(100), ofDividerAt: 0)
-        
-        // Initial divider position (thumbnail pane width ~180)
+        splitView.dividerStyle = .paneSplitter
+
         DispatchQueue.main.async {
-            let target: CGFloat = 150
-            split.setPosition(target, ofDividerAt: 0)
-            //    split.setPosition(target + 100, ofDividerAt: 1)
+            let target: CGFloat = 250
+            splitView.setPosition(target, ofDividerAt: 0)
         }
-        
-        /*NotificationCenter.default.addObserver(
-            context.coordinator,
-            selector: #selector(Coordinator.pageChanged(_:)),
-            name: Notification.Name.PDFViewPageChanged,
-            object: prax.editingPDFView
-        )*/
         
         NotificationCenter.default.addObserver(
             context.coordinator,
@@ -72,18 +49,7 @@ struct DocumentEditingView: NSViewRepresentable {
             name: .praxWidthGuideChanged,
             object: nil
         )
-        
-        
-        /*       DispatchQueue.main.async { [weak pdfView] in
-         if let v = pdfView {
-         print("Julie d'Prax")
-         onPDFViewReady(pdfView: v)
-         }
-         }
-         */
-        
-        
-        return split
+        return splitView
     }
     
     func updateNSView(_ split: NSSplitView, context: Context) {
@@ -91,17 +57,15 @@ struct DocumentEditingView: NSViewRepresentable {
     }
     
     final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate, NSDraggingDestination {
-        
+       
+        var splitView: NSSplitView?
         func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-            // Return .copy to show a "+" cursor if data is valid
             print("Coordinator - draggingEntered")
             return .copy
         }
         
         func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
             let pboard = sender.draggingPasteboard
-            
-            // Extract file URLs from the pasteboard
             if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
                 for url in urls {
                     print("Coordinator - Dropped file: \(url.path)")
@@ -110,13 +74,58 @@ struct DocumentEditingView: NSViewRepresentable {
             }
             return false // Drop rejected
         }
-        
-        
-        
+ 
+        func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
+            print("DocumentEditingView Coordinator - shouldCollapseSubview subview: ", subview, ", forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
+             return true
+        }
+        func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+            print("DocumentEditingView Coordinator - canCollapseSubview subview:  ", subview)
+            
+            return true
+        }
+
+/*
         func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-            //           print("splitView constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition)
+           print("DocumentEditingView Coordinator - constrain Min Coordinate proposedMinimumPosition: ", proposedMinimumPosition, ", ofSubviewAt dividerIndex: ", dividerIndex)
             return 100
         }
+        func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+            print("DocumentEditingView Coordinator - constrain Max Coordinate proposedMinimumPosition: ", proposedMaximumPosition)
+            return 500
+        }
+        func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+            print("DocumentEditingView Coordinator - constrainSplitPosition proposedPosition: ", proposedPosition, ", ofSubviewAt dividerIndex: ", dividerIndex)
+            return 250
+        }
+        func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
+            print("DocumentEditingView Coordinator - resizeSubviewsWithOldSize oldSize:  ", oldSize)
+        }
+        func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview view: NSView) -> Bool {
+            print("DocumentEditingView Coordinator - shouldAdjustSizeOfSubview view:  ", view)
+            return true
+        }
+ */
+        func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
+            print("DocumentEditingView Coordinator - shouldHideDividerAt dividerIndex: ", dividerIndex)
+            return true
+        }
+        func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
+            print("DocumentEditingView Coordinator - proposedEffectiveRect: ", proposedEffectiveRect, ", forDrawnRect: ", drawnRect, ", ofDividerAt dividerIndex: ", dividerIndex)
+            return proposedEffectiveRect
+        }
+        func splitView(_ splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex: Int) -> NSRect {
+            print("DocumentEditingView Coordinator - additionalEffectiveRectOfDividerAt dividerIndex:   ", dividerIndex)
+            return NSZeroRect
+        }
+        func splitViewWillResizeSubviews(_ notification: Notification) {
+            print("DocumentEditingView Coordinator - splitView Will ResizeSubviews")
+        }
+        func splitViewDidResizeSubviews(_ notification: Notification) {
+            print("DocumentEditingView Coordinator - splitView Did ResizeSubviews")
+        }
+        
+        
         
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
@@ -124,17 +133,14 @@ struct DocumentEditingView: NSViewRepresentable {
                   let page = pdfView.currentPage else { return }
             let idx = doc.index(for: page)
             print("DocumentEditingView Coordinator - changed to page:", idx)
-            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
        
         @objc func widthGuideChanged(_ note: Notification) {
             print("DocumentEditingView Coordinator - widthGuideChanged")
-            //       guard let pdfView = note.object as? PDFView else { return }
-            /*    DispatchQueue.main.async {
-             self.prax.editingPDFView.layoutDocumentView()
-             self.prax.editingPDFView.needsDisplay = true
-             
-             }*/
+            
+            let target: CGFloat = 250
+            splitView!.setPosition(target, ofDividerAt: 0)
+            
         }
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
@@ -168,7 +174,6 @@ struct DocumentEditingView: NSViewRepresentable {
                 let trim = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
                 print("DocumentEditingView Coordinator - trim l:", trim.left, " r:", trim.right, " b:", trim.bottom, " t:", trim.top)
                 
-                // var pdfPageItem = prax.pdfPageItem(for: pdfPage)!
                 pdfPageItem.trim = trim
             }
             
@@ -179,8 +184,8 @@ struct DocumentEditingView: NSViewRepresentable {
                 let cropInView = pdfView.convert(crop, from: pdfPage)
                 let cropInOverlay = view.convert(cropInView, from: pdfView)
                 view.clampRect = cropInOverlay
+
                 // Recompute visible using current trims
-                //                 fatalError()
                 let trim = pdfPageItem.trim
                 let visibleInPage = CGRect(
                     x: crop.minX + trim.left,
@@ -194,15 +199,14 @@ struct DocumentEditingView: NSViewRepresentable {
                 
                 view.needsDisplay = true
             }
-            
             return view
         }
     }
 }
+
 struct DocumentEditingToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    
     
     private func title(for mode: PDFDisplayMode) -> String {
         switch mode {
@@ -222,8 +226,7 @@ struct DocumentEditingToolbar: View {
                                         path: .always,
                                         query: .never,
                                         fragment: .never)
-    
-    
+ 
     var body: some View {
         @Bindable var prax = praxModel
         GroupBox {
@@ -254,46 +257,13 @@ struct DocumentEditingToolbar: View {
                     case .failure(let error):
                         print(error.localizedDescription)
                     }
-                    //            handleImportResult(result, forFiles:&prax.listOfFiles)
                 }
-                
-               
-               /* Spacer()
-                
-                Button {
-                    prax.isOn = true
-                } label: {
-                    Label(".pdf", systemImage: "arrow.right.doc.on.clipboard")
-                }
-                .disabled(prax.firstSelectedFileURL == nil)
-                .draggable({ () -> MergedPDFTransfer? in
-                    
-                    guard let data = prax.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: prax.exportFilename)
-                }()!, preview: {
-                    dragPreviewView
-                })
-                
-                
-                if prax.multipleFilesSelected {
-                    Button("", systemImage: "document.badge.gearshape", action: {prax.editingPDFDisplayMode = .singlePage}).disabled(prax.editingPDFDisplayMode == .singlePage)
-                }*/
-                
             }
             .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
             .padding(8)
             
         }
         .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
-        
-//        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
-//            acceptDrop(providers)
-//        }
-//        .onDropSessionUpdated({ dropSession in
-//            print("DocumentEditingToolbar - dropSessionUpdated phase: ", dropSession.phase)
-//        })
-        
-        
         
         .fileDialogDefaultDirectory(document.sourceFolderURL)
         .fileDialogMessage("Choose the Export Folder")
@@ -327,17 +297,7 @@ struct DocumentEditingToolbar: View {
         }
         
     }
-    
-    
-    
-    
-    
 }
-
-#Preview {
-    DocumentEditingToolbar()
-}
-
 
 struct DocumentEditingFooter: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
@@ -354,8 +314,6 @@ struct DocumentEditingFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         HStack {
-            
-            
             switch (document.selectedFiles.count) {
             case 0:
                 Text("No files selected")
@@ -364,11 +322,6 @@ struct DocumentEditingFooter: View {
             default:
                 Text("\(document.selectedFiles.count) Source files selected")
             }
-            //         Spacer()
-            //         if prax.selectedFiles.count > 0 {
-            //             Text("Save to file: \(prax.exportFileURL?.formatted(filenameStyle) ?? "")")
-            //
-            //         }
         }
         .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
         .padding(8)
@@ -378,7 +331,9 @@ struct DocumentEditingFooter: View {
 
 
 #Preview {
+    
     DocumentEditingToolbar()
     DocumentEditingView()
+    DocumentEditingFooter()
 }
 

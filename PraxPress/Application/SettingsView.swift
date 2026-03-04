@@ -12,6 +12,7 @@ import PDFKit
 struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
+    @Environment(PersistenceController.self) private var persistence
     
     @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
      
@@ -49,7 +50,8 @@ struct SettingsView: View {
                Text("pdfFileGroups: \(pdfFileGroups.count)")
                 Text("pdfFiles: \(pdfFiles.count)")
                Button("Erase All Data", action: eraseData)
-            }
+               Button("PraxTest", action: praxTest)
+      }
             
             Tab("Advanced", systemImage: "gearshape.fill", value: .advanced){
                 
@@ -61,6 +63,21 @@ struct SettingsView: View {
             .onAppear() {
                 configure()
             }
+    }
+    
+    func praxTest() {
+
+        print ("\nJulie d'Prax")
+        for pdfFile in pdfFiles {
+            print (pdfFile.fileName)
+        }
+        
+        print ("\nJuliette M. Belanger")
+        for pdfFileGroup in pdfFileGroups {
+            print (pdfFileGroup.name)
+        }
+       
+       
     }
     
     func eraseData() {

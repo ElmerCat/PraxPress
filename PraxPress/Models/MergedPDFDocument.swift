@@ -14,7 +14,9 @@ import UniformTypeIdentifiers
 enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
 @Observable @MainActor class MergedPDFDocument  {
+    
     var prax: PraxModel?
+    var persistence: PersistenceController?
     
     var mergedPDFView: PDFView = {
         let v = PDFView()
@@ -36,7 +38,7 @@ enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
         }
     }
     
-    var modelContext: ModelContext?
+    
     var sections: [PDFPageSection] = [] {
         didSet {
             print("sections didSet:  ", sections.count)
@@ -45,29 +47,35 @@ enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
         }
     }
     
+    var pdfFileGroups: [PDFFileGroup] = [] {
+        didSet {
+            print ("MergedPDFDocument pdfFileGroups didSet: ", pdfFiles.count)
+        }
+
+    }
     
     var pdfFiles: [PDFFile] = [] {
         didSet {
-            print ("PraxModel pdfFiles didSet: ", pdfFiles.count)
+            print ("MergedPDFDocument pdfFiles didSet: ", pdfFiles.count)
         }
     }
     
-    
+ //   @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     
     var selectedFiles = Set<PDFFile.ID>() {
         didSet {
-            print ("PraxModel selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
+            print ("MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
             //         isLoadingPDF = true
             //            selectedPageItems = []
             //           clearWidthGuide()
             
             
-            DispatchQueue.main.async {
+/*            DispatchQueue.main.async {
                 print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
                        self.setPageSectionsFromSelectedFiles()
                        self.refreshMergedDocument()
             }
-        }
+    */    }
     }
     
   

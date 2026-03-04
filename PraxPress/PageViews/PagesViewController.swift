@@ -15,9 +15,15 @@ import UniformTypeIdentifiers
 
 
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
-var document: MergedPDFDocument?
-  //  private var prax = PraxModel.shared
-    var thumbnailViewer = false
+    let document: MergedPDFDocument
+    init(_ document: MergedPDFDocument) {
+        self.document = document
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+  
     
     private var selectedSections = Set<Int>()
     
@@ -29,7 +35,7 @@ var document: MergedPDFDocument?
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
     private var observeDocumentChange: Task<Void, Never>?
     private var observeCurrentIndexChange: Task<Void, Never>?
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -44,14 +50,23 @@ var document: MergedPDFDocument?
         updateUI(animated: false)
         
         observeDocumentChange = Task {
-            for await _ in Observations({ self.document!.sections }) {
+            for await _ in Observations({ self.document.sections }) {
                 print("PagesViewController observeDocumentChange  ") //, document.sections)
                 updateUI()
             }
         }
+        
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ self.document!.selectedPageItems }) {
-                print("PagesViewController observeCurrentIndexChange  ", self.document!.selectedPageItems)
+            
+            for await _ in Observations({ self.document.selectedPageItems }) {
+                print("PagesViewController observeCurrentIndexChange  ", self.document.selectedPageItems)
+                await MainActor.run {
+                    self.safelyScrollTo(self.document.selectedPageItems, animated: true)
+                }
+            }
+            
+  /*          for await _ in Observations({ self.document.selectedPageItems }) {
+                print("PagesViewController observeCurrentIndexChange  ", self.document.selectedPageItems)
  
                 await NSAnimationContext.runAnimationGroup { context in
                     // Optional: set duration or timing function
@@ -59,19 +74,19 @@ var document: MergedPDFDocument?
                     context.allowsImplicitAnimation = true
                     
                     // Call through the animator() proxy
-                    collectionView.animator().scrollToItems(at: self.document!.selectedPageItems, scrollPosition: .top)
+                    collectionView.animator().scrollToItems(at: self.document.selectedPageItems, scrollPosition: .top)
                 }
                 
                 
-              /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
+              *  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
                         PraxModel.shared.editingPDFView.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                         
                     }
                 } */
-            }
         }
     }
+    
     
     private func createLayout() -> NSCollectionViewLayout {
        
@@ -127,7 +142,7 @@ var document: MergedPDFDocument?
             guard let self else { return nil }
             
             // Ensure section index is valid for current model snapshot
-            let sections = document!.sections
+            let sections = document.sections
             guard indexPath.section >= 0 && indexPath.section < sections.count else {
                 // The layout asked for a view that doesn’t match current state; return nil safely.
                 return nil
@@ -174,41 +189,78 @@ var document: MergedPDFDocument?
     
      func updateUI(animated: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-         let secs = document!.sections
-        secs.forEach {
+         let pdfPageSections = document.sections
+         pdfPageSections.forEach {
             snapshot.appendSections([$0])
             snapshot.appendItems($0.pdfPageItems)
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-         print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document!.selectedPageItems )
+         print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document.selectedPageItems )
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             if self.collectionView.selectionIndexPaths.isEmpty,
-               let firstSection = secs.first,
+               let firstSection = pdfPageSections.first,
                !firstSection.pdfPageItems.isEmpty {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
-                self.collectionView.scrollToItems(at: [firstIndexPath], scrollPosition: .top)
-                document!.selectedPageItems = self.collectionView.selectionIndexPaths
+                self.safelyScrollTo([firstIndexPath], animated: false)
+                document.selectedPageItems = self.collectionView.selectionIndexPaths
             }
-            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document!.selectedPageItems )
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document.selectedPageItems )
         }
         
         
     }
     
+    func safelyScrollTo(_ indexPaths: Set<IndexPath>, animated: Bool) {
+        guard isViewLoaded,
+              view.window != nil,
+              collectionView.superview != nil,
+              collectionView.enclosingScrollView != nil,
+              collectionView.enclosingScrollView?.contentView != nil,
+              !indexPaths.isEmpty
+        else {
+            print("PagesViewController safelyScrollTo failed isViewLoaded, etc.")
+            return }
+        
+        collectionView.layoutSubtreeIfNeeded()
+        
+        guard collectionView.bounds.size.width > 0 && collectionView.bounds.size.height > 0 else {
+            print("PagesViewController safelyScrollTo failed collectionView.bounds.size")
+            return
+        }
+        
+        for indexPath in indexPaths {
+            if collectionView.layoutAttributesForItem(at: indexPath) == nil {
+                print("PagesViewController safelyScrollTo failed layoutAttributesForItem(at: ", indexPath)
+                    // The layout doesn’t currently know this item (e.g., snapshot not applied yet)
+                return
+            }
+        }
+
+        if animated {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.8
+                context.allowsImplicitAnimation = true
+                collectionView.animator().scrollToItems(at: indexPaths, scrollPosition: .top)
+            }
+        } else {
+            collectionView.scrollToItems(at: indexPaths, scrollPosition: .top)
+        }
+    }
+    
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
         
-        document!.selectedPageItems = collectionView.selectionIndexPaths
+        document.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didDeselectItemsAt indexPaths ", indexPaths)
-        document!.selectedPageItems = collectionView.selectionIndexPaths
+        document.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     
@@ -217,7 +269,7 @@ var document: MergedPDFDocument?
 
 #Preview {
  
-    PagesViewController()
+//    PagesViewController()
     
 }
 

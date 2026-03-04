@@ -14,7 +14,11 @@ import Carbon.HIToolbox
 @main
 struct PraxPressApp: App {
     
+    private let persistence: PersistenceController
+
     init() {
+        self.persistence = PersistenceController(modelContainer: modelContainer)
+
         try? Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
         try? Tips.resetDatastore()
         // Initializes TipKit with default settings
@@ -33,6 +37,7 @@ struct PraxPressApp: App {
         WindowGroup(id: "main") {
             MainSceneRoot()
                 .environment(\.modelContext, modelContainer.mainContext)
+                .environment(persistence)
                 .background(
                     WindowReader { window in
                         WindowCoordinator.shared.attachIfPending(newWindow: window)
@@ -69,6 +74,7 @@ struct PraxPressApp: App {
         Settings {
             SettingsView()
                 .environment(\.modelContext, modelContainer.mainContext)
+                .environment(persistence)
         }
     }
 }

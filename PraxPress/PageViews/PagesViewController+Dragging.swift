@@ -40,14 +40,14 @@ extension PagesViewController {
         let typeIdentifier = UTType(filenameExtension: "pdf")
         
         let provider = FilePromiseProvider()
-        provider.pdfDocument = document!.mergedPDFDocument
+        provider.pdfDocument = document.mergedPDFDocument
         provider.fileName = "PraxPress-Page.pdf"
         provider.fileType = typeIdentifier!.identifier
         provider.delegate = provider
         // Send out the indexPath and photo's url dictionary.
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document!.mergedPDFURL as Any,
+            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document.mergedPDFURL as Any,
                                   FilePromiseProvider.UserInfoKeys.indexPathKey: data]
         } catch {
             fatalError("failed to archive indexPath to pasteboard")
@@ -179,7 +179,7 @@ extension PagesViewController {
         
         Task {
             do {
-                try await document!.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
+                try await document.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
             } catch let error {
                 print("Julie d Prax", urls, "Error: ", error)
                 
@@ -283,7 +283,7 @@ extension PagesViewController {
             
             Task {
                 do {
-                    try await self.document!.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
+                    try await self.document.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
                 } catch let error {
                     print("Julie d Prax", urls, "Error: ", error)
                     
@@ -324,7 +324,7 @@ extension PagesViewController {
                     } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                     
                     print ("elf.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                    self.document!.movePDFPageItems(draggedItems, to: indexPath)
+                    self.document.movePDFPageItems(draggedItems, to: indexPath)
                     self.updateUI()
                 }
             })

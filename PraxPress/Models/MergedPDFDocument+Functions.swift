@@ -23,10 +23,16 @@ extension MergedPDFDocument {
     }
    
     func deleteSelectedFilesFromDatabase() {
-        selectedFiles.forEach({ id in
-            let pdfFile = pdfFiles.first(where: { $0.id == id })!
-            modelContext!.delete(pdfFile)
-        })
+        print("deleteSelectedFilesFromDatabase()")
+        let filesToDelete = selectedFiles
+        Task {
+            do {
+                try await persistence!.deletePDFFiles(filesToDelete)
+            } catch {
+                // Handle or present the error appropriately
+                print("Failed to delete files: \(error)")
+            }
+        }
         selectedFiles.removeAll()
     }
     
@@ -373,6 +379,43 @@ extension MergedPDFDocument {
         }
     }
     
+    
+    func addPageSectionFromURLBookmark(url: URL, bookmarkData: Data?) {
+        var url: URL = url
+        var pdfDocument: PDFDocument
+        if let bookmarkData {
+            var isStale = false
+            guard let bookmarkURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+                fatalError("Failed to resolve bookmark")
+            }
+            url = bookmarkURL
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            guard let bookmarkPDFDocument = PDFDocument(url: url) else { fatalError("Failed to open bookmarkPDFDocument at \(url)")
+            }
+            pdfDocument = bookmarkPDFDocument
+        }
+        else {
+            guard let urlPDFDocument = PDFDocument(url: url) else { fatalError("Failed to open bookmarkPDFDocument at \(url)")
+            }
+            pdfDocument = urlPDFDocument
+        }
+        var pages: [PDFPageItem] = []
+            let sectionName = url.deletingPathExtension().lastPathComponent
+        for i in 0..<pdfDocument.pageCount {
+            guard let pdfDocumentPage = pdfDocument.page(at: i)  else { fatalError("No document.page(at: \(i)") }
+            pages.append(PDFPageItem(
+                document: self,
+                name: "\(sectionName) - Page \(i + 1)",
+                pdfPage: pdfDocumentPage //,
+            ))
+        }
+        sections.append(PDFPageSection(document: self, title: sectionName, pdfPageItems: pages))
+        refreshMergedDocument()
+
+        
+    }
+    
     func addPageSectionFromPDFFile(pdfFile: PDFFile) {
 
         guard let doc = PDFDocument(url: pdfFile.url) else { fatalError("Failed to open PDFDocument at \(pdfFile.url)") }
@@ -391,7 +434,7 @@ extension MergedPDFDocument {
 
     }
     
-    func setPageSectionsFromSelectedFiles() {
+/*    func setPageSectionsFromSelectedFiles() {
         let entries: [PDFFile] = selectedFiles.compactMap { id in
             pdfFiles.first(where: { $0.id == id })
         }
@@ -430,7 +473,7 @@ extension MergedPDFDocument {
             refreshMergedDocument()
         }
     }
-    
+ */
     
     func mergeDocumentPagesForSections() -> PDFDocument {
         

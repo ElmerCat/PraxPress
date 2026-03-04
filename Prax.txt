@@ -15,3 +15,92 @@ If you don't see all those files now, or later in the conversation, please tell 
 
 
 Main actor-isolated conformance of 'PDFPageItem' to 'Equatable' cannot be used in nonisolated context; this is an error in the Swift 6 language mode
+
+
+Below is a skeleton of how my app is currently structured.
+
+The App creates the modelContainer and main modelContext, passing them into the Environment.
+
+The MainSceneRoot instantiates 2 Observable classes and passes them into the Environment for the ContentView. It also makes 2 Querys from the modelContext. It adds a task to ContentView which passes the results to the 2 classes, and update them when they change.
+
+ContentView and subviews pull the modelContext and the 2 class instances from the Environment.
+
+So then, where is the best place for functions which will be adding items to the modelContext? A SwiftUI view structure or a class instance?
+
+
+@main
+struct PraxPressApp: App {
+
+    private let modelContainer: ModelContainer = {
+        let schema = Schema([PDFFile.self, PDFFileGroup.self])
+        let config = ModelConfiguration() // customize if needed
+        return try! ModelContainer(for: schema, configurations: [config])
+    }()
+
+    var body: some Scene {
+        WindowGroup(id: "main") {
+            MainSceneRoot()
+                .environment(\.modelContext, modelContainer.mainContext)
+                .background(
+                    WindowReader { window in
+                        WindowCoordinator.shared.attachIfPending(newWindow: window)
+                    }
+                )
+       }
+}
+
+struct MainSceneRoot: View {
+
+    @Environment(\.modelContext) private var modelContext
+    @State private var praxModel = PraxModel()
+    @State private var document = MergedPDFDocument()
+    @Query() var pdfFiles: [PDFFile]
+    @Query() var pdfFileGroups: [PDFFileGroup]
+
+    var body: some View {
+        ContentView()
+            .environment(document)
+            .environment(praxModel)
+            .onModifierKeysChanged(mask: .option) { old, new in
+                if new.isEmpty {
+                    praxModel.optionKeyPressed = false
+                    // Option key released
+                    print("Option key released")
+                }
+                else if new.contains(.option) {
+                    praxModel.optionKeyPressed = true
+                    // Option key pressed
+                    print("Option key pressed")
+                }
+            }
+            .task {
+                praxModel.documment = document
+                document.prax = praxModel
+                document.modelContext = modelContext
+                document.pdfFiles = pdfFiles
+                document.pdfFileGroups = pdfFileGroups
+            }
+            .onChange(of: pdfFiles) {
+                document.pdfFiles = pdfFiles
+                document.pdfFileGroups = pdfFileGroups
+            }
+    }
+}
+
+struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        if prax.praxPressMode == .data {
+            SourceFilesView()
+        }
+        else {
+             ContentDetailView()
+        }
+    //  etc., etc..
+    }
+}
