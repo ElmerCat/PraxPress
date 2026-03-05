@@ -22,9 +22,9 @@ struct MainSceneRoot: View {
 
     var body: some View {
         ContentView()
-            .modifier(PerWindowModelContainer(container: windowStore?.container))
             .environment(document)
             .environment(praxModel)
+            .environment(\.perWindowModelContainer, windowStore?.container)
             .onModifierKeysChanged(mask: .option) { old, new in
                 if new.isEmpty {
                     praxModel.optionKeyPressed = false
@@ -88,13 +88,13 @@ struct MainCommands: Commands {
     }
 }
 
-private struct PerWindowModelContainer: ViewModifier {
-    let container: ModelContainer?
-    func body(content: Content) -> some View {
-        if let container {
-            content.modelContainer(container)
-        } else {
-            content
-        }
+private struct PerWindowModelContainerKey: EnvironmentKey {
+    static let defaultValue: ModelContainer? = nil
+}
+
+extension EnvironmentValues {
+    var perWindowModelContainer: ModelContainer? {
+        get { self[PerWindowModelContainerKey.self] }
+        set { self[PerWindowModelContainerKey.self] = newValue }
     }
 }

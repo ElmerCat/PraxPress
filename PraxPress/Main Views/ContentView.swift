@@ -16,12 +16,19 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
+    @Environment(\.perWindowModelContainer) private var perWindowContainer
+    @State private var effectivePerWindowContainer: ModelContainer? = nil
    
     var body: some View {
         @Bindable var prax = praxModel
 
         
         let _ = Self._printChanges()
+        
+        // Determine effective per-window container once the view appears
+        let _ = {
+            // no-op placeholder to keep structure; actual assignment in onAppear below
+        }()
         
         GeometryReader { proxy in
             HStack(spacing: 0) {
@@ -36,28 +43,50 @@ struct ContentView: View {
                     }
                     content: {
                         
+                        if let container = effectivePerWindowContainer {
+                            ContentDetailView()
+                                .modelContainer(container)
+                                .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                        } else {
                             ContentDetailView()
                                 .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-
+                        }
                         
                     }
                     detail: {
                         
-                            VStack {
-                                MergedDocumentToolbar()
-                                MergedDocumentView()
-                                MergedDocumentFooter()
-                                //       .alert(isPresented: $prax.isLarge) {
-                                //           Alert(title: Text("Order Complete"),
-                                //                 message: Text("Thank you for shopping with us."),
-                                //                 dismissButton: .default(Text("OK")))   }
-                            }
-                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-                       
+                        let detailStack = VStack {
+                            MergedDocumentToolbar()
+                            MergedDocumentView()
+                            MergedDocumentFooter()
                         }
+                        .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                        
+                        if let container = effectivePerWindowContainer {
+                            detailStack
+                                .modelContainer(container)
+                        } else {
+                            detailStack
+                        }
+                       
+                    }
                 }
             }
             .background(Color.indigo.opacity(0.5))
+        }
+        .onAppear {
+            // Prefer the provided per-window container; fall back to current environment's container if available
+            if effectivePerWindowContainer == nil {
+                effectivePerWindowContainer = perWindowContainer ?? modelContext.container
+                
+                #if DEBUG
+                if perWindowContainer == nil {
+                    print("[ContentView] perWindowContainer was nil; using environment container: \(String(describing: modelContext.container))")
+                } else {
+                    print("[ContentView] Using provided per-window container: \(String(describing: perWindowContainer))")
+                }
+                #endif
+            }
         }
         .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
         .onGeometryChange(for: CGFloat.self) {  windowGeometry in
