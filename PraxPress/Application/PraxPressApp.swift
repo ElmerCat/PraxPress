@@ -14,10 +14,10 @@ import Carbon.HIToolbox
 @main
 struct PraxPressApp: App {
     
-    private let persistence: PersistenceController
+    private let persistence: FilesPersistenceController
 
     init() {
-        self.persistence = PersistenceController(modelContainer: modelContainer)
+        self.persistence = FilesPersistenceController(modelContainer: modelContainer)
 
         try? Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
         try? Tips.resetDatastore()

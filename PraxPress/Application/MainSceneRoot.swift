@@ -12,7 +12,7 @@ import Foundation
 
 struct MainSceneRoot: View {
 
-    @Environment(PersistenceController.self) private var persistence
+    @Environment(FilesPersistenceController.self) private var persistence
 //    @Environment(\.modelContext) private var modelContext
     @State private var praxModel = PraxModel()
     @State private var document = MergedPDFDocument()

@@ -338,7 +338,7 @@ This keeps each @Query bound to the correct container by scoping the environment
 
 Bridging into MergedPDFDocument
 
-You already set document.windowModelContext = modelContext in the editor subtree. Continue to do that so MergedPDFDocument can mutate per-window models. For global operations, keep using your app-level PersistenceController / @Environment(\.modelContext) in views that sit outside the per-window subtree.
+You already set document.windowModelContext = modelContext in the editor subtree. Continue to do that so MergedPDFDocument can mutate per-window models. For global operations, keep using your app-level FilesPersistenceController / @Environment(\.modelContext) in views that sit outside the per-window subtree.
 
 Summary
 
@@ -431,27 +431,27 @@ In summary:
 ************************************************************************************************************************
 ************************************************************************************************************************
 
-Currently, the PersistenceController performs all insertion and deletion of items in the global store.  Should I create a separate  persistence controller for the per-window store, or perhaps employ MergedPDFDocument for such things?
+Currently, the FilesPersistenceController performs all insertion and deletion of items in the global store.  Should I create a separate  persistence controller for the per-window store, or perhaps employ MergedPDFDocument for such things?
 
 ************************************************************************************************************************
 
 Great question. You have two distinct data domains now:
 
-• Global, app-wide data (e.g., PDFFile, PDFFileGroup) managed by your existing PersistenceController.
+• Global, app-wide data (e.g., PDFFile, PDFFileGroup) managed by your existing FilesPersistenceController.
 • Window-scoped editing data (PDFPageSectionModel, PDFPageItemModel) that should be isolated per window/tab.
 
 You have a few good options. Here’s how I’d think about it and what I recommend.
 
 Options
 
-1. Keep a single global PersistenceController and do not extend it to per-window
-• Continue using your current PersistenceController for global models only.
+1. Keep a single global FilesPersistenceController and do not extend it to per-window
+• Continue using your current FilesPersistenceController for global models only.
 • Treat the per-window container as a separate persistence surface and avoid threading it through the global controller.
 • For per-window operations, work with the per-window ModelContext directly (best done via a small helper or by letting MergedPDFDocument orchestrate it).
 
 Pros:
 • Clear separation of concerns: global vs. per-window.
-• Avoids overloading your global PersistenceController with responsibilities it shouldn’t have.
+• Avoids overloading your global FilesPersistenceController with responsibilities it shouldn’t have.
 • Keeps the window’s lifecycle (creation/destruction) independent.
 
 Cons:
@@ -463,7 +463,7 @@ Cons:
 
 Pros:
 • Keeps persistence logic out of MergedPDFDocument.
-• Neatly mirrors your global PersistenceController, but scoped to the window.
+• Neatly mirrors your global FilesPersistenceController, but scoped to the window.
 • Makes testing and future document-based migration simpler.
 
 Cons:
@@ -485,14 +485,14 @@ Recommendation
 
 Given your current structure, I recommend a hybrid of (1) and (3):
 
-• Keep your global PersistenceController focused on global models only.
+• Keep your global FilesPersistenceController focused on global models only.
 • For per-window editing, let MergedPDFDocument orchestrate CRUD using its windowModelContext, but keep the methods small and focused (like your existing addPageItem helper).
 • If the set of operations grows or you want better testability/reuse, you can extract these methods into a small WindowPersistence helper later without changing call sites much.
 
 This fits your current code well:
 • You already inject windowModelContext into MergedPDFDocument.
 • Your views can call simple methods on MergedPDFDocument to mutate the per-window store.
-• The global store remains managed exclusively by PersistenceController.
+• The global store remains managed exclusively by FilesPersistenceController.
 
 Practical shape
 
@@ -507,7 +507,7 @@ Practical shape
    • Keep using @Query in the global subtree for PDFFile, PDFFileGroup.
 
 This keeps the mental model clean:
-• Global data: PersistenceController.
+• Global data: FilesPersistenceController.
 • Per-window editing: MergedPDFDocument + windowModelContext.
 
 Example helper sketches in MergedPDFDocument

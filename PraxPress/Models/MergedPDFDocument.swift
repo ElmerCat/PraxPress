@@ -12,14 +12,13 @@ import UniformTypeIdentifiers
 import Foundation
 
 
-enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
 @Observable @MainActor class MergedPDFDocument {
     // Window-scoped SwiftData context for PDFPageSectionModel/PDFPageItemModel
     var windowModelContext: ModelContext?
     
     var prax: PraxModel?
-    var persistence: PersistenceController?
+    var persistence: FilesPersistenceController?
     
     var mergedPDFView: PDFView = {
         let v = PDFView()

@@ -12,7 +12,7 @@ import PDFKit
 struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
-    @Environment(PersistenceController.self) private var persistence
+    @Environment(FilesPersistenceController.self) private var persistence
     
     @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
      

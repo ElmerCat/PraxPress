@@ -13,7 +13,7 @@ struct MainToolbar: ToolbarContent {
     
     @Environment(PraxModel.self) private var praxModel
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
-    @Environment(PersistenceController.self) private var persistence
+    @Environment(FilesPersistenceController.self) private var persistence
     
     var body: some ToolbarContent {
         @Bindable var prax = praxModel

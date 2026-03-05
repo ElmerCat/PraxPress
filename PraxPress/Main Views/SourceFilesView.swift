@@ -147,7 +147,7 @@ struct SourceFilesView: View {
     
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     //   @State private var prax = PraxModel.shared
-    @Environment(PersistenceController.self) private var persistence
+    @Environment(FilesPersistenceController.self) private var persistence
     @Environment(PraxModel.self) private var praxModel
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
