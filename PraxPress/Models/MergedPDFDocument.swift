@@ -9,11 +9,14 @@ import SwiftUI
 import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
+import Foundation
 
 
 enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
 
-@Observable @MainActor class MergedPDFDocument  {
+@Observable @MainActor class MergedPDFDocument {
+    // Window-scoped SwiftData context for PDFPageSectionModel/PDFPageItemModel
+    var windowModelContext: ModelContext?
     
     var prax: PraxModel?
     var persistence: PersistenceController?
@@ -122,6 +125,30 @@ enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
             else {
                 print ("Merged Document Refreshed") }
         }
+    }
+    
+    // MARK: - Window-scoped SwiftData helpers
+    /// Example: Add a page item to a section in the per-window SwiftData store.
+    func addPageItem(to pageSection: PDFPageSectionModel,
+                     name: String,
+                     aspectRatio: CGFloat,
+                     trims: EdgeTrims,
+                     merge: MergeMode) {
+        guard let ctx = windowModelContext else { return }
+        let pageItem = PDFPageItemModel(
+            name: name,
+            aspectRatio: Double(aspectRatio),
+            trimLeft: Double(trims.left),
+            trimRight: Double(trims.right),
+            trimTop: Double(trims.top),
+            trimBottom: Double(trims.bottom),
+            mergeModeRaw: merge.rawValue
+        )
+        pageItem.pageSection = pageSection
+        ctx.insert(pageItem)
+        do { try ctx.save() } catch { print("Window context save failed: \(error)") }
+        // Keep your existing pipeline
+        refreshMergedDocument()
     }
     
 

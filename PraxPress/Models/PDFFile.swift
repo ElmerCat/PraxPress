@@ -70,9 +70,7 @@ final class PDFFile {
 final class PDFFileGroup {
     @Attribute(.unique) var name: String
     @Relationship(deleteRule: .cascade, inverse: \PDFFile.fileGroup)
-    
-    
-    var pdfFiles: [PDFFile] = []
+     var pdfFiles: [PDFFile] = []
     
     init(name: String) {
         self.name = name

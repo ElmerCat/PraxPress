@@ -104,3 +104,639 @@ struct ContentView: View {
     //  etc., etc..
     }
 }
+
+
+
+
+
+
+
+
+
+3/5/2026
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+Your error was attempting to apply @Relationship to the PDFPageItemModel,pageSection.  It's only used from the on-to-many side on PDFPageSectionModel. The code compiles fine now.
+
+But now, Querys within views aren't working correctly.  When the app launches, SourceFilesView displays items in PDFFilesList for just an instant, and then they disappear.
+
+************************************************************************************************************************
+
+Thanks for the update — great to hear the models compile after keeping the relationship only on the one-to-many side (PDFPageSectionModel.pageItems) and removing the inverse from PDFPageItemModel. That’s a perfectly valid approach and it neatly avoids the macro issue you were hitting.
+
+Now, about the new symptom: your @Query results in SourceFilesView briefly appear and then disappear. Since the queries in this view are for PDFFileGroup and PDFFile (your global app-wide models), and we recently introduced a per-window SwiftData container for window-scoped models, the most likely cause is an environment container switch or an accidental override of the global container in the scene where SourceFilesView lives.
+
+Here’s a structured checklist and fixes.
+
+What’s likely happening
+
+• You now inject a per-window container via .modelContainer(store.container) at or near the scene’s root (in MainSceneRoot).
+• If SourceFilesView (or its ancestors in the same hierarchy) end up inside a view tree that has only the per-window container, then @Query for PDFFile / PDFFileGroup will query the wrong container — a container that doesn’t have those models — and return an empty result after the first environment pass.
+• At app launch, you may momentarily see results from the global container, then once the per-window container is injected, the environment model container changes and the queries re-evaluate to empty.
+
+In short: two containers exist — one global (app-wide data), one per-window (editing state). If the per-window container shadows the global one for a view that expects global data, queries will go empty.
+
+Fix options
+
+You have two main ways to fix this cleanly:
+
+Option A: Keep both containers in the same view tree
+• Attach the global container at the app level (as you already do in PraxPressApp).
+• Attach the per-window container only to the subtree that needs it (e.g., your editor UI), not to the entire window root that also hosts SourceFilesView.
+• That way, SourceFilesView continues to inherit the global container from above, while your editor UI inherits the per-window container inside its own sub-tree.
+
+Concretely:
+• In MainSceneRoot, avoid applying .modelContainer(store.container) directly to the topmost ContentView() if that content includes SourceFilesView.
+• Instead, wrap only the editing-related subviews (that use PDFPageSectionModel / PDFPageItemModel) in a container injection.
+
+Example:
+
+
+
+ContentView()
+    // Don’t put .modelContainer(store.container) here if ContentView contains SourceFilesView
+    .environment(document)
+    .environment(praxModel)
+    
+    
+Then, inside your editor UI sub-tree:
+    
+ EditorHostView()
+    .modelContainer(windowStore.container) // Only the editor gets the per-window container
+    
+This prevents the per-window container from overriding the environment container for SourceFilesView.
+
+Option B: Use two separate scenes (recommended for clarity)
+• Keep your main scene (that shows SourceFilesView) using the global container only.
+• Open a separate window/tab/scene for the editor, and inject only the per-window container there.
+• Your MainCommands already opens a “main” window/tab; add another scene identifier for the editor window that uses WindowEditingStore and .modelContainer(store.container).
+
+This isolates concerns neatly: main scene = global data, editor scene = per-window editing data.
+
+Additional tips to diagnose
+
+• Log which container is active: in SourceFilesView.onAppear, you already log the modelContext’s identity. Add a quick check to see which ModelContainer it’s bound to, or log a fetch of the schema to ensure it includes PDFFile and PDFFileGroup.
+• Confirm that SourceFilesView is not wrapped by .modelContainer(windowStore.container) anywhere up the tree.
+
+Minimal change suggestion
+
+Given your current structure, the smallest change is to scope the per-window container to the editor-only subtree. You can keep the PerWindowModelContainer view modifier you added, but apply it to the editor host instead of the ContentView() in MainSceneRoot.
+
+For example, if your ContentView embeds both the source files panel and an editor area, wrap just the editor part:
+    
+ // Pseudocode inside ContentView body:
+HStack {
+    SourceFilesView() // inherits global container (queries work)
+    EditorAreaView()
+        .modelContainer(windowStore.container) // per-window container only here
+}
+
+And ensure document.windowModelContext is set from that editor subtree’s environment (@Environment(\.modelContext)).
+
+Why this fixes the disappearing list
+
+When the app launches, the global container feeds @Query for PDFFile and PDFFileGroup. If you then attach a different container at or above SourceFilesView, SwiftUI re-evaluates @Query against the new container, which doesn’t include those models, causing the results to become empty.
+
+By scoping the per-window container to only the editor subtree, SourceFilesView continues to use the global container, and the list remains stable.
+
+If you want me to apply a scoped injection
+
+If you share where your editor UI is anchored (e.g., an EditorHostView or similar), I can:
+• Move .modelContainer(windowStore.container) down to that specific subtree.
+• Ensure MergedPDFDocument.windowModelContext is set from the editor subtree’s modelContext.
+
+This will keep SourceFilesView querying your global data correctly while the editor uses the per-window container for PDFPageSectionModel/PDFPageItemModel.
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+Views need to access items from both containers.
+
+************************************************************************************************************************
+
+ You can let views access models from both containers by scoping each container to a different subtree and explicitly reading from the desired ModelContext when needed. SwiftData’s @Query always uses the nearest modelContainer in the environment; it can’t query two containers at once. But you can:
+
+• Keep the global container at the app level (for PDFFile/PDFFileGroup).
+• Inject the per-window container only on the editor subtree (for PDFPageSectionModel/PDFPageItemModel).
+• In views that need both, read one set via @Query (nearest container) and fetch the other using an explicit ModelContext reference you pass down via environment or a parameter.
+
+Below are two patterns that work well.
+
+Pattern A: Scope containers to subtrees and pass down an explicit context
+
+1. App-level: inject the global container (you already do this in PraxPressApp).
+
+2. In your window root (e.g., MainSceneRoot or ContentView), scope the per-window container to the editor subtree only:
+    
+HStack {
+    // Left: source files, uses global container
+    SourceFilesView()
+
+    // Right: editor area, uses per-window container
+    EditorAreaView()
+        .modelContainer(windowStore.container) // Only editor subtree gets per-window container
+}
+
+3. In a view that needs both (e.g., a composite view that hosts both source files and editor controls), pass the per-window ModelContext explicitly as a parameter or via a custom environment key:
+
+struct EditorAreaView: View {
+    @Environment(\.modelContext) private var windowContext // per-window context
+    var body: some View {
+        EditorContent()
+            .environment(\.perWindowModelContext, windowContext) // custom key or pass as parameter
+    }
+}
+
+Define a custom environment key to hold the per-window context:
+
+private struct PerWindowModelContextKey: EnvironmentKey {
+    static let defaultValue: ModelContext? = nil
+}
+
+extension EnvironmentValues {
+    var perWindowModelContext: ModelContext? {
+        get { self[PerWindowModelContextKey.self] }
+        set { self[PerWindowModelContextKey.self] = newValue }
+    }
+}
+
+Now, in a view that needs both:
+• Use @Query (global) for PDFFile/PDFFileGroup.
+• Use the explicit perWindowModelContext to fetch or mutate PDFPageSectionModel/PDFPageItemModel.
+
+Example:
+
+struct DualContainerView: View {
+    // Global queries (nearest container = app/global)
+    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
+    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+
+    // Explicit per-window context
+    @Environment(\.perWindowModelContext) private var perWindowContext
+
+    var body: some View {
+        VStack {
+            // Use pdfFiles / pdfFileGroups from global container
+            List(pdfFiles) { file in Text(file.fileName) }
+
+            Button("Add Section (per-window)") {
+                guard let ctx = perWindowContext else { return }
+                let section = PDFPageSectionModel(title: "Untitled")
+                ctx.insert(section)
+                try? ctx.save()
+            }
+
+            Button("Fetch Sections (per-window)") {
+                guard let ctx = perWindowContext else { return }
+                let descriptor = FetchDescriptor<PDFPageSectionModel>()
+                let sections = try? ctx.fetch(descriptor)
+                print("Per-window sections:", sections?.count ?? 0)
+            }
+        }
+    }
+}
+
+This way, the view can interact with both stores: global via @Query, per-window via the explicit ModelContext.
+
+Pattern B: Two child subviews, each with its own container
+
+If a view truly must render live-updating lists from both containers simultaneously, split the UI into two child views, each with its own @Query bound to its container:
+
+struct DualListsView: View {
+    var body: some View {
+        HStack {
+            // Global list
+            GlobalFilesList()
+
+            // Per-window list
+            PerWindowSectionsList()
+                .modelContainer(windowStore.container) // Scoped to this subtree only
+        }
+    }
+}
+
+struct GlobalFilesList: View {
+    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+    var body: some View {
+        List(pdfFiles) { Text($0.fileName) }
+    }
+}
+
+struct PerWindowSectionsList: View {
+    @Query(sort: \PDFPageSectionModel.title) private var sections: [PDFPageSectionModel]
+    var body: some View {
+        List(sections) { Text($0.title) }
+    }
+}
+
+This keeps each @Query bound to the correct container by scoping the environment properly.
+
+Bridging into MergedPDFDocument
+
+You already set document.windowModelContext = modelContext in the editor subtree. Continue to do that so MergedPDFDocument can mutate per-window models. For global operations, keep using your app-level PersistenceController / @Environment(\.modelContext) in views that sit outside the per-window subtree.
+
+Summary
+
+• @Query uses the nearest modelContainer. You can’t bind a single @Query to two containers.
+• To access both:
+   • Scope the per-window container to the editor subtree.
+   • Use @Query for the container you want nearest.
+   • Pass the other container’s ModelContext explicitly (via environment or parameter) and perform fetches/mutations manually where needed.
+• Alternatively, split UI into subviews, each with its own container and @Query.
+
+If you’d like, I can help you:
+• Add the custom environment key (perWindowModelContext) in a shared file.
+• Move .modelContainer(windowStore.container) to the editor subtree in your actual ContentView/MainSceneRoot structure.
+• Adjust a specific view (e.g., SourceFilesView) to fetch per-window data using the explicit context while keeping its @Query bound to the global container.
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+In MainSceneRoot line 25, how exactly does .modifier work?
+
+************************************************************************************************************************
+
+View.modifier(_:) applies a custom transformation to a view by wrapping it in a type that conforms to ViewModifier. It’s a general-purpose way to bundle and reuse a set of view changes. In your file, you’re using it to conditionally attach a SwiftData ModelContainer to the view hierarchy.
+
+Here’s what’s happening at line 25:
+
+• ContentView() produces a view.
+• .modifier(PerWindowModelContainer(container: windowStore?.container)) applies your custom PerWindowModelContainer modifier to that view.
+• The modifier’s body(content:) decides whether to call .modelContainer(container) (injecting the per-window SwiftData container) or just return the content unchanged.
+
+So, at a high level:
+• If windowStore?.container exists, the modifier returns content.modelContainer(container) — this means the environment for ContentView and its descendants will use the per-window container.
+• If it’s nil, it just returns content as-is — the view keeps whatever model container is already in the environment (e.g., your global one from the app).
+
+Breaking it down:
+
+1. Your modifier type
+ 
+ private struct PerWindowModelContainer: ViewModifier {
+    let container: ModelContainer?
+    func body(content: Content) -> some View {
+        if let container {
+            content.modelContainer(container)
+        } else {
+            content
+        }
+    }
+}
+ 
+• Content is the view the modifier is applied to (here, ContentView()).
+• The modifier returns a new view that either wraps content with .modelContainer(container) or returns content unchanged.
+
+2. Applying the modifier
+    
+ContentView()
+    .modifier(PerWindowModelContainer(container: windowStore?.container))
+    
+• This is equivalent to:
+   • If windowStore?.container != nil: ContentView().modelContainer(windowStore!.container)
+   • Else: ContentView()
+
+3. Why use a modifier here?
+• You want to conditionally apply .modelContainer(...). SwiftUI modifiers like .modelContainer aren’t optional by themselves, so using a ViewModifier lets you encapsulate the “if container exists” logic cleanly.
+• It keeps your body concise and avoids duplicating if let logic around the view tree.
+
+4. Alternative syntax
+You could write the logic inline without a custom modifier:
+
+Group {
+    ContentView()
+}
+.ifLet(windowStore?.container) { content, container in
+    content.modelContainer(container)
+}
+
+But since there’s no built-in .ifLet for views, the custom ViewModifier is a neat, Swifty way to do it.
+
+5. Important implication for SwiftData
+Because .modelContainer sets the nearest container in the environment, placing this modifier on ContentView() means everything under ContentView will use the per-window container. If you have subviews (like SourceFilesView) that need to keep using the global container, you should move this modifier to only the editor subtree that needs the per-window container. Otherwise, @Query for global models will suddenly query the per-window store and show nothing.
+
+In summary:
+• .modifier applies your PerWindowModelContainer to ContentView().
+• The modifier conditionally injects the per-window ModelContainer.
+• This is a clean way to toggle environment configuration without duplicating view-building logic.
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+Currently, the PersistenceController performs all insertion and deletion of items in the global store.  Should I create a separate  persistence controller for the per-window store, or perhaps employ MergedPDFDocument for such things?
+
+************************************************************************************************************************
+
+Great question. You have two distinct data domains now:
+
+• Global, app-wide data (e.g., PDFFile, PDFFileGroup) managed by your existing PersistenceController.
+• Window-scoped editing data (PDFPageSectionModel, PDFPageItemModel) that should be isolated per window/tab.
+
+You have a few good options. Here’s how I’d think about it and what I recommend.
+
+Options
+
+1. Keep a single global PersistenceController and do not extend it to per-window
+• Continue using your current PersistenceController for global models only.
+• Treat the per-window container as a separate persistence surface and avoid threading it through the global controller.
+• For per-window operations, work with the per-window ModelContext directly (best done via a small helper or by letting MergedPDFDocument orchestrate it).
+
+Pros:
+• Clear separation of concerns: global vs. per-window.
+• Avoids overloading your global PersistenceController with responsibilities it shouldn’t have.
+• Keeps the window’s lifecycle (creation/destruction) independent.
+
+Cons:
+• You’ll need a place to organize per-window CRUD helpers.
+
+2. Create a small, dedicated WindowPersistence (lightweight controller) per window
+• Wrap the per-window ModelContainer/ModelContext in a small helper (like your existing WindowEditingStore).
+• Add CRUD convenience methods for PDFPageSectionModel/PDFPageItemModel in that helper.
+
+Pros:
+• Keeps persistence logic out of MergedPDFDocument.
+• Neatly mirrors your global PersistenceController, but scoped to the window.
+• Makes testing and future document-based migration simpler.
+
+Cons:
+• Another type to maintain (though quite small).
+
+3. Let MergedPDFDocument own per-window persistence calls
+• Since MergedPDFDocument already has windowModelContext, you can centralize per-window CRUD there (e.g., addSection, addPageItem, deletePageItem, etc.).
+• This keeps all window editing logic in one place.
+
+Pros:
+• Fewer types; straightforward to reason about: “the document manages its editing state.”
+• Easy to call from UI without yet another dependency.
+
+Cons:
+• Merges concerns: business logic + persistence in the same class.
+• If you later move to a document-based app or want to reuse per-window persistence elsewhere, you may refactor this again.
+
+Recommendation
+
+Given your current structure, I recommend a hybrid of (1) and (3):
+
+• Keep your global PersistenceController focused on global models only.
+• For per-window editing, let MergedPDFDocument orchestrate CRUD using its windowModelContext, but keep the methods small and focused (like your existing addPageItem helper).
+• If the set of operations grows or you want better testability/reuse, you can extract these methods into a small WindowPersistence helper later without changing call sites much.
+
+This fits your current code well:
+• You already inject windowModelContext into MergedPDFDocument.
+• Your views can call simple methods on MergedPDFDocument to mutate the per-window store.
+• The global store remains managed exclusively by PersistenceController.
+
+Practical shape
+
+• In MergedPDFDocument:
+   • Keep helpers like addPageItem(to:name:aspectRatio:trims:merge:).
+   • Add siblings like addSection(title:), deleteSection(_ section:), deleteItem(_ item:), etc., using windowModelContext.
+   • For read operations in views, prefer @Query on the per-window subtree. For imperative reads (fetch on demand), use windowModelContext with FetchDescriptor.
+
+• In your UI:
+   • Scope the per-window modelContainer only to the editor subtree.
+   • Use @Query in that subtree for PDFPageSectionModel/PDFPageItemModel.
+   • Keep using @Query in the global subtree for PDFFile, PDFFileGroup.
+
+This keeps the mental model clean:
+• Global data: PersistenceController.
+• Per-window editing: MergedPDFDocument + windowModelContext.
+
+Example helper sketches in MergedPDFDocument
+
+You already have addPageItem. Here are two more you might add:
+
+func addSection(title: String) {
+    guard let ctx = windowModelContext else { return }
+    let section = PDFPageSectionModel(title: title)
+    ctx.insert(section)
+    do { try ctx.save() } catch { print("Save failed: \\(error)") }
+    refreshMergedDocument()
+}
+
+func deleteSection(_ section: PDFPageSectionModel) {
+    guard let ctx = windowModelContext else { return }
+    ctx.delete(section)
+    do { try ctx.save() } catch { print("Delete failed: \\(error)") }
+    refreshMergedDocument()
+}
+
+And for imperative fetches when needed:
+
+func fetchSections() -> [PDFPageSectionModel] {
+    guard let ctx = windowModelContext else { return [] }
+    let descriptor = FetchDescriptor<PDFPageSectionModel>()
+    return (try? ctx.fetch(descriptor)) ?? []
+}
+
+When to introduce a WindowPersistence helper
+
+If you later want to:
+• Unit test persistence logic separately,
+• Swap storage (in-memory vs file-backed) per window,
+• Or move toward a document-based app,
+
+then extract these helpers into a WindowPersistence (or even evolve your WindowEditingStore into it) with methods like insertSection, insertItem, deleteItem, etc. Your MergedPDFDocument would then call that helper instead of directly using the context.
+
+For now, keeping it in MergedPDFDocument is perfectly fine and keeps things simple.
+
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+So, if MergedPDFDocument handles creation and deletion of model objects, and views can read them via @Query, how should a view go about updating the properties?
+
+************************************************************************************************************************
+
+Great question. With SwiftData, you have a few ergonomic options for updating model properties from views. Since your plan is:
+
+• MergedPDFDocument handles creation/deletion for the per-window models (good).
+• Views read per-window models using @Query (also good).
+
+Then for updates, you can choose one or combine several of these patterns:
+
+1) Bindable models in views (best for simple inline editing)
+
+SwiftData @Model types are reference types; when a view holds one, you can mutate its properties directly and then save the context. For simple editing UIs, you can bind view controls to model properties:
+
+
+import SwiftUI
+import SwiftData
+
+struct SectionDetailView: View {
+    @Environment(\.modelContext) private var modelContext // per-window context
+    @Bindable var section: PDFPageSectionModel
+
+    var body: some View {
+        Form {
+            TextField("Title", text: $section.title)
+            Button("Save") { try? modelContext.save() }
+        }
+    }
+}
+    
+  Notes:
+• @Bindable gives you property wrappers ($section.title) to use with SwiftUI controls.
+• You still call try? modelContext.save() to persist changes.
+
+For lists:
+
+struct SectionsListView: View {
+    @Query(sort: \PDFPageSectionModel.title) private var sections: [PDFPageSectionModel]
+    @Environment(\.modelContext) private var modelContext
+
+    var body: some View {
+        List {
+            ForEach(sections) { section in
+                SectionRow(section: section)
+            }
+        }
+    }
+}
+
+struct SectionRow: View {
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var section: PDFPageSectionModel
+
+    var body: some View {
+        HStack {
+            TextField("Title", text: $section.title)
+            Button("Save") { try? modelContext.save() }
+        }
+    }
+}
+
+
+
+This is the most “Swifty” way to update properties inline.
+
+2) Explicit actions that call into MergedPDFDocument
+
+If you want to centralize business rules or re-render your merged PDF after updates, expose small helpers on MergedPDFDocument and call them from the view. For example:
+
+In MergedPDFDocument:
+
+func updateItem(_ item: PDFPageItemModel,
+                name: String? = nil,
+                trims: EdgeTrims? = nil,
+                merge: MergeMode? = nil) {
+    guard let ctx = windowModelContext else { return }
+    if let name { item.name = name }
+    if let trims {
+        item.trimLeft = Double(trims.left)
+        item.trimRight = Double(trims.right)
+        item.trimTop = Double(trims.top)
+        item.trimBottom = Double(trims.bottom)
+    }
+    if let merge { item.mergeModeRaw = merge.rawValue }
+    do { try ctx.save() } catch { print("Save failed: \(error)") }
+    refreshMergedDocument()
+}
+
+In a view:
+
+
+struct ItemEditorRow: View {
+    @Environment(MergedPDFDocument.self) private var doc
+    @Bindable var item: PDFPageItemModel
+
+    var body: some View {
+        HStack {
+            TextField("Name", text: $item.name)
+            Button("Apply") {
+                doc.updateItem(item, name: item.name)
+            }
+        }
+    }
+}
+
+This gives you a single place to trigger downstream effects like refreshing the merged PDF.
+
+3) Two-phase editing (local state, then commit)
+
+For expensive updates (e.g., recalculating the merged PDF), it’s often better to let the user adjust values in local state, then commit:
+
+struct TrimEditor: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(MergedPDFDocument.self) private var doc
+    @Bindable var item: PDFPageItemModel
+
+    @State private var localTrims = EdgeTrims.zero
+
+    var body: some View {
+        VStack {
+            // Controls bound to localTrims...
+            Button("Commit") {
+                doc.updateItem(item, trims: localTrims)
+            }
+        }
+        .onAppear {
+            localTrims = EdgeTrims(
+                left: CGFloat(item.trimLeft),
+                right: CGFloat(item.trimRight),
+                top: CGFloat(item.trimTop),
+                bottom: CGFloat(item.trimBottom)
+            )
+        }
+    }
+}
+
+This avoids constantly saving and re-rendering while the user drags sliders.
+
+4) Use transactions to coalesce updates
+
+If you’re mutating several properties at once and want to avoid multiple renders and saves, you can batch them:
+
+withAnimation {
+    item.name = "New Name"
+    item.mergeModeRaw = MergeMode.mergeRight.rawValue
+}
+try? modelContext.save()
+
+
+You can also wrap these in a MergedPDFDocument helper to ensure a single refreshMergedDocument() call happens afterward.
+
+5) Validation and business rules
+
+If you have constraints (e.g., trims must stay within bounds), put those rules in MergedPDFDocument helper methods or custom setters in a wrapper type. Views should remain lightweight; business logic lives in your document/controller.
+
+When to choose which
+
+• Simple forms and inline edits: use @Bindable and call save() afterward.
+• Edits that require downstream effects (rebuild merged PDF): call into MergedPDFDocument helpers so you can refreshMergedDocument() exactly when needed.
+• Heavy/interactive edits: use local state and commit.
+
+A small convenience in MergedPDFDocument
+
+You can expose a general purpose “save if needed” helper:
+
+func saveWindowContext() {
+    guard let ctx = windowModelContext else { return }
+    do { try ctx.save() } catch { print("Save failed: \(error)") }
+}
+
+Then in views that do direct binding:
+
+Button("Save") { document.saveWindowContext() }
+
+This keeps the view free of persistence details.
+
+⸻
+
+If you share a specific view where you want to update a property (e.g., change a PDFPageItemModel.mergeModeRaw from a picker), I can wire it up with the approach you prefer (direct binding vs. document helper).
+
+
+
+
+
+

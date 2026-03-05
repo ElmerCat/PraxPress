@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-
-//import Combine
 import PDFKit
 import SwiftData
+import Foundation
 
 struct MainSceneRoot: View {
 
@@ -17,12 +16,13 @@ struct MainSceneRoot: View {
 //    @Environment(\.modelContext) private var modelContext
     @State private var praxModel = PraxModel()
     @State private var document = MergedPDFDocument()
+    @State private var windowStore: WindowEditingStore? = nil
  //   @Query() var pdfFiles: [PDFFile]
  //   @Query() var pdfFileGroups: [PDFFileGroup]
 
     var body: some View {
         ContentView()
-           
+            .modifier(PerWindowModelContainer(container: windowStore?.container))
             .environment(document)
             .environment(praxModel)
             .onModifierKeysChanged(mask: .option) { old, new in
@@ -38,6 +38,12 @@ struct MainSceneRoot: View {
                 }
             }
             .task {
+                if windowStore == nil {
+                    windowStore = try? WindowEditingStore(inMemory: true)
+                }
+                if let ctx = windowStore?.context {
+                    document.windowModelContext = ctx
+                }
                 praxModel.documment = document
                 document.prax = praxModel
                 document.persistence = persistence
@@ -82,3 +88,13 @@ struct MainCommands: Commands {
     }
 }
 
+private struct PerWindowModelContainer: ViewModifier {
+    let container: ModelContainer?
+    func body(content: Content) -> some View {
+        if let container {
+            content.modelContainer(container)
+        } else {
+            content
+        }
+    }
+}

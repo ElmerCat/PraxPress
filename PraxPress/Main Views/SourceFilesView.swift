@@ -67,6 +67,7 @@ struct PDFFilesListRow: View {
 
 
 struct PDFFilesList: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
