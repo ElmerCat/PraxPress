@@ -153,7 +153,8 @@ struct SectionHeaderView: View {
         }
         else {
             print("Plain Click detected")
-            document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
+       fatalError()
+            //     document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
         }
         
    //     if PraxModel.shared.selectedSections.contains(indexPath.section) {

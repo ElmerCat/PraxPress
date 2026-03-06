@@ -174,7 +174,7 @@ struct MergedDocumentFooter: View {
                          Image(systemName: "inset.filled.center.rectangle.portrait").tag(PDFDisplayMode.singlePage)
                          Image(systemName: "rectangle.portrait.tophalf.inset.filled").tag(PDFDisplayMode.singlePageContinuous)
                        
-                         if document.sections.count > 1 {
+                         if document.pageSections.count > 1 {
                          
                              Image(systemName: "rectangle.portrait.split.2x1").tag(PDFDisplayMode.twoUp)
                              
@@ -191,7 +191,7 @@ struct MergedDocumentFooter: View {
              
                  Spacer()
                  
-                 Text(String("Page \(document.selectedSections.first) of \(document.sections.count)"))
+                 Text(String("Page \(document.selectedSections.first) of \(document.pageSections.count)"))
                      .font(.subheadline)
             Spacer(minLength: 10)
             
@@ -285,7 +285,7 @@ struct MergedDocumentToolbar: View {
                     
                     Spacer()
                     
-                    Text(String("\(document.sections.count) Pages"))
+                    Text(String("\(document.pageSections.count) Pages"))
                         .font(.subheadline)
            /*         if document.mergedWidthPts > 0, document.mergedHeightPts > 0 {
                         let wIn = document.mergedWidthPts / 72.0

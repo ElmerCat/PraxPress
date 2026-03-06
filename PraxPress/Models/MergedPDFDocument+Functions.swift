@@ -653,7 +653,7 @@ extension MergedPDFDocument {
             }
             
             
-            pageSections[sectionIndex].pdfPage = mergedPage
+       //     pageSections[sectionIndex].pdfPage = mergedPage
             mergedDocument.insert(mergedPage, at: sectionIndex)
             
             do { try FileManager.default.removeItem(at: tmpOut) }

@@ -99,7 +99,7 @@ struct SectionBackgroundView: View {
                 GeometryReader { proxy in
                     HStack {
                         //          Spacer()
-                        if let pdfPage = pdfPageSection.pdfPage {
+               /*         if let pdfPage = pdfPageSection.pdfPage {
                             Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
@@ -109,6 +109,8 @@ struct SectionBackgroundView: View {
                                 .padding(EdgeInsets(top: ThumbnailViewController.sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
                             
                         }
+                    */
+                        
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     

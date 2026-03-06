@@ -105,7 +105,7 @@ final class PDFPageSectionModel {
         self.title = title
     }
     
-    @Transient private var _pdfPage: PDFPage? = nil
+//    @Transient var pdfPage: PDFPage? = nil
     
     var aspectRatio: CGFloat?
     var mergedWidthPts: CGFloat = 0
@@ -120,7 +120,10 @@ extension PDFPageItemModel {
               let doc = PDFDocument(url: url),
               pageIndex >= 0, pageIndex < doc.pageCount,
               let page = doc.page(at: pageIndex) else {
-            fatalError("PDFPageItemModel: Unable to resolve PDFPage for id \(id)")
+            
+            print("PDFPageItemModel: Unable to resolve PDFPage at URL: \(sourceURLString)")
+            return PDFPage()
+//            fatalError("PDFPageItemModel: Unable to resolve PDFPage for id \(id)")
         }
         _pdfPage = page
         return page
