@@ -352,35 +352,6 @@ extension MergedPDFDocument {
     }
     
     
-    
-    func recomputeMergedMetrics() {
-        let count = totalPDFPageItems()
-        guard count > 0 else { fatalError("No pages in PDF!")}
-        
-        var pageIndex = 0
-        let sectionCount = pageSections.count
-        for sectionIndex in 0..<sectionCount {
-            var maxVisibleWidth: CGFloat = 0
-            var totalVisibleHeight: CGFloat = 0
-            
-            pageSections[sectionIndex].pageItems.forEach {
-                pageItem in
-                if pageItem.mergeMode != .mergeSkip {
-                    let media = pageItem.pdfPage.bounds(for: .cropBox)
-                    let per = pageItem.trims
-                    let seamTop: CGFloat = (pageIndex == 0) ? 0 : 0
-                    let seamBottom: CGFloat = (pageIndex == count - 1) ? 0 : 0
-                    let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
-                    maxVisibleWidth = max(maxVisibleWidth, vis.width)
-                    totalVisibleHeight += vis.height
-                    pageIndex += 1
-                }
-            }
-            pageSections[sectionIndex].mergedWidthPts = maxVisibleWidth
-            pageSections[sectionIndex].mergedHeightPts = totalVisibleHeight
-        }
-    }
-    
 /*
     func addPageSectionFromURLBookmark(url: URL, bookmarkData: Data?) {
         var url: URL = url
@@ -476,6 +447,37 @@ extension MergedPDFDocument {
         }
     }
  */
+    
+    
+    
+    func recomputeMergedMetrics() {
+        let count = totalPDFPageItems()
+        guard count > 0 else { fatalError("No pages in PDF!")}
+        
+        var pageIndex = 0
+        let sectionCount = pageSections.count
+        for sectionIndex in 0..<sectionCount {
+            var maxVisibleWidth: CGFloat = 0
+            var totalVisibleHeight: CGFloat = 0
+            
+            pageSections[sectionIndex].pageItems.forEach {
+                pageItem in
+                if pageItem.mergeMode != .mergeSkip {
+                    let media = pageItem.pdfPage.bounds(for: .cropBox)
+                    let per = pageItem.trims
+                    let seamTop: CGFloat = (pageIndex == 0) ? 0 : 0
+                    let seamBottom: CGFloat = (pageIndex == count - 1) ? 0 : 0
+                    let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
+                    maxVisibleWidth = max(maxVisibleWidth, vis.width)
+                    totalVisibleHeight += vis.height
+                    pageIndex += 1
+                }
+            }
+            pageSections[sectionIndex].mergedWidthPts = maxVisibleWidth
+            pageSections[sectionIndex].mergedHeightPts = totalVisibleHeight
+        }
+    }
+
     
     func mergeDocumentPagesForSections() -> PDFDocument {
         
