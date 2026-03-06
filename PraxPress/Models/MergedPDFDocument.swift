@@ -126,31 +126,71 @@ import Foundation
         }
     }
     
-    // MARK: - Window-scoped SwiftData helpers
-    /// Example: Add a page item to a section in the per-window SwiftData store.
-    func addPageItem(to pageSection: PDFPageSectionModel,
-                     name: String,
-                     aspectRatio: CGFloat,
-                     trims: EdgeTrims,
-                     merge: MergeMode) {
+    
+    func addPagesFromURLBookmark(_ title: String = "New Page Section", url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?) {
         guard let ctx = windowModelContext else { return }
-        let pageItem = PDFPageItemModel(
-            name: name,
-            aspectRatio: Double(aspectRatio),
-            trimLeft: Double(trims.left),
-            trimRight: Double(trims.right),
-            trimTop: Double(trims.top),
-            trimBottom: Double(trims.bottom),
-            mergeModeRaw: merge.rawValue
-        )
-        pageItem.pageSection = pageSection
-        ctx.insert(pageItem)
-        do { try ctx.save() } catch { print("Window context save failed: \(error)") }
-        // Keep your existing pipeline
+        // Determine or create the target section
+        let section: PDFPageSectionModel = pageSection ?? {
+            let s = PDFPageSectionModel(title: title)
+            ctx.insert(s)
+            return s
+        }()
+
+        // If neither URL nor bookmark provided, just save the section
+        guard url != nil || bookmarkData != nil else {
+            do { try ctx.save() } catch { print("Save failed: \(error)") }
+            refreshMergedDocument()
+            return
+        }
+
+        // Prefer bookmark if provided; otherwise use direct URL
+        let fileURL: URL
+        let baseBookmark: Data
+        if let data = bookmarkData {
+            var isStale = false
+            guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+                do { try ctx.save() } catch { print("Save failed: \(error)") }
+                refreshMergedDocument()
+                return
+            }
+            fileURL = resolved
+            baseBookmark = data
+        } else if let direct = url {
+            fileURL = direct
+            baseBookmark = (try? direct.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)) ?? Data()
+        } else {
+            do { try ctx.save() } catch { print("Save failed: \(error)") }
+            refreshMergedDocument()
+            return
+        }
+
+        // Determine page count (fallback to 1 if not available)
+        var pageCount = 1
+        if let doc = PDFDocument(url: fileURL) { pageCount = doc.pageCount }
+
+        // Create an item per page without opening pages here; runtime will resolve via makePDFPage()
+        for index in 0..<pageCount {
+            let displayName = nameForPage(url: fileURL, index: index)
+            let item = PDFPageItemModel(
+                name: displayName,
+                aspectRatio: 0,
+                trimLeft: 0,
+                trimRight: 0,
+                trimTop: 0,
+                trimBottom: 0,
+                sourceBookmark: baseBookmark,
+                sourceURL: fileURL,
+                pageIndex: index,
+                mergeModeRaw: MergeMode.mergeDown.rawValue
+            )
+            section.pageItems.append(item)
+            ctx.insert(item)
+        }
+
+        do { try ctx.save() } catch { print("Save failed: \(error)") }
         refreshMergedDocument()
     }
     
-
     
     func handleMergePagesOverwrite() {
         
@@ -211,6 +251,11 @@ import Foundation
     
     
     
+    
+    private func nameForPage(url: URL, index: Int) -> String {
+        let base = url.deletingPathExtension().lastPathComponent
+        return "\(base) [\(index + 1)]"
+    }
     
 }
 
