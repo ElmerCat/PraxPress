@@ -43,12 +43,13 @@ struct DocumentEditingView: NSViewRepresentable {
             splitView.setPosition(target, ofDividerAt: 0)
         }
         
-        NotificationCenter.default.addObserver(
+      /*  NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.widthGuideChanged(_:)),
             name: .praxWidthGuideChanged,
             object: nil
         )
+       */
         return splitView
     }
     
@@ -56,7 +57,7 @@ struct DocumentEditingView: NSViewRepresentable {
         print("Nadine Peeler- DocumentEditingView updateNSView")
     }
     
-    final class Coordinator: NSObject, PDFPageOverlayViewProvider, NSSplitViewDelegate, NSDraggingDestination {
+    final class Coordinator: NSObject, NSSplitViewDelegate, NSDraggingDestination { //PDFPageOverlayViewProvider,
        
         var splitView: NSSplitView?
         func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -126,7 +127,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         
         
-        
+/*
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
                   let doc = pdfView.document,
@@ -201,6 +202,9 @@ struct DocumentEditingView: NSViewRepresentable {
             }
             return view
         }
+
+*/
+        
     }
 }
 

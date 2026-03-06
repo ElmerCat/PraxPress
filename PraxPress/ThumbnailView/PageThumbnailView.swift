@@ -6,7 +6,7 @@ class PDFPageThumbnail: NSCollectionViewItem {
     private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<PDFPageThumbnailView>?
     private var indexPath: IndexPath?
-    private var pdfPageItem: PDFPageItem?
+    private var pdfPageItem: PDFPageItemModel?
     
     
     func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath?,
@@ -66,7 +66,7 @@ class PDFPageThumbnail: NSCollectionViewItem {
 
 struct PDFPageThumbnailView: View {
     let document: MergedPDFDocument
-    let pdfPageItem: PDFPageItem?
+    let pdfPageItem: PDFPageItemModel?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -123,10 +123,11 @@ struct PDFPageThumbnailView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .cornerRadius(6)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                            
+
+                        
                             VStack {
                                 Button { clickedIncludePageButton(pdfPageItem!) }
-                                label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                                label: { Image(systemName: pdfPageItem!.mergeMode == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                                     .buttonStyle(.borderless)
                                     .help("Toggle include page")
                                 
@@ -162,15 +163,15 @@ struct PDFPageThumbnailView: View {
         
     }
     
-    func clickedIncludePageButton(_ pdfPageItem: PDFPageItem) {
+    func clickedIncludePageButton(_ pdfPageItem: PDFPageItemModel) {
         
         print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if pdfPageItem.merge == .mergeSkip {
-            pdfPageItem.merge = .mergeDown
+        if pdfPageItem.mergeMode == .mergeSkip {
+            pdfPageItem.mergeMode = .mergeDown
         }
         else {
-            pdfPageItem.merge = .mergeSkip
+            pdfPageItem.mergeMode = .mergeSkip
         }
         
         
@@ -178,7 +179,7 @@ struct PDFPageThumbnailView: View {
     
     
     
-    func clickedGuidePageButton(_ pdfPageItem: PDFPageItem) {
+    func clickedGuidePageButton(_ pdfPageItem: PDFPageItemModel) {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
@@ -189,17 +190,17 @@ struct PDFPageThumbnailView: View {
                 if document.widthGuidePageID == nil { return }
                 guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
                 
-                var trim = pdfPageItem.trim
-                print ("old trim: ", pdfPageItem.trim )
-                print (guidePage.trim)
-                print (trim)
+                var trims = pdfPageItem.trims
+                print ("old trims: ", pdfPageItem.trims )
+                print (guidePage.trims)
+                print (trims)
                 
                 
-                trim.left = guidePage.trim.left
-                trim.right = guidePage.trim.right
-                pdfPageItem.trim = trim
-                print("PageItem - clickedGuidePageButton copied guide page trim to current page")
-                print ("new trim: ",pdfPageItem.trim )
+                trims.left = guidePage.trims.left
+                trims.right = guidePage.trims.right
+                pdfPageItem.trims = trims
+                print("PageItem - clickedGuidePageButton copied guide page trims to current page")
+                print ("new trims: ",pdfPageItem.trims )
                 
             }
             else {

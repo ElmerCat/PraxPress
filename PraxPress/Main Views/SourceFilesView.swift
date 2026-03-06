@@ -52,7 +52,8 @@ struct PDFFilesListRow: View {
              Text(String(pdfFile.pageCount))
              Button("Merge", systemImage: "arrowshape.zigzag.forward", action: {
                  print ("Merge \(pdfFile.fileName)")
-                 document.addPageSectionFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData)
+       fatalError()
+     //            document.addPageSectionFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData)
              })
          }
          

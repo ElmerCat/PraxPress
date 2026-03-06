@@ -41,15 +41,20 @@ import Foundation
     }
     
     
-    var sections: [PDFPageSection] = [] {
+    var pageSections: [PDFPageSectionModel] = [] {
         didSet {
-            print("sections didSet:  ", sections.count)
-            //   refreshEditingDocument()
+            print("pageSections didSet:  ", pageSections.count)
             
         }
     }
     
-    var pdfFileGroups: [PDFFileGroup] = [] {
+ //   var sections: [PDFPageSection] = [] {
+ //       didSet {
+ //           print("sections didSet:  ", sections.count)
+ //       }
+ //   }
+    
+  var pdfFileGroups: [PDFFileGroup] = [] {
         didSet {
             print ("MergedPDFDocument pdfFileGroups didSet: ", pdfFiles.count)
         }
@@ -127,23 +132,33 @@ import Foundation
     }
     
     
-    func addPagesFromURLBookmark(_ title: String = "New Page Section", url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?) {
+    func addPagesFromURLBookmark(_ title: String = "New Page Section", url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?, at location: Int? = 0) {
         guard let ctx = windowModelContext else { return }
-        // Determine or create the target section
-        let section: PDFPageSectionModel = pageSection ?? {
-            let s = PDFPageSectionModel(title: title)
-            ctx.insert(s)
-            return s
+        
+        // Determine normalized section insertion index
+        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
+        
+        // Determine target section
+        let section: PDFPageSectionModel = {
+            if let givenSection = pageSection {
+                ensureSectionInOrder(givenSection, at: sectionIndex)
+                return givenSection
+            } else {
+                let newSection = PDFPageSectionModel(title: title)
+                ctx.insert(newSection)
+                pageSections.insert(newSection, at: sectionIndex)
+                return newSection
+            }
         }()
-
-        // If neither URL nor bookmark provided, just save the section
+        
+        // If neither URL nor bookmark provided, just save and refresh
         guard url != nil || bookmarkData != nil else {
             do { try ctx.save() } catch { print("Save failed: \(error)") }
             refreshMergedDocument()
             return
         }
-
-        // Prefer bookmark if provided; otherwise use direct URL
+        
+        // Resolve bookmark or direct url
         let fileURL: URL
         let baseBookmark: Data
         if let data = bookmarkData {
@@ -163,30 +178,44 @@ import Foundation
             refreshMergedDocument()
             return
         }
-
-        // Determine page count (fallback to 1 if not available)
+        
+        // Determine page count fallback to 1
         var pageCount = 1
         if let doc = PDFDocument(url: fileURL) { pageCount = doc.pageCount }
-
-        // Create an item per page without opening pages here; runtime will resolve via makePDFPage()
+        
+        // Normalize page insertion index relative to pageItems count in section
+        var pageInsertIndex = normalizedInsertionIndex(count: section.pageItems.count, location: location)
+        
+        // Insert pages one by one at the computed index, preserving order
         for index in 0..<pageCount {
             let displayName = nameForPage(url: fileURL, index: index)
-            let item = PDFPageItemModel(
-                name: displayName,
-                aspectRatio: 0,
-                trimLeft: 0,
-                trimRight: 0,
-                trimTop: 0,
-                trimBottom: 0,
-                sourceBookmark: baseBookmark,
-                sourceURL: fileURL,
-                pageIndex: index,
-                mergeModeRaw: MergeMode.mergeDown.rawValue
-            )
-            section.pageItems.append(item)
-            ctx.insert(item)
-        }
+            
+            do {
+                let item = try PDFPageItemModel(
+                    name: displayName,
+                    aspectRatio: 0,
+                    trimLeft: 0,
+                    trimRight: 0,
+                    trimTop: 0,
+                    trimBottom: 0,
+                    sourceBookmark: baseBookmark,
+                    sourceURL: fileURL,
+                    pageIndex: index,
+                    mergeModeRaw: MergeMode.mergeDown.rawValue
+                )
+                section.pageItems.insert(item, at: pageInsertIndex)
+                ctx.insert(item)
+                pageInsertIndex += 1
+                
+            }
+            
+            catch {
+                print("let item = try PDFPageItemModel failed: \(error)")
+            }
+            
 
+        }
+        
         do { try ctx.save() } catch { print("Save failed: \(error)") }
         refreshMergedDocument()
     }
@@ -255,6 +284,46 @@ import Foundation
     private func nameForPage(url: URL, index: Int) -> String {
         let base = url.deletingPathExtension().lastPathComponent
         return "\(base) [\(index + 1)]"
+    }
+    
+    private func normalizedInsertionIndex(count: Int, location: Int?) -> Int {
+        guard let loc = location else { return count }
+        if loc == 0 {
+            return count
+        } else if loc > 0 {
+            return min(loc - 1, count)
+        } else {
+            // loc < 0: count backward from end, clamp to 0
+            let pos = count + loc
+            return pos < 0 ? 0 : pos
+        }
+    }
+    
+    private func ensureSectionInOrder(_ section: PDFPageSectionModel, at index: Int) {
+        if let currentIndex = pageSections.firstIndex(where: { $0 === section }) {
+            if currentIndex != index {
+                pageSections.remove(at: currentIndex)
+                if index > pageSections.count {
+                    pageSections.append(section)
+                } else {
+                    pageSections.insert(section, at: index)
+                }
+            }
+        } else {
+            if index > pageSections.count {
+                pageSections.append(section)
+            } else {
+                pageSections.insert(section, at: index)
+            }
+        }
+    }
+    
+    func indexOfSection(_ section: PDFPageSectionModel) -> Int? {
+        pageSections.firstIndex { $0 === section }
+    }
+    
+    func indexOfPageItem(_ item: PDFPageItemModel, in section: PDFPageSectionModel) -> Int? {
+        section.pageItems.firstIndex { $0 === item }
     }
     
 }

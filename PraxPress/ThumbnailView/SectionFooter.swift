@@ -11,7 +11,7 @@ class SectionFooter: NSView, NSCollectionViewElement {
     private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<SectionFooterView>?
     private var indexPath: IndexPath?
-    private var pdfPageSection: PDFPageSection?
+    private var pdfPageSection: PDFPageSectionModel?
     
     func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath,
                    isSelected: Bool) {
@@ -20,8 +20,8 @@ class SectionFooter: NSView, NSCollectionViewElement {
         self.document = document
         guard let indexPath else { fatalError("index path is missing") }
         
-        if document!.sections.count > indexPath.section {
-            let pdfPageSection = document!.sections[self.indexPath!.section]
+        if document!.pageSections.count > indexPath.section {
+            let pdfPageSection = document!.pageSections[self.indexPath!.section]
             self.pdfPageSection = pdfPageSection
             
             let root = SectionFooterView(document: document!, pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
@@ -54,7 +54,7 @@ class SectionFooter: NSView, NSCollectionViewElement {
 struct SectionFooterView: View {
     @Environment(PraxModel.self) private var praxModel
     let document: MergedPDFDocument
-    let pdfPageSection: PDFPageSection
+    let pdfPageSection: PDFPageSectionModel
     let isSelected: Bool
     
     func mergedSizeText() -> String {

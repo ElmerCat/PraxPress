@@ -89,8 +89,8 @@ struct SectionBackgroundView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if document.sections.count > indexPath.section {
-           let pdfPageSection = document.sections[indexPath.section]
+        if document.pageSections.count > indexPath.section {
+           let pdfPageSection = document.pageSections[indexPath.section]
             
             
             let imageSize = CGSize(width: 1200, height: 1600)

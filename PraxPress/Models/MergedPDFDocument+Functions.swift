@@ -41,33 +41,32 @@ extension MergedPDFDocument {
     
     func totalPDFPageItems() -> Int {
         var total = 0
-        for section in sections {
-            total += section.pdfPageItems.count
+        for section in pageSections {
+            total += section.pageItems.count
         }
         return total
     }
     
     
-    func pdfPageIndexPath(for pdfPage: PDFPage) -> IndexPath? {
-        for piSection in sections.indices {
-            let section = sections[piSection]
-            for piItem in section.pdfPageItems.indices {
-                let item = section.pdfPageItems[piItem]
+/*    func pdfPageIndexPath(for pdfPage: PDFPage) -> IndexPath? {
+        for piSection in pageSections.indices {
+            let section = pageSections[piSection]
+            for piItem in section.pageItems.indices {
+                let item = section.pageItems[piItem]
                 if item.pdfPage.hashValue == pdfPage.hashValue {
                     return IndexPath(item: piItem, section: piSection)
                 }
             }
         }
         return nil
-        
-        
     }
+  */
     
-    func pdfPageItem(id: UUID) -> PDFPageItem? {
-        for piSection in sections.indices {
-            let section = sections[piSection]
-            for piItem in section.pdfPageItems.indices {
-                let item = section.pdfPageItems[piItem]
+    func pdfPageItem(id: UUID) -> PDFPageItemModel? {
+        for piSection in pageSections.indices {
+            let section = pageSections[piSection]
+            for piItem in section.pageItems.indices {
+                let item = section.pageItems[piItem]
                 if item.id == id {
                     return item
                 }
@@ -78,11 +77,11 @@ extension MergedPDFDocument {
     
     
     
-    func pdfPageItem(for pdfPage: PDFPage) -> PDFPageItem? {
-        for piSection in sections.indices {
-            let section = sections[piSection]
-            for piItem in section.pdfPageItems.indices {
-                let item = section.pdfPageItems[piItem]
+    func pdfPageItem(for pdfPage: PDFPage) -> PDFPageItemModel? {
+        for piSection in pageSections.indices {
+            let section = pageSections[piSection]
+            for piItem in section.pageItems.indices {
+                let item = section.pageItems[piItem]
                 if item.pdfPage.hashValue == pdfPage.hashValue {
                     return item
                 }
@@ -91,20 +90,20 @@ extension MergedPDFDocument {
         return nil
     }
     
-    func pdfPageItem(indexPath: IndexPath) -> PDFPageItem? {
+    func pdfPageItem(indexPath: IndexPath) -> PDFPageItemModel? {
         let piSection = indexPath.section
         let piItem = indexPath.item
-        if sections.count > piSection {
-            let section = sections[piSection]
-            if section.pdfPageItems.count > piItem {
-                return section.pdfPageItems[piItem]
+        if pageSections.count > piSection {
+            let section = pageSections[piSection]
+            if section.pageItems.count > piItem {
+                return section.pageItems[piItem]
             }
         }
         return nil
     }
     
-    func pages(in section: PDFPageSection) -> [PDFPageItem] {
-        return section.pdfPageItems
+    func pages(in section: PDFPageSectionModel) -> [PDFPageItemModel] {
+        return section.pageItems
     }
     
     
@@ -113,7 +112,7 @@ extension MergedPDFDocument {
     func movePDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
         guard !items.isEmpty else { return }
         // Ensure destination section exists
-        guard sections.indices.contains(destination.section) else { return }
+        guard pageSections.indices.contains(destination.section) else { return }
         
         // 1) Normalize and sort source indices so we can safely remove
         //    from the back to the front (avoid index shifting issues)
@@ -124,13 +123,13 @@ extension MergedPDFDocument {
         
         // 2) Extract the items being moved, preserving their original order
         //    We collect them in reverse-removal order and then reverse to original order.
-        var movedItemsReversed: [PDFPageItem] = []
+        var movedItemsReversed: [PDFPageItemModel] = []
         for source in uniqueItems {
-            guard sections.indices.contains(source.section) else { continue }
-            let section = sections[source.section]
-            guard section.pdfPageItems.indices.contains(source.item) else { continue }
-            let removed = section.pdfPageItems.remove(at: source.item)
-            sections[source.section] = section
+            guard pageSections.indices.contains(source.section) else { continue }
+            let section = pageSections[source.section]
+            guard section.pageItems.indices.contains(source.item) else { continue }
+            let removed = section.pageItems.remove(at: source.item)
+            pageSections[source.section] = section
             movedItemsReversed.append(removed)
         }
         let movedItems = movedItemsReversed.reversed()
@@ -144,10 +143,10 @@ extension MergedPDFDocument {
         adjustedDestinationItem -= removalsBeforeDestination
         
         // 3) Insert into the destination section at the specified index
-        let destSection = sections[destination.section]
-        let insertIndex = min(max(0, adjustedDestinationItem), destSection.pdfPageItems.count)
-        destSection.pdfPageItems.insert(contentsOf: movedItems, at: insertIndex)
-        sections[destination.section] = destSection
+        let destSection = pageSections[destination.section]
+        let insertIndex = min(max(0, adjustedDestinationItem), destSection.pageItems.count)
+        destSection.pageItems.insert(contentsOf: movedItems, at: insertIndex)
+        pageSections[destination.section] = destSection
         
         
         // 4) Update selection to the new positions of the moved items
@@ -196,11 +195,12 @@ extension MergedPDFDocument {
                 }
             }
 
-            
+/*
             let pdfURLs = urls.filter { $0.pathExtension.lowercased() == "pdf" }
             if !pdfURLs.isEmpty {
                 Task {
                     do {
+                        
                         try await insertPDFPageItemsFromDocumentURLS(pdfURLs, at: IndexPath(item: -1, section: -1))
                         refreshMergedDocument()
                     } catch let error {
@@ -223,6 +223,8 @@ extension MergedPDFDocument {
                     self.insertPDFPageItemsFromImageURLS(imageURLs, at: IndexPath(item: -1, section: -1))
                 }
             }
+*/
+
         }
 
         print("Julie d Prax", urls)
@@ -231,7 +233,7 @@ extension MergedPDFDocument {
         
     }
     
-    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+/*    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
         var pages: [PDFPageItem] = []
         var sourceFileName = ""
         for url in urls {
@@ -248,19 +250,19 @@ extension MergedPDFDocument {
             pages.append(pdfPageItem)
         }
         if indexPath.section >= 0 {
-            if indexPath.item < 0 || indexPath.item >= sections[indexPath.section].pdfPageItems.count {
-                sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+            if indexPath.item < 0 || indexPath.item >= pageSections[indexPath.section].pageItems.count {
+                pageSections[indexPath.section].pageItems.append(contentsOf: pages)
             }
             else {
-                sections[indexPath.section].pdfPageItems.insert(contentsOf: pages, at: indexPath.item)
+                pageSections[indexPath.section].pageItems.insert(contentsOf: pages, at: indexPath.item)
             }
         }
         else {
-            sections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pdfPageItems: pages))
+            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: pages))
         }
         
     }
-    
+
     func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
         
         for url in urls {
@@ -274,26 +276,26 @@ extension MergedPDFDocument {
                 name: "Image - \(sourceFileName)",
                 pdfPage: docPage
             )
-            sections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
+            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pdfPageItem]))
         }
         
     }
 
     func insertPDFPageSectionsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath)  async throws {
         
-        var pdfPageItems: [PDFPageItem] = []
+        var pageItems: [PDFPageItem] = []
         for url in urls {
             guard let doc = PDFDocument(url: url) else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load PDF document at \(url)", userInfo: nil) as! any Error) }
             let sourceFileName = url.deletingPathExtension().lastPathComponent
             for i in 0..<doc.pageCount {
                 guard let docPage = doc.page(at: i)  else { throw (NSException(name: .internalInconsistencyException, reason: "Could not load document page at \(url)", userInfo: nil) as! any Error) }
-                pdfPageItems.append(PDFPageItem(
+                pageItems.append(PDFPageItem(
                     document: self,
                     name: "\(sourceFileName) - Page \(i + 1)",
                     pdfPage: docPage
                 ))
             }
-            sections.append(PDFPageSection(document: self, title: "PDF - \(sourceFileName)", pdfPageItems: pdfPageItems))
+            pageSections.append(PDFPageSection(document: self, title: "PDF - \(sourceFileName)", pageItems: pageItems))
         }
         
     }
@@ -318,29 +320,29 @@ extension MergedPDFDocument {
         }
         
         if indexPath.section >= 0 {
-            if indexPath.item < 0 || indexPath.item >= sections[indexPath.section].pdfPageItems.count {
-                sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+            if indexPath.item < 0 || indexPath.item >= pageSections[indexPath.section].pageItems.count {
+                pageSections[indexPath.section].pageItems.append(contentsOf: pages)
             }
             else {
-                sections[indexPath.section].pdfPageItems.insert(contentsOf: pages, at: indexPath.item)
+                pageSections[indexPath.section].pageItems.insert(contentsOf: pages, at: indexPath.item)
             }
         }
         else {
-            sections.append(PDFPageSection(document: self, title: sourceFileName, pdfPageItems: pages))
+            pageSections.append(PDFPageSection(document: self, title: sourceFileName, pageItems: pages))
         }
 
     }
+ */
     
-    
-    func pdfDocumentFromPDFPageSections(sections: [PDFPageSection]) -> PDFDocument {
+    func pdfDocumentFromPDFPageSections(pageSections: [PDFPageSectionModel]) -> PDFDocument {
         isLoadingPDF = true
         var insertIndex = 0
         let pdfDocument = PDFDocument()
-        sections.forEach {
+        pageSections.forEach {
             section in
-            section.pdfPageItems.forEach {
+            section.pageItems.forEach {
                 page in
-                if page.merge != .mergeSkip {
+                if page.mergeMode != .mergeSkip {
                     pdfDocument.insert(page.pdfPage, at: insertIndex)
                     insertIndex += 1
                 }
@@ -356,16 +358,16 @@ extension MergedPDFDocument {
         guard count > 0 else { fatalError("No pages in PDF!")}
         
         var pageIndex = 0
-        let sectionCount = sections.count
+        let sectionCount = pageSections.count
         for sectionIndex in 0..<sectionCount {
             var maxVisibleWidth: CGFloat = 0
             var totalVisibleHeight: CGFloat = 0
             
-            sections[sectionIndex].pdfPageItems.forEach {
-                pdfPageItem in
-                if pdfPageItem.merge != .mergeSkip {
-                    let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
-                    let per = pdfPageItem.trim
+            pageSections[sectionIndex].pageItems.forEach {
+                pageItem in
+                if pageItem.mergeMode != .mergeSkip {
+                    let media = pageItem.pdfPage.bounds(for: .cropBox)
+                    let per = pageItem.trims
                     let seamTop: CGFloat = (pageIndex == 0) ? 0 : 0
                     let seamBottom: CGFloat = (pageIndex == count - 1) ? 0 : 0
                     let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: seamTop, seamBottom: seamBottom)
@@ -374,12 +376,12 @@ extension MergedPDFDocument {
                     pageIndex += 1
                 }
             }
-            sections[sectionIndex].mergedWidthPts = maxVisibleWidth
-            sections[sectionIndex].mergedHeightPts = totalVisibleHeight
+            pageSections[sectionIndex].mergedWidthPts = maxVisibleWidth
+            pageSections[sectionIndex].mergedHeightPts = totalVisibleHeight
         }
     }
     
-    
+/*
     func addPageSectionFromURLBookmark(url: URL, bookmarkData: Data?) {
         var url: URL = url
         var pdfDocument: PDFDocument
@@ -410,7 +412,7 @@ extension MergedPDFDocument {
                 pdfPage: pdfDocumentPage //,
             ))
         }
-        sections.append(PDFPageSection(document: self, title: sectionName, pdfPageItems: pages))
+        pageSections.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
         refreshMergedDocument()
 
         
@@ -429,12 +431,12 @@ extension MergedPDFDocument {
                 pdfPage: docPage //,
             ))
         }
-        sections.append(PDFPageSection(document: self, title: sectionName, pdfPageItems: pages))
+        pageSections.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
         refreshMergedDocument()
 
     }
     
-/*    func setPageSectionsFromSelectedFiles() {
+    func setPageSectionsFromSelectedFiles() {
         let entries: [PDFFile] = selectedFiles.compactMap { id in
             pdfFiles.first(where: { $0.id == id })
         }
@@ -467,9 +469,9 @@ extension MergedPDFDocument {
                         pdfPage: docPage //,
                     ))
                 }
-                secs.append(PDFPageSection(document: self, title: sectionName, pdfPageItems: pages))
+                secs.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
             }
-            sections = secs
+            pageSections = secs
             refreshMergedDocument()
         }
     }
@@ -479,11 +481,11 @@ extension MergedPDFDocument {
         
         let mergedDocument = PDFDocument()
         
-        var pageItems: [PDFPageItem] = []
-        for sectionIndex in 0..<sections.count {
-            for pageIndex in 0..<sections[sectionIndex].pdfPageItems.count{
-                if sections[sectionIndex].pdfPageItems[pageIndex].merge != .mergeSkip {
-                    pageItems.append(sections[sectionIndex].pdfPageItems[pageIndex])
+        var pageItems: [PDFPageItemModel] = []
+        for sectionIndex in 0..<pageSections.count {
+            for pageIndex in 0..<pageSections[sectionIndex].pageItems.count{
+                if pageSections[sectionIndex].pageItems[pageIndex].mergeMode != .mergeSkip {
+                    pageItems.append(pageSections[sectionIndex].pageItems[pageIndex])
                 }
             }
             //  var removedPerPage: [[PDFAnnotation]] = Array(repeating: [], count: pageItems.count)
@@ -500,20 +502,20 @@ extension MergedPDFDocument {
                 //     }
             }
             
-            var mediaBox = CGRect(x: 0, y: 0, width: sections[sectionIndex].mergedWidthPts, height: sections[sectionIndex].mergedHeightPts)
+            var mediaBox = CGRect(x: 0, y: 0, width: pageSections[sectionIndex].mergedWidthPts, height: pageSections[sectionIndex].mergedHeightPts)
             let tmpOut = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
             guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
             guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { fatalError("CGContext failed") }
             
             ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
             // Stack pages from top to bottom. Track the Y origin of each placed slice for annotation mapping.
-            var currentTop = sections[sectionIndex].mergedHeightPts
+            var currentTop = pageSections[sectionIndex].mergedHeightPts
             var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageItems.count)
             
             for pageIndex in 0..<pageItems.count {
                 let page = pageItems[pageIndex].pdfPage
                 let rect = pageRects[pageIndex]
-                let per = pageItems[pageIndex].trim
+                let per = pageItems[pageIndex].trims
                 //    let seamTop: CGFloat = 0
                 //    let seamBottom: CGFloat = 0
                 
@@ -569,11 +571,11 @@ extension MergedPDFDocument {
             for pageIndex in 0..<pageItems.count {
                 let srcPage = pageItems[pageIndex].pdfPage
                 let pageRect = pageRects[pageIndex]
-                let trim = pageItems[pageIndex].trim
+                let trims = pageItems[pageIndex].trims
                 //   let seamTop: CGFloat = 0
                 //   let seamBottom: CGFloat = 0
                 
-                let trimmedPageRect = pageRect.trimmed(trim)
+                let trimmedPageRect = pageRect.trimmed(trims)
                 
                 let dx = 0 - trimmedPageRect.minX
                 let dy = placedOriginsY[pageIndex] - trimmedPageRect.minY
@@ -649,7 +651,7 @@ extension MergedPDFDocument {
             }
             
             
-            sections[sectionIndex].pdfPage = mergedPage
+            pageSections[sectionIndex].pdfPage = mergedPage
             mergedDocument.insert(mergedPage, at: sectionIndex)
             
             do { try FileManager.default.removeItem(at: tmpOut) }
@@ -661,16 +663,16 @@ extension MergedPDFDocument {
     }
     
     
-    func widthGuidePage() -> PDFPageItem? {
+    func widthGuidePage() -> PDFPageItemModel? {
         if widthGuidePageID == nil { return nil }
         return pdfPageItem(id: widthGuidePageID!)
     }
     
     /// Compute and store the width guide X positions (in page space of the guide page)
-    func setWidthGuide(fromPage pdfPageItem: PDFPageItem) {
+    func setWidthGuide(fromPage pdfPageItem: PDFPageItemModel) {
         if pdfPageItem.id == widthGuidePageID { clearWidthGuide() }
         let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
-        let per = pdfPageItem.trim
+        let per = pdfPageItem.trims
         let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
         widthGuidePageID = pdfPageItem.id
         widthGuideLeftX = vis.minX

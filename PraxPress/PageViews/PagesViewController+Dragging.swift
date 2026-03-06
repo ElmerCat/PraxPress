@@ -172,8 +172,9 @@ extension PagesViewController {
         for url in pdfURLs {
             print ("\n\(url)")
         }
-        
-
+  
+        fatalError()
+/*
         // 3) Filter for PDFs (by path extension or UTI check)
         let urls = pdfURLs.filter { $0.pathExtension.lowercased() == "pdf" }
         
@@ -185,7 +186,7 @@ extension PagesViewController {
                 
             }
         }
-        
+   */
         
         /*
  
@@ -280,8 +281,9 @@ extension PagesViewController {
             }
             
             print (urls)
-            
-            Task {
+           
+            fatalError()
+         /*   Task {
                 do {
                     try await self.document.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
                 } catch let error {
@@ -289,7 +291,7 @@ extension PagesViewController {
                     
                 }
             }
-            
+          */
         }
     }
     

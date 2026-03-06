@@ -169,8 +169,9 @@ extension ThumbnailViewController {
         for url in droppedURLs {
             print ("\n\(url)")
         }
-        
-
+  
+        fatalError()
+/*
         // 3) Filter for PDFs (by path extension or UTI check)
         let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
         self.insertPDFPageItemsFromDocumentURLS(pdfURLs, at: indexPath)
@@ -185,6 +186,8 @@ extension ThumbnailViewController {
             self.insertPDFPageItemsFromImageURLS(imageURLs, at: indexPath)
 
         }
+        
+*/
         
         /*
  
@@ -279,8 +282,8 @@ extension ThumbnailViewController {
             }
             
             print (urls)
-            
-            self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+  fatalError()
+//           self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
             
   //          self.insertPDFs(at: pdfs, dropIndex: indexPath.item)
 //            self.updateUI()
@@ -290,7 +293,7 @@ extension ThumbnailViewController {
     
     // MARK: - Insert helper
     
-    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+/*    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
         
         for url in urls {
             guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
@@ -323,7 +326,8 @@ extension ThumbnailViewController {
         }
         document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
     }
-
+*/
+    
     func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropPDFFiles to: ", indexPath)
         
@@ -356,13 +360,14 @@ extension ThumbnailViewController {
                     } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                     
                     print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
-                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+fatalError()
+                    //                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
                     self.updateUI()
                 }
             })
     }
     
-    
+ /*
     func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
         var pages: [PDFPageItem] = []
         for url in urls {
@@ -384,7 +389,7 @@ extension ThumbnailViewController {
         document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
         self.updateUI()
     }
-
+*/
     func dropInternalSections(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalSections to: ", indexPath)
         

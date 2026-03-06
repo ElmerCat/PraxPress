@@ -738,5 +738,34 @@ If you share a specific view where you want to update a property (e.g., change a
 
 
 
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+
+Next, can you handle URLs which open image files and convert them to PDFPages.  The app may evolve to do other processing with imported images later, but for now, just use:
+
+    @AppStorage("import-width") var importWidth: Int = 0
+    @AppStorage("import-height") var importHeight: Int = 0
+
+  to constrain the image size and keep the resulting PDF from being too big. I think the best place to do this import conversion is probably in makePDFPage.
+
+In addPagesFromURLBookmark, identify the URL file type before opening it as a PDFDocument.  If it's not a PDF, it won't have multiple pages, so there's no need to open it at all yet in this function.
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+
+
+PDFPageItemModel items need to be kept in a ordered set within each PDFPageSectionModel item.  The user needs to be able to rearrange the order within a section, and move or copy pages to other sections. The PDFPageSectionModel items also need to be kept as an ordered, rearrangeable set within MergedPDFDocument.  I added an optional parameter location to addPagesFromURLBookmark.
+
+When pages or sections are added, they should be inserted before the given location: if the location is 1, put it at the beginning. If there are fewer existing items than the given location, put it at the end.  If the location is 0 or not given, put it at the end.  If given a negative location, count backwards from the end, or put it at the beginning if there are fewer existing items.
+
+Each item; sections and pages; should know or be able to easily determine their own location — for pages within their section and for sections within the MergedPDFDocument.
+
+
+Can you propose changes to addPagesFromURLBookmark to incorporate the location parameter, and also code in PagesModel.swift and/or in MergedPDFDocument to establish and maintain the ordered sets?
+
+
 
 

@@ -28,7 +28,7 @@ class SectionHeader: NSView, NSCollectionViewElement {
     private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<SectionHeaderView>?
     private var indexPath: IndexPath?
-    private var pdfPageSection: PDFPageSection?
+    private var pdfPageSection: PDFPageSectionModel?
     
     func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath,
                    isSelected: Bool) {
@@ -37,8 +37,8 @@ class SectionHeader: NSView, NSCollectionViewElement {
         self.document = document
         guard let indexPath else { fatalError("index path is missing") }
         
-        if document!.sections.count > indexPath.section {
-            let pdfPageSection = document!.sections[self.indexPath!.section]
+        if document!.pageSections.count > indexPath.section {
+            let pdfPageSection = document!.pageSections[self.indexPath!.section]
             self.pdfPageSection = pdfPageSection
             
             let root = SectionHeaderView(document: document!, pdfPageSection: self.pdfPageSection!, isSelected: isSelected)
@@ -73,7 +73,7 @@ class SectionHeader: NSView, NSCollectionViewElement {
 struct SectionHeaderView: View {
     @Environment(PraxModel.self) private var praxModel
     let document: MergedPDFDocument
-    let pdfPageSection: PDFPageSection
+    let pdfPageSection: PDFPageSectionModel
     var isSelected: Bool
     
     var body: some View {

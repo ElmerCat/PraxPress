@@ -16,6 +16,11 @@ import Foundation
 import SwiftData
 import PDFKit
 
+enum PDFPageItemError: Error {
+    case unresolvedSource
+    case pageOutOfRange
+}
+
 @Model
 final class PDFPageItemModel {
     @Attribute(.unique) var id: UUID
@@ -32,6 +37,9 @@ final class PDFPageItemModel {
     var pageIndex: Int
     var cachedAspectRatio: Double?
 
+    @Transient private var _pdfPage: PDFPage? = nil
+    var mediaBounds: CGRect
+
     var pageSection: PDFPageSectionModel?
 
     init(
@@ -46,11 +54,9 @@ final class PDFPageItemModel {
         sourceURL: URL,
         pageIndex: Int = 0,
         mergeModeRaw: String = "mergeDown"
-    ) {
+    ) throws {
         self.id = id
         self.name = name
-        // Temporarily assign provided values; we'll overwrite aspectRatio below if we can resolve the page
-        self.aspectRatio = aspectRatio
         self.trimLeft = trimLeft
         self.trimRight = trimRight
         self.trimTop = trimTop
@@ -60,19 +66,28 @@ final class PDFPageItemModel {
         self.pageIndex = pageIndex
         self.mergeModeRaw = mergeModeRaw
 
-        // Compute aspect ratio once from the actual page if possible
+        // Resolve and set pdfPage and mediaBounds, compute aspect ratio
+        let resolvedURL: URL
         if !sourceBookmark.isEmpty {
             var isStale = false
-            if let url = try? URL(resolvingBookmarkData: sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
-                let needsStop = url.startAccessingSecurityScopedResource()
-                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                if let doc = PDFDocument(url: url), pageIndex >= 0, pageIndex < doc.pageCount, let page = doc.page(at: pageIndex) {
-                    let b = page.bounds(for: .cropBox)
-                    let computed = Double(b.width / b.height)
-                    self.aspectRatio = computed
-                }
+            guard let url = try? URL(resolvingBookmarkData: sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+                throw PDFPageItemError.unresolvedSource
             }
+            resolvedURL = url
+        } else {
+            resolvedURL = sourceURL
         }
+        let needsStop = resolvedURL.startAccessingSecurityScopedResource()
+        defer { if needsStop { resolvedURL.stopAccessingSecurityScopedResource() } }
+        guard let doc = PDFDocument(url: resolvedURL) else { throw PDFPageItemError.unresolvedSource }
+        guard pageIndex >= 0, pageIndex < doc.pageCount else { throw PDFPageItemError.pageOutOfRange }
+        guard let page = doc.page(at: pageIndex) else { throw PDFPageItemError.pageOutOfRange }
+        self._pdfPage = page
+        let b = page.bounds(for: .cropBox)
+        self.mediaBounds = b
+        let computed = Double(b.width / b.height)
+        self.aspectRatio = computed
+        self.cachedAspectRatio = computed
     }
 }
 
@@ -80,18 +95,37 @@ final class PDFPageItemModel {
 final class PDFPageSectionModel {
     @Attribute(.unique) var id: UUID
     var title: String
-
+    
     // One-to-many: A section owns many items; deleting a section cascades to items.
     @Relationship(deleteRule: .cascade, inverse: \PDFPageItemModel.pageSection)
     var pageItems: [PDFPageItemModel] = []
-
+    
     init(id: UUID = UUID(), title: String) {
         self.id = id
         self.title = title
     }
+    
+    @Transient private var _pdfPage: PDFPage? = nil
+    
+    var aspectRatio: CGFloat?
+    var mergedWidthPts: CGFloat = 0
+    var mergedHeightPts: CGFloat = 0
+    
 }
 
 extension PDFPageItemModel {
+    var pdfPage: PDFPage {
+        if let page = _pdfPage { return page }
+        guard let url = resolveSourceURL(),
+              let doc = PDFDocument(url: url),
+              pageIndex >= 0, pageIndex < doc.pageCount,
+              let page = doc.page(at: pageIndex) else {
+            fatalError("PDFPageItemModel: Unable to resolve PDFPage for id \(id)")
+        }
+        _pdfPage = page
+        return page
+    }
+
     var mergeMode: MergeMode {
         get { MergeMode(rawValue: mergeModeRaw) ?? .mergeDown }
         set { mergeModeRaw = newValue.rawValue }
@@ -115,7 +149,6 @@ extension PDFPageItemModel {
     }
 
     func resolveSourceURL() -> URL? {
-        
         if !sourceBookmark.isEmpty {
             var isStale = false
             return try? URL(
@@ -130,22 +163,6 @@ extension PDFPageItemModel {
         }
     }
 
-    func makePDFPage() -> PDFPage? {
-        guard let url = resolveSourceURL() else { return nil }
-        let needsStop = url.startAccessingSecurityScopedResource()
-        defer {
-            if needsStop {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
-        guard let doc = PDFDocument(url: url),
-              pageIndex >= 0,
-              pageIndex < doc.pageCount
-        else { return nil }
-
-        return doc.page(at: pageIndex)
-    }
-
+    var media: (bounds: CGRect, aspect: Double) { (mediaBounds, aspectRatio) }
 }
 

@@ -14,7 +14,7 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
     private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<PDFPageItemView>?
     private var indexPath: IndexPath?
-    private var pdfPageItem: PDFPageItem?
+    private var pdfPageItem: PDFPageItemModel?
     
     
     func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath?,
@@ -81,7 +81,7 @@ class CollectionViewPDFPageItemView: NSCollectionViewItem {
 
 struct PDFPageItemToolbar: View {
     let document: MergedPDFDocument
-    let pdfPageItem: PDFPageItem
+    let pdfPageItem: PDFPageItemModel
     let pdfViewRef: WeakPDFViewRef
     
     var body: some View {
@@ -147,7 +147,7 @@ struct PDFPageItemView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     
-    let pdfPageItem: PDFPageItem?
+    let pdfPageItem: PDFPageItemModel?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -198,7 +198,7 @@ struct PDFPageItemView: View {
                         
                     }
                     
-                    PDFPageItemToolbar(document: document, pdfPageItem: pdfPageItem!, pdfViewRef: pdfViewRef)   
+                    PDFPageItemToolbar(document: document, pdfPageItem: pdfPageItem!, pdfViewRef: pdfViewRef)
                     HStack {
                         Text(pdfPageItem!.name)
                             .font(.caption)
@@ -240,7 +240,7 @@ struct PDFPageItemView: View {
                         
                         
                         Button { clickedIncludePageButton(pdfPageItem!) }
-                        label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                        label: { Image(systemName: pdfPageItem!.mergeMode == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                             .buttonStyle(.borderless)
                             .help("Toggle include page")
                         
@@ -249,7 +249,7 @@ struct PDFPageItemView: View {
                             .buttonStyle(.borderless)
                             .help("Toggle width guide")
                     }
-                    Text("L-\(Int(pdfPageItem!.trim.left)) T-\(Int(pdfPageItem!.trim.top)) B-\(Int(pdfPageItem!.trim.bottom)) R-\(Int(pdfPageItem!.trim.right))")
+                    Text("L-\(Int(pdfPageItem!.trims.left)) T-\(Int(pdfPageItem!.trims.top)) B-\(Int(pdfPageItem!.trims.bottom)) R-\(Int(pdfPageItem!.trims.right))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -269,7 +269,7 @@ struct PDFPageItemView: View {
                 action: {newValue in
                     print ("contentGeometry.size.width newValue: ", newValue )
                     
-                    print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
+              //      print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
                     //         contentWidth = newValue
                 }
                 
@@ -315,15 +315,15 @@ struct PDFPageItemView: View {
     
     
     
-    func clickedIncludePageButton(_ pdfPageItem: PDFPageItem) {
+    func clickedIncludePageButton(_ pdfPageItem: PDFPageItemModel) {
         
         print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if pdfPageItem.merge == .mergeSkip {
-            pdfPageItem.merge = .mergeDown
+        if pdfPageItem.mergeMode == .mergeSkip {
+            pdfPageItem.mergeMode = .mergeDown
         }
         else {
-            pdfPageItem.merge = .mergeSkip
+            pdfPageItem.mergeMode = .mergeSkip
         }
         
         
@@ -331,7 +331,7 @@ struct PDFPageItemView: View {
     
     
     
-    func clickedGuidePageButton(_ pdfPageItem: PDFPageItem) {
+    func clickedGuidePageButton(_ pdfPageItem: PDFPageItemModel) {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
@@ -342,17 +342,17 @@ struct PDFPageItemView: View {
                 if document.widthGuidePageID == nil { return }
                 guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
                 
-                var trim = pdfPageItem.trim
-                print ("old trim: ", pdfPageItem.trim )
-                print (guidePage.trim)
-                print (trim)
+                var trims = pdfPageItem.trims
+                print ("old trims: ", pdfPageItem.trims )
+                print (guidePage.trims)
+                print (trims)
                 
                 
-                trim.left = guidePage.trim.left
-                trim.right = guidePage.trim.right
-                pdfPageItem.trim = trim
-                print("PageItem - clickedGuidePageButton copied guide page trim to current page")
-                print ("new trim: ",pdfPageItem.trim )
+                trims.left = guidePage.trims.left
+                trims.right = guidePage.trims.right
+                pdfPageItem.trims = trims
+                print("PageItem - clickedGuidePageButton copied guide page trims to current page")
+                print ("new trims: ",pdfPageItem.trims )
                 
             }
             else {
@@ -365,14 +365,14 @@ struct PDFPageItemView: View {
     final class Coordinator: NSObject, PDFPageOverlayViewProvider {
         
         
-        init(_ document: MergedPDFDocument,_ pdfPageItem: PDFPageItem) {
+        init(_ document: MergedPDFDocument,_ pdfPageItem: PDFPageItemModel) {
             self.document = document
             self.pdfPageItem = pdfPageItem
          //   self.pdfPageItemView = pdfPageItemView
         }
         
         let document: MergedPDFDocument
-        let pdfPageItem: PDFPageItem
+        let pdfPageItem: PDFPageItemModel
         
         var pdfView: PDFView?
         
@@ -414,31 +414,34 @@ struct PDFPageItemView: View {
                 let bottom = max(0, pageRect.minY - media.minY)
                 let top = max(0, media.maxY - pageRect.maxY)
                 
-                let trim = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-                print("DocumentEditingView Coordinator - trim l:", trim.left, " r:", trim.right, " b:", trim.bottom, " t:", trim.top)
+                let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
+                print("DocumentEditingView Coordinator - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top)
                 
+                self.pdfPageItem.trims = trims
+/*
                 // var pdfPageItem = prax.pdfPageItem(for: page)!
                 let indexPath = self.document.pdfPageIndexPath(for: page)
                 guard let indexPath = indexPath else { return }
-                self.document.sections[indexPath.section].pdfPageItems[indexPath.item].trim = trim
+                self.document.pageSections[indexPath.section].pdfPageItems[indexPath.item].trims = trims
+*/
             }
             
             // Seed current rect from trims
             DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
                 guard let view = view, let page = page, let pdfView = pdfView else { return }
-                guard let pageItem = self.document.pdfPageItem(for: page) else { return }
+            //    guard let pageItem = self.document.pdfPageItem(for: page) else { return }
                 let crop = page.bounds(for: .cropBox)
                 let cropInView = pdfView.convert(crop, from: page)
                 let cropInOverlay = view.convert(cropInView, from: pdfView)
                 view.clampRect = cropInOverlay
                 // Recompute visible using current trims
                 //                 fatalError()
-                let trim = pageItem.trim
+                let trims = self.pdfPageItem.trims
                 let visibleInPage = CGRect(
-                    x: crop.minX + trim.left,
-                    y: crop.minY + trim.bottom,
-                    width: crop.width - trim.left - trim.right,
-                    height: crop.height - trim.top - trim.bottom
+                    x: crop.minX + trims.left,
+                    y: crop.minY + trims.bottom,
+                    width: crop.width - trims.left - trims.right,
+                    height: crop.height - trims.top - trims.bottom
                 )
                 let visibleInView = pdfView.convert(visibleInPage, from: page)
                 let visibleInOverlay = view.convert(visibleInView, from: pdfView)
@@ -455,7 +458,7 @@ struct PDFPageItemView: View {
     
     struct PDFViewRepresentable: NSViewRepresentable {
         let document: MergedPDFDocument
-        let pdfPageItem: PDFPageItem
+        let pdfPageItem: PDFPageItemModel
         let onPDFViewReady: (PDFView) -> Void
 
         func makeCoordinator() -> Coordinator {
@@ -483,6 +486,8 @@ struct PDFPageItemView: View {
             print("PDFViewRepresentable - updateNSView")
             let pdfDocument = PDFDocument()
             pdfDocument.insert(pdfPageItem.pdfPage, at: 0)
+       
+            
             pdfView.document = pdfDocument
             
             onPDFViewReady(pdfView)

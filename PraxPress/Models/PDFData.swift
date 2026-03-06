@@ -51,7 +51,7 @@ final class PDFPageItem: Identifiable, Equatable, Hashable {
         set {
             if _merge == newValue { return }
             _merge = newValue
-            print("PraxModel.merge didSet")
+            print("PraxModel.mergeModedidSet")
             document.refreshMergedDocument()
         }
     }

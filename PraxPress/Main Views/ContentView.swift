@@ -111,7 +111,7 @@ struct ContentDetailView: View {
         
         GroupBox {
             DocumentEditingToolbar()
-            if document.sections.count > 0 {
+            if document.pageSections.count > 0 {
                 DocumentEditingView()
                     .inspector(isPresented: $prax.showingPDFPageItemInspector) {
                         PDFPageItemInspector()

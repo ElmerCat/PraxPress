@@ -32,7 +32,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
     @IBOutlet weak var collectionView: NSCollectionView!
     
-    private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
+    private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>! = nil
     private var observeDocumentChange: Task<Void, Never>?
     private var observeCurrentIndexChange: Task<Void, Never>?
    
@@ -49,13 +49,13 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         
         updateUI(animated: false)
         
-        observeDocumentChange = Task {
-            for await _ in Observations({ self.document.sections }) {
-                print("PagesViewController observeDocumentChange  ") //, document.sections)
+/*        observeDocumentChange = Task {
+            for await _ in Observations({ self.document.pageSections }) {
+                print("PagesViewController observeDocumentChange  ") //, document.pageSections)
                 updateUI()
             }
         }
-        
+ */
         observeCurrentIndexChange = Task {
             
             for await _ in Observations({ self.document.selectedPageItems }) {
@@ -129,8 +129,8 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     private func configureDataSource() {
-        dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
-            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
+        dataSource = NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>(collectionView: collectionView) {
+            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItemModel) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
             guard let pageItem = item as? CollectionViewPDFPageItemView else { return nil }
             pageItem.configure(for: self.document, at: indexPath,
@@ -142,8 +142,8 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             guard let self else { return nil }
             
             // Ensure section index is valid for current model snapshot
-            let sections = document.sections
-            guard indexPath.section >= 0 && indexPath.section < sections.count else {
+            let pageSections = document.pageSections
+            guard indexPath.section >= 0 && indexPath.section < pageSections.count else {
                 // The layout asked for a view that doesn’t match current state; return nil safely.
                 return nil
             }
@@ -154,7 +154,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"),
                     for: indexPath) as? SectionHeader else { return nil }
                 
- //               header.label.stringValue = document.sections[indexPath.section].title
+ //               header.label.stringValue = document.pageSections[indexPath.section].title
                 header.configure(for: document, at: indexPath,
                                  isSelected: self.selectedSections.contains(indexPath.section))
                 
@@ -188,11 +188,11 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
      func updateUI(animated: Bool = true) {
-        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-         let pdfPageSections = document.sections
+        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSectionModel, PDFPageItemModel>()
+         let pdfPageSections = document.pageSections
          pdfPageSections.forEach {
             snapshot.appendSections([$0])
-            snapshot.appendItems($0.pdfPageItems)
+            snapshot.appendItems($0.pageItems)
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
@@ -203,7 +203,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             
             if self.collectionView.selectionIndexPaths.isEmpty,
                let firstSection = pdfPageSections.first,
-               !firstSection.pdfPageItems.isEmpty {
+               !firstSection.pageItems.isEmpty {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
                 self.safelyScrollTo([firstIndexPath], animated: false)

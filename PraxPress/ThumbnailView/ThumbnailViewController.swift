@@ -39,7 +39,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
 
     @IBOutlet weak var collectionView: NSCollectionView!
     
-    private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>! = nil
+    private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>! = nil
     private var observeDocumentChange: Task<Void, Never>?
     private var observeCurrentIndexChange: Task<Void, Never>?
     private var pendingSelectionUpdate: DispatchWorkItem?
@@ -58,12 +58,14 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         
         updateUI(animated: false)
         
-        observeDocumentChange = Task {
-            for await _ in Observations({ self.document.sections }) {
+/*        observeDocumentChange = Task {
+            for await _ in Observations({ self.document.pageSections }) {
                 print("ThumbnailViewController observeDocumentChange  ") //, document.sections)
                 updateUI()
             }
         }
+ */
+        
         observeCurrentIndexChange = Task {
             for await _ in Observations({ self.document.selectedPageItems }) {
                 print("ThumbnailViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
@@ -176,8 +178,8 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     private func configureDataSource() {
-        dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
-            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
+        dataSource = NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>(collectionView: collectionView) {
+            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItemModel) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"), for: indexPath)
             guard let pageItem = item as? PDFPageThumbnail else { return nil }
             pageItem.configure(for: self.document, at: indexPath,
@@ -189,7 +191,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
             guard let self else { return nil }
             
             // Ensure section index is valid for current model snapshot
-            let sections = document.sections
+            let sections = document.pageSections
             guard indexPath.section >= 0 && indexPath.section < sections.count else {
                 // The layout asked for a view that doesn’t match current state; return nil safely.
                 return nil
@@ -237,11 +239,11 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     func updateUI(animated: Bool = true) {
-        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-        let secs = document.sections
+        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSectionModel, PDFPageItemModel>()
+        let secs = document.pageSections
         secs.forEach {
             snapshot.appendSections([$0])
-            snapshot.appendItems($0.pdfPageItems)
+            snapshot.appendItems($0.pageItems)
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
