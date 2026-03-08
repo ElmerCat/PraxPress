@@ -13,43 +13,47 @@ import Foundation
 struct MainSceneRoot: View {
 
     @Environment(FilesPersistenceController.self) private var persistence
-//    @Environment(\.modelContext) private var modelContext
+
     @State private var praxModel = PraxModel()
     @State private var document = MergedPDFDocument()
+
     @State private var windowStore: WindowEditingStore? = nil
- //   @Query() var pdfFiles: [PDFFile]
- //   @Query() var pdfFileGroups: [PDFFileGroup]
+    @State private var windowContext: ModelContext? = nil
 
     var body: some View {
         ContentView()
             .environment(document)
             .environment(praxModel)
-            .environment(\.perWindowModelContainer, windowStore?.container)
+            // Provide the per-window ModelContext to the view tree via a custom key,
+            // so ContentView can choose exactly where to apply .modelContext(...)
+            .environment(\.perWindowModelContext, windowContext)
             .onModifierKeysChanged(mask: .option) { old, new in
                 if new.isEmpty {
                     praxModel.optionKeyPressed = false
-                    // Option key released
                     print("Option key released")
                 }
                 else if new.contains(.option) {
                     praxModel.optionKeyPressed = true
-                    // Option key pressed
                     print("Option key pressed")
                 }
             }
             .task {
                 if windowStore == nil {
+                    // If this is file-backed in your app, use your actual init. In-memory is fine for testing.
                     windowStore = try? WindowEditingStore(inMemory: true)
                 }
-                if let ctx = windowStore?.context {
-                    document.windowModelContext = ctx
+                if windowContext == nil, let container = windowStore?.container {
+                    // Create exactly one ModelContext for the per-window container
+                    windowContext = ModelContext(container)
                 }
+                // Give the document the exact same context instance
+                document.windowModelContext = windowContext
+
+                // Wire up cross-refs
                 praxModel.documment = document
                 document.prax = praxModel
                 document.persistence = persistence
-             }
-        
-          //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
+            }
     }
 }
 
@@ -59,7 +63,6 @@ struct MainCommands: Commands {
     var body: some Commands {
         CommandGroup(after: .textEditing) {
             Button("Select All") {
-                // Use focused values to trigger select all
                 NSApp.keyWindow?.makeFirstResponder(nil)
             }
             .keyboardShortcut("a", modifiers: [.command])
@@ -78,17 +81,18 @@ struct MainCommands: Commands {
             }
             .keyboardShortcut("s", modifiers: [.command, .control])
         }
-        
     }
 }
 
-private struct PerWindowModelContainerKey: EnvironmentKey {
-    static let defaultValue: ModelContainer? = nil
+// MARK: - Per-window ModelContext environment key
+
+private struct PerWindowModelContextKey: EnvironmentKey {
+    static let defaultValue: ModelContext? = nil
 }
 
 extension EnvironmentValues {
-    var perWindowModelContainer: ModelContainer? {
-        get { self[PerWindowModelContainerKey.self] }
-        set { self[PerWindowModelContainerKey.self] = newValue }
+    var perWindowModelContext: ModelContext? {
+        get { self[PerWindowModelContextKey.self] }
+        set { self[PerWindowModelContextKey.self] = newValue }
     }
 }

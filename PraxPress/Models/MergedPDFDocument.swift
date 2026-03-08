@@ -327,95 +327,98 @@ import Foundation
     
     // MARK: - Cross-section move/copy
 
-    func performDropOrAction(for item: PDFPageItemModel,
-                             to destinationSection: PDFPageSectionModel,
-                             at location: Int? = nil) {
-        // If source and destination are the same section, let in-section .onMove handle it
-        if let src = item.pageSection, src === destinationSection {
-            return
-        }
-        // If Option key is pressed, copy; otherwise, move
-        if prax?.optionKeyPressed == true {
-            copyItem(item, to: destinationSection, at: location)
-        } else {
-            moveItem(item, to: destinationSection, at: location)
-        }
-    }
-
-    /// Move an existing item to a destination section at a specific logical location.
-    /// - Parameter location: Insertion semantics:
-    ///   - nil or 0: append at end
-    ///   - > 0: insert before that 1-based position (1 means at beginning)
-    ///   - < 0: count backward from end (e.g., -1 means before last, clamp to 0)
-    func moveItem(_ item: PDFPageItemModel,
-                  to destinationSection: PDFPageSectionModel,
-                  at location: Int? = nil) {
-        guard let ctx = windowModelContext else { return }
-
-        // Remove from source section if any
-        if let src = item.pageSection,
-           let idx = src.pageItems.firstIndex(where: { $0.id == item.id }) {
-            src.pageItems.remove(at: idx)
-            // Reindex by current relationship order and assign back
-            for (i, it) in src.pageItems.enumerated() { it.orderIndex = i }
-            src.pageItems = src.pageItems
+        func performDropOrAction(for item: PDFPageItemModel,
+                                 to destinationSection: PDFPageSectionModel,
+                                 at location: Int? = nil) {
+            // One path for both same-section and cross-section:
+            if prax?.optionKeyPressed == true {
+                copyItem(item, to: destinationSection, at: location)
+            } else {
+                moveItem(item, to: destinationSection, at: location)
+            }
         }
 
-        // Destination index (1-based insert-before, 0 or nil = append)
-        let destIndex = normalizedInsertionIndex(count: destinationSection.pageItems.count, location: location)
+        /// Move an existing item to a destination section at a specific logical location.
+        /// - Parameter location: Insertion semantics:
+        ///   - nil or 0: append at end
+        ///   - > 0: insert before that 1-based position (1 means at beginning)
+        ///   - < 0: count backward from end (e.g., -1 means before last, clamp to 0)
+        func moveItem(_ item: PDFPageItemModel,
+                      to destinationSection: PDFPageSectionModel,
+                      at location: Int? = nil) {
+            guard let ctx = windowModelContext else { return }
 
-        // Insert into destination relationship at computed index
-        item.pageSection = destinationSection
-        destinationSection.pageItems.insert(item, at: max(0, min(destIndex, destinationSection.pageItems.count)))
+            // Capture same-section context and source index BEFORE mutation
+            let movingWithinSameSection = (item.pageSection === destinationSection)
+            let sourceIndex = item.pageSection?.pageItems.firstIndex(where: { $0.id == item.id })
 
-        // Normalize destination by position and assign back
-        for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
-        destinationSection.pageItems = destinationSection.pageItems
+            // Compute destination index based on the current (pre-removal) count
+            let preRemovalCount = destinationSection.pageItems.count
+            var destIndex = normalizedInsertionIndex(count: preRemovalCount, location: location)
 
-        do { try ctx.save() } catch { print("Move save failed: \(error)") }
-        refreshMergedDocument()
-    }
+            // If moving within the same section and the source index is before the destination,
+            // the removal will shift indices left by 1, so adjust the destination index.
+            if movingWithinSameSection, let s = sourceIndex, s < destIndex {
+                destIndex = max(0, destIndex - 1)
+            }
 
-    /// Copy an item to a destination section at a specific logical location.
-    /// Creates a new PDFPageItemModel that shares the same source/bookmark and pageIndex.
-    func copyItem(_ item: PDFPageItemModel,
-                  to destinationSection: PDFPageSectionModel,
-                  at location: Int? = nil) {
-        guard let ctx = windowModelContext else { return }
+            // Remove from source section if any (same-section moves supported)
+            if let src = item.pageSection,
+               let idx = src.pageItems.firstIndex(where: { $0.id == item.id }) {
+                src.pageItems.remove(at: idx)
+                for (i, it) in src.pageItems.enumerated() { it.orderIndex = i }
+                src.pageItems = src.pageItems
+            }
 
-        // Resolve a usable URL for the clone (fallback to stored string if bookmark can’t resolve)
-        let resolvedURL = item.resolveSourceURL() ?? URL(fileURLWithPath: item.sourceURLString)
+            // Insert into destination relationship at computed index
+            item.pageSection = destinationSection
+            let clamped = max(0, min(destIndex, destinationSection.pageItems.count))
+            destinationSection.pageItems.insert(item, at: clamped)
 
-        // Create a clone
-        let clone = PDFPageItemModel(
-            name: item.name,
-            aspectRatio: item.aspectRatio,
-            trimLeft: item.trimLeft,
-            trimRight: item.trimRight,
-            trimTop: item.trimTop,
-            trimBottom: item.trimBottom,
-            sourceBookmark: item.sourceBookmark,
-            sourceURL: resolvedURL,
-            pageIndex: item.pageIndex,
-            orderIndex: 0,
-            mergeModeRaw: item.mergeModeRaw
-        )
-        clone.pageSection = destinationSection
+            // Normalize destination by position and assign back
+            for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
+            destinationSection.pageItems = destinationSection.pageItems
 
-        // Destination index (1-based insert-before, 0 or nil = append)
-        let destIndex = normalizedInsertionIndex(count: destinationSection.pageItems.count, location: location)
+            do { try ctx.save() } catch { print("Move save failed: \(error)") }
+            refreshMergedDocument()
+        }
 
-        // Insert clone into destination relationship
-        destinationSection.pageItems.insert(clone, at: max(0, min(destIndex, destinationSection.pageItems.count)))
+        /// Copy an item to a destination section at a specific logical location.
+        /// Creates a new PDFPageItemModel that shares the same source/bookmark and pageIndex.
+        func copyItem(_ item: PDFPageItemModel,
+                      to destinationSection: PDFPageSectionModel,
+                      at location: Int? = nil) {
+            guard let ctx = windowModelContext else { return }
 
-        // Normalize destination by position and assign back
-        for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
-        destinationSection.pageItems = destinationSection.pageItems
+            let resolvedURL = item.resolveSourceURL() ?? URL(fileURLWithPath: item.sourceURLString)
 
-        ctx.insert(clone)
-        do { try ctx.save() } catch { print("Copy save failed: \(error)") }
-        refreshMergedDocument()
-    }
+            let clone = PDFPageItemModel(
+                name: item.name,
+                aspectRatio: item.aspectRatio,
+                trimLeft: item.trimLeft,
+                trimRight: item.trimRight,
+                trimTop: item.trimTop,
+                trimBottom: item.trimBottom,
+                sourceBookmark: item.sourceBookmark,
+                sourceURL: resolvedURL,
+                pageIndex: item.pageIndex,
+                orderIndex: 0,
+                mergeModeRaw: item.mergeModeRaw
+            )
+            clone.pageSection = destinationSection
+
+            // Destination index (1-based insert-before, 0 or nil = append)
+            let destIndex = normalizedInsertionIndex(count: destinationSection.pageItems.count, location: location)
+
+            destinationSection.pageItems.insert(clone, at: max(0, min(destIndex, destinationSection.pageItems.count)))
+
+            for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
+            destinationSection.pageItems = destinationSection.pageItems
+
+            ctx.insert(clone)
+            do { try ctx.save() } catch { print("Copy save failed: \(error)") }
+            refreshMergedDocument()
+        }
 }
 
 

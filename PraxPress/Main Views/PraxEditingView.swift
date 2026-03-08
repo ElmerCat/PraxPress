@@ -14,15 +14,16 @@ struct PraxEditingView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-    @Environment(\.perWindowModelContainer) private var modelContainer
 
-    @State private var effectivePerWindowContainer: ModelContainer? = nil
     @State private var selectedPages: Set<UUID> = [] {
         didSet { print("selectedPages didSet: ", selectedPages) }
     }
     @State private var selectedSections: Set<UUID> = [] {
         didSet { print("selectedSections didSet: ", selectedSections) }
     }
+
+    // Current drop target to drive custom insertion indicators
+    @State private var dropTarget: DropTarget? = nil
 
     // Persisted order for sections
     @Query(sort: \PDFPageSectionModel.orderIndex) private var pageSections: [PDFPageSectionModel]
@@ -38,16 +39,11 @@ struct PraxEditingView: View {
                     ZStack {
                         Color.contentViewBackground.ignoresSafeArea()
 
-                        // Native row (page) selection
                         List(selection: $selectedPages) {
-                            // Reorderable sections
+                            // Reorderable sections (by dragging headers)
                             ForEach(pageSections) { section in
                                 Section(header: sectionHeader(section)) {
                                     sectionContent(for: section)
-                                }
-                                // Section-level drop to append at end when dropping in empty space
-                                .onDrop(of: [.text], isTargeted: nil) { providers in
-                                    handleSectionAppendDrop(providers: providers, into: section)
                                 }
                             }
                             .onMove { indices, newOffset in
@@ -85,39 +81,32 @@ struct PraxEditingView: View {
     // MARK: - Section Content
 
     private func sectionContent(for section: PDFPageSectionModel) -> some View {
-        // Render by identity to avoid stale snapshot/index drift
-        ForEach(section.orderedItems) { pageItem in
-            PageItemRow(
-                pageItem: pageItem,
-                pageSection: section,
-                selectedPages: $selectedPages,
-                allSectionsProvider: { pageSections }
+        VStack(spacing: 0) {
+            ForEach(section.orderedItems) { pageItem in
+                PageItemRow(
+                    pageItem: pageItem,
+                    pageSection: section,
+                    selectedPages: $selectedPages,
+                    allSectionsProvider: { pageSections },
+                    isInsertTarget: dropTarget == DropTarget(sectionID: section.id, beforeItemID: pageItem.id),
+                    setDropTarget: { dropTarget = $0 },
+                    optionKeyPressedProvider: { praxModel.optionKeyPressed }
+                )
+            }
+
+            // Explicit "append" drop target at end of section with visible indicator
+            SectionAppendRow(
+                section: section,
+                isTarget: dropTarget == DropTarget(sectionID: section.id, beforeItemID: nil),
+                allSectionsProvider: { pageSections },
+                document: document,
+                setDropTarget: { dropTarget = $0 },
+                optionKeyPressedProvider: { praxModel.optionKeyPressed }
             )
-        }
-        // In-section reorder (persist relationship + orderIndex)
-        .onMove { indices, newOffset in
-            reorderItems(in: section, indices: indices, newOffset: newOffset)
         }
     }
 
     // MARK: - Persistence helpers
-
-    private func reorderItems(in section: PDFPageSectionModel, indices: IndexSet, newOffset: Int) {
-        // Start from the current ordered list
-        var ordered = section.orderedItems
-        ordered.move(fromOffsets: indices, toOffset: newOffset)
-
-        // 1) Update orderIndex to match new order
-        for (idx, item) in ordered.enumerated() {
-            item.orderIndex = idx
-        }
-
-        // 2) Replace the relationship array to match the new order
-        section.pageItems = ordered
-
-        do { try modelContext.save() }
-        catch { print("Failed to save item order: \(error)") }
-    }
 
     private func reorderSections(indices: IndexSet, newOffset: Int) {
         var sectionsCopy = pageSections
@@ -127,30 +116,6 @@ struct PraxEditingView: View {
         }
         do { try modelContext.save() }
         catch { print("Failed to save section order: \(error)") }
-    }
-
-    // MARK: - Drops
-
-    // Append at end when dropping in empty area of a section
-    private func handleSectionAppendDrop(providers: [NSItemProvider], into section: PDFPageSectionModel) -> Bool {
-        guard let provider = providers.first else { return false }
-        provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { item, _ in
-            guard
-                let data = item as? Data,
-                let idString = String(data: data, encoding: .utf8),
-                let uuid = UUID(uuidString: idString)
-            else { return }
-
-            // Resolve source item across all sections
-            let allItems = pageSections.flatMap { $0.pageItems }
-            guard let sourceItem = allItems.first(where: { $0.id == uuid }) else { return }
-
-            DispatchQueue.main.async {
-                // location 0 = append at end (your semantics)
-                document.performDropOrAction(for: sourceItem, to: section, at: 0)
-            }
-        }
-        return true
     }
 
     // MARK: - Debug
@@ -165,6 +130,14 @@ struct PraxEditingView: View {
     }
 }
 
+// MARK: - DropTarget model
+
+private struct DropTarget: Equatable {
+    let sectionID: UUID
+    // If nil, means "append to end of section"
+    let beforeItemID: UUID?
+}
+
 // MARK: - Row Subview
 
 private struct PageItemRow: View {
@@ -175,43 +148,196 @@ private struct PageItemRow: View {
     @Binding var selectedPages: Set<UUID>
     let allSectionsProvider: () -> [PDFPageSectionModel]
 
+    // For custom indicator
+    let isInsertTarget: Bool
+
+    // State setter for global drop target
+    let setDropTarget: (DropTarget?) -> Void
+    let optionKeyPressedProvider: () -> Bool
+
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Text(pageItem.name)
             Spacer()
             if selectedPages.contains(pageItem.id) {
                 Image(systemName: "checkmark")
             }
         }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        // Unified drag from anywhere on the row
         .onDrag {
             NSItemProvider(object: pageItem.id.uuidString as NSString)
         }
-        .onDrop(of: [.text], isTargeted: nil) { providers in
-            guard let provider = providers.first else { return false }
-            provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { item, _ in
-                guard
-                    let data = item as? Data,
-                    let idString = String(data: data, encoding: .utf8),
-                    let uuid = UUID(uuidString: idString)
-                else { return }
-
-                // Resolve source item across all sections
-                let sections = allSectionsProvider()
-                let allItems = sections.flatMap { $0.pageItems }
-                guard let sourceItem = allItems.first(where: { $0.id == uuid }) else { return }
-
-                DispatchQueue.main.async {
-                    // Compute current index precisely at drop time
-                    if let currentIndex = pageSection.orderedItems.firstIndex(where: { $0.id == pageItem.id }) {
-                        // Insert before this row (1-based “before N”)
-                        document.performDropOrAction(for: sourceItem, to: pageSection, at: currentIndex + 1)
-                    } else {
-                        // Fallback: append
-                        document.performDropOrAction(for: sourceItem, to: pageSection, at: 0)
-                    }
-                }
+        // Accept drops to insert BEFORE this row
+        .onDrop(of: [UTType.plainText], delegate: RowDropDelegate(
+            targetRowItem: pageItem,
+            targetSection: pageSection,
+            allSectionsProvider: allSectionsProvider,
+            document: document,
+            optionKeyPressedProvider: optionKeyPressedProvider,
+            setDropTarget: setDropTarget
+        ))
+        // Custom insertion indicator line
+        .overlay(alignment: .top) {
+            if isInsertTarget {
+                Rectangle()
+                    .fill(Color.accentColor)
+                    .frame(height: 2)
+                    .padding(.horizontal, -8)
+                    .allowsHitTesting(false) // <- don’t steal clicks
             }
-            return true
         }
     }
+}
+
+// MARK: - Section Append Row
+
+private struct SectionAppendRow: View {
+    let section: PDFPageSectionModel
+    let isTarget: Bool
+    let allSectionsProvider: () -> [PDFPageSectionModel]
+    let document: MergedPDFDocument
+    let setDropTarget: (DropTarget?) -> Void
+    let optionKeyPressedProvider: () -> Bool
+
+    var body: some View {
+        ZStack(alignment: .center) {
+            if isTarget {
+                Rectangle()
+                    .fill(Color.accentColor)
+                    .frame(height: 2)
+                    .padding(.horizontal, -8)
+                    .padding(.vertical, 6)
+                    .accessibilityHidden(true)
+            } else {
+                // Keep a minimal height so it's easy to target
+                Color.clear
+                    .frame(height: 8)
+            }
+        }
+        .contentShape(Rectangle())
+        .onDrop(of: [UTType.plainText], delegate: SectionAppendDropDelegate(
+            section: section,
+            allSectionsProvider: allSectionsProvider,
+            document: document,
+            optionKeyPressedProvider: optionKeyPressedProvider,
+            setDropTarget: setDropTarget
+        ))
+    }
+}
+
+// MARK: - Drop Delegates
+
+private struct RowDropDelegate: DropDelegate {
+    let targetRowItem: PDFPageItemModel
+    let targetSection: PDFPageSectionModel
+    let allSectionsProvider: () -> [PDFPageSectionModel]
+    let document: MergedPDFDocument
+    let optionKeyPressedProvider: () -> Bool
+    let setDropTarget: (DropTarget?) -> Void
+
+    func validateDrop(info: DropInfo) -> Bool {
+        !info.itemProviders(for: [UTType.plainText]).isEmpty
+    }
+
+    func dropEntered(info: DropInfo) {
+        setDropTarget(DropTarget(sectionID: targetSection.id, beforeItemID: targetRowItem.id))
+    }
+
+    func dropExited(info: DropInfo) {
+        setDropTarget(nil)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        setDropTarget(DropTarget(sectionID: targetSection.id, beforeItemID: targetRowItem.id))
+        return DropProposal(operation: optionKeyPressedProvider() ? .copy : .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        setDropTarget(nil)
+        guard let provider = info.itemProviders(for: [UTType.plainText]).first else { return false }
+
+        provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, _ in
+            guard let uuid = decodeUUID(from: item) else { return }
+
+            let sections = allSectionsProvider()
+            let allItems = sections.flatMap { $0.pageItems }
+            guard let sourceItem = allItems.first(where: { $0.id == uuid }) else { return }
+
+            // Insert before this row: find the current index of the target row
+            if let currentIndex = targetSection.orderedItems.firstIndex(where: { $0.id == targetRowItem.id }) {
+                let location = currentIndex + 1 // your 1-based “before N”
+                DispatchQueue.main.async {
+                    document.performDropOrAction(for: sourceItem, to: targetSection, at: location)
+                }
+            } else {
+                // Fallback: append
+                DispatchQueue.main.async {
+                    document.performDropOrAction(for: sourceItem, to: targetSection, at: 0)
+                }
+            }
+        }
+        return true
+    }
+}
+
+private struct SectionAppendDropDelegate: DropDelegate {
+    let section: PDFPageSectionModel
+    let allSectionsProvider: () -> [PDFPageSectionModel]
+    let document: MergedPDFDocument
+    let optionKeyPressedProvider: () -> Bool
+    let setDropTarget: (DropTarget?) -> Void
+
+    func validateDrop(info: DropInfo) -> Bool {
+        !info.itemProviders(for: [UTType.plainText]).isEmpty
+    }
+
+    func dropEntered(info: DropInfo) {
+        setDropTarget(DropTarget(sectionID: section.id, beforeItemID: nil))
+    }
+
+    func dropExited(info: DropInfo) {
+        setDropTarget(nil)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        setDropTarget(DropTarget(sectionID: section.id, beforeItemID: nil))
+        return DropProposal(operation: optionKeyPressedProvider() ? .copy : .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        setDropTarget(nil)
+        guard let provider = info.itemProviders(for: [UTType.plainText]).first else { return false }
+
+        provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, _ in
+            guard let uuid = decodeUUID(from: item) else { return }
+
+            let sections = allSectionsProvider()
+            let allItems = sections.flatMap { $0.pageItems }
+            guard let sourceItem = allItems.first(where: { $0.id == uuid }) else { return }
+
+            // location 0 = append at end
+            DispatchQueue.main.async {
+                document.performDropOrAction(for: sourceItem, to: section, at: 0)
+            }
+        }
+        return true
+    }
+}
+
+// MARK: - Helpers
+
+private func decodeUUID(from item: NSSecureCoding?) -> UUID? {
+    // Item may arrive as Data or NSString
+    if let data = item as? Data,
+       let idString = String(data: data, encoding: .utf8),
+       let uuid = UUID(uuidString: idString) {
+        return uuid
+    }
+    if let str = item as? NSString,
+       let uuid = UUID(uuidString: str as String) {
+        return uuid
+    }
+    return nil
 }

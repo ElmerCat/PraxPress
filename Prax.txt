@@ -792,3 +792,6 @@ In MainSceneRoot, the windowModelContext is set for MergedPDFDocument, and the p
 
 Please make complete proposals for code changes, not snippets.  Unfortunately, I can no longer trust you to apply changes on your own.
 
+*******************
+
+The app has two distinct contexts.  One is created at the app level in PraxPressApp to be shared by any view and also the FilesPersistenceController class. The second per-window context is created in MainSceneRoot and given to the MergedPDFDocument class as well as being placed into the environment. ContentView determines which subview gets which context, e.g.: SourceFilesView get the app-level context, and ContentDetailView gets the per-window context. Querys by SourceFilesView return items from the app-level context, and it uses FilesPersistenceController to insert/delete model opbjects — this works fine. Querys by ContentDetailView and subviews return items from the per-window context, and update as expected when new items are added by MergedPDFDocument.  Rearranging page items within their sections sometimes seems to work and stick, then, other times it doesn't work at all. Rearranging items into other sections only sticks for a few seconds, then they go back where they started from.
