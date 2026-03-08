@@ -132,7 +132,7 @@ import Foundation
     }
     
     
-    func addPagesFromURLBookmark(_ title: String = "New Page Section", url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?, at location: Int? = 0) {
+    func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?, at location: Int? = 0) {
         guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
@@ -144,7 +144,7 @@ import Foundation
                 ensureSectionInOrder(givenSection, at: sectionIndex)
                 return givenSection
             } else {
-                let newSection = PDFPageSectionModel(title: title)
+                let newSection = PDFPageSectionModel(title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section")
                 ctx.insert(newSection)
                 pageSections.insert(newSection, at: sectionIndex)
                 return newSection
@@ -179,6 +179,9 @@ import Foundation
             return
         }
         
+        let needsStop = fileURL.startAccessingSecurityScopedResource()
+        defer { if needsStop { fileURL.stopAccessingSecurityScopedResource() } }
+        
         // Determine page count fallback to 1
         var pageCount = 1
         if let doc = PDFDocument(url: fileURL) { pageCount = doc.pageCount }
@@ -190,8 +193,7 @@ import Foundation
         for index in 0..<pageCount {
             let displayName = nameForPage(url: fileURL, index: index)
             
-            do {
-                let item = try PDFPageItemModel(
+            let item = PDFPageItemModel(
                     name: displayName,
                     aspectRatio: 0,
                     trimLeft: 0,
@@ -207,11 +209,7 @@ import Foundation
                 ctx.insert(item)
                 pageInsertIndex += 1
                 
-            }
             
-            catch {
-                print("let item = try PDFPageItemModel failed: \(error)")
-            }
             
 
         }

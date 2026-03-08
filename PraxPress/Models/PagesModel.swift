@@ -25,20 +25,19 @@ enum PDFPageItemError: Error {
 final class PDFPageItemModel {
     @Attribute(.unique) var id: UUID
     var name: String
-    var aspectRatio: Double
     var trimLeft: Double
     var trimRight: Double
     var trimTop: Double
     var trimBottom: Double
     var mergeModeRaw: String
-
     var sourceBookmark: Data
     var sourceURLString: String
     var pageIndex: Int
-    var cachedAspectRatio: Double?
+    var orderIndex: Int
 
     @Transient private var _pdfPage: PDFPage? = nil
-    var mediaBounds: CGRect
+    @Transient private var _mediaBounds: CGRect? = nil
+    @Transient private var _aspectRatio: Double? = nil
 
     var pageSection: PDFPageSectionModel?
 
@@ -53,8 +52,9 @@ final class PDFPageItemModel {
         sourceBookmark: Data = Data(),
         sourceURL: URL,
         pageIndex: Int = 0,
+        orderIndex: Int = 0,
         mergeModeRaw: String = "mergeDown"
-    ) throws {
+    ) {
         self.id = id
         self.name = name
         self.trimLeft = trimLeft
@@ -64,30 +64,8 @@ final class PDFPageItemModel {
         self.sourceBookmark = sourceBookmark
         self.sourceURLString = sourceURL.absoluteString
         self.pageIndex = pageIndex
+        self.orderIndex = orderIndex
         self.mergeModeRaw = mergeModeRaw
-
-        // Resolve and set pdfPage and mediaBounds, compute aspect ratio
-        let resolvedURL: URL
-        if !sourceBookmark.isEmpty {
-            var isStale = false
-            guard let url = try? URL(resolvingBookmarkData: sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
-                throw PDFPageItemError.unresolvedSource
-            }
-            resolvedURL = url
-        } else {
-            resolvedURL = sourceURL
-        }
-        let needsStop = resolvedURL.startAccessingSecurityScopedResource()
-        defer { if needsStop { resolvedURL.stopAccessingSecurityScopedResource() } }
-        guard let doc = PDFDocument(url: resolvedURL) else { throw PDFPageItemError.unresolvedSource }
-        guard pageIndex >= 0, pageIndex < doc.pageCount else { throw PDFPageItemError.pageOutOfRange }
-        guard let page = doc.page(at: pageIndex) else { throw PDFPageItemError.pageOutOfRange }
-        self._pdfPage = page
-        let b = page.bounds(for: .cropBox)
-        self.mediaBounds = b
-        let computed = Double(b.width / b.height)
-        self.aspectRatio = computed
-        self.cachedAspectRatio = computed
     }
 }
 
@@ -95,14 +73,16 @@ final class PDFPageItemModel {
 final class PDFPageSectionModel {
     @Attribute(.unique) var id: UUID
     var title: String
+    var orderIndex: Int
     
     // One-to-many: A section owns many items; deleting a section cascades to items.
     @Relationship(deleteRule: .cascade, inverse: \PDFPageItemModel.pageSection)
     var pageItems: [PDFPageItemModel] = []
     
-    init(id: UUID = UUID(), title: String) {
+    init(id: UUID = UUID(), title: String, orderIndex: Int = 0) {
         self.id = id
         self.title = title
+        self.orderIndex = orderIndex
     }
     
 //    @Transient var pdfPage: PDFPage? = nil
@@ -116,17 +96,42 @@ final class PDFPageSectionModel {
 extension PDFPageItemModel {
     var pdfPage: PDFPage {
         if let page = _pdfPage { return page }
-        guard let url = resolveSourceURL(),
-              let doc = PDFDocument(url: url),
-              pageIndex >= 0, pageIndex < doc.pageCount,
-              let page = doc.page(at: pageIndex) else {
+        return loadPageAndCache()
+    }
+
+    private func loadPageAndCache() -> PDFPage {
+        if let url = resolveSourceURL() {
             
-            print("PDFPageItemModel: Unable to resolve PDFPage at URL: \(sourceURLString)")
-            return PDFPage()
-//            fatalError("PDFPageItemModel: Unable to resolve PDFPage for id \(id)")
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
+            if let doc = PDFDocument(url: url) {
+                if pageIndex >= 0, pageIndex < doc.pageCount {
+                    if let page = doc.page(at: pageIndex) {
+                        _pdfPage = page
+                    }
+                }
+            }
         }
-        _pdfPage = page
-        return page
+        else {
+            print("PDFPageItemModel: Unable to resolve PDFPage at URL: \(sourceURLString)")
+            _pdfPage = PDFPage()
+        }
+        _mediaBounds = _pdfPage!.bounds(for: .cropBox)
+        _aspectRatio = Double(_mediaBounds!.width / _mediaBounds!.height)
+        return _pdfPage!
+    }
+
+    var mediaBounds: CGRect {
+        if let b = _mediaBounds { return b }
+        _ = pdfPage
+        return _mediaBounds ?? .zero
+    }
+    
+    var aspectRatio: Double {
+        if let a = _aspectRatio { return a }
+        _ = pdfPage
+        return _aspectRatio ?? 0
     }
 
     var mergeMode: MergeMode {
@@ -153,6 +158,7 @@ extension PDFPageItemModel {
 
     func resolveSourceURL() -> URL? {
         if !sourceBookmark.isEmpty {
+            print("PDFPageItemModel: Trying sourceBookmark")
             var isStale = false
             return try? URL(
                 resolvingBookmarkData: sourceBookmark,
@@ -162,6 +168,7 @@ extension PDFPageItemModel {
             )
         }
         else {
+            print("PDFPageItemModel: Failed sourceBookmark - returning URL: \(sourceURLString)")
            return URL(string: sourceURLString)
         }
     }
@@ -169,3 +176,26 @@ extension PDFPageItemModel {
     var media: (bounds: CGRect, aspect: Double) { (mediaBounds, aspectRatio) }
 }
 
+extension PDFPageSectionModel {
+    /// Reindex all items in this section sequentially from 0 based on the current array order
+    func normalizeItemOrder() {
+        for (idx, item) in pageItems.enumerated() {
+            item.orderIndex = idx
+        }
+    }
+}
+
+extension Array where Element == PDFPageSectionModel {
+    /// Normalize section orderIndex values sequentially from 0 based on array order
+    mutating func normalizeSectionOrder() {
+        for (idx, section) in self.enumerated() {
+            section.orderIndex = idx
+        }
+    }
+}
+
+extension PDFPageSectionModel {
+    var orderedItems: [PDFPageItemModel] {
+        pageItems.sorted { $0.orderIndex < $1.orderIndex }
+    }
+}

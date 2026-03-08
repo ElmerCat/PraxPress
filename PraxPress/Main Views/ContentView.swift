@@ -43,7 +43,7 @@ struct ContentView: View {
                     }
                     content: {
                         
-                        if let container = effectivePerWindowContainer {
+                        if let container = perWindowContainer {
                             ContentDetailView()
                                 .modelContainer(container)
                                 .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
@@ -74,7 +74,7 @@ struct ContentView: View {
             }
             .background(Color.indigo.opacity(0.5))
         }
-        .onAppear {
+   /*     .onAppear {
             // Prefer the provided per-window container; fall back to current environment's container if available
             if effectivePerWindowContainer == nil {
                 effectivePerWindowContainer = perWindowContainer ?? modelContext.container
@@ -88,6 +88,14 @@ struct ContentView: View {
                 #endif
             }
         }
+        .onChange(of: perWindowContainer) { _, newValue in
+              if let newValue {
+                  effectivePerWindowContainer = newValue
+                  print("[ContentView] Adopted per-window container")
+              }
+          }
+        
+   */
         .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
         .onGeometryChange(for: CGFloat.self) {  windowGeometry in
             print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width)
@@ -112,10 +120,20 @@ struct ContentDetailView: View {
         GroupBox {
             DocumentEditingToolbar()
             if document.pageSections.count > 0 {
-                DocumentEditingView()
-                    .inspector(isPresented: $prax.showingPDFPageItemInspector) {
-                        PDFPageItemInspector()
-                    }
+                
+                if prax.praxPressMode == .prax {
+                    PraxEditingView()
+                        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                            PDFPageItemInspector()
+                        }
+                }
+                else {
+                    DocumentEditingView()
+                        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                            PDFPageItemInspector()
+                        }
+                }
+                
                 
             }
             else {

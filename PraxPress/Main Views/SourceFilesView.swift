@@ -79,7 +79,7 @@ struct PDFFilesList: View {
         @Bindable var prax = praxModel
         
         GroupBox {
-            if prax.praxPressMode == .merge {
+            if prax.praxPressMode != .data {
                 ZStack {
                     Color.contentViewBackground.ignoresSafeArea()
                     List(pdfFiles, selection: $document.selectedFiles) { pdfFile in

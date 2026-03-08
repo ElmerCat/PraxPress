@@ -47,6 +47,7 @@ final class PraxModel {
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
         case merge = "Merge Mode"
+        case prax = "Prax Mode"
         
         var color: Color {
             switch self {
@@ -54,6 +55,8 @@ final class PraxModel {
                 return .pink
             case .data:
                 return .blue
+            case .prax:
+                return .orange
             }
         }
         
@@ -64,7 +67,9 @@ final class PraxModel {
                 return "apple.logo"
             case .data:
                 return "swift"
-             }
+            case .prax:
+                return "gear"
+            }
         }
     }
     var praxPressMode: PraxPressMode = .merge

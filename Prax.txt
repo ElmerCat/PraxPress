@@ -766,6 +766,15 @@ Each item; sections and pages; should know or be able to easily determine their 
 
 Can you propose changes to addPagesFromURLBookmark to incorporate the location parameter, and also code in PagesModel.swift and/or in MergedPDFDocument to establish and maintain the ordered sets?
 
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+
+The  pageSections: [PDFPageSectionModel] need to be kept in a specific order, and the pageItems[PDFPageItemModel] within each section also need to be kept in a specific order within their section. It is useful for each section to know their own place in the order, and likewise for each page to know their place in their section.
+
+Can you changes to   @``file:PraxPress/Models/PagesModel.swift``   to achieve this, and also to  @``file:PraxPress/Main Views/PraxEditingView.swift``  so the items can be dragged to rearrange them?
 
 
 
