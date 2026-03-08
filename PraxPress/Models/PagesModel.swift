@@ -183,6 +183,11 @@ extension PDFPageSectionModel {
             item.orderIndex = idx
         }
     }
+    func setItemsInOrder(_ items: [PDFPageItemModel]) {
+          for (i, it) in items.enumerated() { it.orderIndex = i }
+          pageItems = items
+      }
+    
 }
 
 extension Array where Element == PDFPageSectionModel {

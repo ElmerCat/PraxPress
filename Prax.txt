@@ -778,3 +778,17 @@ Can you changes to   @``file:PraxPress/Models/PagesModel.swift``   to achieve th
 
 
 
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+Before you rudely skipped out of town, you spent hours and hours writing and re-writing the code for PraxEditingView and in MergedPDFDocument from "// MARK: - Cross-section move/copy" to the end of the class, just to implement dragging items within sections and to other sections; a very common behavior employed by countless macOS apps.
+
+You were eventually able to make reordering appear to work, but after a few seconds, the items return to their original sections. You tried multiple times to fix that, but could never get it right. Then, without even saying goodbye, you just took off.
+
+
+In MainSceneRoot, the windowModelContext is set for MergedPDFDocument, and the perWindowModelContainer is placed into the environment for ContentView to pass on to its subviews.  Could this be some sort of mismatch in model contexts which is then causing the rearranged items to un-rearrange?
+
+Please make complete proposals for code changes, not snippets.  Unfortunately, I can no longer trust you to apply changes on your own.
+

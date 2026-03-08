@@ -47,13 +47,7 @@ struct MainSceneRoot: View {
                 praxModel.documment = document
                 document.prax = praxModel
                 document.persistence = persistence
- //               document.pdfFiles = pdfFiles
- //               document.pdfFileGroups = pdfFileGroups
-            }
-  //          .onChange(of: pdfFiles) {
-  //              document.pdfFiles = pdfFiles
-  //              document.pdfFileGroups = pdfFileGroups
-  //          }
+             }
         
           //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))
     }
