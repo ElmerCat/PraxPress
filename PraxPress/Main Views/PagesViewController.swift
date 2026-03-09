@@ -15,7 +15,7 @@ import UniformTypeIdentifiers
 
 
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
-    
+var document: MergedPDFDocument?
   //  private var prax = PraxModel.shared
     var thumbnailViewer = false
     
@@ -44,96 +44,59 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         updateUI(animated: false)
         
         observeDocumentChange = Task {
-            for await _ in Observations({ PraxModel.shared.pdfPageSections }) {
-                print("PagesViewController observeDocumentChange  ") //, PraxModel.shared.pdfPageSections)
+            for await _ in Observations({ self.document!.sections }) {
+                print("PagesViewController observeDocumentChange  ") //, document.sections)
                 updateUI()
             }
         }
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ PraxModel.shared.selectedPageItems }) {
-                print("PagesViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
+            for await _ in Observations({ self.document!.selectedPageItems }) {
+                print("PagesViewController observeCurrentIndexChange  ", self.document!.selectedPageItems)
+ 
+                await NSAnimationContext.runAnimationGroup { context in
+                    // Optional: set duration or timing function
+                    context.duration = 0.8
+                    context.allowsImplicitAnimation = true
+                    
+                    // Call through the animator() proxy
+                    collectionView.animator().scrollToItems(at: self.document!.selectedPageItems, scrollPosition: .top)
+                }
                 
-                if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
+                
+              /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
                         PraxModel.shared.editingPDFView.go(to: PraxModel.shared.editingPDFDocument.page(at: (firstIndexPath.item))!)
                         
                     }
-                }
+                } */
             }
         }
     }
     
     private func createLayout() -> NSCollectionViewLayout {
-        if thumbnailViewer {
+       
+        
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .fractionalWidth(1.3))
+                                                  heightDimension: .fractionalWidth(1.4))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+         //   item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
             
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.4))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+     //       section.interGroupSpacing = 5
+     //       section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
             
-            let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(50))
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionHeaderElementKind,
-                alignment: .top)
-            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionFooterElementKind,
-                alignment: .bottom)
-            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-            sectionHeader.pinToVisibleBounds = true
-            sectionHeader.zIndex = 2
-            sectionFooter.pinToVisibleBounds = true
-            sectionFooter.zIndex = 2
-            let layout = NSCollectionViewCompositionalLayout(section: section)
-            return layout
 
-        }
-        else {
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .fractionalWidth(1.3))
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
-            
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.3))
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-            
-            let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-            
- /*           let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(50))
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionHeaderElementKind,
-                alignment: .top)
-            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerFooterSize,
-                elementKind: PagesViewController.sectionFooterElementKind,
-                alignment: .bottom)
-            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-            sectionHeader.pinToVisibleBounds = true
-            sectionHeader.zIndex = 2
-            sectionFooter.pinToVisibleBounds = true
-            sectionFooter.zIndex = 2
-   */
             let layout = NSCollectionViewCompositionalLayout(section: section)
             return layout
-        }
         
 
     }
     
     private func configureHierarchy() {
-        collectionView.register(PageItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
+        collectionView.register(CollectionViewPDFPageItemView.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
         collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
          
@@ -154,10 +117,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSection, PDFPageItem>(collectionView: collectionView) {
             (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItem) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
-            guard let pageItem = item as? PageItem else { return nil }
-            pageItem.configure(at: indexPath,
-                                  isSelected: collectionView.selectionIndexPaths.contains(indexPath),
-                               thumbnailViewer: self.thumbnailViewer)
+            guard let pageItem = item as? CollectionViewPDFPageItemView else { return nil }
+            pageItem.configure(for: self.document, at: indexPath,
+                               isSelected: collectionView.selectionIndexPaths.contains(indexPath))
             return pageItem
         }
         dataSource.supplementaryViewProvider = { [weak self]
@@ -165,7 +127,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
             guard let self else { return nil }
             
             // Ensure section index is valid for current model snapshot
-            let sections = PraxModel.shared.pdfPageSections
+            let sections = document!.sections
             guard indexPath.section >= 0 && indexPath.section < sections.count else {
                 // The layout asked for a view that doesn’t match current state; return nil safely.
                 return nil
@@ -177,8 +139,8 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"),
                     for: indexPath) as? SectionHeader else { return nil }
                 
- //               header.label.stringValue = PraxModel.shared.pdfPageSections[indexPath.section].title
-                header.configure(at: indexPath,
+ //               header.label.stringValue = document.sections[indexPath.section].title
+                header.configure(for: document, at: indexPath,
                                  isSelected: self.selectedSections.contains(indexPath.section))
                 
                 header.onToggleSelection = { [weak self] in
@@ -201,7 +163,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"),
                     for: indexPath) as? SectionFooter {
                     
-                    footer.configure(at: indexPath,
+                    footer.configure(for: document, at: indexPath,
                                        isSelected: self.selectedSections.contains(indexPath.section))
                     return footer
                 }
@@ -212,14 +174,14 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
      func updateUI(animated: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<PDFPageSection, PDFPageItem>()
-        let secs = PraxModel.shared.pdfPageSections
+         let secs = document!.sections
         secs.forEach {
             snapshot.appendSections([$0])
             snapshot.appendItems($0.pdfPageItems)
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-        print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
+         print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document!.selectedPageItems )
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -230,9 +192,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
                 self.collectionView.scrollToItems(at: [firstIndexPath], scrollPosition: .top)
-                PraxModel.shared.selectedPageItems = self.collectionView.selectionIndexPaths
+                document!.selectedPageItems = self.collectionView.selectionIndexPaths
             }
-            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", PraxModel.shared.selectedPageItems )
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document!.selectedPageItems )
         }
         
         
@@ -241,12 +203,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
         
-        PraxModel.shared.selectedPageItems = collectionView.selectionIndexPaths
+        document!.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didDeselectItemsAt indexPaths ", indexPaths)
-        PraxModel.shared.selectedPageItems = collectionView.selectionIndexPaths
+        document!.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     

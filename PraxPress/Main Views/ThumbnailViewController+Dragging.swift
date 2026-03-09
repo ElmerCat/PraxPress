@@ -1,18 +1,9 @@
 //
-//  PagesViewController + Dragging.swift
+//  ThumbnailViewController + Dragging.swift
 //  PraxPress
 //
 //  Created by Elmer Cat on 1/22/26.
 //
-
-
-//
-//  PagesViewController.swift
-//  PraxPress
-//
-//  Created by Elmer Cat on 1/8/26.
-//
-
 
 import Cocoa
 import PDFKit
@@ -21,18 +12,19 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-extension PagesViewController {
+extension ThumbnailViewController {
+    
          
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
     ) -> Bool {
-        print("PagesViewController canDragItemsAt  ", indexPaths, " event ", event)
+        print("ThumbnailViewController canDragItemsAt  ", indexPaths, " event ", event)
         return true
     }
     
     func collectionView(_ collectionView: NSCollectionView,
                         pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
         
-        print("PagesViewController pasteboardWriterForItemAt  ", indexPath)
+        print("ThumbnailViewController pasteboardWriterForItemAt  ", indexPath)
 
         
         //       guard let pageItem = dataSource.itemIdentifier(for: IndexPath(item: indexPath.item, section: 0)) else { return provider }
@@ -40,14 +32,14 @@ extension PagesViewController {
         let typeIdentifier = UTType(filenameExtension: "pdf")
         
         let provider = FilePromiseProvider()
-        provider.pdfDocument = document!.mergedPDFDocument
+        provider.pdfDocument = document.mergedPDFDocument
         provider.fileName = "PraxPress-Page.pdf"
         provider.fileType = typeIdentifier!.identifier
         provider.delegate = provider
         // Send out the indexPath and photo's url dictionary.
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document!.mergedPDFURL as Any,
+            provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document.mergedPDFURL as Any,
                                   FilePromiseProvider.UserInfoKeys.indexPathKey: data]
         } catch {
             fatalError("failed to archive indexPath to pasteboard")
@@ -59,37 +51,44 @@ extension PagesViewController {
         _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
     ) -> NSDragOperation {
         
-        //     let indPth = proposedDropIndexPath.pointee
-        //     print("PagesViewController validateDrop  ", indPth.debugDescription)
-        
-        return [.move]
+             let indexPath = proposedDropIndexPath.pointee
+         
+        if prax.optionKeyPressed {
+            print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
+           return [.copy]
+
+        }
+        else {
+            print("ThumbnailViewController validateDrop [.move]  ", indexPath)
+            return [.move]
+
+        }
     }
     
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
-        print("PagesViewController acceptDrop  ", indexPath.item)
+        print("ThumbnailViewController acceptDrop  ", indexPath.item)
         
         guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return false }
         
         if draggingTypes.contains(.pdfPageDragType) {
             dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         }
-        else if draggingTypes.contains(.pdfFileType) {
-            dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
-        }
-        
         else if draggingTypes.contains(.pdfPageSectionType) {
             dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
         }
-        
+        else if draggingTypes.contains(.pdfFileType) {
+            dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+        }
+
         else {
             // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
             // Drop each dragged image file to their new place.
-            dropExternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+            dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
         }
         return true
     }
     
-    func dropExternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+    func dropExternalPages(draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         let pasteboard = draggingInfo.draggingPasteboard
         let receivers = pasteboard.readObjects(forClasses: [NSFilePromiseReceiver.self], options: nil) as? [NSFilePromiseReceiver] ?? []
         if !receivers.isEmpty {
@@ -97,9 +96,7 @@ extension PagesViewController {
             return
         }
 
-        
-        
-        var pdfURLs: [URL] = []
+        var droppedURLs: [URL] = []
         
         // 1) Prefer file URLs if available
         if let items = pasteboard.pasteboardItems {
@@ -110,7 +107,7 @@ extension PagesViewController {
                 if let urlString = item.string(forType: .fileURL),
                    let url = URL(string: urlString) {
                     print("fileURL  ", url)
-                    pdfURLs.append(url)
+                    droppedURLs.append(url)
                     continue
                     
                 }
@@ -126,7 +123,7 @@ extension PagesViewController {
                             .appendingPathExtension("\(type)")
                         do {
                             try data.write(to: tempURL, options: .atomic)
-                            pdfURLs.append(tempURL)
+                            droppedURLs.append(tempURL)
                         } catch {
                             Swift.debugPrint("Failed to write dropped PDFPage data to temp file: \(tempURL) - Error: \(error)")
                         }
@@ -156,7 +153,7 @@ extension PagesViewController {
 
         
         // 2) Fallback: read URLs from the general property list if present
-        if pdfURLs.isEmpty, let propertyList = pasteboard.propertyList(forType: .fileURL) {
+        if droppedURLs.isEmpty, let propertyList = pasteboard.propertyList(forType: .fileURL) {
             // propertyList can be a String or array of Strings (file URL strings)
             func parseURLStrings(_ value: Any) -> [URL] {
                 var urls: [URL] = []
@@ -166,26 +163,28 @@ extension PagesViewController {
                 }
                 return urls
             }
-            pdfURLs = parseURLStrings(propertyList)
+            droppedURLs = parseURLStrings(propertyList)
         }
         
-        for url in pdfURLs {
+        for url in droppedURLs {
             print ("\n\(url)")
         }
         
 
         // 3) Filter for PDFs (by path extension or UTI check)
-        let urls = pdfURLs.filter { $0.pathExtension.lowercased() == "pdf" }
+        let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
+        self.insertPDFPageItemsFromDocumentURLS(pdfURLs, at: indexPath)
         
-        Task {
-            do {
-                try await document!.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
-            } catch let error {
-                print("Julie d Prax", urls, "Error: ", error)
-                
-            }
+        let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
+        let imageURLs = droppedURLs.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
+        if prax.optionKeyPressed {
+            self.insertPDFPageSectionsFromImageURLS(imageURLs, at: indexPath)
+
         }
-        
+        else {
+            self.insertPDFPageItemsFromImageURLS(imageURLs, at: indexPath)
+
+        }
         
         /*
  
@@ -281,26 +280,116 @@ extension PagesViewController {
             
             print (urls)
             
-            Task {
-                do {
-                    try await self.document!.insertPDFPageSectionsFromDocumentURLS(urls, at: indexPath)
-                } catch let error {
-                    print("Julie d Prax", urls, "Error: ", error)
-                    
-                }
-            }
+            self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
             
+  //          self.insertPDFs(at: pdfs, dropIndex: indexPath.item)
+//            self.updateUI()
         }
     }
     
     
     // MARK: - Insert helper
+    
+    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            let pdfPageItem = PDFPageItem(
+                document: document,
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            )
+            document.sections.append(PDFPageSection(document: document, title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
+        }
+       
+    }
+    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+        var pages: [PDFPageItem] = []
+        for url in urls {
+            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+            image = image.resize(to: NSSize(width: 50, height: 70))!
+            
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+            pages.append(PDFPageItem(
+                document: document,
+                name: "Image - \(sourceFileName)",
+                pdfPage: docPage
+            ))
+        }
+        document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+    }
+
+    func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+        print("dropPDFFiles to: ", indexPath)
+        
+        var urls: [URL] = []
+        
+        struct Payload: Codable {
+            let fileName: String
+            let bookmarkData: Data
+        }
+        
+        draggingInfo.enumerateDraggingItems(
+            options: NSDraggingItemEnumerationOptions.concurrent,
+            for: collectionView,
+            classes: [NSPasteboardItem.self],
+            searchOptions: [:],
+            using: {(draggingItem, idx, stop) in
+                if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
+                    do {
+                        if let data = pasteboardItem.data(forType: .pdfFileType) {
+                            
+                            let payload = try JSONDecoder().decode(Payload.self, from: data)
+                            // Resolve the URL from the bookmark to rebuild a PDFFile
+                            var isStale = false
+                            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+                            
+                            urls.append(url)
+                            
+                            
+                        }
+                    } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
+                    
+                    print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
+                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
+                    self.updateUI()
+                }
+            })
+    }
+    
+    
+    func insertPDFPageItemsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath) {
+        var pages: [PDFPageItem] = []
+        for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
+            guard let doc = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
+            let sourceFileName = url.deletingPathExtension().lastPathComponent
+            for i in 0..<doc.pageCount {
+                guard let docPage = doc.page(at: i)  else { fatalError("No document.page(at: \(i)") }
+                pages.append(PDFPageItem(
+                    document: document,
+                    name: "\(sourceFileName) - Page \(i + 1)",
+                    pdfPage: docPage
+                ))
+                print ("\(sourceFileName) - Page \(i + 1)")
+            }
+        }
+        document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
+        self.updateUI()
+    }
 
     func dropInternalSections(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalSections to: ", indexPath)
         
     }
-    
+
     func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
         print("dropInternalPages to: ", indexPath)
         
@@ -323,86 +412,45 @@ extension PagesViewController {
                         }
                     } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                     
-                    print ("elf.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                    self.document!.movePDFPageItems(draggedItems, to: indexPath)
+                    print ("self.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                    self.document.movePDFPageItems(draggedItems, to: indexPath)
                     self.updateUI()
                 }
             })
     }
     
     
+   
+    
     
     
 }
 
-extension NSPasteboard.PasteboardType {
-    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
-    static let pdfPageSectionType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
-    static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
-}
-
-extension UTType {
-    static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
-    static let pdfPageSectionType = UTType(exportedAs: "com.praxpress.pdf-page-section")
-    static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
-}
-
-class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
-    
-    var pdfDocument: PDFDocument?
-    var fileName: String = "PraxPress-Prax.pdf"
-    
-    struct UserInfoKeys {
-        static let indexPathKey = "indexPath"
-        static let urlKey = "url"
-    }
-    
-    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
-        var types = super.writableTypes(for: pasteboard)
-        types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.pdfPageSectionType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
-        return types
-    }
-    
-    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
-        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
-        switch type {
-        case .fileURL:
-            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
-            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
-                return url.pasteboardPropertyList(forType: type)
-            }
-        case .pdfPageSectionType:
-            print ("pdfPageSectionType")
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-
-        case .pdfPageDragType:
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-        default:
-            break
-        }
-        return super.pasteboardPropertyList(forType: type)
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
+extension NSImage {
+    func resize(to newSize: NSSize) -> NSImage? {
+        guard let tiffData = self.tiffRepresentation,
+              let bitmapImageRep = NSBitmapImageRep(data: tiffData) else { return nil }
         
-        print("filePromiseProvider fileNameForType: ", fileType)
-        return fileName
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
+        let newRep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: Int(newSize.width),
+            pixelsHigh: Int(newSize.height),
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .calibratedRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        )
         
-        print("filePromiseProvider writePromiseTo url:  ", url)
-        pdfDocument?.write(to: url)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: newRep!)
+        bitmapImageRep.draw(in: NSRect(origin: .zero, size: newSize))
+        NSGraphicsContext.restoreGraphicsState()
         
+        let resizedImage = NSImage(size: newSize)
+        resizedImage.addRepresentation(newRep!)
+        return resizedImage
     }
-    
 }
-

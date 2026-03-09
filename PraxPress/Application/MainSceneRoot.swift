@@ -6,36 +6,43 @@
 //
 
 import SwiftUI
-import SwiftData
-import Combine
-import PDFKit
 
+//import Combine
+import PDFKit
+import SwiftData
 
 struct MainSceneRoot: View {
 
-    @State private var praxModel = PraxModel.shared
-    @State private var praxContext = PraxContext()
+    @Environment(\.modelContext) private var modelContext
+    @State private var praxModel = PraxModel()
+    @State private var document = MergedPDFDocument()
     @Query() var pdfFiles: [PDFFile]
+    
     var body: some View {
         ContentView()
+           
+            .environment(document)
             .environment(praxModel)
-            .environment(praxContext)
             .onModifierKeysChanged(mask: .option) { old, new in
                 if new.isEmpty {
-                    praxContext.optionKeyPressed = false
+                    praxModel.optionKeyPressed = false
                     // Option key released
                     print("Option key released")
-                } else {
-                    praxContext.optionKeyPressed = true
+                }
+                else if new.contains(.option) {
+                    praxModel.optionKeyPressed = true
                     // Option key pressed
                     print("Option key pressed")
                 }
             }
             .task {
-                praxModel.pdfFiles = pdfFiles
+                praxModel.documment = document
+                document.prax = praxModel
+                document.modelContext = modelContext
+                document.pdfFiles = pdfFiles
             }
             .onChange(of: pdfFiles) {
-                praxModel.pdfFiles = pdfFiles
+                document.pdfFiles = pdfFiles
             }
         
           //  .overlay(TempCleanupLifecycleHook(onCleanup: { praxModel.cleanupTemporaryArtifacts() }))

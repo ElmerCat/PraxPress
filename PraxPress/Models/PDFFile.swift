@@ -14,6 +14,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 struct PDFDataFields: Codable {
     var pcardHolderName: String?
@@ -58,7 +59,12 @@ final class PDFFile {
         dataFields.justification = entry.description
         return dataFields
     }
+    
+
+    
 }
+
+
 
 @Model
 final class PDFFileGroup {

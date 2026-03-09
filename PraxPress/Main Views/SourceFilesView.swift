@@ -8,61 +8,132 @@ import SwiftUI
 import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
-import Combine
+//import Combine
 
-private let DEBUG_LOGS = false
+private let DEBUG_LOGS = true
+
+struct PDFFileTransfer: Transferable, Identifiable, @unchecked Sendable {
+    let id = UUID()
+    let pdfFile: PDFFile
+
+    struct Payload: Codable {
+        let fileName: String
+        let bookmarkData: Data
+    }
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .pdfFileType) { item in
+            // Encode a small payload containing the file's name and bookmark data
+            let payload = Payload(fileName: item.pdfFile.fileName, bookmarkData: item.pdfFile.bookmarkData)
+            return try JSONEncoder().encode(payload)
+        } importing: { data in
+            // Decode the payload and reconstruct a minimal PDFFile via its bookmark
+            let payload = try JSONDecoder().decode(Payload.self, from: data)
+            // Resolve the URL from the bookmark to rebuild a PDFFile
+            var isStale = false
+            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            // Create a placeholder PDFFile; callers can insert into model context as needed
+            let fileGroup = PDFFileGroup(name: "Imported")
+            let pdfFile = PDFFile(fileGroup: fileGroup, url: url, bookmarkData: payload.bookmarkData, pageCount: 0)
+            return PDFFileTransfer(pdfFile: pdfFile)
+        }
+    }
+}
+
+
+struct PDFFilesListRow: View {
+    let document: MergedPDFDocument
+    let pdfFile: PDFFile
+    var body: some View {
+     GroupBox {
+         HStack {
+             Text(pdfFile.fileName)
+             Spacer()
+             Text(String(pdfFile.pageCount))
+             Button("Merge", systemImage: "arrowshape.zigzag.forward", action: {
+                 print ("Merge \(pdfFile.fileName)")
+                 
+             })
+         }
+         
+        }
+     .draggable {
+         return PDFFileTransfer(pdfFile: pdfFile)
+     }
+     
+    }
+}
 
 
 struct PDFFilesList: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
     
 
     var body: some View {
-        @Bindable var prax = PraxModel.shared
-         
-        Group {
-            Table(prax.pdfFiles, selection: $prax.selectedFiles) {
-                TableColumn("File") { (entry: PDFFile) in
-                    let value = entry.fileName
-                    Text(value)
-                }
-                TableColumn("Pages") { (entry: PDFFile) in
-                    let value = entry.pageCount
-                    Text(String(value))
-                }
-                TableColumn("PcardHolderName") { (entry: PDFFile) in
-                    let value = entry.dataFields?.pcardHolderName ?? "—"
-                    Text(value)
-                }
-                TableColumn("DocumentNumber") { (entry: PDFFile) in
-                    let value = entry.dataFields?.documentNumber ?? "—"
-                    Text(value)
-                }
-                TableColumn("Date") { (entry: PDFFile) in
-                    let value = entry.dataFields?.date ?? "—"
-                    Text(value)
-                }
-                TableColumn("Amount") { (entry: PDFFile) in
-                    let value = entry.dataFields?.amount ?? "—"
-                    Text(value)
-                }
-                TableColumn("Vendor") { (entry: PDFFile) in
-                    let value = entry.dataFields?.vendor ?? "—"
-                    Text(value)
-                }
-                TableColumn("GLAccount") { (entry: PDFFile) in
-                    let value = entry.dataFields?.glAccount ?? "—"
-                    Text(value)
-                }
-                TableColumn("CostObject") { (entry: PDFFile) in
-                    let value = entry.dataFields?.costObject ?? "—"
-                    Text(value)
-                }
-                TableColumn("Justification") { (entry: PDFFile) in
-                    let value = entry.dataFields?.justification ?? "—"
-                    Text(value)
-                }
+        @Bindable var document = document
+        @Bindable var prax = praxModel
+        
+        if prax.praxPressMode == .merge {
+            Group {
+                
+               List(document.pdfFiles, selection: $document.selectedFiles) { pdfFile in
+                   
+                   PDFFilesListRow(document: document, pdfFile: pdfFile)
+                       
+                   }
+               
             }
         }
+        else {
+            Group {
+                Table(document.pdfFiles, selection: $document.selectedFiles) {
+                    TableColumn("File") { (entry: PDFFile) in
+                        let value = entry.fileName
+                        Text(value)
+                    }
+                    TableColumn("Pages") { (entry: PDFFile) in
+                        let value = entry.pageCount
+                        Text(String(value))
+                    }
+                    TableColumn("PcardHolderName") { (entry: PDFFile) in
+                        let value = entry.dataFields?.pcardHolderName ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("DocumentNumber") { (entry: PDFFile) in
+                        let value = entry.dataFields?.documentNumber ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("Date") { (entry: PDFFile) in
+                        let value = entry.dataFields?.date ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("Amount") { (entry: PDFFile) in
+                        let value = entry.dataFields?.amount ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("Vendor") { (entry: PDFFile) in
+                        let value = entry.dataFields?.vendor ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("GLAccount") { (entry: PDFFile) in
+                        let value = entry.dataFields?.glAccount ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("CostObject") { (entry: PDFFile) in
+                        let value = entry.dataFields?.costObject ?? "—"
+                        Text(value)
+                    }
+                    TableColumn("Justification") { (entry: PDFFile) in
+                        let value = entry.dataFields?.justification ?? "—"
+                        Text(value)
+                    }
+                }
+            }
+            
+        }
+        
+       
     }
 }
 
@@ -94,7 +165,7 @@ struct PDFFilesList: View {
 
 
 struct SourceFilesView: View {
-    
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     //   @State private var prax = PraxModel.shared
     @Environment(\.modelContext) private var modelContext
     @Environment(PraxModel.self) private var praxModel
@@ -109,13 +180,30 @@ struct SourceFilesView: View {
         @Bindable var prax = praxModel
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                if !prax.pdfFiles.isEmpty {
+                if !document.pdfFiles.isEmpty {
+                    HStack {
+                        Button {
+                            prax.showingImporter = true
+                        } label: {
+                            Label("Add Files", systemImage: "folder.badge.plus")
+                        }
+                        
+                        if !document.selectedFiles.isEmpty {
+                            Button {
+                                document.deleteSelectedFilesFromDatabase()
+                            } label: {
+                                Label("Remove Files", systemImage: "folder.badge.minus")
+                            }
+                            .disabled(document.selectedFiles.isEmpty)
+                        }
+
+                    }
                     VSplitView {
                        
                         GroupBox {
                             PDFFilesList()
                             
-                            Text("\(prax.selectedFiles.count)  of \(prax.pdfFiles.count) Files Selected")
+                            Text("\(document.selectedFiles.count)  of \(document.pdfFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
@@ -143,22 +231,8 @@ struct SourceFilesView: View {
             }
             .background(Color.blue.opacity(0.5))
         }
-        .navigationTitle("Julie d'PraxPress")
-        .navigationSplitViewColumnWidth(min: 100, ideal: 300, max: 1000)
-        .toolbar(removing: .sidebarToggle)
-        .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
-                if (prax.columnVisibility == .all && !prax.selectedFiles.isEmpty) {
-                    Button {
-                        //             prax.listOfFiles.removeAll()
-                        prax.selectedFiles.removeAll()
-                    } label: {
-                        Label("Remove Files", systemImage: "folder.badge.minus")
-                    }
-                    .disabled(prax.selectedFiles.isEmpty)
-                }
-            }
-        }
+        
+
         .fileImporter(
             isPresented: $prax.showingImporter,
             allowedContentTypes: [.pdf, .folder],
@@ -175,14 +249,21 @@ struct SourceFilesView: View {
         
         .task {
             DispatchQueue.main.async {
-                
                 print ("Fortunareed")
-  
-            }
-            
-            
+          }
         }
+  
+        .onAppear() {
+            print ("Sharon Eldon")
+        }
+        
+        .onDisappear() {
+            print ("Marsha Nolan")
+        }
+        
     }
+    
+
     
     private func pdfFileGroup(_ name: String) -> PDFFileGroup {
         if let fileGroup = pdfFileGroups.first(where: { $0.name == name }) {
@@ -243,7 +324,7 @@ struct SourceFilesView: View {
                 }
             }
         }
-        var seen = Set<URL>(PraxModel.shared.pdfFiles.map { $0.url })
+        var seen = Set<URL>(document.pdfFiles.map { $0.url })
         
         
         let uniquePairs: [(url: URL, bookmark: Data)] = expanded.filter { pair in
@@ -258,7 +339,7 @@ struct SourceFilesView: View {
         
         entries.forEach { entry in
             
-            if !PraxModel.shared.pdfFiles.contains(where: { $0.url == entry.url }) {
+            if !document.pdfFiles.contains(where: { $0.url == entry.url }) {
                 let pdfFile = PDFFile(fileGroup: mainFileGroup, url: entry.url, bookmarkData: entry.bookmarkData, pageCount: entry.pageCount)
                 pdfFile.dataFields = pdfFile.dataFieldsFromEntry(entry)
                 modelContext.insert(pdfFile)
@@ -380,6 +461,7 @@ struct SourceFilesView: View {
 }
 
 #Preview {
+   
     SourceFilesView()
 }
 
