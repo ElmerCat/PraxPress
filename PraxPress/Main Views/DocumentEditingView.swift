@@ -32,7 +32,7 @@ struct DocumentEditingView: NSViewRepresentable {
         let thumbnailViewController = ThumbnailViewController(document, praxModel)
         splitView.addArrangedSubview(thumbnailViewController.view)
 
-        let pagesViewController = PagesViewController(document)
+        let pagesViewController = PagesViewController(document, praxModel)
         
         splitView.addArrangedSubview(pagesViewController.view)
         
@@ -318,13 +318,13 @@ struct DocumentEditingFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         HStack {
-            switch (document.selectedFiles.count) {
+            switch (prax.selectedFiles.count) {
             case 0:
                 Text("No files selected")
             case 1:
                 Text("Source file: \(document.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
             default:
-                Text("\(document.selectedFiles.count) Source files selected")
+                Text("\(prax.selectedFiles.count) Source files selected")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)

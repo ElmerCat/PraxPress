@@ -67,7 +67,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
  */
         
         observeCurrentIndexChange = Task {
-            for await _ in Observations({ self.document.selectedPageItems }) {
+            for await _ in Observations({ self.prax.selectedPageItems }) {
                 print("ThumbnailViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
                 
               /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
@@ -205,7 +205,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                 
                 //               header.label.stringValue = document.sections[indexPath.section].title
                 header.configure(for: document, at: indexPath,
-                                 isSelected: document.selectedSections.contains(indexPath.section))
+                                 isSelected: prax.selectedSections.contains(indexPath.section))
                 
                 header.onToggleSelection = { [weak self] in
              //       guard let self else { return }
@@ -228,7 +228,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                     for: indexPath) as? SectionFooter {
                     
                     footer.configure(for: document, at: indexPath,
-                                     isSelected: document.selectedSections.contains(indexPath.section))
+                                     isSelected: prax.selectedSections.contains(indexPath.section))
                     return footer
                 }
             }
@@ -247,7 +247,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-        print("ThumbnailViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document.selectedPageItems )
+        print("ThumbnailViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectedPageItems )
         
  /*       DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -291,7 +291,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
             guard let self = self else { return }
             // Snapshot the final selection after deselect/select pair completes
             let finalSelection = self.collectionView.selectionIndexPaths
-            self.document.selectedPageItems = finalSelection
+            self.prax.selectedPageItems = finalSelection
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .praxSelectedPageItemsChanged, object: finalSelection, userInfo: ["praxLady": "Juliette M. Belanger"])
             }

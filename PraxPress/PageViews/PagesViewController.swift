@@ -16,8 +16,11 @@ import UniformTypeIdentifiers
 
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
     let document: MergedPDFDocument
-    init(_ document: MergedPDFDocument) {
+    let prax: PraxModel
+    
+    init(_ document: MergedPDFDocument, _ praxModel: PraxModel) {
         self.document = document
+        self.prax = praxModel
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) {
@@ -58,10 +61,10 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
  */
         observeCurrentIndexChange = Task {
             
-            for await _ in Observations({ self.document.selectedPageItems }) {
-                print("PagesViewController observeCurrentIndexChange  ", self.document.selectedPageItems)
+            for await _ in Observations({ self.prax.selectedPageItems }) {
+                print("PagesViewController observeCurrentIndexChange  ", self.prax.selectedPageItems)
                 await MainActor.run {
-                    self.safelyScrollTo(self.document.selectedPageItems, animated: true)
+                    self.safelyScrollTo(self.prax.selectedPageItems, animated: true)
                 }
             }
             
@@ -196,7 +199,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
         }
         dataSource.apply(snapshot, animatingDifferences: animated)
         
-         print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document.selectedPageItems )
+         print("PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectedPageItems )
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -207,9 +210,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                 let firstIndexPath = IndexPath(item: 0, section: 0)
                 self.collectionView.selectionIndexPaths = [firstIndexPath]
                 self.safelyScrollTo([firstIndexPath], animated: false)
-                document.selectedPageItems = self.collectionView.selectionIndexPaths
+                prax.selectedPageItems = self.collectionView.selectionIndexPaths
             }
-            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", document.selectedPageItems )
+            print("DispatchQueue PagesViewController pdateUI indexPaths ", collectionView.selectionIndexPaths, " prax: ", prax.selectedPageItems )
         }
         
         
@@ -255,12 +258,12 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didSelectItemsAt indexPaths ", indexPaths)
         
-        document.selectedPageItems = collectionView.selectionIndexPaths
+        prax.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>){
         print("PagesViewController didDeselectItemsAt indexPaths ", indexPaths)
-        document.selectedPageItems = collectionView.selectionIndexPaths
+        prax.selectedPageItems = collectionView.selectionIndexPaths
     }
     
     

@@ -191,7 +191,7 @@ struct MergedDocumentFooter: View {
              
                  Spacer()
                  
-                 Text(String("Page \(document.selectedSections.first) of \(document.pageSections.count)"))
+                 Text(String("Page \(prax.selectedSections.first) of \(document.pageSections.count)"))
                      .font(.subheadline)
             Spacer(minLength: 10)
             
@@ -207,6 +207,7 @@ struct MergedDocumentFooter: View {
 
 struct MergedDocumentToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel: PraxModel
     //    @State private var prax = PraxModel.shared
     
     private func title(for mode: PDFDisplayMode) -> String {
@@ -220,7 +221,10 @@ struct MergedDocumentToolbar: View {
     }
     
     var body: some View {
+        
         @Bindable var document = self.document
+     //   @Bindable var prax = self.praxModel
+        
         GroupBox {
             VStack {
                 HStack {
@@ -277,12 +281,12 @@ struct MergedDocumentToolbar: View {
                     }
  */                   Spacer()
                     
-                    switch document.selectedPageItems.count {
+             /*       switch prax.selectedPageItems.count {
                     case 0: Text("No Selection")
                     case 1: Text("Page: \((document.selectedPageItems.first!.item) + 1) of \(document.mergedPDFDocument.pageCount ) ")
                     default: Text("Multiple Selection")
                     }
-                    
+           */
                     Spacer()
                     
                     Text(String("\(document.pageSections.count) Pages"))

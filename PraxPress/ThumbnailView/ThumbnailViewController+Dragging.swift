@@ -362,7 +362,7 @@ extension ThumbnailViewController {
                     print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
 fatalError()
                     //                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
-                    self.updateUI()
+             //       self.updateUI()
                 }
             })
     }

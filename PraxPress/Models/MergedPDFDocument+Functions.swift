@@ -22,20 +22,7 @@ extension MergedPDFDocument {
         
     }
    
-    func deleteSelectedFilesFromDatabase() {
-        print("deleteSelectedFilesFromDatabase()")
-        let filesToDelete = selectedFiles
-        Task {
-            do {
-                try await persistence!.deletePDFFiles(filesToDelete)
-            } catch {
-                // Handle or present the error appropriately
-                print("Failed to delete files: \(error)")
-            }
-        }
-        selectedFiles.removeAll()
-    }
-    
+   
     
     
     
@@ -151,7 +138,7 @@ extension MergedPDFDocument {
         
         // 4) Update selection to the new positions of the moved items
         //    We map the moved items to their new indices in the destination section.
-        var newSelection: Set<IndexPath> = selectedPageItems
+        var newSelection: Set<IndexPath> = prax!.selectedPageItems
         // Remove the old selection indices for moved items
         for source in uniqueItems {
             newSelection.remove(source)
@@ -160,7 +147,7 @@ extension MergedPDFDocument {
         for offset in 0..<movedItems.count {
             newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
         }
-        selectedPageItems = newSelection
+        prax!.selectedPageItems = newSelection
         
         DispatchQueue.main.async {
             print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
@@ -353,6 +340,10 @@ extension MergedPDFDocument {
     
     
 /*
+ 
+ var replaceSourceFiles: Bool = true
+ var multipleFilesSelected: Bool = false
+
     func addPageSectionFromURLBookmark(url: URL, bookmarkData: Data?) {
         var url: URL = url
         var pdfDocument: PDFDocument

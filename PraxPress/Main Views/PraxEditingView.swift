@@ -156,10 +156,13 @@ private struct PageItemRow: View {
     let optionKeyPressedProvider: () -> Bool
 
     var body: some View {
+        @Bindable var item = pageItem
         HStack(spacing: 8) {
+            TextField("Name", text: $item.name)
             Text(pageItem.name)
+            Text(String(item.pageSection!.orderIndex) + " - " + String(pageItem.orderIndex))
             Spacer()
-            if selectedPages.contains(pageItem.id) {
+            if selectedPages.contains(item.id) {
                 Image(systemName: "checkmark")
             }
         }
@@ -167,11 +170,11 @@ private struct PageItemRow: View {
         .contentShape(Rectangle())
         // Unified drag from anywhere on the row
         .onDrag {
-            NSItemProvider(object: pageItem.id.uuidString as NSString)
+            NSItemProvider(object: item.id.uuidString as NSString)
         }
         // Accept drops to insert BEFORE this row
         .onDrop(of: [UTType.plainText], delegate: RowDropDelegate(
-            targetRowItem: pageItem,
+            targetRowItem: item,
             targetSection: pageSection,
             allSectionsProvider: allSectionsProvider,
             document: document,

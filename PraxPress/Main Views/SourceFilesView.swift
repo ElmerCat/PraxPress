@@ -82,7 +82,7 @@ struct PDFFilesList: View {
             if prax.praxPressMode != .data {
                 ZStack {
                     Color.contentViewBackground.ignoresSafeArea()
-                    List(pdfFiles, selection: $document.selectedFiles) { pdfFile in
+                    List(pdfFiles, selection: $prax.selectedFiles) { pdfFile in
                         PDFFilesListRow(document: document, pdfFile: pdfFile)
                             .listRowBackground(Color.clear)
                     }
@@ -91,7 +91,7 @@ struct PDFFilesList: View {
             } else {
                 ZStack {
                     Color.pink.ignoresSafeArea()
-                    Table(pdfFiles, selection: $document.selectedFiles) {
+                    Table(pdfFiles, selection: $prax.selectedFiles) {
                         TableColumn("File") { (entry: PDFFile) in
                             let value = entry.fileName
                             Text(value).background(Color.yellow)
@@ -154,6 +154,8 @@ struct SourceFilesView: View {
     
     @State private var importError: String?
     
+    
+    
     func praxTest() {
 
         print ("\nJulie d'Prax")
@@ -184,13 +186,13 @@ struct SourceFilesView: View {
                                 Label("Add Files", systemImage: "folder.badge.plus")
                             }
                             
-                            if !document.selectedFiles.isEmpty {
+                            if prax.selectedFiles.isEmpty {
                                 Button {
-                                    document.deleteSelectedFilesFromDatabase()
+                                    deleteSelectedFilesFromDatabase()
                                 } label: {
                                     Label("Remove Files", systemImage: "folder.badge.minus")
                                 }
-                                .disabled(document.selectedFiles.isEmpty)
+                                .disabled(prax.selectedFiles.isEmpty)
                             }
                     }
                     .background(.accent)
@@ -202,7 +204,7 @@ struct SourceFilesView: View {
                             PDFFilesList()
                                 .background(Color.prax)
                             
-                            Text("\(document.selectedFiles.count)  of \(pdfFiles.count) Files Selected")
+                            Text("\(prax.selectedFiles.count)  of \(pdfFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
@@ -231,8 +233,8 @@ struct SourceFilesView: View {
                 
             }
             .background(Color.sourceFilesViewBackground.opacity(0.5))
+            
         }
-        
         
         .fileImporter(
             isPresented: $prax.showingImporter,
@@ -276,6 +278,22 @@ struct SourceFilesView: View {
         }
         
     }
+    
+    func deleteSelectedFilesFromDatabase() {
+        print("deleteSelectedFilesFromDatabase()")
+        let filesToDelete = praxModel.selectedFiles
+        Task {
+            do {
+                try await persistence.deletePDFFiles(filesToDelete)
+            } catch {
+                // Handle or present the error appropriately
+                print("Failed to delete files: \(error)")
+            }
+        }
+        praxModel.selectedFiles.removeAll()
+    }
+ 
+ 
     
 }
 

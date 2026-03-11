@@ -78,16 +78,19 @@ struct SectionHeaderView: View {
     
     var body: some View {
         @Bindable var prax = praxModel
+        @Bindable var section = pdfPageSection
         
         let clickGesture = TapGesture()
             .onEnded { value in
-                print("View tapped! - \(pdfPageSection.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
+                print("View tapped! - \(section.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
                 clickedSectionHeader()
                 
             }
          
         GroupBox {
-            Group { Text("Merged Page \(pdfPageSection.title)") }
+            Group {
+                TextField("Title", text: $section.title )
+                Text("Merged Page \(section.title)") }
             
                 .draggable({ () -> MergedPDFTransfer? in
                       guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
