@@ -77,11 +77,11 @@ struct ContentView: View {
         .toolbar { MainToolbar() }
         .onAppear {
             print("ContentView .onAppear")
-            if let docCtx = document.windowModelContext, let perWindowContext {
-                print("[Debug] editor context shared? \(docCtx === perWindowContext)")
-            } else {
-                print("[Debug] perWindowContext or document.windowModelContext is nil")
-            }
+//            if let docCtx = document.windowModelContext, let perWindowContext {
+//                print("[Debug] editor context shared? \(docCtx === perWindowContext)")
+//            } else {
+//                print("[Debug] perWindowContext or document.windowModelContext is nil")
+//            }
         }
     }
 }

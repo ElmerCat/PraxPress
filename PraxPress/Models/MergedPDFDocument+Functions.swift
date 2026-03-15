@@ -141,7 +141,7 @@ extension MergedPDFDocument {
         
         // 4) Update selection to the new positions of the moved items
         //    We map the moved items to their new indices in the destination section.
-        var newSelection: Set<IndexPath> = prax!.selectedPageItems
+        var newSelection: Set<IndexPath> = prax.selectedPageItems
         // Remove the old selection indices for moved items
         for source in uniqueItems {
             newSelection.remove(source)
@@ -150,8 +150,8 @@ extension MergedPDFDocument {
         for offset in 0..<movedItems.count {
             newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
         }
-  //
-        prax!.selectedPageItems = newSelection
+        prax.selectedPageItems = newSelection
+
         
         DispatchQueue.main.async {
             print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
@@ -563,10 +563,10 @@ extension MergedPDFDocument {
         if widthGuidePageID == nil { return nil }
         return pdfPageItem(id: widthGuidePageID!)
     }
-    
+
     /// Compute and store the width guide X positions (in page space of the guide page)
     func setWidthGuide(fromPage pdfPageItem: PDFPageItemModel) {
-        if pdfPageItem.id == widthGuidePageID { clearWidthGuide() }
+  //      if pdfPageItem.id == widthGuidePageID { clearWidthGuide() }
         let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
         let per = pdfPageItem.trims
         let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
@@ -581,7 +581,7 @@ extension MergedPDFDocument {
     
     /// Remove any active width guide
     func clearWidthGuide() {
-        widthGuidePageID = nil
+  //      widthGuidePageID = nil
         widthGuideLeftX = nil
         widthGuideRightX = nil
         if isLoadingPDF { return }

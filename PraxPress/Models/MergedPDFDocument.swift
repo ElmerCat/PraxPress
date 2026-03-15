@@ -14,15 +14,18 @@ import Foundation
 
 
 @Observable @MainActor class MergedPDFDocument {
-    // Window-scoped SwiftData context for PDFPageSectionModel/PDFPageItemModel
-    var windowModelContext: ModelContext?
-    
-    var prax: PraxModel?
-    var persistence: FilesPersistenceController?
-    
-     var widthGuidePageID: UUID? = nil
-     var widthGuideLeftX: CGFloat? = nil
-     var widthGuideRightX: CGFloat? = nil
+    let windowModelContext: ModelContext
+    unowned let prax: PraxModel
+    unowned let persistence: FilesPersistenceController
+
+    init(windowModelContext: ModelContext, prax: PraxModel, persistence: FilesPersistenceController) {
+        self.windowModelContext = windowModelContext
+        self.prax = prax
+        self.persistence = persistence
+    }
+    var widthGuidePageID: UUID? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
 
     var isLoadingPDF = false {
         didSet {
@@ -80,18 +83,6 @@ import Foundation
     }
     
  
-    
-    func handleMergePagesOverwrite() {
-        
-        
-        fatalError("Julie d'Prax: This function is not currently implemented")
-        //guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
-        //mergeDocumentPages()
-        // Recompute metrics based on the new single-page doc
-        //computePageMetrics(for: entry.url)
-        
-    }
-    
     var sourceFolderURL: URL?
     var exportFolderURL: URL?
     //  var exportFolderURLBookmark: Data?
@@ -123,6 +114,20 @@ import Foundation
         guard let folder = exportFolderURL else { return nil }
         return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension)
     }
+    
+    
+    func handleMergePagesOverwrite() {
+        
+        
+        fatalError("Julie d'Prax: This function is not currently implemented")
+        //guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
+        //mergeDocumentPages()
+        // Recompute metrics based on the new single-page doc
+        //computePageMetrics(for: entry.url)
+        
+    }
+    
+   
     
 }
 

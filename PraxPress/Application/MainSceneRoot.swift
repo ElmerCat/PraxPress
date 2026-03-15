@@ -14,46 +14,67 @@ struct MainSceneRoot: View {
 
     @Environment(FilesPersistenceController.self) private var persistence
 
-    @State private var praxModel = PraxModel()
-    @State private var document = MergedPDFDocument()
+    // We’ll build praxModel and document after we have a window-scoped context.
+    @State private var praxModel: PraxModel? = nil
+    @State private var document: MergedPDFDocument? = nil
 
-    @State private var windowStore: WindowEditingStore? = nil
+//    @State private var windowStore: WindowEditingStore? = nil
     @State private var windowContext: ModelContext? = nil
 
     var body: some View {
-        ContentView()
-            .environment(document)
-            .environment(praxModel)
-            // Provide the per-window ModelContext to the view tree via a custom key,
-            // so ContentView can choose exactly where to apply .modelContext(...)
-            .environment(\.perWindowModelContext, windowContext)
-            .onModifierKeysChanged(mask: .option) { old, new in
-                if new.isEmpty {
-                    praxModel.optionKeyPressed = false
-                    print("Option key released")
-                }
-                else if new.contains(.option) {
-                    praxModel.optionKeyPressed = true
-                    print("Option key pressed")
-                }
+        Group {
+            if let prax = praxModel, let doc = document, let winContext = windowContext {
+                ContentView()
+                    .environment(prax)
+                    .environment(doc)
+                    .environment(\.perWindowModelContext, winContext)
+            } else {
+                ProgressView("Preparing window…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .task {
-                if windowStore == nil {
-                    // If this is file-backed in your app, use your actual init. In-memory is fine for testing.
-                    windowStore = try? WindowEditingStore(inMemory: true)
-                }
-                if windowContext == nil, let container = windowStore?.container {
-                    // Create exactly one ModelContext for the per-window container
+        }
+        
+        .onModifierKeysChanged(mask: .option) { old, new in
+            guard let prax = praxModel else { return }
+            if new.isEmpty {
+                prax.optionKeyPressed = false
+                print("Option key released")
+            }
+            else if new.contains(.option) {
+                prax.optionKeyPressed = true
+                print("Option key pressed")
+            }
+        }
+        .task {
+            
+            if windowContext == nil {
+                if let windowStore = try? WindowEditingStore(inMemory: true) {
+                    let container = windowStore.container
                     windowContext = ModelContext(container)
                 }
-                // Give the document the exact same context instance
-                document.windowModelContext = windowContext
-
-                // Wire up cross-refs
-                praxModel.documment = document
-                document.prax = praxModel
-                document.persistence = persistence
             }
+           
+            guard let windowContext else { return }
+
+            // Construct PraxModel first (only once)
+            if praxModel == nil {
+                praxModel = PraxModel()
+            }
+            guard let prax = praxModel else { return }
+
+            // Construct the document with non-optional dependencies (only once)
+            if document == nil {
+                let doc = MergedPDFDocument(
+                    windowModelContext: windowContext,
+                    prax: prax,
+                    persistence: persistence
+                )
+                // Attach the document back to PraxModel to complete the cycle
+                prax.attach(document: doc)
+                // Publish into @State so it propagates into the environment
+                document = doc
+            }
+        }
     }
 }
 

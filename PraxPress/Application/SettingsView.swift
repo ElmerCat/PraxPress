@@ -32,15 +32,15 @@ struct SettingsView: View {
 
     var praxLady = "Julie d'Prax"
     @State private var hoveredButton: Int? = nil
-    let document: MergedPDFDocument = MergedPDFDocument()
+//    let document: MergedPDFDocument = MergedPDFDocument(windowModelContext: modelContext, prax: PraxModel(), persistence: persistence)
     let pdfView = PDFView()
     
-    func configure() {
-        document.mergedPDFView = pdfView
-    }
+//    func configure() {
+//        document.mergedPDFView = pdfView
+//    }
     
     var body: some View {
-        @Bindable var document = document
+  //      @Bindable var document = document
         
  
         TabView(selection: $selectedSettingsTab) {
@@ -61,7 +61,7 @@ struct SettingsView: View {
             
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear() {
-                configure()
+     //           configure()
             }
     }
     

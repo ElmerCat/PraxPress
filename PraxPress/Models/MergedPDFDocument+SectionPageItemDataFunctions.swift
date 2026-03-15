@@ -15,7 +15,7 @@ import UniformTypeIdentifiers
 extension MergedPDFDocument {
     
     func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?, at location: Int? = 0) {
-        guard let ctx = windowModelContext else { return }
+ //       guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
         let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
@@ -26,8 +26,9 @@ extension MergedPDFDocument {
                 ensureSectionInOrder(givenSection, at: sectionIndex)
                 return givenSection
             } else {
+
                 let newSection = PDFPageSectionModel(title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section", orderIndex: sectionIndex)
-                ctx.insert(newSection)
+                windowModelContext.insert(newSection)
                 pageSections.insert(newSection, at: sectionIndex)
                 return newSection
             }
@@ -35,7 +36,7 @@ extension MergedPDFDocument {
         
         // If neither URL nor bookmark provided, just save new empty section
         guard url != nil || bookmarkData != nil else {
-            do { try ctx.save() } catch { print("Save failed: \(error)") }
+            do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
             refreshMergedDocument()
             return
         }
@@ -47,6 +48,8 @@ extension MergedPDFDocument {
             var isStale = false
             guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
                 print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", url ?? "No URL")
+                do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+                refreshMergedDocument()
                 return
             }
             fileURL = resolved
@@ -56,8 +59,7 @@ extension MergedPDFDocument {
             baseBookmark = (try? direct.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)) ?? Data()
         } else {
             print("addPagesFromURLBookmark - no valid bookmark or url")
-
-            do { try ctx.save() } catch { print("Save failed: \(error)") }
+            do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
             refreshMergedDocument()
             return
         }
@@ -90,7 +92,7 @@ extension MergedPDFDocument {
                     mergeModeRaw: MergeMode.mergeDown.rawValue
                 )
                 section.pageItems.insert(item, at: pageInsertIndex)
-                ctx.insert(item)
+            windowModelContext.insert(item)
                 pageInsertIndex += 1
                 
             
@@ -98,7 +100,7 @@ extension MergedPDFDocument {
 
         }
         
-        do { try ctx.save() } catch { print("Save failed: \(error)") }
+        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
         refreshMergedDocument()
     }
     
@@ -161,7 +163,7 @@ extension MergedPDFDocument {
                                  to destinationSection: PDFPageSectionModel,
                                  at location: Int? = nil) {
             // One path for both same-section and cross-section:
-            if prax?.optionKeyPressed == true {
+            if prax.optionKeyPressed == true {
                 copyItem(item, to: destinationSection, at: location)
             } else {
                 moveItem(item, to: destinationSection, at: location)
@@ -176,7 +178,7 @@ extension MergedPDFDocument {
         func moveItem(_ item: PDFPageItemModel,
                       to destinationSection: PDFPageSectionModel,
                       at location: Int? = nil) {
-            guard let ctx = windowModelContext else { return }
+         //   guard let ctx = windowModelContext else { return }
 
             // Capture same-section context and source index BEFORE mutation
             let movingWithinSameSection = (item.pageSection === destinationSection)
@@ -209,7 +211,7 @@ extension MergedPDFDocument {
             for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
             destinationSection.pageItems = destinationSection.pageItems
 
-            do { try ctx.save() } catch { print("Move save failed: \(error)") }
+            do { try windowModelContext.save() } catch { print("Move save failed: \(error)") }
             refreshMergedDocument()
         }
 
@@ -218,7 +220,7 @@ extension MergedPDFDocument {
         func copyItem(_ item: PDFPageItemModel,
                       to destinationSection: PDFPageSectionModel,
                       at location: Int? = nil) {
-            guard let ctx = windowModelContext else { return }
+//guard let windowModelContext = windowModelContext else { return }
 
             let resolvedURL = item.resolveSourceURL() ?? URL(fileURLWithPath: item.sourceURLString)
 
@@ -245,8 +247,8 @@ extension MergedPDFDocument {
             for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
             destinationSection.pageItems = destinationSection.pageItems
 
-            ctx.insert(clone)
-            do { try ctx.save() } catch { print("Copy save failed: \(error)") }
+            windowModelContext.insert(clone)
+            do { try windowModelContext.save() } catch { print("Copy save failed: \(error)") }
             refreshMergedDocument()
         }
     

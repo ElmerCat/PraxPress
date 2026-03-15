@@ -17,7 +17,19 @@ import SwiftData
 //@Model
 @Observable
 final class PraxModel {
-    var documment: MergedPDFDocument?
+    
+    // Non-optional reference to the document; attached after both are created.
+    unowned private(set) var documment: MergedPDFDocument!
+
+    init() {
+        // Document will be attached immediately after both instances are created.
+        // We keep it implicitly unwrapped to avoid unsafe placeholders while still
+        // making it non-optional for consumers once attached.
+    }
+
+    func attach(document: MergedPDFDocument) {
+        self.documment = document
+    }
 
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
