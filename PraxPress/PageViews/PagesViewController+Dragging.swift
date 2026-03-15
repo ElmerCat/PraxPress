@@ -21,7 +21,7 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-extension PagesViewController {
+/*extension PagesViewController {
          
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
     ) -> Bool {
@@ -335,7 +335,7 @@ extension PagesViewController {
     
     
     
-}
+}*/
 
 extension NSPasteboard.PasteboardType {
     static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")

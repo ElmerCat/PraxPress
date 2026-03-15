@@ -6,7 +6,7 @@ class PDFPageThumbnail: NSCollectionViewItem {
     private var document: MergedPDFDocument?
     private var hostingView: NSHostingView<PDFPageThumbnailView>?
     private var indexPath: IndexPath?
-    private var pdfPageItem: PDFPageItemModel?
+    private var pdfPageItem: PageItem?
     
     
     func configure(for document: MergedPDFDocument?, at atIndexPath: IndexPath?,
@@ -66,7 +66,7 @@ class PDFPageThumbnail: NSCollectionViewItem {
 
 struct PDFPageThumbnailView: View {
     let document: MergedPDFDocument
-    let pdfPageItem: PDFPageItemModel?
+    let pdfPageItem: PageItem?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -127,7 +127,7 @@ struct PDFPageThumbnailView: View {
                         
                             VStack {
                                 Button { clickedIncludePageButton(pdfPageItem!) }
-                                label: { Image(systemName: pdfPageItem!.mergeMode == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                                label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                                     .buttonStyle(.borderless)
                                     .help("Toggle include page")
                                 
@@ -163,15 +163,15 @@ struct PDFPageThumbnailView: View {
         
     }
     
-    func clickedIncludePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if pdfPageItem.mergeMode == .mergeSkip {
-            pdfPageItem.mergeMode = .mergeDown
+        if pdfPageItem.merge == .mergeSkip {
+            pdfPageItem.merge = .mergeDown
         }
         else {
-            pdfPageItem.mergeMode = .mergeSkip
+            pdfPageItem.merge = .mergeSkip
         }
         
         
@@ -179,7 +179,7 @@ struct PDFPageThumbnailView: View {
     
     
     
-    func clickedGuidePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         if prax.optionKeyPressed {

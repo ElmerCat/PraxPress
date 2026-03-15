@@ -226,7 +226,7 @@ struct CollectionViewBackgroundView: View {
 struct SectionHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let pdfPageSection: PDFPageSectionModel?
+    let pdfPageSection: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -338,7 +338,7 @@ struct SectionHeaderView: View {
 struct SectionFooterView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let pdfPageSection: PDFPageSectionModel?
+    let pdfPageSection: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     

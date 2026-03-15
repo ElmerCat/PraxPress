@@ -12,9 +12,126 @@
 
 
 
-import Foundation
+import SwiftUI
 import SwiftData
 import PDFKit
+import UniformTypeIdentifiers
+
+
+@Observable @MainActor
+final class MergedPage: Identifiable, Equatable, Hashable {
+    nonisolated static func == (lhs: MergedPage, rhs: MergedPage) -> Bool { lhs.id == rhs.id }
+    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    let id: UUID
+    let document: MergedPDFDocument
+    var title: String
+    init(
+        id: UUID = UUID(),
+        document: MergedPDFDocument,
+        title: String,
+        pageItems: [PageItem] = []
+    ) {
+        self.id = id
+        self.document = document
+        self.title = title
+        self.pageItems = pageItems
+    }
+    
+    var pdfPage: PDFPage? = nil
+    var aspectRatio: CGFloat?
+    var mergedWidthPts: CGFloat = 0
+    var mergedHeightPts: CGFloat = 0
+    
+    var pageItems: [PageItem] = [] {
+        didSet { print("\n pdfPageItems didSet: \(self.pageItems.count)\n\n") }
+    }
+    func refreshMergedPage() {
+        
+        print("MergedPage - refreshMergedPage() ")
+    }
+    
+}
+
+@Observable @MainActor
+final class PageItem: Identifiable, Equatable, Hashable {
+    nonisolated static func == (lhs: PageItem, rhs: PageItem) -> Bool { lhs.id == rhs.id }
+    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    let id: UUID
+    let mergedPage: MergedPage
+    var name: String
+    var sourceBookmark: Data
+    var sourceURLString: String
+    var pageIndex: Int
+
+    let pdfPage: PDFPage
+    let aspectRatio: CGFloat
+    
+    init(
+        id: UUID = UUID(),
+        mergedPage: MergedPage,
+        name: String,
+        sourceBookmark: Data = Data(),
+        sourceURL: URL,
+        pageIndex: Int = 0,
+        pdfPage: PDFPage,
+    ) {
+        self.id = id
+        self.mergedPage = mergedPage
+        self.name = name
+        self.sourceBookmark = sourceBookmark
+        self.sourceURLString = sourceURL.absoluteString
+        self.pageIndex = pageIndex
+        self.pdfPage = pdfPage
+        self.aspectRatio = {
+            let bounds = pdfPage.bounds(for: .cropBox)
+            return bounds.size.width / bounds.size.height
+        }()
+    }
+    
+    var thumbnail: NSImage?
+    var trims: EdgeTrims = .zero {
+        didSet {
+            print(oldValue)
+            print("PageItem trims didSet")
+            mergedPage.refreshMergedPage()
+        }
+    }
+    private var _merge: MergeMode = .mergeDown
+    var merge: MergeMode {
+        get { _merge }
+        set {
+            if _merge == newValue { return }
+            _merge = newValue
+            print("PageItem merge didSet")
+            mergedPage.refreshMergedPage()
+        }
+    }
+}
+
+
+@Model
+final class PDFPageSectionModel {
+    @Attribute(.unique) var id: UUID
+    var title: String
+    var orderIndex: Int
+    
+    // One-to-many: A section owns many items; deleting a section cascades to items.
+    @Relationship(deleteRule: .cascade, inverse: \PDFPageItemModel.pageSection)
+    var pageItems: [PDFPageItemModel] = []
+    
+    init(id: UUID = UUID(), title: String, orderIndex: Int = 0) {
+        self.id = id
+        self.title = title
+        self.orderIndex = orderIndex
+    }
+    
+//    @Transient var pdfPage: PDFPage? = nil
+    
+    var aspectRatio: CGFloat?
+    var mergedWidthPts: CGFloat = 0
+    var mergedHeightPts: CGFloat = 0
+    
+}
 
 enum PDFPageItemError: Error {
     case unresolvedSource
@@ -69,29 +186,6 @@ final class PDFPageItemModel {
     }
 }
 
-@Model
-final class PDFPageSectionModel {
-    @Attribute(.unique) var id: UUID
-    var title: String
-    var orderIndex: Int
-    
-    // One-to-many: A section owns many items; deleting a section cascades to items.
-    @Relationship(deleteRule: .cascade, inverse: \PDFPageItemModel.pageSection)
-    var pageItems: [PDFPageItemModel] = []
-    
-    init(id: UUID = UUID(), title: String, orderIndex: Int = 0) {
-        self.id = id
-        self.title = title
-        self.orderIndex = orderIndex
-    }
-    
-//    @Transient var pdfPage: PDFPage? = nil
-    
-    var aspectRatio: CGFloat?
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-}
 
 extension PDFPageItemModel {
     var pdfPage: PDFPage {

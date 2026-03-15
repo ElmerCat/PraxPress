@@ -13,7 +13,7 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
+/*class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     let document: MergedPDFDocument
     let prax: PraxModel
     
@@ -304,7 +304,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     }
     
 }
-
+*/
 
 
 #Preview {

@@ -33,7 +33,7 @@ import Foundation
         }
     }
     
-    var pageSections: [PDFPageSectionModel] = [] {
+    var pageSections: [MergedPage] = [] {
         didSet {
             print("pageSections didSet:  ", pageSections.count)
         }

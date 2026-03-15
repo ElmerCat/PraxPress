@@ -16,11 +16,13 @@ import UniformTypeIdentifiers
 
 
 final class DualCollectionViewController: NSViewController, NSCollectionViewDelegate {
-    @IBOutlet weak var leftCollectionView: NSCollectionView!
-    @IBOutlet weak var rightCollectionView: NSCollectionView!
+    private(set) var leftCollectionView: NSCollectionView!
+    private(set) var rightCollectionView: NSCollectionView!
+    private var leftScrollView: NSScrollView!
+    private var rightScrollView: NSScrollView!
 
-    private var leftDataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!
-    private var rightDataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!
+    private var leftDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
+    private var rightDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
 
     let document: MergedPDFDocument
     let prax: PraxModel
@@ -44,7 +46,7 @@ final class DualCollectionViewController: NSViewController, NSCollectionViewDele
     }
 
     private func configure(_ collectionView: NSCollectionView,
-                           into dataSource: inout NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!,
+                           into dataSource: inout NSCollectionViewDiffableDataSource<MergedPage, PageItem>!,
                            kind: CollectionElementKindCase) {
         // 1) register items/supplementaries
         collectionView.register(CollectionViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("Cell"))
@@ -90,7 +92,7 @@ final class DualCollectionViewController: NSViewController, NSCollectionViewDele
     }
 
     private func applySnapshotToBoth(animated: Bool) {
-        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSectionModel, PDFPageItemModel>()
+        var snapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
         document.pageSections.forEach {
             snapshot.appendSections([$0])
             snapshot.appendItems($0.pageItems)
@@ -283,7 +285,7 @@ final class DualCollectionViewController: NSViewController, NSCollectionViewDele
 }
 
 
-class PagesViewController: NSViewController, NSCollectionViewDelegate {
+/*class PagesViewController: NSViewController, NSCollectionViewDelegate {
     let document: MergedPDFDocument
     let prax: PraxModel
     
@@ -529,7 +531,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
     
     
-}
+}*/
 
 #Preview {
  

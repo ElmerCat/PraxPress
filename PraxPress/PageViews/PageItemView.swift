@@ -12,7 +12,7 @@ import PDFKit
 struct PageItemView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
-    let pdfPageItem: PDFPageItemModel?
+    let pdfPageItem: PageItem?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -71,7 +71,7 @@ struct PageItemView: View {
                         
                             VStack {
                                 Button { clickedIncludePageButton(pdfPageItem!) }
-                                label: { Image(systemName: pdfPageItem!.mergeMode == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                                label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                                     .buttonStyle(.borderless)
                                     .help("Toggle include page")
                                 
@@ -107,15 +107,15 @@ struct PageItemView: View {
         
     }
     
-    func clickedIncludePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if pdfPageItem.mergeMode == .mergeSkip {
-            pdfPageItem.mergeMode = .mergeDown
+        if pdfPageItem.merge == .mergeSkip {
+            pdfPageItem.merge = .mergeDown
         }
         else {
-            pdfPageItem.mergeMode = .mergeSkip
+            pdfPageItem.merge = .mergeSkip
         }
         
         
@@ -123,7 +123,7 @@ struct PageItemView: View {
     
     
     
-    func clickedGuidePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
@@ -160,7 +160,7 @@ struct PageItemView: View {
 
 struct PDFPageItemToolbar: View {
     let document: MergedPDFDocument
-    let pdfPageItem: PDFPageItemModel
+    let pdfPageItem: PageItem
     let pdfViewRef: WeakPDFViewRef
     
     var body: some View {
@@ -225,7 +225,7 @@ final class WeakPDFViewRef {
 struct PageEditView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
-    let pdfPageItem: PDFPageItemModel?
+    let pdfPageItem: PageItem?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
@@ -318,7 +318,7 @@ struct PageEditView: View {
                         
                         
                         Button { clickedIncludePageButton(pdfPageItem!) }
-                        label: { Image(systemName: pdfPageItem!.mergeMode == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                        label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                             .buttonStyle(.borderless)
                             .help("Toggle include page")
                         
@@ -393,15 +393,15 @@ struct PageEditView: View {
     
     
     
-    func clickedIncludePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
         
-        if pdfPageItem.mergeMode == .mergeSkip {
-            pdfPageItem.mergeMode = .mergeDown
+        if pdfPageItem.merge == .mergeSkip {
+            pdfPageItem.merge = .mergeDown
         }
         else {
-            pdfPageItem.mergeMode = .mergeSkip
+            pdfPageItem.merge = .mergeSkip
         }
         
         
@@ -409,7 +409,7 @@ struct PageEditView: View {
     
     
     
-    func clickedGuidePageButton(_ pdfPageItem: PDFPageItemModel) {
+    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
         
         print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
         
@@ -443,14 +443,14 @@ struct PageEditView: View {
     final class Coordinator: NSObject, PDFPageOverlayViewProvider {
         
         
-        init(_ document: MergedPDFDocument,_ pdfPageItem: PDFPageItemModel) {
+        init(_ document: MergedPDFDocument,_ pdfPageItem: PageItem) {
             self.document = document
             self.pdfPageItem = pdfPageItem
          //   self.pdfPageItemView = pdfPageItemView
         }
         
         let document: MergedPDFDocument
-        let pdfPageItem: PDFPageItemModel
+        let pdfPageItem: PageItem
         
         var pdfView: PDFView?
         
@@ -534,7 +534,7 @@ struct PageEditView: View {
     
     struct PDFViewRepresentable: NSViewRepresentable {
         let document: MergedPDFDocument
-        let pdfPageItem: PDFPageItemModel
+        let pdfPageItem: PageItem
         let onPDFViewReady: (PDFView) -> Void
 
         func makeCoordinator() -> Coordinator {

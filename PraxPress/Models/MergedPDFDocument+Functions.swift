@@ -52,7 +52,7 @@ extension MergedPDFDocument {
     }
   */
     
-    func pdfPageItem(id: UUID) -> PDFPageItemModel? {
+    func pdfPageItem(id: UUID) -> PageItem? {
         for piSection in pageSections.indices {
             let section = pageSections[piSection]
             for piItem in section.pageItems.indices {
@@ -67,7 +67,7 @@ extension MergedPDFDocument {
     
     
     
-    func pdfPageItem(for pdfPage: PDFPage) -> PDFPageItemModel? {
+    func pdfPageItem(for pdfPage: PDFPage) -> PageItem? {
         for piSection in pageSections.indices {
             let section = pageSections[piSection]
             for piItem in section.pageItems.indices {
@@ -80,7 +80,7 @@ extension MergedPDFDocument {
         return nil
     }
     
-    func pdfPageItem(indexPath: IndexPath) -> PDFPageItemModel? {
+    func pdfPageItem(indexPath: IndexPath) -> PageItem? {
         let piSection = indexPath.section
         let piItem = indexPath.item
         if pageSections.count > piSection {
@@ -113,7 +113,7 @@ extension MergedPDFDocument {
         
         // 2) Extract the items being moved, preserving their original order
         //    We collect them in reverse-removal order and then reverse to original order.
-        var movedItemsReversed: [PDFPageItemModel] = []
+        var movedItemsReversed: [PageItem] = []
         for source in uniqueItems {
             guard pageSections.indices.contains(source.section) else { continue }
             let section = pageSections[source.section]
@@ -356,7 +356,7 @@ extension MergedPDFDocument {
             
             pageSections[sectionIndex].pageItems.forEach {
                 pageItem in
-                if pageItem.mergeMode != .mergeSkip {
+                if pageItem.merge != .mergeSkip {
                     let media = pageItem.pdfPage.bounds(for: .cropBox)
                     let per = pageItem.trims
                     let seamTop: CGFloat = (pageIndex == 0) ? 0 : 0
@@ -377,10 +377,10 @@ extension MergedPDFDocument {
         
         let mergedDocument = PDFDocument()
         
-        var pageItems: [PDFPageItemModel] = []
+        var pageItems: [PageItem] = []
         for sectionIndex in 0..<pageSections.count {
             for pageIndex in 0..<pageSections[sectionIndex].pageItems.count{
-                if pageSections[sectionIndex].pageItems[pageIndex].mergeMode != .mergeSkip {
+                if pageSections[sectionIndex].pageItems[pageIndex].merge != .mergeSkip {
                     pageItems.append(pageSections[sectionIndex].pageItems[pageIndex])
                 }
             }
@@ -559,13 +559,13 @@ extension MergedPDFDocument {
     }
     
     
-    func widthGuidePage() -> PDFPageItemModel? {
+    func widthGuidePage() -> PageItem? {
         if widthGuidePageID == nil { return nil }
         return pdfPageItem(id: widthGuidePageID!)
     }
 
     /// Compute and store the width guide X positions (in page space of the guide page)
-    func setWidthGuide(fromPage pdfPageItem: PDFPageItemModel) {
+    func setWidthGuide(fromPage pdfPageItem: PageItem) {
   //      if pdfPageItem.id == widthGuidePageID { clearWidthGuide() }
         let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
         let per = pdfPageItem.trims

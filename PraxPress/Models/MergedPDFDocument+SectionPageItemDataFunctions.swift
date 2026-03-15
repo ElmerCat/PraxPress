@@ -14,23 +14,25 @@ import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
     
-    func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: PDFPageSectionModel?, at location: Int? = 0) {
+    func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: MergedPage?, at location: Int? = 0) {
  //       guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
         let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
         
         // Determine target section
-        let section: PDFPageSectionModel = {
+        let mergedPage: MergedPage = {
             if let givenSection = pageSection {
                 ensureSectionInOrder(givenSection, at: sectionIndex)
                 return givenSection
             } else {
 
-                let newSection = PDFPageSectionModel(title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section", orderIndex: sectionIndex)
-                windowModelContext.insert(newSection)
-                pageSections.insert(newSection, at: sectionIndex)
-                return newSection
+                let newMergedPage = MergedPage(document: self, title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section")
+                
+       //         let newSection = PDFPageSectionModel(title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section", orderIndex: sectionIndex)
+       //         windowModelContext.insert(newSection)
+                pageSections.insert(newMergedPage, at: sectionIndex)
+                return newMergedPage
             }
         }()
         
@@ -48,7 +50,7 @@ extension MergedPDFDocument {
             var isStale = false
             guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
                 print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", url ?? "No URL")
-                do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+        //        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
                 refreshMergedDocument()
                 return
             }
@@ -59,7 +61,7 @@ extension MergedPDFDocument {
             baseBookmark = (try? direct.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)) ?? Data()
         } else {
             print("addPagesFromURLBookmark - no valid bookmark or url")
-            do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+      //      do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
             refreshMergedDocument()
             return
         }
@@ -69,36 +71,32 @@ extension MergedPDFDocument {
         
         // Determine page count fallback to 1
         var pageCount = 1
-        if let doc = PDFDocument(url: fileURL) { pageCount = doc.pageCount }
-        
-        // Normalize page insertion index relative to pageItems count in section
-        var pageInsertIndex = normalizedInsertionIndex(count: section.pageItems.count, location: location)
-        
-        // Insert pages one by one at the computed index, preserving order
-        for index in 0..<pageCount {
-            let displayName = nameForPage(url: fileURL, index: index)
+        if let doc = PDFDocument(url: fileURL) {
+            pageCount = doc.pageCount
+            var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
             
-            let item = PDFPageItemModel(
-                    name: displayName,
-                    aspectRatio: 0,
-                    trimLeft: 0,
-                    trimRight: 0,
-                    trimTop: 0,
-                    trimBottom: 0,
-                    sourceBookmark: baseBookmark,
-                    sourceURL: fileURL,
-                    pageIndex: index,
-                    orderIndex: pageInsertIndex,
-                    mergeModeRaw: MergeMode.mergeDown.rawValue
-                )
-                section.pageItems.insert(item, at: pageInsertIndex)
-            windowModelContext.insert(item)
+            // Insert pages one by one at the computed index, preserving order
+            for index in 0..<pageCount {
+                let displayName = nameForPage(url: fileURL, index: index)
+                
+                let item = PageItem(
+                        mergedPage: mergedPage,
+                        name: displayName,
+                        sourceBookmark: baseBookmark,
+                        sourceURL: fileURL,
+                        pageIndex: index,
+                        pdfPage: doc.page(at: index)!
+
+                    )
+                mergedPage.pageItems.insert(item, at: pageInsertIndex)
+              //  windowModelContext.insert(item)
                 pageInsertIndex += 1
                 
+            }
             
-            
-
         }
+        
+        // Normalize page insertion index relative to pageItems count in section
         
         do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
         refreshMergedDocument()
@@ -127,7 +125,7 @@ extension MergedPDFDocument {
         }
     }
     
-    private func ensureSectionInOrder(_ section: PDFPageSectionModel, at index: Int) {
+    private func ensureSectionInOrder(_ section: MergedPage, at index: Int) {
         if let currentIndex = pageSections.firstIndex(where: { $0 === section }) {
             if currentIndex != index {
                 pageSections.remove(at: currentIndex)

@@ -12,7 +12,7 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-extension ThumbnailViewController {
+/*extension ThumbnailViewController {
     
          
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
@@ -429,7 +429,7 @@ fatalError()
     
     
     
-}
+}*/
 
 extension NSImage {
     func resize(to newSize: NSSize) -> NSImage? {

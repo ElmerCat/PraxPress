@@ -9,10 +9,10 @@ import SwiftUI
 import AppKit
 
 enum CollectionElementKind {
-    case thumbnail(item: PDFPageItemModel)
-    case page(item: PDFPageItemModel)
-    case header(item: PDFPageSectionModel)
-    case footer(item: PDFPageSectionModel)
+    case thumbnail(item: PageItem)
+    case page(item: PageItem)
+    case header(item: MergedPage)
+    case footer(item: MergedPage)
     case background(indexPath: IndexPath)
     case none
     
