@@ -18,26 +18,23 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     let prax: PraxModel
     
     init(_ document: MergedPDFDocument, _ prax: PraxModel) {
-   
         self.document = document
         self.prax = prax
         super.init(nibName: nil, bundle: nil)
-
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-
-    static let sectionHeaderElementKind = "section-header-element-kind"
-    static let sectionFooterElementKind = "section-footer-element-kind"
-    static let sectionBackgroundElementKind = "section-background-element-kind"
-    
     static let sectionHeaderHeight: CGFloat = 50
     static let sectionFooterHeight: CGFloat = 50
 
-    @IBOutlet weak var collectionView: NSCollectionView!
+    
+    // Programmatically created views
+    private(set) var collectionView: NSCollectionView!
+    private var scrollView: NSScrollView!
+
+//    @IBOutlet weak var collectionView: NSCollectionView!
     
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>! = nil
     private var observeDocumentChange: Task<Void, Never>?
@@ -58,17 +55,19 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
         
         updateUI(animated: false)
         
-/*        observeDocumentChange = Task {
-            for await _ in Observations({ self.document.pageSections }) {
+        observeDocumentChange = Task {
+            for await _ in Observations({ self.document.pageSections.count }) {
                 print("ThumbnailViewController observeDocumentChange  ") //, document.sections)
-                updateUI()
+                updateUI(animated: true)
             }
         }
- */
+
         
         observeCurrentIndexChange = Task {
             for await _ in Observations({ self.prax.selectedPageItems }) {
-                print("ThumbnailViewController observeCurrentIndexChange  ") //, PraxModel.shared.selectedPageItems)
+                print("ThumbnailViewController observeCurrentIndexChange  ")
+                updateUI(animated: true)
+                //, PraxModel.shared.selectedPageItems)
                 
               /*  if let firstIndexPath = PraxModel.shared.selectedPageItems.first {
                     if PraxModel.shared.editingPDFDocument.pageCount > firstIndexPath.item {
@@ -104,7 +103,7 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
 //            )
             
  
-            let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: ThumbnailViewController.sectionBackgroundElementKind)
+            let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
             
             
             let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
@@ -119,17 +118,17 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
      //       section.supplementariesFollowContentInsets = false
             
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                    heightDimension: .absolute(ThumbnailViewController.sectionHeaderHeight))
+                                                    heightDimension: .absolute(50))
             
-            let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(ThumbnailViewController.sectionFooterHeight))
+            let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(50))
             let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: headerSize,
-                elementKind: ThumbnailViewController.sectionHeaderElementKind,
+                elementKind: CollectionViewItem.sectionHeaderElementKind,
                 alignment: .top,)
            sectionHeader.extendsBoundary = true
            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: footerSize,
-                elementKind: ThumbnailViewController.sectionFooterElementKind,
+                elementKind: CollectionViewItem.sectionFooterElementKind,
                 alignment: .bottom)
 
             
@@ -150,18 +149,18 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
             return section
         }
        
-        layout.register(SectionBackground.self, forDecorationViewOfKind: ThumbnailViewController.sectionBackgroundElementKind)
+        layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
         
         return layout
         
     }
     
     private func configureHierarchy() {
-        collectionView.register(PDFPageThumbnail.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"))
+        collectionView.register(CollectionViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"))
   
-        collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: ThumbnailViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
+        collectionView.register(CollectionSupplementaryView.self, forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
         
-        collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: ThumbnailViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
+        collectionView.register(CollectionSupplementaryView.self, forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
         
         collectionView.collectionViewLayout = createLayout()
         
@@ -179,12 +178,13 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
     
     private func configureDataSource() {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>(collectionView: collectionView) {
-            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItemModel) -> NSCollectionViewItem? in
-            let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"), for: indexPath)
-            guard let pageItem = item as? PDFPageThumbnail else { return nil }
-            pageItem.configure(for: self.document, at: indexPath,
-                               isSelected: collectionView.selectionIndexPaths.contains(indexPath))
-            return pageItem
+            (collectionView: NSCollectionView, indexPath: IndexPath, pdfPageItem: PDFPageItemModel) -> NSCollectionViewItem? in
+            guard let collectionViewItem = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageThumbnail"), for: indexPath)
+            as? CollectionViewItem else { return nil }
+            collectionViewItem.configure(kind: .thumbnail(item: pdfPageItem), isSelected: collectionView.selectionIndexPaths.contains(indexPath))
+            
+           
+            return collectionViewItem
         }
         dataSource.supplementaryViewProvider = { [weak self]
             (collectionView: NSCollectionView, kind: String, indexPath: IndexPath) -> (NSView & NSCollectionViewElement)? in
@@ -197,17 +197,16 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                 return nil
             }
             
-            if kind == ThumbnailViewController.sectionHeaderElementKind {
-                guard let header = collectionView.makeSupplementaryView(
+            if kind == CollectionViewItem.sectionHeaderElementKind {
+                guard let supplementaryView = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"),
-                    for: indexPath) as? SectionHeader else { return nil }
+                    for: indexPath) as? CollectionSupplementaryView else { return nil }
                 
                 //               header.label.stringValue = document.sections[indexPath.section].title
-                header.configure(for: document, at: indexPath,
-                                 isSelected: prax.selectedSections.contains(indexPath.section))
+                supplementaryView.configure(kind: .header(item: document.pageSections[indexPath.section]), isSelected: prax.selectedSections.contains(indexPath.section))
                 
-                header.onToggleSelection = { [weak self] in
+                supplementaryView.onToggleSelection = { [weak self] in
              //       guard let self else { return }
              //       if document!.selectedSections.contains(indexPath.section) {
              //           document.selectedSections.remove(indexPath.section)
@@ -218,18 +217,18 @@ class ThumbnailViewController: NSViewController, NSCollectionViewDelegate {
                     self!.collectionView.reloadSections(IndexSet(integer: indexPath.section))
                 }
                 
-                return header
+                return supplementaryView
                 
             }
-            else if kind == ThumbnailViewController.sectionFooterElementKind {
-                if let footer = collectionView.makeSupplementaryView(
+            else if kind == CollectionViewItem.sectionFooterElementKind {
+                if let supplementaryView = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"),
-                    for: indexPath) as? SectionFooter {
+                    for: indexPath) as? CollectionSupplementaryView {
                     
-                    footer.configure(for: document, at: indexPath,
-                                     isSelected: prax.selectedSections.contains(indexPath.section))
-                    return footer
+                    supplementaryView.configure(kind: .footer(item: document.pageSections[indexPath.section]), isSelected: prax.selectedSections.contains(indexPath.section))
+                    
+                    return supplementaryView
                 }
             }
             fatalError("Cannot create new supplementary view of kind: \(kind)")

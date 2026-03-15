@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "MergedPDFDocument.movePDFPageItems(_:to:):MergedPDFDocument+Functions.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "([Foundation.IndexPath])items">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ThumbnailViewController.updateUI(animated:):ThumbnailViewController.swift">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

@@ -13,11 +13,14 @@ import UniformTypeIdentifiers
 extension MergedPDFDocument {
  
     func refreshMergedDocument() {
-        if !refreshingMergedDocument {
-            refreshingMergedDocument = true
-            recomputeMergedMetrics()
-            mergedPDFDocument = mergeDocumentPagesForSections()
-            refreshingMergedDocument = false
+        if totalPDFPageItems() > 0 {
+            if !refreshingMergedDocument {
+                refreshingMergedDocument = true
+                recomputeMergedMetrics()
+                mergedPDFDocument = mergeDocumentPagesForSections()
+                refreshingMergedDocument = false
+            }
+
         }
         
     }
@@ -147,6 +150,7 @@ extension MergedPDFDocument {
         for offset in 0..<movedItems.count {
             newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
         }
+  //
         prax!.selectedPageItems = newSelection
         
         DispatchQueue.main.async {
@@ -337,107 +341,6 @@ extension MergedPDFDocument {
         }
         return pdfDocument
     }
-    
-    
-/*
- 
- var replaceSourceFiles: Bool = true
- var multipleFilesSelected: Bool = false
-
-    func addPageSectionFromURLBookmark(url: URL, bookmarkData: Data?) {
-        var url: URL = url
-        var pdfDocument: PDFDocument
-        if let bookmarkData {
-            var isStale = false
-            guard let bookmarkURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
-                fatalError("Failed to resolve bookmark")
-            }
-            url = bookmarkURL
-            let needsStop = url.startAccessingSecurityScopedResource()
-            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            guard let bookmarkPDFDocument = PDFDocument(url: url) else { fatalError("Failed to open bookmarkPDFDocument at \(url)")
-            }
-            pdfDocument = bookmarkPDFDocument
-        }
-        else {
-            guard let urlPDFDocument = PDFDocument(url: url) else { fatalError("Failed to open bookmarkPDFDocument at \(url)")
-            }
-            pdfDocument = urlPDFDocument
-        }
-        var pages: [PDFPageItem] = []
-            let sectionName = url.deletingPathExtension().lastPathComponent
-        for i in 0..<pdfDocument.pageCount {
-            guard let pdfDocumentPage = pdfDocument.page(at: i)  else { fatalError("No document.page(at: \(i)") }
-            pages.append(PDFPageItem(
-                document: self,
-                name: "\(sectionName) - Page \(i + 1)",
-                pdfPage: pdfDocumentPage //,
-            ))
-        }
-        pageSections.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
-        refreshMergedDocument()
-
-        
-    }
-    
-    func addPageSectionFromPDFFile(pdfFile: PDFFile) {
-
-        guard let doc = PDFDocument(url: pdfFile.url) else { fatalError("Failed to open PDFDocument at \(pdfFile.url)") }
-        var pages: [PDFPageItem] = []
-            let sectionName = pdfFile.url.deletingPathExtension().lastPathComponent
-        for i in 0..<doc.pageCount {
-            guard let docPage = doc.page(at: i)  else { fatalError("No document.page(at: \(i)") }
-            pages.append(PDFPageItem(
-                document: self,
-                name: "\(sectionName) - Page \(i + 1)",
-                pdfPage: docPage //,
-            ))
-        }
-        pageSections.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
-        refreshMergedDocument()
-
-    }
-    
-    func setPageSectionsFromSelectedFiles() {
-        let entries: [PDFFile] = selectedFiles.compactMap { id in
-            pdfFiles.first(where: { $0.id == id })
-        }
-        let urlBookmarks: [(url: URL, data: Data)] = entries.map { ($0.url, $0.bookmarkData) }
-        multipleFilesSelected = urlBookmarks.count > 1
-        if urlBookmarks.isEmpty {
-            firstSelectedFileURL = nil
-            //           pdfPageSections.removeAll()
-        }
-        else {
-            var secs: [PDFPageSection] = []
-            firstSelectedFileURL = urlBookmarks.first?.url
-            for urlBookmark in urlBookmarks {
-                var isStale = false
-                guard let url = try? URL(resolvingBookmarkData: urlBookmark.data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
-                    fatalError("Failed to resolve bookmark")
-                    //  print("Failed to resolve bookmark")
-                    //  continue
-                }
-                let needsStop = url.startAccessingSecurityScopedResource()
-                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                guard let document = PDFDocument(url: url) else { fatalError("Failed to open PDFDocument at \(url)") }
-                var pages: [PDFPageItem] = []
-                let sectionName = url.deletingPathExtension().lastPathComponent
-                for i in 0..<document.pageCount {
-                    guard let docPage = document.page(at: i)  else { fatalError("No document.page(at: \(i)") }
-                    pages.append(PDFPageItem(
-                        document: self,
-                        name: "\(sectionName) - Page \(i + 1)",
-                        pdfPage: docPage //,
-                    ))
-                }
-                secs.append(PDFPageSection(document: self, title: sectionName, pageItems: pages))
-            }
-            pageSections = secs
-            refreshMergedDocument()
-        }
-    }
- */
     
     
     

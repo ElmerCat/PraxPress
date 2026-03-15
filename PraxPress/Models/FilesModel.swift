@@ -49,6 +49,18 @@ final class PDFFile {
     
 }
 
+func testBookmark(for pdfFile:PDFFile) -> Bool {
+    var isStale = false
+    if (try? URL(resolvingBookmarkData: pdfFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)) != nil {
+        if !isStale {
+            print("Resolved BookmarkData for URL: ", pdfFile.url)
+            return true
+        }
+    }
+    pdfFile.bookmarkData = Data(count: 0)
+    print("Unable to resolve bookmarkData for URL: ", pdfFile.url, " isStale: ", isStale)
+    return false
+}
 
 
 @Model

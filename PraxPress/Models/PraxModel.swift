@@ -71,7 +71,7 @@ final class PraxModel {
     
     var selectedFiles = Set<PDFFile.ID>() {
         didSet {
-            print ("MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
+            print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
             //         isLoadingPDF = true
             //            selectedPageItems = []
             //           clearWidthGuide()
@@ -86,45 +86,23 @@ final class PraxModel {
     }
 
     var selectedSections: Set<Int> = [] { didSet {
-        print("selectedSections didSet:  ", selectedSections)
-        selectedSections.forEach {
-            print("\($0)") }}}
+        print("PraxModel - electedSections didSet:  ", selectedSections)
+    //    selectedSections.forEach {
+    //        print("\($0)") }
+    }}
     
     var selectedPageItems: Set<IndexPath> = [] { didSet {
-        print("selectedPageItems didSet:  ", selectedPageItems)
-        selectedPageItems.forEach {
-            print("\($0)") }}}
+        print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
+    //    selectedPageItems.forEach {
+    //        print("\($0)") }
+    }}
     
     var selectedPages: Set<IndexPath> = [] { didSet {
-        print("selectedPages didSet:  ", selectedPages)
-        selectedPages.forEach {
-            print("\($0)") }}}
+        print("PraxModel - selectedPages didSet:  ", selectedPages)
+    //          selectedPages.forEach {
+    //              print("\($0)") }}
+    }}
 
  
-}
-
-
-extension PDFDisplayMode {
-    var color: Color {
-        switch self {
-            
-        case .singlePage: return .pink
-        case .singlePageContinuous: return .blue
-        case .twoUp: return .orange
-        case .twoUpContinuous: return .yellow
-        default: return .black
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .singlePage: return "inset.filled.center.rectangle.portrait"
-        case .singlePageContinuous: return "inset.filled.center.rectangle.portrait"
-        case .twoUp: return "inset.filled.center.rectangle.portrait"
-        case .twoUpContinuous: return "inset.filled.center.rectangle.portrait"
-        default: return "inset.filled.center.rectangle.portrait"
-         }
-    }
-    
 }
 

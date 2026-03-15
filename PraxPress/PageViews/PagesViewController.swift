@@ -14,6 +14,275 @@ import Observation
 import UniformTypeIdentifiers
 
 
+
+final class DualCollectionViewController: NSViewController, NSCollectionViewDelegate {
+    @IBOutlet weak var leftCollectionView: NSCollectionView!
+    @IBOutlet weak var rightCollectionView: NSCollectionView!
+
+    private var leftDataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!
+    private var rightDataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!
+
+    let document: MergedPDFDocument
+    let prax: PraxModel
+
+    init(_ document: MergedPDFDocument, _ prax: PraxModel) {
+        self.document = document
+        self.prax = prax
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure(leftCollectionView, into: &leftDataSource, kind: .pageItem)
+        configure(rightCollectionView, into: &rightDataSource, kind: .pageEdit)
+        applySnapshotToBoth(animated: false)
+        observeModelChanges()
+    }
+
+    private func configure(_ collectionView: NSCollectionView,
+                           into dataSource: inout NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>!,
+                           kind: CollectionElementKindCase) {
+        // 1) register items/supplementaries
+        collectionView.register(CollectionViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("Cell"))
+        collectionView.register(CollectionSupplementaryView.self,
+                                forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind,
+                                withIdentifier: NSUserInterfaceItemIdentifier("Header"))
+        collectionView.register(CollectionSupplementaryView.self,
+                                forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind,
+                                withIdentifier: NSUserInterfaceItemIdentifier("Footer"))
+        // 2) layout
+        collectionView.collectionViewLayout = makeLayout(for: kind)
+        // 3) data source
+        dataSource = NSCollectionViewDiffableDataSource(collectionView: collectionView) { cv, indexPath, item in
+            guard let cell = cv.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("Cell"), for: indexPath) as? CollectionViewItem else { return nil }
+            switch kind {
+            case .pageItem: cell.configure(kind: .thumbnail(item: item), isSelected: cv.selectionIndexPaths.contains(indexPath))
+            case .pageEdit: cell.configure(kind: .page(item: item), isSelected: cv.selectionIndexPaths.contains(indexPath))
+            }
+            return cell
+        }
+
+        dataSource.supplementaryViewProvider = { [weak self] cv, kindString, indexPath in
+            guard let self else { return nil }
+            if kindString == CollectionViewItem.sectionHeaderElementKind {
+                let v = cv.makeSupplementaryView(ofKind: kindString,
+                                                 withIdentifier: NSUserInterfaceItemIdentifier("Header"),
+                                                 for: indexPath) as! CollectionSupplementaryView
+                v.configure(kind: .header(item: self.document.pageSections[indexPath.section]),
+                            isSelected: self.prax.selectedSections.contains(indexPath.section))
+                return v
+            } else if kindString == CollectionViewItem.sectionFooterElementKind {
+                let v = cv.makeSupplementaryView(ofKind: kindString,
+                                                 withIdentifier: NSUserInterfaceItemIdentifier("Footer"),
+                                                 for: indexPath) as! CollectionSupplementaryView
+                v.configure(kind: .footer(item: self.document.pageSections[indexPath.section]),
+                            isSelected: self.prax.selectedSections.contains(indexPath.section))
+                return v
+            }
+            return nil
+        }
+
+        collectionView.delegate = self
+    }
+
+    private func applySnapshotToBoth(animated: Bool) {
+        var snapshot = NSDiffableDataSourceSnapshot<PDFPageSectionModel, PDFPageItemModel>()
+        document.pageSections.forEach {
+            snapshot.appendSections([$0])
+            snapshot.appendItems($0.pageItems)
+        }
+        leftDataSource.apply(snapshot, animatingDifferences: animated)
+        rightDataSource.apply(snapshot, animatingDifferences: animated)
+    }
+
+    // Keep selection in sync by writing to prax, then reflecting
+    func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        prax.selectedPageItems = collectionView.selectionIndexPaths
+        syncSelectionAcrossCollections(source: collectionView)
+    }
+    func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
+        prax.selectedPageItems = collectionView.selectionIndexPaths
+        syncSelectionAcrossCollections(source: collectionView)
+    }
+
+    private func syncSelectionAcrossCollections(source: NSCollectionView) {
+        let target = (source === leftCollectionView) ? rightCollectionView! : leftCollectionView!
+        target.selectionIndexPaths = prax.selectedPageItems
+    }
+
+    private func observeModelChanges() {
+        // observe document changes -> applySnapshotToBoth(animated: true)
+        // observe prax.selectedPageItems -> update both collectionView.selectionIndexPaths
+    }
+
+    private enum CollectionElementKindCase { case pageItem, pageEdit }
+    private func makeLayout(for kind: CollectionElementKindCase) -> NSCollectionViewLayout {
+        switch (kind) {
+        case .pageItem:
+            return createPageItemLayout()
+        case .pageEdit:
+            return createPageEditLayout()
+            
+        }
+    }
+    
+    
+    private func createPageItemLayout() -> NSCollectionViewLayout {
+        
+        let layout = NSCollectionViewCompositionalLayout {
+            (sectionIndex: Int,
+             layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalWidth(0.5))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+   //         item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+     //       item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+            
+ //           item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
+            
+//            item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
+//                leading: nil,
+//                top: nil,
+//                trailing: .fixed(0),
+//                bottom: nil
+//            )
+            
+ 
+            let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
+            
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            
+            
+      //      group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
+            
+            let section = NSCollectionLayoutSection(group: group)
+     //       section.interGroupSpacing = 5
+     //       section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
+     //       section.supplementariesFollowContentInsets = false
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                    heightDimension: .absolute(50))
+            
+            let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(50))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerSize,
+                elementKind: CollectionViewItem.sectionHeaderElementKind,
+                alignment: .top,)
+           sectionHeader.extendsBoundary = true
+           let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: footerSize,
+                elementKind: CollectionViewItem.sectionFooterElementKind,
+                alignment: .bottom)
+
+            
+            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+            
+            section.decorationItems = [sectionBackground]
+            
+     //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                // Perform animations on the visible items.
+     //           print("section.visibleItemsInvalidationHandler")
+     //       }
+    
+            sectionHeader.pinToVisibleBounds = true
+            sectionHeader.zIndex = 2
+ //           sectionFooter.pinToVisibleBounds = true
+ //           sectionFooter.zIndex = 2
+       
+            return section
+        }
+       
+        layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
+        
+        return layout
+        
+    }
+    
+    private func createPageEditLayout() -> NSCollectionViewLayout {
+        
+        let layout = NSCollectionViewCompositionalLayout {
+            (sectionIndex: Int,
+             layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalWidth(0.5))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+   //         item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
+     //       item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+            
+ //           item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
+            
+//            item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
+//                leading: nil,
+//                top: nil,
+//                trailing: .fixed(0),
+//                bottom: nil
+//            )
+            
+ 
+            let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
+            
+            
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            
+            
+      //      group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
+            
+            let section = NSCollectionLayoutSection(group: group)
+     //       section.interGroupSpacing = 5
+     //       section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
+     //       section.supplementariesFollowContentInsets = false
+            
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                    heightDimension: .absolute(50))
+            
+            let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(50))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerSize,
+                elementKind: CollectionViewItem.sectionHeaderElementKind,
+                alignment: .top,)
+           sectionHeader.extendsBoundary = true
+           let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: footerSize,
+                elementKind: CollectionViewItem.sectionFooterElementKind,
+                alignment: .bottom)
+
+            
+            section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+            
+            section.decorationItems = [sectionBackground]
+            
+     //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                // Perform animations on the visible items.
+     //           print("section.visibleItemsInvalidationHandler")
+     //       }
+    
+            sectionHeader.pinToVisibleBounds = true
+            sectionHeader.zIndex = 2
+ //           sectionFooter.pinToVisibleBounds = true
+ //           sectionFooter.zIndex = 2
+       
+            return section
+        }
+       
+        layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
+        
+        return layout
+        
+    }
+
+    
+}
+
+
 class PagesViewController: NSViewController, NSCollectionViewDelegate {
     let document: MergedPDFDocument
     let prax: PraxModel
@@ -26,13 +295,7 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-  
-    
-    private var selectedSections = Set<Int>()
-    
-    static let sectionHeaderElementKind = "section-header-element-kind"
-    static let sectionFooterElementKind = "section-footer-element-kind"
-    
+
     @IBOutlet weak var collectionView: NSCollectionView!
     
     private var dataSource: NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>! = nil
@@ -114,9 +377,9 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     }
     
     private func configureHierarchy() {
-        collectionView.register(CollectionViewPDFPageItemView.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
-        collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: PagesViewController.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
-        collectionView.register(SectionFooter.self, forSupplementaryViewOfKind: PagesViewController.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
+        collectionView.register(CollectionViewItem.self, forItemWithIdentifier: NSUserInterfaceItemIdentifier("PageItem"))
+        collectionView.register(CollectionSupplementaryView.self, forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"))
+        collectionView.register(CollectionSupplementaryView.self, forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind, withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"))
          
         collectionView.collectionViewLayout = createLayout()
         
@@ -133,12 +396,11 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
     
     private func configureDataSource() {
         dataSource = NSCollectionViewDiffableDataSource<PDFPageSectionModel, PDFPageItemModel>(collectionView: collectionView) {
-            (collectionView: NSCollectionView, indexPath: IndexPath, identifier: PDFPageItemModel) -> NSCollectionViewItem? in
-            let item = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath)
-            guard let pageItem = item as? CollectionViewPDFPageItemView else { return nil }
-            pageItem.configure(for: self.document, at: indexPath,
-                               isSelected: collectionView.selectionIndexPaths.contains(indexPath))
-            return pageItem
+            (collectionView: NSCollectionView, indexPath: IndexPath, pdfPageItem: PDFPageItemModel) -> NSCollectionViewItem? in
+            guard let collectionViewItem = collectionView.makeItem(withIdentifier: NSUserInterfaceItemIdentifier("PageItem"), for: indexPath) as? CollectionViewItem else { return nil }
+            collectionViewItem.configure(kind: .page(item: pdfPageItem), isSelected: collectionView.selectionIndexPaths.contains(indexPath))
+            
+            return collectionViewItem
         }
         dataSource.supplementaryViewProvider = { [weak self]
             (collectionView: NSCollectionView, kind: String, indexPath: IndexPath) -> (NSView & NSCollectionViewElement)? in
@@ -151,39 +413,38 @@ class PagesViewController: NSViewController, NSCollectionViewDelegate {
                 return nil
             }
             
-            if kind == PagesViewController.sectionHeaderElementKind {
-                guard let header = collectionView.makeSupplementaryView(
+            if kind == CollectionViewItem.sectionHeaderElementKind {
+                guard let supplementaryView = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionHeader"),
-                    for: indexPath) as? SectionHeader else { return nil }
+                    for: indexPath) as? CollectionSupplementaryView else { return nil }
                 
- //               header.label.stringValue = document.pageSections[indexPath.section].title
-                header.configure(for: document, at: indexPath,
-                                 isSelected: self.selectedSections.contains(indexPath.section))
+                //               header.label.stringValue = document.sections[indexPath.section].title
+                supplementaryView.configure(kind: .header(item: document.pageSections[indexPath.section]), isSelected: prax.selectedSections.contains(indexPath.section))
                 
-                header.onToggleSelection = { [weak self] in
+                supplementaryView.onToggleSelection = { [weak self] in
                     guard let self else { return }
-                    if self.selectedSections.contains(indexPath.section) {
-                        self.selectedSections.remove(indexPath.section)
+                    if prax.selectedSections.contains(indexPath.section) {
+                        prax.selectedSections.remove(indexPath.section)
                     } else {
-                        self.selectedSections.insert(indexPath.section)
+                        prax.selectedSections.insert(indexPath.section)
                     }
                     // Refresh just this section’s header to reflect the new state.
                     self.collectionView.reloadSections(IndexSet(integer: indexPath.section))
                 }
                 
-                return header
+                return supplementaryView
                 
             }
-            else if kind == PagesViewController.sectionFooterElementKind {
-                if let footer = collectionView.makeSupplementaryView(
+            else if kind == CollectionViewItem.sectionFooterElementKind {
+                if let supplementaryView = collectionView.makeSupplementaryView(
                     ofKind: kind,
                     withIdentifier: NSUserInterfaceItemIdentifier("SectionFooter"),
-                    for: indexPath) as? SectionFooter {
+                    for: indexPath) as? CollectionSupplementaryView {
                     
-                    footer.configure(for: document, at: indexPath,
-                                       isSelected: self.selectedSections.contains(indexPath.section))
-                    return footer
+                    supplementaryView.configure(kind: .footer(item: document.pageSections[indexPath.section]), isSelected: prax.selectedSections.contains(indexPath.section))
+                    
+                    return supplementaryView
                 }
             }
             fatalError("Cannot create new supplementary view of kind: \(kind)")

@@ -76,7 +76,7 @@ struct DocumentEditingView: NSViewRepresentable {
             return false // Drop rejected
         }
  
-        func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
+ /*       func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
             print("DocumentEditingView Coordinator - shouldCollapseSubview subview: ", subview, ", forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
              return true
         }
@@ -86,7 +86,6 @@ struct DocumentEditingView: NSViewRepresentable {
             return true
         }
 
-/*
         func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
            print("DocumentEditingView Coordinator - constrain Min Coordinate proposedMinimumPosition: ", proposedMinimumPosition, ", ofSubviewAt dividerIndex: ", dividerIndex)
             return 100
@@ -106,10 +105,10 @@ struct DocumentEditingView: NSViewRepresentable {
             print("DocumentEditingView Coordinator - shouldAdjustSizeOfSubview view:  ", view)
             return true
         }
- */
+ 
         func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
             print("DocumentEditingView Coordinator - shouldHideDividerAt dividerIndex: ", dividerIndex)
-            return true
+            return false
         }
         func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
             print("DocumentEditingView Coordinator - proposedEffectiveRect: ", proposedEffectiveRect, ", forDrawnRect: ", drawnRect, ", ofDividerAt dividerIndex: ", dividerIndex)
@@ -117,15 +116,16 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         func splitView(_ splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex: Int) -> NSRect {
             print("DocumentEditingView Coordinator - additionalEffectiveRectOfDividerAt dividerIndex:   ", dividerIndex)
-            return NSZeroRect
+            return NSRect(x: 0, y: 0, width: 20, height: 0)
         }
         func splitViewWillResizeSubviews(_ notification: Notification) {
             print("DocumentEditingView Coordinator - splitView Will ResizeSubviews")
-        }
+       }
+        
         func splitViewDidResizeSubviews(_ notification: Notification) {
             print("DocumentEditingView Coordinator - splitView Did ResizeSubviews")
         }
-        
+*/
         
 /*
         @objc func pageChanged(_ note: Notification) {

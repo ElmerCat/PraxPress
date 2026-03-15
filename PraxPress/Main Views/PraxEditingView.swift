@@ -43,7 +43,18 @@ struct PraxEditingView: View {
                             // Reorderable sections (by dragging headers)
                             ForEach(pageSections) { section in
                                 Section(header: sectionHeader(section)) {
-                                    sectionContent(for: section)
+                                    ForEach(section.orderedItems) { pageItem in
+                                        PageItemRow(
+                                            pageItem: pageItem,
+                                            pageSection: section,
+                                            selectedPages: $selectedPages,
+                                            allSectionsProvider: { pageSections },
+                                            isInsertTarget: dropTarget == DropTarget(sectionID: section.id, beforeItemID: pageItem.id),
+                                            setDropTarget: { dropTarget = $0 },
+                                            optionKeyPressedProvider: { praxModel.optionKeyPressed }
+                                        )
+                                    }
+                                    
                                 }
                             }
                             .onMove { indices, newOffset in
@@ -109,6 +120,9 @@ struct PraxEditingView: View {
     // MARK: - Persistence helpers
 
     private func reorderSections(indices: IndexSet, newOffset: Int) {
+        print ("reorderSections indicies: ", indices, " newOffset: ", newOffset)
+        
+        return
         var sectionsCopy = pageSections
         sectionsCopy.move(fromOffsets: indices, toOffset: newOffset)
         for (idx, section) in sectionsCopy.enumerated() {
@@ -123,6 +137,7 @@ struct PraxEditingView: View {
     func praxTest() {
         print("\nJulie d'Prax")
         for section in pageSections.sorted(by: { $0.orderIndex < $1.orderIndex }) {
+            print("Juliette M. Belanger - ", section.title)
             for item in section.orderedItems {
                 print(item.name)
             }

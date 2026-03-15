@@ -42,6 +42,8 @@ struct PDFFileTransfer: Transferable, Identifiable, @unchecked Sendable {
 
 
 struct PDFFilesListRow: View {
+    @Environment(FilesPersistenceController.self) private var persistence
+
     let document: MergedPDFDocument
     let pdfFile: PDFFile
     var body: some View {
@@ -50,10 +52,34 @@ struct PDFFilesListRow: View {
              Text(pdfFile.fileName)
              Spacer()
              Text(String(pdfFile.pageCount))
-             Button("Merge", systemImage: "arrowshape.zigzag.forward", action: {
-                 print ("Merge \(pdfFile.fileName)")
-                 document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
-             })
+             if pdfFile.bookmarkData.count > 0 {
+                 Button("Merge", systemImage: "arrowshape.zigzag.forward", action: {
+                     let isOkay = testBookmark(for: pdfFile)
+                     print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+                     if isOkay {
+                         document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
+                     }
+                 })
+
+             }
+             else {
+                 Label("Not Found", systemImage: "nosign")
+                 Button("Remove", systemImage: "trash", action: {
+                     print ("Merge \(pdfFile.fileName)")
+                     
+                     Task {
+                         do {
+                             try await persistence.deletePDFFiles([pdfFile.id])
+                         } catch {
+                             // Handle or present the error appropriately
+                             print("Failed to delete files: \(error)")
+                         }
+                     }
+                    
+                 })
+
+                 
+             }
          }
          
         }
@@ -69,6 +95,7 @@ struct PDFFilesListRow: View {
 struct PDFFilesList: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+
     @Environment(PraxModel.self) private var praxModel
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
@@ -83,8 +110,10 @@ struct PDFFilesList: View {
                 ZStack {
                     Color.contentViewBackground.ignoresSafeArea()
                     List(pdfFiles, selection: $prax.selectedFiles) { pdfFile in
+                        let notFound = pdfFile.bookmarkData.count == 0
                         PDFFilesListRow(document: document, pdfFile: pdfFile)
-                            .listRowBackground(Color.clear)
+                            .listRowBackground(notFound ? Color.red : Color.clear)
+                            .selectionDisabled(notFound)
                     }
                     .scrollContentBackground(.hidden)
                 }
@@ -154,21 +183,20 @@ struct SourceFilesView: View {
     
     @State private var importError: String?
     
-    
+
     
     func praxTest() {
 
         print ("\nJulie d'Prax")
-        for pdfFile in pdfFiles {
-            print (pdfFile.fileName)
-        }
         
+        for pdfFile in pdfFiles {
+            let isOkay = testBookmark(for: pdfFile)
+            print (pdfFile.fileName, "  isOkay: ", isOkay)
+        }
         print ("\nJuliette M. Belanger")
         for pdfFileGroup in pdfFileGroups {
             print (pdfFileGroup.name)
         }
-       
-       
     }
     
     var body: some View {
@@ -268,8 +296,11 @@ struct SourceFilesView: View {
             print ("Sharon Eldon")
             
             print("View modelContext:", ObjectIdentifier(modelContext))
-
-
+            
+            for pdfFile in pdfFiles {
+                let isOkay = testBookmark(for: pdfFile)
+                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+            }
             
         }
         

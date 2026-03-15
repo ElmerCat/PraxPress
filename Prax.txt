@@ -805,3 +805,12 @@ The app has two distinct contexts.  One is created at the app level in PraxPress
 3/11/2026
 
 In the MergedPDFDocument and PraxModel classes, the properties prax, persistence, and documment are written as optionals. However, these objects are always created in PraxPressApp and MainSceneRoot so they never will be nil. How can I pass them into MergedPDFDocument and PraxModel so they won't be optionals?
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+3/14/2026
+
+My two NSCollectionViewItem subclasses, CollectionViewPDFPageThumbnailView and CollectionViewPDFPageItemView, are nearly identical.  The only difference is the SwiftUI views they host.  What is a strategy to unify them into a single class which can host different SwiftUI views?
