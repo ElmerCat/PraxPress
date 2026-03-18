@@ -814,3 +814,156 @@ In the MergedPDFDocument and PraxModel classes, the properties prax, persistence
 3/14/2026
 
 My two NSCollectionViewItem subclasses, CollectionViewPDFPageThumbnailView and CollectionViewPDFPageItemView, are nearly identical.  The only difference is the SwiftUI views they host.  What is a strategy to unify them into a single class which can host different SwiftUI views?
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+3/15/2026
+
+Depending on the praxPressMode, my app shows different combinations of views.  Everything works fine, but there's one glitch when switching from data to merge. In data mode, SourceFilesView uses the entire ContentView. Otherwise, its the sidebar of a NavigationSplitView. In the ContentDetailView, in prax mode, the DocumentEditingView is not shown.
+
+Switching from data to prax works, and switching from prax to merge works. I can also switch from merge to data to prax and back to merge.  Only when switching directly from data to merge does the problem occur:  The beach ball appears and never goes away. If I pause and step via the debugger, the app seems to be in a loop doing collection view layout.
+
+Why is this happening only when the praxPressMode is switched directly from data to merge, and how can I avoid it?
+
+******************************************************************************************************************
+
+Why the hang occurs only when switching directly from data → merge
+
+Short version: you’re creating/destroying a complex AppKit hierarchy (two NSCollectionViews with compositional layouts and diffable data sources) at the same time you’re changing the container view structure (full-screen SourceFilesView → NavigationSplitView with multiple columns). In the data → merge transition, SwiftUI re-parents the SourceFilesView into a sidebar and simultaneously mounts DocumentEditingView (two NSCollectionViews). During this specific transition, the collection views’ layout invalidation + snapshot application are being repeatedly triggered by environment/size changes, which can create a feedback loop that never stabilizes (layout → invalidation → update → new snapshot → layout…). That’s why the beach ball appears and the debugger shows repeated collection view layout work.
+
+A few concrete reasons this transition is uniquely fragile in your code:
+
+• ContentView conditionally swaps the entire root structure:
+   • In .data mode: a single HStack with just SourceFilesView filling the space.
+   • In .merge mode: a NavigationSplitView with SourceFilesView moved into the sidebar, plus the middle and detail columns (including the NSCollectionViews).
+   • When switching directly from data → merge, you’re both:
+      • Relocating SourceFilesView to a different container (NavigationSplitView sidebar).
+      • Instantiating DocumentEditingView (which mounts two NSCollectionViews).
+      • Causing a large set of environment changes (column widths, geometry, toolbars, inspectors, etc.) all at once.
+
+• DocumentEditingView.updateNSView unconditionally calls applySnapshotToBoth(animated:), which refreshes both diffable data sources every SwiftUI update. When the outer container is in flux (NavigationSplitView is computing column sizes and relaying geometry), this can trigger repeated snapshots while the layout is still reflowing.
+
+• Your compositional layouts, decoration/backgrounds, and pinned headers/footers increase layout complexity. Combined with frequent invalidations (e.g., during column width transitions), they can cascade.
+
+• If any binding or environment state used by the collection views (e.g., selected indices, sections array) is updated as a side effect of layout or snapshot, you can get a cycle: update → layout → state change → update again.
+
+How to avoid it
+
+You don’t need to rewrite your UI; you just want to make the data → merge transition less “noisy” and prevent snapshot churn during layout. Here are targeted strategies that work well together:
+
+1) Stabilize the container transition with identity and phase
+
+• Give the NavigationSplitView a stable identity so SwiftUI reuses it instead of tearing it down and rebuilding it. That reduces the amount of re-parenting:
+
+
+if prax.praxPressMode == .data {
+    SourceFilesView()
+} else {
+    NavigationSplitView(columnVisibility: $prax.columnVisibility) {
+        SourceFilesView()
+            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.75)
+    } content: {
+        ContentDetailView()
+            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+    } detail: {
+        VStack {
+            MergedDocumentToolbar()
+            MergedDocumentView()
+            MergedDocumentFooter()
+        }
+        .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+    }
+    .id("MainSplitView") // <- stable identity
+}
+
+
+• Optionally, introduce a small “phase” delay so you don’t mount DocumentEditingView on the same frame as the NavigationSplitView transition. Example: when switching to .merge, set a transient flag isMergeUIReady after a short DispatchQueue.main.async { } or a minimal debounce, and only then show DocumentEditingView. This avoids running expensive collection layout while the split view is still computing its initial sizes.
+
+2) Make updateNSView idempotent and guarded
+
+Right now, updateNSView always re-applies a snapshot:
+
+func updateNSView(_ splitView: NSSplitView, context: Context) {
+    print("updateNSView - context.coordinator.applySnapshotToBoth(animated: true)")
+    context.coordinator.applySnapshotToBoth(animated: true)
+}
+
+Instead, only apply snapshots when the underlying data actually changes, or throttle updates:
+
+• Track a “last applied” state (e.g., a hash of section IDs + item IDs + counts). If the new state matches the last applied, skip re-applying the snapshot.
+• Alternatively, debounce snapshot application in the coordinator using a short timer so that multiple layout passes coalesce into one snapshot.
+
+Pseudocode for guarding:
+
+func applySnapshotToBoth(animated: Bool) {
+    let newSignature = document.pageSectionsSignature() // e.g., combine ids/indexes
+    guard newSignature != lastSignature else { return }
+    lastSignature = newSignature
+
+    var snapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+    document.pageSections.forEach {
+        snapshot.appendSections([$0])
+        snapshot.appendItems($0.pageItems)
+    }
+    leftDataSource?.apply(snapshot, animatingDifferences: animated)
+    rightDataSource?.apply(snapshot, animatingDifferences: animated)
+}
+
+And in updateNSView, don’t force it every time; let the coordinator listen for actual model changes (e.g., via a callback or by observing the MergedPDFDocument’s published state) and call applySnapshotToBoth when necessary.
+
+3) Avoid layout invalidation loops from pinned headers/footers during transition
+
+Pinned headers/footers and decoration backgrounds are fine once the layout has stabilized, but during the split view’s initial sizing they can cause repeated invalidations. Two pragmatic mitigations:
+
+• Disable pinning during the first mount, enable after the initial layout settles (e.g., after the first viewDidLayout or with a small async dispatch).
+• Or keep pinning but avoid re-applying the snapshot while the split view is still adjusting column widths (use the debounce/guard above).
+
+4) Ensure selection mirroring doesn’t feed back into snapshot churn
+
+Your coordinator mirrors selection between the left/right collection views. If any selection change triggers a SwiftUI state change that causes another snapshot, you can get a loop. Make sure:
+
+• Selection mirroring only updates the other view’s selection without causing new snapshots (i.e., don’t call applySnapshotToBoth because of selection changes).
+• If prax.selectedPageItems is @Observable/@Bindable and triggers view updates that in turn call updateNSView, the guard in (2) will prevent pointless snapshot churn.
+
+5) Keep the per-window ModelContext stable across the transition
+
+You already scoped global vs per-window contexts. When moving from data → merge, confirm that the per-window context used by DocumentEditingView remains the same instance. If the environment injects a new container/context instance right as the split view appears, your coordinator may rebuild data sources and layouts at the same time it’s applying snapshots. Keep the per-window .modelContainer scoping stable for the editor subtree, and avoid swapping it at the same moment the split view is mounted.
+
+6) Don’t rebuild compositional layouts and registrations every update
+
+You’re correctly doing that work in makeNSView and configure(...) once. Verify that you’re not inadvertently re-registering or rebuilding layouts due to view identity changes. The .id("MainSplitView") helps keep the split view stable, so the inner views don’t get torn down and re-built.
+
+A minimal, high-impact checklist
+
+• Give the NavigationSplitView a stable identity with .id("MainSplitView").
+• Guard applySnapshotToBoth so it only runs when sections/items actually changed (or debounce it).
+• Optionally defer mounting DocumentEditingView by one runloop tick after switching to .merge.
+• Keep the per-window model container/context instance stable for the editor subtree during the transition.
+• Ensure selection mirroring doesn’t trigger snapshots.
+
+These changes don’t alter your architecture; they just remove the conditions that cause layout to be invalidated repeatedly at the exact moment the split view is resizing and the NSCollectionViews are mounting.
+
+If you want, I can draft the exact coordinator changes (signature computation and debounce) and the small ContentView tweak (NavigationSplitView identity + optional defer) as a proposal for you to review before you apply them.
+
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+************************************************************************************************************************
+
+3/16/2026
+
+My DocumentEditingView has 3 collection views operating on the same data source.  The first 2 display items within sections with different layouts.  I'd like the 3rd to display only sectiions without the items they contain.  Can I adapt it to do that, or should I use another kind of view?
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+
+3/17/2026
+
+My SwiftData class PDFFile has an optional property dataFields which it can't endode. I'm thinking it could be done by conversion to a JSON string. Also, dataFields is currently a struct with fixed property names, I'd rather have it be a Dictionary so the property names can vary. Can you suggest some code to achieve this?

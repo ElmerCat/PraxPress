@@ -14,12 +14,12 @@ import Foundation
 
 
 @Observable @MainActor class MergedPDFDocument {
-    let windowModelContext: ModelContext
+ //   let windowModelContext: ModelContext
     unowned let prax: PraxModel
     unowned let persistence: FilesPersistenceController
 
-    init(windowModelContext: ModelContext, prax: PraxModel, persistence: FilesPersistenceController) {
-        self.windowModelContext = windowModelContext
+    init(prax: PraxModel, persistence: FilesPersistenceController) {
+ //       self.windowModelContext = windowModelContext
         self.prax = prax
         self.persistence = persistence
     }

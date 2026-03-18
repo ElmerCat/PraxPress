@@ -573,3 +573,274 @@ struct PageEditView: View {
 }
 
 
+struct MergedPageView: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
+    
+    let praxTheme = PraxTheme(.erika)
+    
+    @State private var hoveredButton: Int? = nil
+
+    let pdfPageItem: PageItem?
+    let isSelected: Bool
+    let highlightState: NSCollectionViewItem.HighlightState
+    
+    @State private var pdfViewRef = WeakPDFViewRef()
+   
+    var body: some View {
+        
+        if pdfPageItem == nil {
+            EmptyView()
+        }
+        else {
+            @Bindable var pageItem = pdfPageItem!
+            @Bindable var prax = prax
+            
+            GeometryReader { geometry in
+                
+                
+                VStack(spacing: 8) {
+                    
+                    GeometryReader { boxGeometry in
+                        let boxSize = boxGeometry.size
+                        let pageAspect = pageItem.aspectRatio // width / height
+                        
+                        // Compute the largest size that fits inside boxSize while preserving aspect ratio
+                        let fittedSize: CGSize = {
+                            guard boxSize.width > 0, boxSize.height > 0 else { return .zero }
+                            let containerAspect = boxSize.width / boxSize.height
+                            if containerAspect > pageAspect {
+                                // Container is wider than the page: limit by height
+                                let h = boxSize.height
+                                let w = h * pageAspect
+                                return CGSize(width: w, height: h)
+                            } else {
+                                // Container is taller/narrower: limit by width
+                                let w = boxSize.width
+                                let h = w / pageAspect
+                                return CGSize(width: w, height: h)
+                            }
+                        }()
+                        
+                        GroupBox {
+                            PDFViewRepresentable(
+                                document: document,
+                                pageItem: pageItem,
+                                onPDFViewReady: { pdfView in
+                                    // Store a weak reference so buttons can use it
+                                    pdfViewRef.view = pdfView
+                                    
+                                }
+                            )
+                        }
+                        .frame(width: fittedSize.width, height: fittedSize.height)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        
+                    }
+                    
+                    
+                    let w = pageItem.media.width
+                    let h = pageItem.media.height
+                    let wIn = w / 72.0
+                    let hIn = h / 72.0
+                    let sizeString = String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
+                    
+                    
+                   HStack {
+                        Text(pageItem.name)
+                            .font(.caption)
+                            .lineLimit(1)
+                       Text(sizeString)
+                           .font(.caption)
+                           .lineLimit(1)
+                        Spacer()
+                       
+                       
+                       Button("", systemImage: "plus.circle", action: {
+                           pdfViewRef.view?.zoomIn(self)
+                       })
+                       .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                       
+                       Button("", systemImage: "minus.circle", action: {
+                           pdfViewRef.view?.zoomOut(self)
+                       })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                       
+                       Button("", systemImage: "equal.circle", action: {
+                           pdfViewRef.view?.autoScales = true
+                       })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                             
+                    }
+                    
+                }
+                .padding(8)
+                
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? Color.accentColor : Color("PraxColor"), lineWidth: 3) )
+                .foregroundColor(foregroundColor())
+                .background(backgroundColor())
+                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
+                    print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width)
+                    return contentGeometry.size.width
+                    
+                }
+                action: {newValue in
+                    print ("contentGeometry.size.width newValue: ", newValue )
+                    
+                    //      print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
+                    //         contentWidth = newValue
+                }
+                
+                
+            }
+            
+        }
+    }
+    
+    func backgroundColor() -> Color {
+        switch highlightState {
+            //      case .forSelection:
+            //        Color.blue
+            //     case .forDeselection:
+            //         Color.yellow
+        case .asDropTarget:
+            Color.purple
+        default:
+            if isSelected {
+                Color.blue.opacity(0.9)
+            }
+            else {
+                Color.blue.opacity(0.3) }}}
+    
+    func foregroundColor() -> Color {
+        switch highlightState {
+            //      case .forSelection:
+            //        Color.blue
+            //     case .forDeselection:
+            //         Color.yellow
+        case .asDropTarget:
+            Color.purple
+        default:
+            if isSelected {
+                Color.white
+            }
+            else {
+                Color.blue }}}
+    
+    
+    
+    
+    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
+        
+        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
+        
+        if pdfPageItem.merge == .mergeSkip {
+            pdfPageItem.merge = .mergeDown
+        }
+        else {
+            pdfPageItem.merge = .mergeSkip
+        }
+        
+        
+    }
+    
+    
+    
+    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
+        
+        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
+        
+        if document.widthGuidePageID == pdfPageItem.id {
+            document.clearWidthGuide()
+        } else {
+            if prax.optionKeyPressed {
+                if document.widthGuidePageID == nil { return }
+                guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
+                
+                var trims = pdfPageItem.trims
+                print ("old trims: ", pdfPageItem.trims )
+                print (guidePage.trims)
+                print (trims)
+                
+                
+                trims.left = guidePage.trims.left
+                trims.right = guidePage.trims.right
+                pdfPageItem.trims = trims
+                print("PageItem - clickedGuidePageButton copied guide page trims to current page")
+                print ("new trims: ",pdfPageItem.trims )
+                
+            }
+            else {
+                document.setWidthGuide(fromPage: pdfPageItem)
+                
+            }
+            
+        }
+    }
+    final class Coordinator: NSObject {
+        
+        
+        init(_ document: MergedPDFDocument,_ pdfPageItem: PageItem) {
+            self.document = document
+            self.pageItem = pdfPageItem
+         //   self.pdfPageItemView = pdfPageItemView
+        }
+        
+        let document: MergedPDFDocument
+        let pageItem: PageItem
+        
+        var pdfView: PDFView?
+        
+         
+        @objc func pageChanged(_ note: Notification) {
+            guard let pdfView = note.object as? PDFView,
+                  let doc = pdfView.document,
+                  let page = pdfView.currentPage else { return }
+            let idx = doc.index(for: page)
+            print("PageItemPDFViewCoordinator - changed to page:", idx)
+            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+        }
+        
+ 
+        
+    }
+    
+    
+    struct PDFViewRepresentable: NSViewRepresentable {
+        let document: MergedPDFDocument
+        let pageItem: PageItem
+        let onPDFViewReady: (PDFView) -> Void
+
+        func makeCoordinator() -> Coordinator {
+            print("Erika daPrax - PageItemPDFViewCoordinator makeCoordinator")
+            return Coordinator(document, pageItem)
+        }
+        
+        
+        func makeNSView(context: Context) -> PDFView {
+            print("PDFViewRepresentable - makeNSView")
+            let pdfDocument = PDFDocument()
+            let pdfView = PDFView()
+            pdfDocument.insert(pageItem.pdfPage, at: 0)
+          
+            pdfView.document = pdfDocument
+            pdfView.autoScales = true
+            pdfView.displayDirection = .vertical
+            pdfView.backgroundColor = .clear
+            context.coordinator.pdfView = pdfView
+            onPDFViewReady(pdfView)
+            return pdfView
+        }
+        
+        func updateNSView(_ pdfView: PDFView, context: Context) {
+            print("PDFViewRepresentable - updateNSView")
+            let pdfDocument = PDFDocument()
+            pdfDocument.insert(pageItem.pdfPage, at: 0)
+            
+            pdfView.document = pdfDocument
+            
+            onPDFViewReady(pdfView)
+        }
+        
+    }
+}

@@ -19,15 +19,15 @@ struct MainSceneRoot: View {
     @State private var document: MergedPDFDocument? = nil
 
 //    @State private var windowStore: WindowEditingStore? = nil
-    @State private var windowContext: ModelContext? = nil
+//    @State private var windowContext: ModelContext? = nil
 
     var body: some View {
         Group {
-            if let prax = praxModel, let doc = document, let winContext = windowContext {
+            if let prax = praxModel, let doc = document { //, let winContext = windowContext {
                 ContentView()
                     .environment(prax)
                     .environment(doc)
-                    .environment(\.perWindowModelContext, winContext)
+//                    .environment(\.perWindowModelContext, winContext)
             } else {
                 ProgressView("Preparing window…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -47,7 +47,7 @@ struct MainSceneRoot: View {
         }
         .task {
             
-            if windowContext == nil {
+/*            if windowContext == nil {
                 if let windowStore = try? WindowEditingStore(inMemory: true) {
                     let container = windowStore.container
                     windowContext = ModelContext(container)
@@ -55,7 +55,7 @@ struct MainSceneRoot: View {
             }
            
             guard let windowContext else { return }
-
+*/
             // Construct PraxModel first (only once)
             if praxModel == nil {
                 praxModel = PraxModel()
@@ -65,7 +65,7 @@ struct MainSceneRoot: View {
             // Construct the document with non-optional dependencies (only once)
             if document == nil {
                 let doc = MergedPDFDocument(
-                    windowModelContext: windowContext,
+            //        windowModelContext: windowContext,
                     prax: prax,
                     persistence: persistence
                 )
@@ -107,7 +107,7 @@ struct MainCommands: Commands {
 
 // MARK: - Per-window ModelContext environment key
 
-private struct PerWindowModelContextKey: EnvironmentKey {
+/*private struct PerWindowModelContextKey: EnvironmentKey {
     static let defaultValue: ModelContext? = nil
 }
 
@@ -116,4 +116,4 @@ extension EnvironmentValues {
         get { self[PerWindowModelContextKey.self] }
         set { self[PerWindowModelContextKey.self] = newValue }
     }
-}
+}*/

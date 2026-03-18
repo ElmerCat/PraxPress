@@ -28,9 +28,7 @@ extension MergedPDFDocument {
             } else {
 
                 let newMergedPage = MergedPage(document: self, title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section")
-                
-       //         let newSection = PDFPageSectionModel(title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section", orderIndex: sectionIndex)
-       //         windowModelContext.insert(newSection)
+  
                 pageSections.insert(newMergedPage, at: sectionIndex)
                 return newMergedPage
             }
@@ -38,7 +36,7 @@ extension MergedPDFDocument {
         
         // If neither URL nor bookmark provided, just save new empty section
         guard url != nil || bookmarkData != nil else {
-            do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+         //   do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
             refreshMergedDocument()
             return
         }
@@ -98,7 +96,7 @@ extension MergedPDFDocument {
         
         // Normalize page insertion index relative to pageItems count in section
         
-        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+    //    do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
         refreshMergedDocument()
     }
     
@@ -144,21 +142,21 @@ extension MergedPDFDocument {
         }
     }
     
-    func indexOfSection(_ section: PDFPageSectionModel) -> Int? {
+    func indexOfSection(_ section: MergedPage) -> Int? {
         pageSections.firstIndex { $0 === section }
     }
     
-    func indexOfPageItem(_ item: PDFPageItemModel, in section: PDFPageSectionModel) -> Int? {
+    func indexOfPageItem(_ item: PageItem, in section: MergedPage) -> Int? {
         section.pageItems.firstIndex { $0 === item }
     }
     
     
     
-    
+/*
     // MARK: - Cross-section move/copy
 
-        func performDropOrAction(for item: PDFPageItemModel,
-                                 to destinationSection: PDFPageSectionModel,
+        func performDropOrAction(for item: PageItem,
+                                 to destinationSection: MergedPage,
                                  at location: Int? = nil) {
             // One path for both same-section and cross-section:
             if prax.optionKeyPressed == true {
@@ -173,8 +171,8 @@ extension MergedPDFDocument {
         ///   - nil or 0: append at end
         ///   - > 0: insert before that 1-based position (1 means at beginning)
         ///   - < 0: count backward from end (e.g., -1 means before last, clamp to 0)
-        func moveItem(_ item: PDFPageItemModel,
-                      to destinationSection: PDFPageSectionModel,
+        func moveItem(_ item: PageItem,
+                      to destinationSection: MergedPage,
                       at location: Int? = nil) {
          //   guard let ctx = windowModelContext else { return }
 
@@ -209,20 +207,20 @@ extension MergedPDFDocument {
             for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
             destinationSection.pageItems = destinationSection.pageItems
 
-            do { try windowModelContext.save() } catch { print("Move save failed: \(error)") }
+ //           do { try windowModelContext.save() } catch { print("Move save failed: \(error)") }
             refreshMergedDocument()
         }
 
         /// Copy an item to a destination section at a specific logical location.
-        /// Creates a new PDFPageItemModel that shares the same source/bookmark and pageIndex.
-        func copyItem(_ item: PDFPageItemModel,
-                      to destinationSection: PDFPageSectionModel,
+        /// Creates a new PageItem that shares the same source/bookmark and pageIndex.
+        func copyItem(_ item: PageItem,
+                      to destinationSection: MergedPage,
                       at location: Int? = nil) {
 //guard let windowModelContext = windowModelContext else { return }
 
             let resolvedURL = item.resolveSourceURL() ?? URL(fileURLWithPath: item.sourceURLString)
 
-            let clone = PDFPageItemModel(
+            let clone = PageItem(
                 name: item.name,
                 aspectRatio: item.aspectRatio,
                 trimLeft: item.trimLeft,
@@ -245,11 +243,11 @@ extension MergedPDFDocument {
             for (i, it) in destinationSection.pageItems.enumerated() { it.orderIndex = i }
             destinationSection.pageItems = destinationSection.pageItems
 
-            windowModelContext.insert(clone)
-            do { try windowModelContext.save() } catch { print("Copy save failed: \(error)") }
+ //           windowModelContext.insert(clone)
+  //          do { try windowModelContext.save() } catch { print("Copy save failed: \(error)") }
             refreshMergedDocument()
         }
-    
+ */
     
 }
 

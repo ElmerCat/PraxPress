@@ -38,16 +38,194 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     }
     
     var pdfPage: PDFPage? = nil
-    var aspectRatio: CGFloat?
+    var aspectRatio: CGFloat {
+        mergedWidthPts / mergedHeightPts}
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
     
     var pageItems: [PageItem] = [] {
-        didSet { print("\n pdfPageItems didSet: \(self.pageItems.count)\n\n") }
+        didSet {
+            print("\n pdfPageItems didSet: \(self.pageItems.count)\n\n")
+            refreshMergedPage()
+        }
     }
+    var refreshingMergedPage = false
     func refreshMergedPage() {
         
         print("MergedPage - refreshMergedPage() ")
+        
+        if !refreshingMergedPage {
+            refreshingMergedPage = true
+            
+            var maxVisibleWidth: CGFloat = 0
+            var totalVisibleHeight: CGFloat = 0
+           
+            for pageItem in pageItems {
+                
+                if pageItem.merge != .mergeSkip {
+                    let vis = PDFGeometry.visibleRect(media: pageItem.media, trims: pageItem.trims, seamTop: 0, seamBottom: 0)
+                    maxVisibleWidth = max(maxVisibleWidth, vis.width)
+                    totalVisibleHeight += vis.height
+                }
+            }
+            mergedWidthPts = maxVisibleWidth
+            mergedHeightPts = totalVisibleHeight
+
+            var mediaBox = CGRect(x: 0, y: 0, width: mergedWidthPts, height: mergedHeightPts)
+            
+            let tmpOut = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
+            guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
+            guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else { fatalError("CGContext failed") }
+            
+            ctx.beginPDFPage([kCGPDFContextMediaBox as String: mediaBox] as CFDictionary)
+            
+            // Stack pages from top to bottom. Track the Y origin of each placed slice for annotation mapping.
+            var currentTop = mergedHeightPts
+            var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageItems.count)
+            
+            for (pageIndex, pageItem) in pageItems.enumerated() {
+                if pageItem.merge == .mergeSkip { continue }
+                    
+                    let trimmedMedia = pageItem.media.trimmed(pageItem.trims, seamTop: 0, seamBottom: 0)
+                    let trimmedWidth = trimmedMedia.width
+                    let trimmedHeight = trimmedMedia.height
+                    guard trimmedWidth > 0, trimmedHeight > 0 else {
+                        currentTop -= (max(0, trimmedHeight)) // + interPageGap)
+                        continue
+                    }
+
+                    // Place the slice at the LEFT edge (x = 0) and directly under the running top
+                    let destX: CGFloat = 0
+                    let destY: CGFloat = currentTop - trimmedHeight
+                    placedOriginsY[pageIndex] = destY
+                    
+                    ctx.saveGState()
+                    // Translate so that (trimmedMedia.minX, trimmedMedia.minY) in page space lands at (destX, destY) in canvas space
+                    ctx.translateBy(x: destX - trimmedMedia.minX, y: destY - trimmedMedia.minY)
+                    // Clip in the CURRENT (translated) coordinate system using a rect defined in PAGE space coordinates
+                    // Because we translated by (-vis.minX, -vis.minY), the clip rect is simply:
+                    ctx.clip(to: trimmedMedia)
+                    
+                    if let cgPage = pageItem.pdfPage.pageRef {
+                        ctx.drawPDFPage(cgPage)
+                    } else {
+                        pageItem.pdfPage.draw(with: .cropBox, to: ctx)
+                    }
+                    ctx.restoreGState()
+                    
+                    currentTop -= trimmedHeight // (visibleHeight + interPageGap)
+                   
+            }
+            ctx.endPDFPage()
+            ctx.closePDF()
+            
+            guard let tempDoc = PDFDocument(url: tmpOut) else { fatalError("PDFDocument(url: tmpOut) failed") }
+            guard let mergedPDFPage = tempDoc.page(at: 0) else { fatalError("mergedDoc.page(at: 0) failed") }
+            
+            for (pageIndex, pageItem) in pageItems.enumerated() {
+                if pageItem.merge == .mergeSkip { continue }
+                
+                let trimmedMedia = pageItem.media.trimmed(pageItem.trims, seamTop: 0, seamBottom: 0)
+                let dx = 0 - trimmedMedia.minX
+                let dy = placedOriginsY[pageIndex] - trimmedMedia.minY
+                
+                for annotation in pageItem.pdfPage.annotations {
+                    // Only handle form fields; skip others as before
+                    guard annotation.fieldName != nil else { continue }
+                    guard let copiedAnnotation = annotation.copy() as? PDFAnnotation else { continue }
+                    
+                    // Translate annotation bounds from source page space into merged page space
+                    let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
+                    
+                    // Destination rect for this slice in merged page coordinates
+                    let destSliceRect = CGRect(x: 0,
+                                               y: placedOriginsY[pageIndex],
+                                               width: trimmedMedia.width,
+                                               height: trimmedMedia.height)
+                    
+                    // Fit while preserving center as much as possible
+                    let minSize: CGFloat = 2.0
+                    
+                    // Start from original center
+                    let centerX = translatedBounds.midX
+                    let centerY = translatedBounds.midY
+                    
+                    // Compute the max size that fits within the slice while centered at (centerX, centerY)
+                    var targetWidth = translatedBounds.width
+                    var targetHeight = translatedBounds.height
+                    
+                    // Limit size to slice dimensions
+                    targetWidth = min(targetWidth, destSliceRect.width)
+                    targetHeight = min(targetHeight, destSliceRect.height)
+                    
+                    // Ensure minimum size
+                    targetWidth = max(targetWidth, minSize)
+                    targetHeight = max(targetHeight, minSize)
+                    
+                    // Build a rect of the target size centered at original center
+                    var fitted = CGRect(x: centerX - targetWidth / 2.0,
+                                        y: centerY - targetHeight / 2.0,
+                                        width: targetWidth,
+                                        height: targetHeight)
+                    
+                    // If this centered rect spills outside the slice, clamp position while keeping size
+                    if fitted.minX < destSliceRect.minX {
+                        fitted.origin.x = destSliceRect.minX
+                    }
+                    if fitted.maxX > destSliceRect.maxX {
+                        fitted.origin.x = destSliceRect.maxX - fitted.width
+                    }
+                    if fitted.minY < destSliceRect.minY {
+                        fitted.origin.y = destSliceRect.minY
+                    }
+                    if fitted.maxY > destSliceRect.maxY {
+                        fitted.origin.y = destSliceRect.maxY - fitted.height
+                    }
+                    
+                    // Final safety: ensure we still overlap the slice (in case slice is extremely small)
+                    guard fitted.intersects(destSliceRect) else { continue }
+                    
+                    copiedAnnotation.bounds = fitted
+                    mergedPDFPage.addAnnotation(copiedAnnotation)
+                    
+                    // Preserve text values for text widgets
+                    
+                    if copiedAnnotation.widgetFieldType == .text {
+                        if let v = copiedAnnotation.widgetStringValue, !v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            copiedAnnotation.widgetStringValue = v
+                        }
+                    }
+                }
+            }
+            
+            pdfPage = mergedPDFPage
+            
+            do { try FileManager.default.removeItem(at: tmpOut) }
+            catch {  print("FileManager.default.removeItem(at: tmpOut) failed", error.localizedDescription) }
+
+            refreshingMergedPage = false
+   
+        }
+
+    }
+    
+    var ergedPageItem: PageItem? {
+      //  guard let page = self.pdfPage else { return nil }
+        return PageItem(
+            mergedPage: self,
+            name: self.title,
+            sourceURL: URL(string: "/")!,
+            pdfPage: self.pdfPage ?? PDFPage()
+        )
+    }
+    
+    func mergedPageItem() -> PageItem {
+        return PageItem(
+            mergedPage: self,
+            name: self.title,
+            sourceURL: URL(string: "/")!,
+            pdfPage: self.pdfPage ?? PDFPage()
+        )
     }
     
 }
@@ -64,6 +242,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
     var pageIndex: Int
 
     let pdfPage: PDFPage
+    let media: CGRect
     let aspectRatio: CGFloat
     
     init(
@@ -86,6 +265,9 @@ final class PageItem: Identifiable, Equatable, Hashable {
             let bounds = pdfPage.bounds(for: .cropBox)
             return bounds.size.width / bounds.size.height
         }()
+        self.media = {
+            return pdfPage.bounds(for: .cropBox)
+        }()
     }
     
     var thumbnail: NSImage?
@@ -105,196 +287,5 @@ final class PageItem: Identifiable, Equatable, Hashable {
             print("PageItem merge didSet")
             mergedPage.refreshMergedPage()
         }
-    }
-}
-
-
-@Model
-final class PDFPageSectionModel {
-    @Attribute(.unique) var id: UUID
-    var title: String
-    var orderIndex: Int
-    
-    // One-to-many: A section owns many items; deleting a section cascades to items.
-    @Relationship(deleteRule: .cascade, inverse: \PDFPageItemModel.pageSection)
-    var pageItems: [PDFPageItemModel] = []
-    
-    init(id: UUID = UUID(), title: String, orderIndex: Int = 0) {
-        self.id = id
-        self.title = title
-        self.orderIndex = orderIndex
-    }
-    
-//    @Transient var pdfPage: PDFPage? = nil
-    
-    var aspectRatio: CGFloat?
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    
-}
-
-enum PDFPageItemError: Error {
-    case unresolvedSource
-    case pageOutOfRange
-}
-
-@Model
-final class PDFPageItemModel {
-    @Attribute(.unique) var id: UUID
-    var name: String
-    var trimLeft: Double
-    var trimRight: Double
-    var trimTop: Double
-    var trimBottom: Double
-    var mergeModeRaw: String
-    var sourceBookmark: Data
-    var sourceURLString: String
-    var pageIndex: Int
-    var orderIndex: Int
-
-    @Transient private var _pdfPage: PDFPage? = nil
-    @Transient private var _mediaBounds: CGRect? = nil
-    @Transient private var _aspectRatio: Double? = nil
-
-    var pageSection: PDFPageSectionModel?
-
-    init(
-        id: UUID = UUID(),
-        name: String,
-        aspectRatio: Double,
-        trimLeft: Double = 0,
-        trimRight: Double = 0,
-        trimTop: Double = 0,
-        trimBottom: Double = 0,
-        sourceBookmark: Data = Data(),
-        sourceURL: URL,
-        pageIndex: Int = 0,
-        orderIndex: Int = 0,
-        mergeModeRaw: String = "mergeDown"
-    ) {
-        self.id = id
-        self.name = name
-        self.trimLeft = trimLeft
-        self.trimRight = trimRight
-        self.trimTop = trimTop
-        self.trimBottom = trimBottom
-        self.sourceBookmark = sourceBookmark
-        self.sourceURLString = sourceURL.absoluteString
-        self.pageIndex = pageIndex
-        self.orderIndex = orderIndex
-        self.mergeModeRaw = mergeModeRaw
-    }
-}
-
-
-extension PDFPageItemModel {
-    var pdfPage: PDFPage {
-        if let page = _pdfPage { return page }
-        return loadPageAndCache()
-    }
-
-    private func loadPageAndCache() -> PDFPage {
-        if let url = resolveSourceURL() {
-            
-            let needsStop = url.startAccessingSecurityScopedResource()
-            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            
-            if let doc = PDFDocument(url: url) {
-                if pageIndex >= 0, pageIndex < doc.pageCount {
-                    if let page = doc.page(at: pageIndex) {
-                        _pdfPage = page
-                    }
-                }
-            }
-        }
-        else {
-            print("PDFPageItemModel: Unable to resolve PDFPage at URL: \(sourceURLString)")
-            _pdfPage = PDFPage()
-        }
-        _mediaBounds = _pdfPage!.bounds(for: .cropBox)
-        _aspectRatio = Double(_mediaBounds!.width / _mediaBounds!.height)
-        return _pdfPage!
-    }
-
-    var mediaBounds: CGRect {
-        if let b = _mediaBounds { return b }
-        _ = pdfPage
-        return _mediaBounds ?? .zero
-    }
-    
-    var aspectRatio: Double {
-        if let a = _aspectRatio { return a }
-        _ = pdfPage
-        return _aspectRatio ?? 0
-    }
-
-    var mergeMode: MergeMode {
-        get { MergeMode(rawValue: mergeModeRaw) ?? .mergeDown }
-        set { mergeModeRaw = newValue.rawValue }
-    }
-
-    var trims: EdgeTrims {
-        get {
-            EdgeTrims(
-                left: CGFloat(trimLeft),
-                right: CGFloat(trimRight),
-                top: CGFloat(trimTop),
-                bottom: CGFloat(trimBottom)
-            )
-        }
-        set {
-            trimLeft = Double(newValue.left)
-            trimRight = Double(newValue.right)
-            trimTop = Double(newValue.top)
-            trimBottom = Double(newValue.bottom)
-        }
-    }
-
-    func resolveSourceURL() -> URL? {
-        if !sourceBookmark.isEmpty {
-            print("PDFPageItemModel: Trying sourceBookmark")
-            var isStale = false
-            return try? URL(
-                resolvingBookmarkData: sourceBookmark,
-                options: [.withSecurityScope],
-                relativeTo: nil,
-                bookmarkDataIsStale: &isStale
-            )
-        }
-        else {
-            print("PDFPageItemModel: Failed sourceBookmark - returning URL: \(sourceURLString)")
-           return URL(string: sourceURLString)
-        }
-    }
-
-    var media: (bounds: CGRect, aspect: Double) { (mediaBounds, aspectRatio) }
-}
-
-extension PDFPageSectionModel {
-    /// Reindex all items in this section sequentially from 0 based on the current array order
-    func normalizeItemOrder() {
-        for (idx, item) in pageItems.enumerated() {
-            item.orderIndex = idx
-        }
-    }
-    func setItemsInOrder(_ items: [PDFPageItemModel]) {
-          for (i, it) in items.enumerated() { it.orderIndex = i }
-          pageItems = items
-      }
-    
-}
-
-extension Array where Element == PDFPageSectionModel {
-    /// Normalize section orderIndex values sequentially from 0 based on array order
-    mutating func normalizeSectionOrder() {
-        for (idx, section) in self.enumerated() {
-            section.orderIndex = idx
-        }
-    }
-}
-
-extension PDFPageSectionModel {
-    var orderedItems: [PDFPageItemModel] {
-        pageItems.sorted { $0.orderIndex < $1.orderIndex }
     }
 }

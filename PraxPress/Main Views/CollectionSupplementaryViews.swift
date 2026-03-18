@@ -29,52 +29,26 @@ struct SectionBackgroundView: View {
         @Bindable var prax = praxModel
         
         if document.pageSections.count > indexPath.section {
-           let pdfPageSection = document.pageSections[indexPath.section]
+            let mergedPage = document.pageSections[indexPath.section]
             let imageSize = CGSize(width: 1200, height: 1600)
+            let sectionHeaderHeight = CGFloat(30)
             
             GroupBox {
                 GeometryReader { proxy in
                     VStack {
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
-                        Text("Julie d'Prax")
-                        Text(pdfPageSection.title)
+
   //          Spacer()
-               /*         if let pdfPage = pdfPageSection.pdfPage {
+                       if let pdfPage = mergedPage.pdfPage {
                             Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: proxy.size.width * 0.28) // 40% of GroupBox width
                             //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
                                 .cornerRadius(6)
-                                .padding(EdgeInsets(top: ThumbnailViewController.sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
+                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
                             
                         }
-                    */
+                    
                         
                     }
                     .foregroundColor(.black)
@@ -404,6 +378,118 @@ struct SectionFooterView: View {
             }
         }
 }
+
+
+struct MergedPageHeaderView: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    let pdfPageSection: MergedPage?
+    let isSelected: Bool
+    let highlightState: NSCollectionViewItem.HighlightState
+    
+    var body: some View {
+        if pdfPageSection != nil {
+            @Bindable var section = pdfPageSection!
+            @Bindable var prax = praxModel
+        
+        
+       
+            
+            let clickGesture = TapGesture()
+                .onEnded { value in
+                    print("View tapped! - \(section.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
+                    clickedSectionHeader()
+                    
+                }
+            
+            GroupBox {
+                Group {
+                    
+                    Text("Julie d'Prax - \(section.title)") }
+                
+                .draggable({ () -> MergedPDFTransfer? in
+                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                }()!, preview: {
+                    PraxDragPreview()
+                })
+                
+                
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .font(.caption)
+                .lineLimit(1)
+                .padding(8)
+                
+                .background(Color.black.opacity(0.7))
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
+                .gesture(clickGesture)
+                
+            }
+            .padding(20)
+            
+            
+            
+            
+            /*        .gesture(
+             TapGesture()
+             .modifiers([.option, .command, .control])
+             .onEnded {
+             clickedSectionHeader(modifiers)
+             }
+             )
+             .gesture(
+             TapGesture()
+             .modifiers(.command)
+             .onEnded {
+             clickedSectionHeader([.command])
+             }
+             )
+             .gesture(
+             TapGesture()
+             .modifiers(.shift)
+             .onEnded {
+             clickedSectionHeader([.shift])
+             }
+             )
+             //       .onTapGesture(perform: clickedSectionHeader())*/
+        }
+    //    else {
+            EmptyView()
+      //  }
+            
+    }
+    
+    func clickedSectionHeader(_ modifiers: EventModifiers = [] ) {
+        print ("Julie d'Prax - clickedSectionHeader")
+        
+        if modifiers.contains(.shift) {
+            print("Shift + Click detected")
+        }
+        else if modifiers.contains(.command) {
+            print("Command + Click detected")
+        }
+        else if modifiers.contains(.control) {
+            print("Control + Click detected")
+        }
+        else {
+            print("Plain Click detected")
+       fatalError()
+            //     document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
+        }
+        
+   //     if PraxModel.shared.selectedSections.contains(indexPath.section) {
+  //          PraxModel.shared.selectedSections.remove(indexPath.section)
+  //      } else {
+  //          PraxModel.shared.selectedSections.insert(indexPath.section)
+  //      }
+        // self.isSelected = PraxModel.shared.selectedSections.contains(indexPath.section)
+        // Refresh just this section’s header to reflect the new state.
+        //       self.collectionView.reloadSections(IndexSet(integer: indexPath.section))
+        
+    }
+}
+
 
 
 

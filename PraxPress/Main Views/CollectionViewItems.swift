@@ -11,7 +11,9 @@ import AppKit
 enum CollectionElementKind {
     case thumbnail(item: PageItem)
     case page(item: PageItem)
+    case mergedPage(item: PageItem)
     case header(item: MergedPage)
+    case mergedPageHeader(item: MergedPage)
     case footer(item: MergedPage)
     case background(indexPath: IndexPath)
     case none
@@ -28,8 +30,12 @@ struct CollectionElementHostView: View {
             PageItemView( pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
         case let .page(item):
             PageEditView(pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
+        case let .mergedPage(item):
+            MergedPageView(pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
         case let .header(item):
             SectionHeaderView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
+        case let .mergedPageHeader(item):
+            MergedPageHeaderView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
         case let .footer(item):
             SectionFooterView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
         case let .background(indexPath):
@@ -62,7 +68,7 @@ extension CollectionElementHosting {
         ])
         hostingView = hosting
     }
-
+    
     func buildRootView() -> CollectionElementHostView {
         CollectionElementHostView(
             kind: kind ?? .none,
@@ -82,6 +88,7 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     var hostingView: NSHostingView<CollectionElementHostView>?
     var containerView: NSView { view }
     
+    static let mergedPageHeaderElementKind = "merged-page-header-element-kind"
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
     static let sectionBackgroundElementKind = "section-background-element-kind"
@@ -95,6 +102,39 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     override func loadView() {
         super.loadView()
         attachIfNeeded() }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
+        let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)
+        
+        print("CollectionViewItem - preferredLayoutAttributesFitting kind: ", kind)
+        
+        switch kind {
+//        case let .thumbnail(item):
+            
+//        case let .page(item):
+            
+        case let .mergedPage(item):
+            
+            let width = layoutAttributes.size.width
+            // If aspectRatio is width/height, height = width / aspect
+            let height = ceil(width / item.aspectRatio)
+            attrs.size = CGSize(width: width, height: height)
+
+            return attrs
+
+//        case let .header(item):
+            
+//        case let .footer(item):
+            
+//        case let .background(indexPath):
+            
+        default:
+            return attrs
+
+        }
+        
+
+    }
     
     override var isSelected: Bool {
         didSet { updateRootView() } }

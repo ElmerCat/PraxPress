@@ -29,24 +29,80 @@ struct PDFDataFields: Codable {
 
 @Model
 final class PDFFile {
+    
+    static let defaultFieldNames = ["PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
+    
     var id: UUID
     var url: URL
     var bookmarkData: Data
     var fileName: String
     var pageCount: Int
     var fileGroup: PDFFileGroup
-    var dataFields: PDFDataFields?
+    // Persisted as Data
+    var dataFieldsData: Data?
     
-    init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: PDFDataFields? = nil) {
+    init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: [String: FieldValue]? = nil) {
         self.id = UUID()
         self.fileGroup = fileGroup
         self.url = url
         self.bookmarkData = bookmarkData
         self.fileName = url.lastPathComponent
         self.pageCount = pageCount
-        self.dataFields = dataFields
+        if let dict = dataFields {
+            self.dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict))
+        } else {
+            self.dataFieldsData = nil
+        }
+
     }
     
+    // A convenient computed property that callers can work with
+    var dataFields: [String: FieldValue]? {
+        get {
+            guard let data = dataFieldsData else { return nil }
+            return decodeFlexibleFields(from: data)?.storage
+        }
+        set {
+            if let dict = newValue {
+                dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict))
+            } else {
+                dataFieldsData = nil
+            }
+        }
+    }
+
+/*    // MARK: - Encode/Decode helpers (JSON with ISO8601 dates)
+    nonisolated private static func encoder() -> JSONEncoder {
+        let enc = JSONEncoder()
+        enc.outputFormatting = []
+        // FieldValue already encodes Date as ISO8601 string; no need to set dateEncodingStrategy here.
+        return enc
+    }
+
+    nonisolated private static func decoder() -> JSONDecoder {
+        let dec = JSONDecoder()
+        // FieldValue decodes Date from ISO8601 string; no need to set dateDecodingStrategy here.
+        return dec
+    }
+
+    nonisolated private static func encode<T: Encodable>(_ value: T) -> Data? {
+        do {
+            return try encoder().encode(value)
+        } catch {
+            print("Failed to encode value: \(error)")
+            return nil
+        }
+    }
+
+    nonisolated private static func decode<T: Decodable>(_ type: T.Type, from data: Data) -> T? {
+        do {
+            return try decoder().decode(T.self, from: data)
+        } catch {
+            print("Failed to decode value: \(error)")
+            return nil
+        }
+    }
+*/
 }
 
 func testBookmark(for pdfFile:PDFFile) -> Bool {
@@ -221,7 +277,8 @@ actor FilesPersistenceController: Observable {
             
            let pdfFile = PDFFile(fileGroup: mainFileGroup, url: url, bookmarkData: bookmarkData, pageCount: pdfDocument.pageCount)
             
-            var dataFields = await PDFDataFields()
+            var dataFields: [String: FieldValue] = [:]
+            let fieldNames = PDFFile.defaultFieldNames
             
             func value(from annot: PDFAnnotation) -> String? {
                 if let v = annot.widgetStringValue, !v.isEmpty { return v }
@@ -240,32 +297,13 @@ actor FilesPersistenceController: Observable {
                     if DEBUG_LOGS { print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)") }
                     
                     if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                        switch key {
-                        case "PcardHolderName":
-                            dataFields.pcardHolderName = v
-                        case "DocumentNumber":
-                            dataFields.documentNumber = v
-                        case "Date":
-                            dataFields.date = v
-                        case "Amount":
-                            dataFields.amount = v
-                        case "Vendor":
-                            dataFields.vendor = v
-                        case "GLAccount":
-                            dataFields.glAccount = v
-                        case "CostObject":
-                            dataFields.costObject = v
-                        case "Description":
-                            dataFields.justification = v
-                        default:
-                            break
+                        if fieldNames.contains(key) {
+                            dataFields[key] = .string(v)
                         }
                     }
                 }
             }
-            
-        //    pdfFile.dataFields = dataFields
-            
+            pdfFile.dataFields = dataFields
             return pdfFile
         }
         catch {

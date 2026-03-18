@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     
     @Environment(\.modelContext) private var modelContext           // Global context (from app)
-    @Environment(\.perWindowModelContext) private var perWindowContext // The one-and-only editor context
+ //   @Environment(\.perWindowModelContext) private var perWindowContext // The one-and-only editor context
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
    
@@ -33,20 +33,21 @@ struct ContentView: View {
                     NavigationSplitView(columnVisibility: $prax.columnVisibility) {
                         // Left panel: global data (uses app-level container/context)
                         SourceFilesView()
-                            .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.75)
-                    }
-                    content: {
-                        // Middle panel: editor list (use per-window context)
-                        if let perWindowContext {
-                            ContentDetailView()
-                                .modelContext(perWindowContext)
-                                .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-                        } else {
-                            ContentDetailView()
-                                .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-                        }
+                            .navigationSplitViewColumnWidth(min: 100, ideal: 500, max: .infinity)
+                        //    .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.25)
                     }
                     detail: {
+                        // Middle panel: editor list (use per-window context)
+                      //  if let perWindowContext {
+                      //      ContentDetailView()
+                     //           .modelContext(perWindowContext)
+                     //           .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
+                     //   } else {
+                            ContentDetailView()
+                            .navigationSplitViewColumnWidth(min: 100, ideal: 500, max: .infinity)
+                   //     }
+                    }
+            /*        detail: {
                         // Right panel: merged document UI (use per-window context)
                         let detailStack = VStack {
                             MergedDocumentToolbar()
@@ -55,13 +56,14 @@ struct ContentView: View {
                         }
                         .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
 
-                        if let perWindowContext {
+                       // if let perWindowContext {
+                       //     detailStack
+                       //         .modelContext(perWindowContext)
+                       // } else {
                             detailStack
-                                .modelContext(perWindowContext)
-                        } else {
-                            detailStack
-                        }
+                       // }
                     }
+                  */
                 }
             }
             .background(Color.indigo.opacity(0.5))
@@ -98,7 +100,8 @@ struct ContentDetailView: View {
             if document.pageSections.count > 0 {
                 
                 if prax.praxPressMode == .prax {
-                    PraxEditingView()
+                    Text("Julie d'Prax")
+                  //  PraxEditingView()
                         .inspector(isPresented: $prax.showingPDFPageItemInspector) {
                             PDFPageItemInspector()
                         }

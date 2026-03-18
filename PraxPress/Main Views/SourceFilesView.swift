@@ -92,84 +92,6 @@ struct PDFFilesListRow: View {
 }
 
 
-struct PDFFilesList: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-
-    @Environment(PraxModel.self) private var praxModel
-    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
-    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
-    
-
-    var body: some View {
-        @Bindable var document = document
-        @Bindable var prax = praxModel
-        
-        GroupBox {
-            if prax.praxPressMode != .data {
-                ZStack {
-                    Color.contentViewBackground.ignoresSafeArea()
-                    List(pdfFiles, selection: $prax.selectedFiles) { pdfFile in
-                        let notFound = pdfFile.bookmarkData.count == 0
-                        PDFFilesListRow(document: document, pdfFile: pdfFile)
-                            .listRowBackground(notFound ? Color.red : Color.clear)
-                            .selectionDisabled(notFound)
-                    }
-                    .scrollContentBackground(.hidden)
-                }
-            } else {
-                ZStack {
-                    Color.pink.ignoresSafeArea()
-                    Table(pdfFiles, selection: $prax.selectedFiles) {
-                        TableColumn("File") { (entry: PDFFile) in
-                            let value = entry.fileName
-                            Text(value).background(Color.yellow)
-                        }
-                        TableColumn("Pages") { (entry: PDFFile) in
-                            let value = entry.pageCount
-                            Text(String(value))
-                        }
-                        TableColumn("PcardHolderName") { (entry: PDFFile) in
-                            let value = entry.dataFields?.pcardHolderName ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("DocumentNumber") { (entry: PDFFile) in
-                            let value = entry.dataFields?.documentNumber ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("Date") { (entry: PDFFile) in
-                            let value = entry.dataFields?.date ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("Amount") { (entry: PDFFile) in
-                            let value = entry.dataFields?.amount ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("Vendor") { (entry: PDFFile) in
-                            let value = entry.dataFields?.vendor ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("GLAccount") { (entry: PDFFile) in
-                            let value = entry.dataFields?.glAccount ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("CostObject") { (entry: PDFFile) in
-                            let value = entry.dataFields?.costObject ?? "—"
-                            Text(value)
-                        }
-                        TableColumn("Justification") { (entry: PDFFile) in
-                            let value = entry.dataFields?.justification ?? "—"
-                            Text(value)
-                        }
-                    }
-                    .scrollContentBackground(.hidden)
-                }
-            }
-        }
-        
-    }
-}
-
 struct SourceFilesView: View {
     
     @Environment(\.modelContext) private var modelContext
@@ -214,7 +136,7 @@ struct SourceFilesView: View {
                                 Label("Add Files", systemImage: "folder.badge.plus")
                             }
                             
-                            if prax.selectedFiles.isEmpty {
+                            if !prax.selectedFiles.isEmpty {
                                 Button {
                                     deleteSelectedFilesFromDatabase()
                                 } label: {
@@ -328,8 +250,105 @@ struct SourceFilesView: View {
     
 }
 
-#Preview {
-   
-    SourceFilesView()
+
+struct PDFFilesList: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+
+    @Environment(PraxModel.self) private var praxModel
+    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
+    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+    
+    
+    private func displayValue(for key: String, in entry: PDFFile) -> String {
+        guard let fields = entry.dataFields else {return "No Data Fields"}
+        guard let field = fields[key] else { return "No Field: " + key }
+
+    //    print (field)
+        
+        if let s = field.stringValue { return s }
+        if let i = field.intValue { return String(i) }
+        if let d = field.doubleValue { return String(d) }
+        if let b = field.boolValue { return String(b) }
+        if let date = field.dateValue {
+            return ISO8601DateFormatter().string(from: date)
+        }
+        return "No Data: " + key
+    }
+
+    var body: some View {
+        @Bindable var document = document
+        @Bindable var prax = praxModel
+        
+        GroupBox {
+            if prax.praxPressMode != .data {
+                ZStack {
+                    Color.contentViewBackground.ignoresSafeArea()
+                    List(pdfFiles, selection: $prax.selectedFiles) { pdfFile in
+                        let notFound = pdfFile.bookmarkData.count == 0
+                        PDFFilesListRow(document: document, pdfFile: pdfFile)
+                            .listRowBackground(notFound ? Color.red : Color.clear)
+                            .selectionDisabled(notFound)
+                    }
+                    .scrollContentBackground(.hidden)
+                }
+            } else {
+                ZStack {
+                    Color.pink.ignoresSafeArea()
+
+                    let fieldNames = PDFFile.defaultFieldNames
+
+                    // Define grid columns: fixed first two columns + one for each dynamic field
+                    let columns: [GridItem] = [
+                        GridItem(.flexible(minimum: 120), alignment: .leading), // File
+                        GridItem(.fixed(60), alignment: .trailing)              // Pages
+                    ] + fieldNames.map { _ in GridItem(.flexible(minimum: 80), alignment: .leading) }
+
+                    ScrollView {
+                        LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
+                            // Header row
+                            Group {
+                                Text("File").font(.headline)
+                                Text("Pages").font(.headline)
+                                ForEach(fieldNames, id: \.self) { name in
+                                    Text(name).font(.headline)
+                                        .id("header|\(name)")
+                                }
+                            }
+                            .padding(.vertical, 4)
+                            .background(Color.gray.opacity(0.15))
+                            //.gridCellColumns(columns.count) // optional: comment this if you want headers in the same row cells
+                            // If you prefer headers in the same row cells, remove .gridCellColumns and place them as individual cells:
+                            // Just remove the .gridCellColumns line.
+
+                            // Data rows
+                            // Data rows
+                            ForEach(pdfFiles, id: \.id) { entry in
+                                // File name
+                                Text(entry.fileName)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+
+                                // Pages
+                                Text(String(entry.pageCount))
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+
+                                // Dynamic fields — ensure unique IDs per cell
+                                ForEach(fieldNames, id: \.self) { fieldName in
+                                    Text(displayValue(for: fieldName, in: entry))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .id("\(entry.id.uuidString)|\(fieldName)")
+                                }
+                            }
+                        }
+                        .padding(8)
+                    }
+                }
+                
+            }
+        }
+        
+    }
 }
+
 

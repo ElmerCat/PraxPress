@@ -92,7 +92,7 @@ extension MergedPDFDocument {
         return nil
     }
     
-    func pages(in section: PDFPageSectionModel) -> [PDFPageItemModel] {
+    func pages(in section: MergedPage) -> [PageItem] {
         return section.pageItems
     }
     
@@ -325,7 +325,7 @@ extension MergedPDFDocument {
     }
  */
     
-    func pdfDocumentFromPDFPageSections(pageSections: [PDFPageSectionModel]) -> PDFDocument {
+    func pdfDocumentFromPDFPageSections(pageSections: [MergedPage]) -> PDFDocument {
         isLoadingPDF = true
         var insertIndex = 0
         let pdfDocument = PDFDocument()
@@ -333,7 +333,7 @@ extension MergedPDFDocument {
             section in
             section.pageItems.forEach {
                 page in
-                if page.mergeMode != .mergeSkip {
+                if page.merge != .mergeSkip {
                     pdfDocument.insert(page.pdfPage, at: insertIndex)
                     insertIndex += 1
                 }

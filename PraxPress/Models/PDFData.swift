@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 
 
-@Observable @MainActor
+/*@Observable @MainActor
 final class PDFPageItem: Identifiable, Equatable, Hashable {
     nonisolated static func == (lhs: PDFPageItem, rhs: PDFPageItem) -> Bool { lhs.id == rhs.id }
     nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
@@ -84,7 +84,7 @@ final class PDFPageSection: Identifiable, Equatable, Hashable {
         didSet { print("\n pdfPageItems didSet: \(self.pdfPageItems.count)\n\n") }
     }
 }
-
+*/
 
 struct MergedPDFTransfer: Transferable, Identifiable {
     let id = UUID()
