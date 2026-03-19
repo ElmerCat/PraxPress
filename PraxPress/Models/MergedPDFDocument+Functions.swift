@@ -13,7 +13,10 @@ import UniformTypeIdentifiers
 extension MergedPDFDocument {
  
     func refreshMergedDocument() {
-        if totalPDFPageItems() > 0 {
+        
+        print("\n refreshMergedDocument - Julie d'Prax\n")
+  //    fatalError("Julie d'Prax")
+   /*      if totalPDFPageItems() > 0 {
             if !refreshingMergedDocument {
                 refreshingMergedDocument = true
                 recomputeMergedMetrics()
@@ -22,7 +25,7 @@ extension MergedPDFDocument {
             }
 
         }
-        
+    */
     }
    
    

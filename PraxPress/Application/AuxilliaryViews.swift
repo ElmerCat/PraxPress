@@ -364,7 +364,7 @@ struct DragOutControl: View {
                 Spacer(minLength: 25)
             }
             .draggable {
-                if let data = document.mergedPDFDocument.dataRepresentation() {
+                if let data = document.mergedPDFDocument().dataRepresentation() {
                     return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                 } else { return nil }
             }

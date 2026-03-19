@@ -209,16 +209,6 @@ final class MergedPage: Identifiable, Equatable, Hashable {
 
     }
     
-    var ergedPageItem: PageItem? {
-      //  guard let page = self.pdfPage else { return nil }
-        return PageItem(
-            mergedPage: self,
-            name: self.title,
-            sourceURL: URL(string: "/")!,
-            pdfPage: self.pdfPage ?? PDFPage()
-        )
-    }
-    
     func mergedPageItem() -> PageItem {
         return PageItem(
             mergedPage: self,

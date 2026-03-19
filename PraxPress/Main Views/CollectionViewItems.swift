@@ -106,20 +106,21 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)
         
-        print("CollectionViewItem - preferredLayoutAttributesFitting kind: ", kind)
+ //       print("CollectionViewItem - preferredLayoutAttributesFitting kind: ", kind as Any)
         
         switch kind {
 //        case let .thumbnail(item):
             
-//        case let .page(item):
-            
-        case let .mergedPage(item):
-            
+        case let .page(item):
             let width = layoutAttributes.size.width
-            // If aspectRatio is width/height, height = width / aspect
             let height = ceil(width / item.aspectRatio)
             attrs.size = CGSize(width: width, height: height)
+            return attrs
 
+        case let .mergedPage(item):
+            let width = layoutAttributes.size.width
+            let height = ceil(width / item.aspectRatio)
+            attrs.size = CGSize(width: width, height: height)
             return attrs
 
 //        case let .header(item):
@@ -170,7 +171,7 @@ final class CollectionSupplementaryView: NSView, NSCollectionViewElement, Collec
             guard let indexPath = layoutAttributes.indexPath else {return}
             self.kind = .background(indexPath: indexPath)
         }
-        print("CollectionSupplementaryView - apply:  ", layoutAttributes.representedElementKind ?? "No representedElementKind")
+    //    print("CollectionSupplementaryView - apply:  ", layoutAttributes.representedElementKind ?? "No representedElementKind")
     }
 }
 

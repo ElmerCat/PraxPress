@@ -120,11 +120,11 @@ struct ContentDetailView: View {
             }
             DocumentEditingFooter()
         }
-        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
+        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument().dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
             switch result {
             case .success(let url):
                 print ("Writing mergedPDFView to: ", url)
-                document.mergedPDFDocument.write(to: url)
+                document.mergedPDFDocument().write(to: url)
             case .failure(let error):
                 print (error.localizedDescription)
                 prax.saveError = error.localizedDescription

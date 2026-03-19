@@ -89,7 +89,7 @@ struct MergedDocumentHeader: View {
                     
                 }
                 .draggable {
-                    if let data = document.mergedPDFDocument.dataRepresentation() {
+                    if let data = document.mergedPDFDocument().dataRepresentation() {
                         return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                         
                     } else {
@@ -358,7 +358,7 @@ struct MergedDocumentView: NSViewRepresentable {
     func makeNSView(context: Context) -> PDFView {
         print("MergedDocumentView - makeNSView")
         
-        document.mergedPDFView.document = document.mergedPDFDocument
+        document.mergedPDFView.document = document.mergedPDFDocument()
         
         
         NotificationCenter.default.addObserver(

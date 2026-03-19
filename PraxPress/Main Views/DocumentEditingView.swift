@@ -14,7 +14,9 @@ import UniformTypeIdentifiers
 struct DocumentEditingView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-
+    
+    let splitViewDelegate = SplitViewDelegate()
+    
     func makeCoordinator() -> DocumentEditingViewCoordinator {
         DocumentEditingViewCoordinator(document: document, prax: praxModel)
     }
@@ -22,8 +24,9 @@ struct DocumentEditingView: NSViewRepresentable {
     func makeNSView(context: Context) -> NSSplitView {
         // Split view
         let splitView = NSSplitView()
+        splitViewDelegate.splitView = splitView
+        splitView.delegate = splitViewDelegate
         context.coordinator.splitView = splitView
-        splitView.delegate = context.coordinator
         splitView.isVertical = true
         splitView.dividerStyle = .paneSplitter
         splitView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,10 +77,14 @@ struct DocumentEditingView: NSViewRepresentable {
         rightScroll.documentView = rightCV
 
         // Attach both scroll views to split view
+        splitView.arrangesAllSubviews = true
         splitView.addArrangedSubview(leftScroll)
         splitView.addArrangedSubview(centerScroll)
         splitView.addArrangedSubview(rightScroll)
-
+  //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
+  //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
+  //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
+        
         // Store references on the coordinator
         context.coordinator.leftCollectionView = leftCV
         context.coordinator.leftScrollView = leftScroll
@@ -96,6 +103,7 @@ struct DocumentEditingView: NSViewRepresentable {
 
         // Initial divider position
         DispatchQueue.main.async {
+            print("DocumentEditingView - plitView.setPosition(150, ofDividerAt: 0)")
             splitView.setPosition(150, ofDividerAt: 0)
             splitView.setPosition(250, ofDividerAt: 1)
         }
@@ -104,12 +112,8 @@ struct DocumentEditingView: NSViewRepresentable {
     }
 
     func updateNSView(_ splitView: NSSplitView, context: Context) {
-        print("updateNSView - context.coordinator.applySnapshotToBoth(animated: true)")
+        print("DocumentEditingView - updateNSView - context.coordinator.applySnapshot(animated: true)")
         context.coordinator.applySnapshot(animated: true)
-        // If your document/prax changes while the view is alive, you can reflect them here.
-        // For example:
-        // context.coordinator.applySnapshotToBoth(animated: true)
-        // Or mirror prax.selectedPageItems to both collections.
     }
 
     final class DocumentEditingViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
@@ -184,7 +188,7 @@ struct DocumentEditingView: NSViewRepresentable {
             // Data source
             let ds = NSCollectionViewDiffableDataSource<MergedPage, PageItem>(
                 collectionView: collectionView
-            ) { [weak self] cv, indexPath, item in
+            ) {cv, indexPath, item in
                 guard let cell = cv.makeItem(
                     withIdentifier: NSUserInterfaceItemIdentifier("Cell"),
                     for: indexPath
@@ -337,8 +341,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 (sectionIndex: Int,
                  layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
                 
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                      heightDimension: .fractionalWidth(0.5))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
                 item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
@@ -353,7 +356,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 )
  */
                 let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
                 
 //                group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
@@ -492,7 +495,7 @@ struct DocumentEditingView: NSViewRepresentable {
             let typeIdentifier = UTType(filenameExtension: "pdf")
             
             let provider = FilePromiseProvider()
-            provider.pdfDocument = document.mergedPDFDocument
+            provider.pdfDocument = document.mergedPDFDocument()
             provider.fileName = "PraxPress-Page.pdf"
             provider.fileType = typeIdentifier!.identifier
             provider.delegate = provider
@@ -866,6 +869,85 @@ struct DocumentEditingView: NSViewRepresentable {
         
     }
     
+    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+        print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
+        
+        return false
+    }
+
+   
+    func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
+        print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
+        
+        return false
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+        
+        return proposedMinimumPosition
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        print ("splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+        
+        return proposedMaximumPosition
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        print ("splitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+        
+        return proposedPosition
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
+        print ("splitView: NSSplitView, resizeSubviewsWithOldSize oldSize:  ", oldSize)
+
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview view: NSView) -> Bool {
+        print ("splitView: NSSplitView, shouldAdjustSizeOfSubview view: : ")
+        
+        return false
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
+        print ("splitView: NSSplitView, shouldHideDividerAt dividerIndex:   ", dividerIndex)
+        
+        return false
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
+        print ("ssplitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex:   ", dividerIndex)
+        
+        return proposedEffectiveRect
+    }
+
+    
+    func splitView(_ splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex: Int) -> NSRect {
+        print ("splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex:   ", dividerIndex)
+        
+        return NSRect.zero
+    }
+
+    
+    func splitViewWillResizeSubviews(_ notification: Notification) {
+        print ("splitViewWillResizeSubviews(_ notification: Notification) ")
+        
+    }
+
+    
+    func splitViewDidResizeSubviews(_ notification: Notification) {
+        print ("splitViewDidResizeSubviews(_ notification: Notification) ")
+        
+    }
 }
 
 
@@ -970,7 +1052,7 @@ struct DocumentEditingToolbar: View {
                     
                 
                 }.draggable {
-                    if let data = document.mergedPDFDocument.dataRepresentation() {
+                    if let data = document.mergedPDFDocument().dataRepresentation() {
                         return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                         
                     } else {
@@ -1022,6 +1104,8 @@ struct DocumentEditingToolbar: View {
         }
         
     }
+    
+
 }
 
 struct DocumentEditingFooter: View {

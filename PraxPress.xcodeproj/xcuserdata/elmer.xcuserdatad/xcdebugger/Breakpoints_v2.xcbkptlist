@@ -62,9 +62,9 @@
             filePath = "PraxPress/Models/MergedPDFDocument+Functions.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "105"
-            endingLineNumber = "105"
-            landmarkName = "movePDFPageItems(_:to:)"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
+            landmarkName = "refreshMergedDocument()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -110,9 +110,9 @@
             filePath = "PraxPress/Models/MergedPDFDocument+Functions.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
-            landmarkName = "movePDFPageItems(_:to:)"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "refreshMergedDocument()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

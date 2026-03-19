@@ -61,14 +61,25 @@ import Foundation
     }
     
 
+    
+    func mergedPDFDocument () -> PDFDocument {
+        let pdfDocument = PDFDocument()
+        for (pageIndex, mergedPage) in pageSections.enumerated() {
+            if let pdfPage = mergedPage.pdfPage {
+                pdfDocument.insert(pdfPage, at: pageIndex)
+            }
+        }
+        return pdfDocument
+    }
 
     var mergedPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
     }()
-    var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+    
+    var amergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("mergedPDFDocument didSet ")
-            mergedPDFView.document = mergedPDFDocument
+            mergedPDFView.document = mergedPDFDocument()
             isLoadingPDF = false
         }
     }

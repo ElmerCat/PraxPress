@@ -339,7 +339,7 @@ struct PageEditView: View {
                         .stroke(isSelected ? Color.accentColor : Color("PraxColor"), lineWidth: 3) )
                 .foregroundColor(foregroundColor())
                 .background(backgroundColor())
-                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
+/*                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
                     print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width)
                     return contentGeometry.size.width
                     
@@ -350,6 +350,7 @@ struct PageEditView: View {
               //      print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
                     //         contentWidth = newValue
                 }
+*/
                 
             } else {
                 EmptyView()
@@ -679,7 +680,7 @@ struct MergedPageView: View {
                         .stroke(isSelected ? Color.accentColor : Color("PraxColor"), lineWidth: 3) )
                 .foregroundColor(foregroundColor())
                 .background(backgroundColor())
-                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
+/*                .onGeometryChange(for: CGFloat.self) {  contentGeometry in
                     print("onGeometryChange - contentGeometry.size.width: ", contentGeometry.size.width)
                     return contentGeometry.size.width
                     
@@ -690,7 +691,7 @@ struct MergedPageView: View {
                     //      print ("pdfPageItem?.pdfPage.bounds(for: .cropBox)", pdfPageItem?.pdfPage.bounds(for: .cropBox) as Any)
                     //         contentWidth = newValue
                 }
-                
+*/
                 
             }
             
