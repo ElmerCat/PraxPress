@@ -9,26 +9,23 @@ import AppKit
 
 
 final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
+    let prax: PraxModel
+    
+    init(prax: PraxModel, splitView: NSSplitView? = nil) {
+        self.prax = prax
+        self.splitView = splitView
+    }
+    
     var splitView: NSSplitView?
 
-    var dividerZeroMinPos: CGFloat = 100
-    var dividerZeroMaxPos: CGFloat = 400
-    var dividerZeroPos: CGFloat = 100   /*{
-        didSet {
-            splitView!.setPosition(dividerOnePos + 10 , ofDividerAt: 1)
-            splitView!.adjustSubviews()
-        }
-    }*/
-    var dividerOneMinPos: CGFloat = 400
-    var dividerOneMaxPos: CGFloat = 700
-    var dividerOnePos: CGFloat = 400
     
-    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+    
+/*    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
         print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
         
         return false
     }
-
+*/
    
     func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
         print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
@@ -38,58 +35,73 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
 
     
     func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+    //    print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
         if dividerIndex == 0 {
-            print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-            if proposedMinimumPosition < dividerZeroMinPos { return dividerZeroMinPos }
+            if proposedMinimumPosition < prax.dividerZeroMinPos {
+                print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerZeroMinPos, "  proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                    return prax.dividerZeroMinPos
+            }
             else {
-                dividerZeroPos = proposedMinimumPosition
+                prax.dividerZeroPos = proposedMinimumPosition
                 return proposedMinimumPosition }
         }
         else {
             
-            let frameWidth = splitView.frame.width
-            
-            let minPositiion = min(dividerOneMinPos + dividerZeroPos, dividerOnePos)
-            print ("minPosition: ", minPositiion, "  splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-            
-            
-            if proposedMinimumPosition < minPositiion {
-           //     splitView.setPosition(minPositiion, ofDividerAt: dividerIndex)
-                return minPositiion }
+            if proposedMinimumPosition < prax.dividerOneMinPos {
+                print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerOneMinPos, "   proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+
+                return prax.dividerOneMinPos }
             else {
-                dividerOnePos = proposedMinimumPosition
+                prax.dividerOnePos = proposedMinimumPosition
                 return proposedMinimumPosition }
         }
     }
    
     func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
         
         if dividerIndex == 0 {
-            if proposedMaximumPosition > 400 { return 400 }
-            else { return proposedMaximumPosition }
+            if proposedMaximumPosition > prax.dividerZeroMaxPos {
+                print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerZeroMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                return prax.dividerZeroMaxPos }
+            else {
+                prax.dividerZeroPos = proposedMaximumPosition
+                return proposedMaximumPosition }
         }
         else {
-            if proposedMaximumPosition > 800 { return 800 }
-            else { return proposedMaximumPosition }
+            if proposedMaximumPosition > prax.dividerOneMaxPos {
+                print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerOneMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                return prax.dividerOneMaxPos }
+            else {
+                prax.dividerOnePos = proposedMaximumPosition
+                return proposedMaximumPosition }
         }
     }
 
     
     func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("\nsplitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        if dividerIndex == 0 {
-            if proposedPosition < dividerZeroMinPos { return dividerZeroMinPos }
-            else {
-                dividerZeroPos = proposedPosition
+         if dividerIndex == 0 {
+            if proposedPosition < prax.dividerZeroMinPos {
+                print ("\nsplitView: NSSplitView, constrain dividerZeroMinPos:  ", prax.dividerZeroMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                 return prax.dividerZeroMinPos }
+   
+             else if proposedPosition > prax.dividerZeroMaxPos {
+                 print ("\nsplitView: NSSplitView, constrain dividerZeroMaxPos:  ", prax.dividerZeroMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                  return prax.dividerZeroMaxPos }
+             else {
+                prax.dividerZeroPos = proposedPosition
                 return proposedPosition }
 
         }
         else {
-            if proposedPosition < dividerOneMinPos + dividerZeroPos { return dividerOneMinPos + dividerZeroPos }
+            if proposedPosition < prax.dividerOneMinPos {
+                print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                 return prax.dividerOneMinPos }
+      
+            else if proposedPosition > prax.dividerOneMaxPos {
+                print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                return prax.dividerOneMaxPos }
             else {
-                dividerOnePos = proposedPosition
+                prax.dividerOnePos = proposedPosition
                 return proposedPosition }
         
         }
@@ -129,12 +141,13 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         return NSRect.zero
     }
 
-    
+*/
     func splitViewWillResizeSubviews(_ notification: Notification) {
-        print ("splitViewWillResizeSubviews(_ notification: Notification) ")
+        prax.splitViewFrameWidth = self.splitView?.frame.width ?? 1000
+ //       print ("splitViewWillResizeSubviews(_ notification: Notification) ")
         
     }
-
+/*
     
     func splitViewDidResizeSubviews(_ notification: Notification) {
         print ("splitViewDidResizeSubviews(_ notification: Notification) ")

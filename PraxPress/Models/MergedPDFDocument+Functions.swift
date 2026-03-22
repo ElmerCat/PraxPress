@@ -561,6 +561,46 @@ extension MergedPDFDocument {
         return mergedDocument
     }
     
+    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
+        
+        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
+        
+        if pdfPageItem.merge == .mergeSkip {
+            if prax.optionKeyPressed {
+               mergeAllExcept(pdfPageItem: pdfPageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
+            }
+            else {
+                pdfPageItem.merge = .mergeDown
+            }
+        }
+        else {
+            if prax.optionKeyPressed {
+                mergeAllExcept(pdfPageItem: pdfPageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
+             }
+            else {
+                pdfPageItem.merge = .mergeSkip
+            }
+        }
+    }
+    
+    func mergeAllExcept(pdfPageItem: PageItem, mergeAllMode: MergeMode, mergeExceptMode: MergeMode) {
+        for pageSection in self.pageSections {
+            for pageItem in pageSection.pageItems {
+                if pdfPageItem == pageItem {
+                    if pageItem.merge != mergeExceptMode {
+                        pageItem.merge = mergeExceptMode
+                    }
+                }
+                else {
+                    if pageItem.merge != mergeAllMode {
+                        pageItem.merge = mergeAllMode
+                    }
+                }
+            }
+        }
+    }
+    
+    
     
     func widthGuidePage() -> PageItem? {
         if widthGuidePageID == nil { return nil }

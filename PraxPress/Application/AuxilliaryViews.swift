@@ -423,7 +423,7 @@ struct DropTargetControl: View {
             }
         }
         
-        .onDrop(of: [.fileURL, .pdfPageSectionType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+        .onDrop(of: [.fileURL, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
         
         
     }

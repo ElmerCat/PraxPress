@@ -15,88 +15,90 @@ struct DocumentEditingView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
-    let splitViewDelegate = SplitViewDelegate()
     
     func makeCoordinator() -> DocumentEditingViewCoordinator {
-        DocumentEditingViewCoordinator(document: document, prax: praxModel)
+        let svd = SplitViewDelegate(prax: praxModel)
+        return DocumentEditingViewCoordinator(document: document, prax: praxModel, splitViewDelegate: svd)
     }
 
     func makeNSView(context: Context) -> NSSplitView {
+        
         // Split view
         let splitView = NSSplitView()
-        splitViewDelegate.splitView = splitView
-        splitView.delegate = splitViewDelegate
+        praxModel.splitView = splitView
+        context.coordinator.splitViewDelegate.splitView = splitView
+        splitView.delegate = context.coordinator.splitViewDelegate
         context.coordinator.splitView = splitView
         splitView.isVertical = true
         splitView.dividerStyle = .paneSplitter
         splitView.translatesAutoresizingMaskIntoConstraints = false
 
         // Left: Scroll + Collection
-        let leftScroll = NSScrollView()
-        leftScroll.translatesAutoresizingMaskIntoConstraints = false
-        leftScroll.hasVerticalScroller = true
-        leftScroll.hasHorizontalScroller = false
+        let pageItemScrollView = NSScrollView()
+        pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
+        pageItemScrollView.hasVerticalScroller = true
+        pageItemScrollView.hasHorizontalScroller = false
 
-        let leftCV = NSCollectionView()
-        leftCV.translatesAutoresizingMaskIntoConstraints = false
-        leftCV.backgroundColors = [.clear]
-        leftCV.isSelectable = true
-        leftCV.allowsEmptySelection = true
-        leftCV.allowsMultipleSelection = true
-        leftCV.delegate = context.coordinator
-        leftScroll.documentView = leftCV
+        let pageItemCollectionView = NSCollectionView()
+        pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        pageItemCollectionView.backgroundColors = [.clear]
+        pageItemCollectionView.isSelectable = true
+        pageItemCollectionView.allowsEmptySelection = true
+        pageItemCollectionView.allowsMultipleSelection = true
+        pageItemCollectionView.delegate = context.coordinator
+        pageItemScrollView.documentView = pageItemCollectionView
         
         // Left: Scroll + Collection
-        let centerScroll = NSScrollView()
-        centerScroll.translatesAutoresizingMaskIntoConstraints = false
-        centerScroll.hasVerticalScroller = true
-        centerScroll.hasHorizontalScroller = false
+        let pageEditScrollView = NSScrollView()
+        pageEditScrollView.translatesAutoresizingMaskIntoConstraints = false
+        pageEditScrollView.hasVerticalScroller = true
+        pageEditScrollView.hasHorizontalScroller = false
 
-        let centerCV = NSCollectionView()
-        centerCV.translatesAutoresizingMaskIntoConstraints = false
-        centerCV.backgroundColors = [.clear]
-        centerCV.isSelectable = true
-        centerCV.allowsEmptySelection = true
-        centerCV.allowsMultipleSelection = true
-        centerCV.delegate = context.coordinator
-        centerScroll.documentView = centerCV
+        let pageEditCollectionView = NSCollectionView()
+        pageEditCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        pageEditCollectionView.backgroundColors = [.clear]
+        pageEditCollectionView.isSelectable = true
+        pageEditCollectionView.allowsEmptySelection = true
+        pageEditCollectionView.allowsMultipleSelection = true
+        pageEditCollectionView.delegate = context.coordinator
+        pageEditScrollView.documentView = pageEditCollectionView
 
         // Right: Scroll + Collection
-        let rightScroll = NSScrollView()
-        rightScroll.translatesAutoresizingMaskIntoConstraints = false
-        rightScroll.hasVerticalScroller = true
-        rightScroll.hasHorizontalScroller = false
+        let mergedPageScrollView = NSScrollView()
+        mergedPageScrollView.translatesAutoresizingMaskIntoConstraints = false
+        mergedPageScrollView.hasVerticalScroller = true
+        mergedPageScrollView.hasHorizontalScroller = false
 
-        let rightCV = NSCollectionView()
-        rightCV.translatesAutoresizingMaskIntoConstraints = false
-        rightCV.backgroundColors = [.clear]
-        rightCV.isSelectable = true
-        rightCV.allowsEmptySelection = true
-        rightCV.allowsMultipleSelection = true
-        rightCV.delegate = context.coordinator
-        rightScroll.documentView = rightCV
+        let mergedPageCollectionView = NSCollectionView()
+        mergedPageCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        mergedPageCollectionView.backgroundColors = [.clear]
+        mergedPageCollectionView.isSelectable = true
+        mergedPageCollectionView.allowsEmptySelection = true
+        mergedPageCollectionView.allowsMultipleSelection = true
+        mergedPageCollectionView.delegate = context.coordinator
+        mergedPageScrollView.documentView = mergedPageCollectionView
 
         // Attach both scroll views to split view
         splitView.arrangesAllSubviews = true
-        splitView.addArrangedSubview(leftScroll)
-        splitView.addArrangedSubview(centerScroll)
-        splitView.addArrangedSubview(rightScroll)
+        splitView.addArrangedSubview(pageItemScrollView)
+        splitView.addArrangedSubview(pageEditScrollView)
+        splitView.addArrangedSubview(mergedPageScrollView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
         
         // Store references on the coordinator
-        context.coordinator.leftCollectionView = leftCV
-        context.coordinator.leftScrollView = leftScroll
-        context.coordinator.centerCollectionView = centerCV
-        context.coordinator.centerScrollView = centerScroll
-        context.coordinator.rightCollectionView = rightCV
-        context.coordinator.rightScrollView = rightScroll
+        context.coordinator.pageItemCollectionView = pageItemCollectionView
+        context.coordinator.pageItemScrollView = pageItemScrollView
+        context.coordinator.pageEditCollectionView = pageEditCollectionView
+        context.coordinator.pageEditScrollView = pageEditScrollView
+        context.coordinator.mergedPageCollectionView = mergedPageCollectionView
+        context.coordinator.mergedPageScrollView = mergedPageScrollView
 
         // Configure collection views: layout, registration, data sources
-        context.coordinator.configure(collectionView: leftCV, kind: .pageItem)
-        context.coordinator.configure(collectionView: centerCV, kind: .pageEdit)
-        context.coordinator.configure(collectionView: rightCV, kind: .mergedPage)
+        context.coordinator.configure(collectionView: pageItemCollectionView, kind: .pageItem)
+        context.coordinator.configure(collectionView: pageEditCollectionView, kind: .pageEdit)
+        context.coordinator.configure(collectionView: mergedPageCollectionView, kind: .mergedPage)
 
         // Apply initial snapshot to both
         context.coordinator.applySnapshot(animated: false)
@@ -120,26 +122,28 @@ struct DocumentEditingView: NSViewRepresentable {
         // Shared model
         private let document: MergedPDFDocument
         private let prax: PraxModel
-
+        let splitViewDelegate: SplitViewDelegate
+        
         // Views
         weak var splitView: NSSplitView?
-        weak var leftCollectionView: NSCollectionView?
-        weak var centerCollectionView: NSCollectionView?
-        weak var rightCollectionView: NSCollectionView?
-        weak var leftScrollView: NSScrollView?
-        weak var centerScrollView: NSScrollView?
-        weak var rightScrollView: NSScrollView?
+        weak var pageItemCollectionView: NSCollectionView?
+        weak var pageEditCollectionView: NSCollectionView?
+        weak var mergedPageCollectionView: NSCollectionView?
+        weak var pageItemScrollView: NSScrollView?
+        weak var pageEditScrollView: NSScrollView?
+        weak var mergedPageScrollView: NSScrollView?
 
         // Data sources
         private var leftDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
         private var centerDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
         private var rightDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
 
-        init(document: MergedPDFDocument, prax: PraxModel) {
+        init(document: MergedPDFDocument, prax: PraxModel, splitViewDelegate: SplitViewDelegate) {
             self.document = document
             self.prax = prax
+            self.splitViewDelegate = splitViewDelegate
         }
-
+        
         enum CollectionKind { case pageItem, pageEdit, mergedPage }
 
         // Configure one collection view (layout, registration, data source)
@@ -156,7 +160,12 @@ struct DocumentEditingView: NSViewRepresentable {
                 collectionView.register(
                     CollectionSupplementaryView.self,
                     forSupplementaryViewOfKind: CollectionViewItem.mergedPageHeaderElementKind,
-                    withIdentifier: NSUserInterfaceItemIdentifier("Header")
+                    withIdentifier: NSUserInterfaceItemIdentifier("Merged-Header")
+                )
+                collectionView.register(
+                    CollectionSupplementaryView.self,
+                    forSupplementaryViewOfKind: CollectionViewItem.mergedPageFooterElementKind,
+                    withIdentifier: NSUserInterfaceItemIdentifier("Merged-Footer")
                 )
             }
             else {
@@ -165,14 +174,15 @@ struct DocumentEditingView: NSViewRepresentable {
                     forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind,
                     withIdentifier: NSUserInterfaceItemIdentifier("Header")
                 )
+                collectionView.register(
+                    CollectionSupplementaryView.self,
+                    forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind,
+                    withIdentifier: NSUserInterfaceItemIdentifier("Footer")
+                )
             }
             
 
-            collectionView.register(
-                CollectionSupplementaryView.self,
-                forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind,
-                withIdentifier: NSUserInterfaceItemIdentifier("Footer")
-            )
+
 
             // Optional background
             collectionView.backgroundView = CollectionViewBackground()
@@ -181,7 +191,7 @@ struct DocumentEditingView: NSViewRepresentable {
             collectionView.registerForDraggedTypes([
                 .fileURL,
                 .pdfPageDragType,
-                .pdfPageSectionType,
+                .mergedPageType,
                 .pdfFileType
             ])
 
@@ -215,7 +225,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 if kindString == CollectionViewItem.mergedPageHeaderElementKind {
                     let v = cv.makeSupplementaryView(
                         ofKind: kindString,
-                        withIdentifier: NSUserInterfaceItemIdentifier("Header"),
+                        withIdentifier: NSUserInterfaceItemIdentifier("Merged-Header"),
                         for: indexPath
                     ) as! CollectionSupplementaryView
                     v.configure(
@@ -232,6 +242,18 @@ struct DocumentEditingView: NSViewRepresentable {
                     ) as! CollectionSupplementaryView
                     v.configure(
                         kind: .header(item: sections[indexPath.section]),
+                        isSelected: self.prax.selectedSections.contains(indexPath.section)
+                    )
+                    return v
+                }
+                else if kindString == CollectionViewItem.mergedPageFooterElementKind {
+                    let v = cv.makeSupplementaryView(
+                        ofKind: kindString,
+                        withIdentifier: NSUserInterfaceItemIdentifier("Merged-Footer"),
+                        for: indexPath
+                    ) as! CollectionSupplementaryView
+                    v.configure(
+                        kind: .mergedPageFooter(item: sections[indexPath.section]),
                         isSelected: self.prax.selectedSections.contains(indexPath.section)
                     )
                     return v
@@ -260,19 +282,118 @@ struct DocumentEditingView: NSViewRepresentable {
                 self.rightDataSource = ds
             }
         }
-
+        
+        struct LayoutSettings {
+            var itemWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var itemHeight: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var groupWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var groupHeight: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var headerKind: String?
+            var footerKind: String?
+            var backgroundKind: String?
+            var headerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var headerHeight: NSCollectionLayoutDimension = .absolute(20)
+            var footerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var footerHeight: NSCollectionLayoutDimension = .absolute(20)
+            var itemContentInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            var itemEdgeSpacing: NSCollectionLayoutEdgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: nil, trailing: nil, bottom: nil)
+            
+        }
         // Build appropriate compositional layout per side
         private func makeLayout(for kind: CollectionKind) -> NSCollectionViewLayout {
+            var layoutSettings = LayoutSettings()
             switch kind {
             case .pageItem:
-                return createPageItemLayout()
+                layoutSettings.itemHeight = .fractionalWidth(1.0)
+                layoutSettings.groupHeight = .fractionalWidth(0.9)
+                layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
+                layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
+                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
             case .pageEdit:
-                return createPageEditLayout()
+                layoutSettings.itemHeight = .fractionalWidth(1.0)
+                layoutSettings.groupHeight = .fractionalWidth(1.0)
+                layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
+                layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
+                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
             case .mergedPage:
-                return createMergedPageLayout()
+                layoutSettings.itemHeight = .estimated(200)
+                layoutSettings.groupHeight = .estimated(200)
+                layoutSettings.headerKind = CollectionViewItem.mergedPageHeaderElementKind
+                layoutSettings.footerKind = CollectionViewItem.mergedPageFooterElementKind
+                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
             }
+            return createLayout(layoutSettings)
         }
 
+        func createLayout(_ layoutSettings: LayoutSettings) -> NSCollectionViewLayout {
+            let layout = NSCollectionViewCompositionalLayout {
+                (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
+                
+                let itemSize = NSCollectionLayoutSize(widthDimension: layoutSettings.itemWidth, heightDimension: layoutSettings.itemHeight)
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: nil, trailing: .fixed(0), bottom: .fixed(0))
+                
+                let groupSize = NSCollectionLayoutSize(widthDimension: layoutSettings.groupWidth, heightDimension: layoutSettings.groupHeight)
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+                group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                let section = NSCollectionLayoutSection(group: group)
+                
+                
+                section.interGroupSpacing = 20
+                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
+                section.supplementariesFollowContentInsets = true
+                
+                
+                var boundarySupplementaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
+                if layoutSettings.headerKind != nil {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: layoutSettings.headerWidth, heightDimension: layoutSettings.headerHeight)
+                    let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                        layoutSize: headerSize,
+                        elementKind: layoutSettings.headerKind!,
+                        alignment: .top,)
+                    sectionHeader.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
+                    sectionHeader.extendsBoundary = false
+                    sectionHeader.pinToVisibleBounds = true
+                    sectionHeader.zIndex = 2
+                    boundarySupplementaryItems.append(sectionHeader)
+                }
+                if layoutSettings.footerKind != nil {
+                    let footerSize = NSCollectionLayoutSize(widthDimension: layoutSettings.footerWidth, heightDimension: layoutSettings.footerHeight)
+                    let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                         layoutSize: footerSize,
+                         elementKind: layoutSettings.footerKind!,
+                         alignment: .bottom)
+                    sectionFooter.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 40, trailing: 40)
+                    sectionFooter.extendsBoundary = true
+                    sectionFooter.pinToVisibleBounds = true
+                    sectionFooter.zIndex = 2
+                    boundarySupplementaryItems.append(sectionFooter)
+                }
+                if !boundarySupplementaryItems.isEmpty {
+                    section.boundarySupplementaryItems = boundarySupplementaryItems
+                }
+                
+                if layoutSettings.backgroundKind != nil {
+                    let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
+                    section.decorationItems = [sectionBackground]
+                }
+                 
+         //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                    // Perform animations on the visible items.
+         //           print("section.visibleItemsInvalidationHandler")
+       
+                return section
+            }
+            if layoutSettings.backgroundKind != nil {
+                layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
+            }
+            return layout
+        }
+        
+        
+/*
         private func createPageItemLayout() -> NSCollectionViewLayout {
             
             let layout = NSCollectionViewCompositionalLayout {
@@ -368,7 +489,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 section.supplementariesFollowContentInsets = false
 */
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),                                                        heightDimension: .absolute(50))
+                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
                 let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
                     layoutSize: headerSize,
                     elementKind: CollectionViewItem.sectionHeaderElementKind,
@@ -403,26 +524,51 @@ struct DocumentEditingView: NSViewRepresentable {
                 (sectionIndex: Int,
                  layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
                 
-               let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
+                
+                                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+                                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
+                                    leading: nil,
+                                    top: nil,
+                                    trailing: .fixed(0),
+                                    bottom: nil
+                                )
+                 
+                
                let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
                 
                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
                let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
                let section = NSCollectionLayoutSection(group: group)
                 
+                /*
+                                section.interGroupSpacing = 5
+                                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
+                                section.supplementariesFollowContentInsets = false
+                */
+                
                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(20))
-               
+                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(20))
     
                 let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
                     layoutSize: headerSize,
                     elementKind: CollectionViewItem.mergedPageHeaderElementKind,
                     alignment: .top,)
                sectionHeader.extendsBoundary = true
- 
+                
+                let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
+                     layoutSize: footerSize,
+                     elementKind: CollectionViewItem.mergedPageFooterElementKind,
+                     alignment: .bottom)
+                 section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
+                 section.decorationItems = [sectionBackground]
 
                 
-                section.boundarySupplementaryItems = [sectionHeader]
+                section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
                 
                 section.decorationItems = [sectionBackground]
                 
@@ -433,8 +579,8 @@ struct DocumentEditingView: NSViewRepresentable {
         
                 sectionHeader.pinToVisibleBounds = true
                 sectionHeader.zIndex = 2
-     //           sectionFooter.pinToVisibleBounds = true
-     //           sectionFooter.zIndex = 2
+                sectionFooter.pinToVisibleBounds = true
+                sectionFooter.zIndex = 2
            
                 return section
             }
@@ -444,20 +590,32 @@ struct DocumentEditingView: NSViewRepresentable {
             return layout
             
         }
-
+*/
         // Apply the same snapshot to both data sources
         func applySnapshot(animated: Bool) {
-            var itemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            var sectionSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            for section in document.pageSections {
-                itemSnapshot.appendSections([section])
-                itemSnapshot.appendItems(section.pageItems)
-                sectionSnapshot.appendSections([section])
-                sectionSnapshot.appendItems([section.mergedPageItem()])
+            var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+            var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+            var mergedPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+            for mergedPage in document.pageSections {
+                
+                pageItemSnapshot.appendSections([mergedPage])
+                pageItemSnapshot.appendItems(mergedPage.pageItems)
+                
+                editPageSnapshot.appendSections([mergedPage])
+                for pageItem in mergedPage.pageItems {
+                    if pageItem.merge != .mergeSkip {
+                        editPageSnapshot.appendItems([pageItem])
+                    }
+                }
+                
+                if mergedPage.mergeModePages > 0 {
+                    mergedPageSnapshot.appendSections([mergedPage])
+                    mergedPageSnapshot.appendItems([mergedPage.mergedPageItem()])
+                }
             }
-            leftDataSource?.apply(itemSnapshot, animatingDifferences: animated)
-            centerDataSource?.apply(itemSnapshot, animatingDifferences: animated)
-            rightDataSource?.apply(sectionSnapshot, animatingDifferences: animated)
+            leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
+            centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
+            rightDataSource?.apply(mergedPageSnapshot, animatingDifferences: animated)
         }
 
         // MARK: Selection mirroring
@@ -473,7 +631,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         private func mirrorSelection(from source: NSCollectionView) {
-            guard let left = leftCollectionView, let right = rightCollectionView else { return }
+            guard let left = pageItemCollectionView, let right = pageEditCollectionView else { return }
             let target = (source === left) ? right : left
             target.selectionIndexPaths = prax.selectedPageItems
         }
@@ -536,7 +694,7 @@ struct DocumentEditingView: NSViewRepresentable {
             if draggingTypes.contains(.pdfPageDragType) {
                 dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
-            else if draggingTypes.contains(.pdfPageSectionType) {
+            else if draggingTypes.contains(.mergedPageType) {
                 dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
             else if draggingTypes.contains(.pdfFileType) {
@@ -1131,6 +1289,8 @@ struct DocumentEditingFooter: View {
             default:
                 Text("\(prax.selectedFiles.count) Source files selected")
             }
+            Spacer()
+            Text(String(format: "frame width: \(prax.splitViewFrameWidth) divZero:  \(prax.dividerZeroPos) divOne:   \(prax.dividerOnePos)"))
         }
         .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
         .padding(8)

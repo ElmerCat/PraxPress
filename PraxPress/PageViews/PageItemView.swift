@@ -60,33 +60,28 @@ struct PageItemView: View {
             GeometryReader { proxy in
                 GroupBox {
                     VStack {
-                        HStack(spacing: 0) {
+                        
+                        HStack(alignment: .center, spacing: 0, content: {
+                            Button { document.clickedIncludePageButton(pdfPageItem!) }
+                            label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
+                                .buttonStyle(.borderless)
+                                .help("Toggle include page")
                             
-                            Image(nsImage: pdfPageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .cornerRadius(6)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-
+                            Button { clickedGuidePageButton(pdfPageItem!) }
+                            label: { Image(systemName: "ruler") }
+                                .buttonStyle(.borderless)
+                                .help("Toggle width guide")
+                        })
                         
-                            VStack {
-                                Button { clickedIncludePageButton(pdfPageItem!) }
-                                label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
-                                    .buttonStyle(.borderless)
-                                    .help("Toggle include page")
-                                
-                                Button { clickedGuidePageButton(pdfPageItem!) }
-                                label: { Image(systemName: "ruler") }
-                                    .buttonStyle(.borderless)
-                                    .help("Toggle width guide")
-                            }
-                        }
                         
-                        Text(pdfPageItem!.name)
-                            .font(.caption)
-                            .lineLimit(1)
                         
+                        Image(nsImage: pdfPageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .cornerRadius(6)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     }
+                
                     .padding(proxy.size.width * 0.01)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -95,9 +90,9 @@ struct PageItemView: View {
                     .background(backgroundColor)
                     
                 }
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: proxy.size.width * 0.01))
-                .frame(width: proxy.size.width * 0.69)
-                .position(x: proxy.size.width * 0.65, y: proxy.size.height * 0.5)
+                .padding(EdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)) // proxy.size.width * 0.01))
+                .frame(width: proxy.size.width * 0.58)
+                .position(x: proxy.size.width * 0.72, y: proxy.size.height * 0.5)
             }
             
 //            .background(backgroundColor)
@@ -107,20 +102,7 @@ struct PageItemView: View {
         
     }
     
-    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
-        
-        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
-        
-        if pdfPageItem.merge == .mergeSkip {
-            pdfPageItem.merge = .mergeDown
-        }
-        else {
-            pdfPageItem.merge = .mergeSkip
-        }
-        
-        
-    }
-    
+
     
     
     func clickedGuidePageButton(_ pdfPageItem: PageItem) {
@@ -158,70 +140,8 @@ struct PageItemView: View {
 
 
 
-struct PDFPageItemToolbar: View {
-    let document: MergedPDFDocument
-    let pdfPageItem: PageItem
-    let pdfViewRef: WeakPDFViewRef
-    
-    var body: some View {
-        
-        HStack {
-            Text(pdfPageItem.name)
-                .font(.caption)
-                .lineLimit(1)
-            Spacer()
-            
-            Menu("View", systemImage: "plus.circle"){
-                
-                Button(action: {
-                    pdfViewRef.view!.zoomIn(nil)
-                    pdfViewRef.view!.autoScales = true
-                }) {
-                    Label("Zoom In", systemImage: "plus.circle")
-                }
-                
-                
-                Button {
-                    pdfViewRef.view!.zoomOut(nil)
-                } label: {
-                    Image(systemName: "minus.circle")
-                }
-                .buttonStyle(.borderedProminent)
-                .help("Zoom Out")
-                
-                Button {
-                    pdfViewRef.view!.scaleFactor = pdfViewRef.view!.scaleFactorForSizeToFit }
-                label: {
-                    Image(systemName: "equal.circle")
-                }
-                .buttonStyle(.borderedProminent)
-                .help("Zoom In")
-                
-                Button {
-                    pdfViewRef.view!.zoomOut(nil)
-                } label: {
-                    Image(systemName: "minus.circle")
-                }
-                .buttonStyle(.borderedProminent)
-                .help("Zoom Out")
-
-            }
-            ControlGroup("", systemImage: "magnifyingglass") {
-                Text("View")
-                
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-        .padding(8)
-    }
-}
 
 
-
-
-final class WeakPDFViewRef {
-    weak var view: PDFView?
-}
 struct PageEditView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
@@ -267,6 +187,7 @@ struct PageEditView: View {
                                 onPDFViewReady: { pdfView in
                                     // Store a weak reference so buttons can use it
                                     pdfViewRef.view = pdfView
+                              //      prax.pdfViewRegistry.set(pdfView, for: pdfPageItem!.id)
 
                                 }
                             )
@@ -317,7 +238,7 @@ struct PageEditView: View {
                         .help("Zoom Out")
                         
                         
-                        Button { clickedIncludePageButton(pdfPageItem!) }
+                        Button { document.clickedIncludePageButton(pdfPageItem!) }
                         label: { Image(systemName: pdfPageItem!.merge == .mergeSkip ? "text.page.slash.fill" : "text.page")   }
                             .buttonStyle(.borderless)
                             .help("Toggle include page")
@@ -393,21 +314,7 @@ struct PageEditView: View {
     
     
     
-    
-    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
-        
-        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
-        
-        if pdfPageItem.merge == .mergeSkip {
-            pdfPageItem.merge = .mergeDown
-        }
-        else {
-            pdfPageItem.merge = .mergeSkip
-        }
-        
-        
-    }
-    
+
     
     
     func clickedGuidePageButton(_ pdfPageItem: PageItem) {
@@ -600,14 +507,15 @@ struct MergedPageView: View {
             GeometryReader { geometry in
                 
                 
-                VStack(spacing: 8) {
+            //    VStack(spacing: 8) {
                     
-                    GeometryReader { boxGeometry in
-                        let boxSize = boxGeometry.size
-                        let pageAspect = pageItem.aspectRatio // width / height
+           //         GeometryReader { boxGeometry in
+            //            let boxSize = boxGeometry.size
+            //            let pageAspect = pageItem.aspectRatio // width / height
                         
                         // Compute the largest size that fits inside boxSize while preserving aspect ratio
-                        let fittedSize: CGSize = {
+                        
+            /*            let fittedSize: CGSize = {
                             guard boxSize.width > 0, boxSize.height > 0 else { return .zero }
                             let containerAspect = boxSize.width / boxSize.height
                             if containerAspect > pageAspect {
@@ -622,7 +530,7 @@ struct MergedPageView: View {
                                 return CGSize(width: w, height: h)
                             }
                         }()
-                        
+            */
                         GroupBox {
                             PDFViewRepresentable(
                                 document: document,
@@ -630,50 +538,17 @@ struct MergedPageView: View {
                                 onPDFViewReady: { pdfView in
                                     // Store a weak reference so buttons can use it
                                     pdfViewRef.view = pdfView
+                                    prax.pdfViewRegistry.set(pdfView, for: pdfPageItem!.mergedPage.id)
                                     
                                 }
                             )
                         }
-                        .frame(width: fittedSize.width, height: fittedSize.height)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        
+        //                .background(Color.blue).opacity(0.25)
+        //                .frame(width: fittedSize.width, height: fittedSize.height)
+                       // .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
-                    
-                    
-                    let w = pageItem.media.width
-                    let h = pageItem.media.height
-                    let wIn = w / 72.0
-                    let hIn = h / 72.0
-                    let sizeString = String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
-                    
-                    
-                   HStack {
-                        Text(pageItem.name)
-                            .font(.caption)
-                            .lineLimit(1)
-                       Text(sizeString)
-                           .font(.caption)
-                           .lineLimit(1)
-                        Spacer()
-                       
-                       
-                       Button("", systemImage: "plus.circle", action: {
-                           pdfViewRef.view?.zoomIn(self)
-                       })
-                       .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
-                       
-                       Button("", systemImage: "minus.circle", action: {
-                           pdfViewRef.view?.zoomOut(self)
-                       })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
-                       
-                       Button("", systemImage: "equal.circle", action: {
-                           pdfViewRef.view?.autoScales = true
-                       })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
-                             
-                    }
-                    
-                }
-                .padding(8)
+          //      }
+          //      .padding(8)
                 
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
@@ -693,7 +568,7 @@ struct MergedPageView: View {
                 }
 */
                 
-            }
+            //}
             
         }
     }
@@ -730,20 +605,7 @@ struct MergedPageView: View {
     
     
     
-    
-    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
-        
-        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
-        
-        if pdfPageItem.merge == .mergeSkip {
-            pdfPageItem.merge = .mergeDown
-        }
-        else {
-            pdfPageItem.merge = .mergeSkip
-        }
-        
-        
-    }
+
     
     
     
@@ -827,14 +689,14 @@ struct MergedPageView: View {
             pdfView.document = pdfDocument
             pdfView.autoScales = true
             pdfView.displayDirection = .vertical
-            pdfView.backgroundColor = .clear
+            pdfView.backgroundColor = .green
             context.coordinator.pdfView = pdfView
             onPDFViewReady(pdfView)
             return pdfView
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
-            print("PDFViewRepresentable - updateNSView")
+            print("PDFViewRepresentable - updateNSView - rowSize: ", pdfView.rowSize(for: pageItem.pdfPage))
             let pdfDocument = PDFDocument()
             pdfDocument.insert(pageItem.pdfPage, at: 0)
             
@@ -845,3 +707,64 @@ struct MergedPageView: View {
         
     }
 }
+
+
+
+struct PDFPageItemToolbar: View {
+    let document: MergedPDFDocument
+    let pdfPageItem: PageItem
+    let pdfViewRef: WeakPDFViewRef
+    
+    var body: some View {
+        
+        HStack {
+            Text(pdfPageItem.name)
+                .font(.caption)
+                .lineLimit(1)
+            Spacer()
+            
+            Menu("View", systemImage: "plus.circle"){
+                
+                Button(action: {
+                    pdfViewRef.view!.zoomIn(nil)
+                    pdfViewRef.view!.autoScales = true
+                }) {
+                    Label("Zoom In", systemImage: "plus.circle")
+                }
+                
+                
+                Button {
+                    pdfViewRef.view!.zoomOut(nil)
+                } label: {
+                    Image(systemName: "minus.circle")
+                }
+                .buttonStyle(.borderedProminent)
+                .help("Zoom Out")
+                
+                Button {
+                    pdfViewRef.view!.scaleFactor = pdfViewRef.view!.scaleFactorForSizeToFit }
+                label: {
+                    Image(systemName: "equal.circle")
+                }
+                .buttonStyle(.borderedProminent)
+                .help("Zoom In")
+                
+                Button {
+                    pdfViewRef.view!.zoomOut(nil)
+                } label: {
+                    Image(systemName: "minus.circle")
+                }
+                .buttonStyle(.borderedProminent)
+                .help("Zoom Out")
+
+            }
+            ControlGroup("", systemImage: "magnifyingglass") {
+                Text("View")
+                
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+        .padding(8)
+    }
+}
+

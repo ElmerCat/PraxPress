@@ -81,6 +81,34 @@ final class PraxModel {
     var columnVisibility: NavigationSplitViewVisibility = .all
     
     
+    var splitView: NSSplitView?
+    var dividerZeroMinPos: CGFloat = 100
+    var dividerZeroMaxPos: CGFloat = 400
+    var dividerOneMinPos: CGFloat = 400
+    var dividerOneMaxPos: CGFloat = 700
+    var dividerZeroPos: CGFloat = 100 {
+        didSet { updateDividerLimits() }
+    }
+    var dividerOnePos: CGFloat = 400 {
+        didSet { updateDividerLimits() }
+    }
+
+    var splitViewFrameWidth: CGFloat = 1000 {
+        didSet { updateDividerLimits() }
+    }
+    func updateDividerLimits() {
+     //   dividerZeroMinPos = min(100, splitViewFrameWidth / 10)
+        dividerZeroMaxPos = max(100, (splitView!.arrangedSubviews[1].frame.size.width) / 2)
+        dividerOneMaxPos = splitViewFrameWidth - 200
+        dividerOneMinPos = dividerZeroPos + 300        
+        print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
+    }
+
+   
+    
+    
+    
+    
     var selectedFiles = Set<PDFFile.ID>() {
         didSet {
             print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
@@ -129,6 +157,48 @@ final class PraxModel {
          }
          */
     }
+    
+    let pdfViewRegistry = PDFViewRegistry()
+    
+}
+
+final class WeakPDFViewRef {
+    weak var view: PDFView?
+}
+
+final class PDFViewRegistry {
+    // Keyed by a stable id both the page and footer know.
+    private var storage: [AnyHashable: WeakPDFViewRef] = [:]
+
+    // Returns a stable ref object per id (creates if missing).
+    func ref(for id: UUID) -> WeakPDFViewRef? {
+        print( "ref for id:  ", id)
+        if let existing = storage[id] {
+            print("existing: ", existing)
+            return existing
+        }
+        else { return nil }
+    }
+
+
+    // Optional: explicit setter when the page view gets a PDFView.
+    func set(_ pdfView: PDFView, for id: AnyHashable) {
+        if let existing = storage[id] {
+            print("set existing for id: ", id)
+            existing.view = pdfView
+        }
+        else {
+            print("set new for id: ", id)
+            let new = WeakPDFViewRef()
+            new.view = pdfView
+            storage[id] = new
+        }
+    }
+
+    // Optional: housekeeping to remove entries whose weak view is gone.
+    func pruneDeallocated() {
+        storage = storage.filter { _, ref in ref.view != nil }
+    }
 }
 
 
@@ -172,13 +242,13 @@ extension Notification.Name {
 
 extension NSPasteboard.PasteboardType {
     static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
-    static let pdfPageSectionType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
+    static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
     static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
 }
 
 extension UTType {
     static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
-    static let pdfPageSectionType = UTType(exportedAs: "com.praxpress.pdf-page-section")
+    static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
     static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
 }
 
@@ -195,7 +265,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
         var types = super.writableTypes(for: pasteboard)
         types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.pdfPageSectionType) // Add our own internal drag type (row drag and drop reordering).
+        types.append(.mergedPageType) // Add our own internal drag type (row drag and drop reordering).
         types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
         return types
     }
@@ -208,8 +278,8 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
             if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
                 return url.pasteboardPropertyList(forType: type)
             }
-        case .pdfPageSectionType:
-            print ("pdfPageSectionType")
+        case .mergedPageType:
+            print ("mergedPageType")
             // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
             let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
             return indexPathData

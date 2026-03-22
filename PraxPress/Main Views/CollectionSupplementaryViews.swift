@@ -31,7 +31,7 @@ struct SectionBackgroundView: View {
         if document.pageSections.count > indexPath.section {
             let mergedPage = document.pageSections[indexPath.section]
             let imageSize = CGSize(width: 1200, height: 1600)
-            let sectionHeaderHeight = CGFloat(30)
+            let sectionHeaderHeight = CGFloat(40)
             
             GroupBox {
                 GeometryReader { proxy in
@@ -42,10 +42,10 @@ struct SectionBackgroundView: View {
                             Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: proxy.size.width * 0.28) // 40% of GroupBox width
+                                .frame(width: proxy.size.width * 0.45) // 40% of GroupBox width
                             //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
                                 .cornerRadius(6)
-                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: proxy.size.width * 0.01, bottom: 0, trailing: 0))
+                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
                             
                         }
                     
@@ -200,13 +200,13 @@ struct CollectionViewBackgroundView: View {
 struct SectionHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let pdfPageSection: MergedPage?
+    let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
     var body: some View {
-        if pdfPageSection != nil {
-            @Bindable var section = pdfPageSection!
+        if mergedPage != nil {
+            @Bindable var section = mergedPage!
             @Bindable var prax = praxModel
         
         
@@ -222,7 +222,8 @@ struct SectionHeaderView: View {
             GroupBox {
                 Group {
                     TextField("Title", text: $section.title )
-                    Text("Merged Page \(section.title)") }
+                //    Text("Merged Page \(section.title)")
+                }
                 
                 .draggable({ () -> MergedPDFTransfer? in
                     guard let data = document.mergedPDFDocument().dataRepresentation() else { return nil }
@@ -291,8 +292,8 @@ struct SectionHeaderView: View {
         }
         else {
             print("Plain Click detected")
-       fatalError()
-            //     document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
+ //      fatalError()
+            //     document.mergedPDFView.go(to: mergedPage.pdfPage!)
         }
         
    //     if PraxModel.shared.selectedSections.contains(indexPath.section) {
@@ -312,14 +313,14 @@ struct SectionHeaderView: View {
 struct SectionFooterView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let pdfPageSection: MergedPage?
+    let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
     func mergedSizeText() -> String {
-        if pdfPageSection != nil {
-            let w = pdfPageSection!.mergedWidthPts
-            let h = pdfPageSection!.mergedHeightPts
+        if mergedPage != nil {
+            let w = mergedPage!.mergedWidthPts
+            let h = mergedPage!.mergedHeightPts
             let wIn = w / 72.0
             let hIn = h / 72.0
             return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
@@ -328,15 +329,11 @@ struct SectionFooterView: View {
             return "No Page Section"
         }
     }
-    
-
- 
     var body: some View {
         @Bindable var prax = praxModel
-            
             VStack(spacing: 8) {
                 HStack {
-                    Text("Footer \(pdfPageSection?.title ?? "No Section")")
+                    Text("Footer \(mergedPage?.title ?? "No Section")")
                         .font(.caption)
                         .lineLimit(1)
                     Text(mergedSizeText())
@@ -344,7 +341,6 @@ struct SectionFooterView: View {
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
- 
             }
             .padding(8)
             .background(PraxGradient())
@@ -379,17 +375,140 @@ struct SectionFooterView: View {
         }
 }
 
+struct MergedPageFooterView: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    let mergedPage: MergedPage?
+    let isSelected: Bool
+    let highlightState: NSCollectionViewItem.HighlightState
+    let praxTheme = PraxTheme(.erika)
+    @State private var hoveredButton: Int? = nil
+    
+    func mergedSizeText() -> String {
+        if mergedPage != nil {
+            let w = mergedPage!.mergedWidthPts
+            let h = mergedPage!.mergedHeightPts
+            let wIn = w / 72.0
+            let hIn = h / 72.0
+            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
+        }
+        else {
+            return "No Merged Page"
+        }
+    }
+    
+    enum PDFViewMode {
+        case zoomIn
+        case zoomOut
+        case zoomFit
+    }
+    
+    func pdfViewMode (_ mode: PDFViewMode) {
+        guard let mergedPage = mergedPage, let pdfViewRef = praxModel.pdfViewRegistry.ref(for: mergedPage.id)
+        else {
+            print("No pdfViewRef")
+            return
+        }
+                
+        switch (mode) {
+        case .zoomIn:
+            pdfViewRef.view?.zoomIn(self)
+        case .zoomOut:
+            pdfViewRef.view?.zoomOut(self)
+        case .zoomFit:
+            pdfViewRef.view?.autoScales = true
+        }
+    
+    }
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        
+        
+        HStack {
+            Button("", systemImage: "plus.circle", action: {
+                pdfViewMode(.zoomIn)
+            })
+            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+            
+            Button("", systemImage: "minus.circle", action: {
+                pdfViewMode(.zoomOut)
+            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            
+            Button("", systemImage: "equal.circle", action: {
+                pdfViewMode(.zoomFit)
+            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            
+            Spacer()
+
+            Text(mergedSizeText())
+                .font(.caption)
+                .lineLimit(1)
+                  
+        }
+      //  .padding(8)
+        .background(PraxGradient())
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
+        )
+        
+/*            VStack(spacing: 8) {
+                HStack {
+                    Text("Footer \(mergedPage?.title ?? "No Section")")
+                        .font(.caption)
+                        .lineLimit(1)
+                    Text(mergedSizeText())
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(8)
+            .background(PraxGradient())
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
+            )
+            .inspector(isPresented: $prax.isLarge) {
+                VStack {
+                    GroupBox {
+                        
+                        Text("Inspector 1")
+                            .frame(minWidth: 100, maxWidth: 1000, maxHeight: 100)
+                            .background(.pink)
+                    }
+                    .padding(20)
+                    //  .background(.yellow)
+                    Button(prax.isLarge ? "Make Small" : "Make Large") {
+                        // Toggle the state when the button is tapped
+                        prax.isLarge.toggle()
+                    }
+                    Text("Inspector 2")
+                    //           .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    //               .background(.purple)
+                        .background(.purple)
+                }
+                Text("Inspector 3")
+                //    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .inspectorColumnWidth(min: 50, ideal: 150, max: 500)
+                    .background(.gray)
+            }
+    */
+    }
+}
+
 
 struct MergedPageHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let pdfPageSection: MergedPage?
+    let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
     var body: some View {
-        if pdfPageSection != nil {
-            @Bindable var section = pdfPageSection!
+        if mergedPage != nil {
+            @Bindable var section = mergedPage!
             @Bindable var prax = praxModel
         
         
@@ -426,7 +545,7 @@ struct MergedPageHeaderView: View {
                 .gesture(clickGesture)
                 
             }
-            .padding(20)
+          // .padding(20)
             
             
             
@@ -474,8 +593,8 @@ struct MergedPageHeaderView: View {
         }
         else {
             print("Plain Click detected")
-       fatalError()
-            //     document.mergedPDFView.go(to: pdfPageSection.pdfPage!)
+ //       fatalError()
+            //     document.mergedPDFView.go(to: mergedPage.pdfPage!)
         }
         
    //     if PraxModel.shared.selectedSections.contains(indexPath.section) {

@@ -15,6 +15,7 @@ enum CollectionElementKind {
     case header(item: MergedPage)
     case mergedPageHeader(item: MergedPage)
     case footer(item: MergedPage)
+    case mergedPageFooter(item: MergedPage)
     case background(indexPath: IndexPath)
     case none
     
@@ -33,11 +34,13 @@ struct CollectionElementHostView: View {
         case let .mergedPage(item):
             MergedPageView(pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
         case let .header(item):
-            SectionHeaderView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
+            SectionHeaderView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .mergedPageHeader(item):
-            MergedPageHeaderView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
+            MergedPageHeaderView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .footer(item):
-            SectionFooterView(pdfPageSection: item, isSelected: isSelected, highlightState: highlightState )
+            SectionFooterView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
+        case let .mergedPageFooter(item):
+            MergedPageFooterView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .background(indexPath):
             SectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
         case .none:
@@ -89,6 +92,7 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     var containerView: NSView { view }
     
     static let mergedPageHeaderElementKind = "merged-page-header-element-kind"
+    static let mergedPageFooterElementKind = "merged-page-footer-element-kind"
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
     static let sectionBackgroundElementKind = "section-background-element-kind"
@@ -119,7 +123,7 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
 
         case let .mergedPage(item):
             let width = layoutAttributes.size.width
-            let height = ceil(width / item.aspectRatio)
+            let height = ceil(width / (item.aspectRatio + 0.1))
             attrs.size = CGSize(width: width, height: height)
             return attrs
 

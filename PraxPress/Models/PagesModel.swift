@@ -42,7 +42,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         mergedWidthPts / mergedHeightPts}
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
-    
+    var mergeModePages = 0
     var pageItems: [PageItem] = [] {
         didSet {
             print("\n pdfPageItems didSet: \(self.pageItems.count)\n\n")
@@ -52,7 +52,20 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     var refreshingMergedPage = false
     func refreshMergedPage() {
         
-        print("MergedPage - refreshMergedPage() ")
+        mergeModePages = 0
+        for pageItem in pageItems {
+            if pageItem.merge != .mergeSkip {
+                mergeModePages += 1
+            }
+        }
+
+        if mergeModePages < 1 {
+            print("MergedPage - mergeModePages < 1  ")
+            pdfPage = PDFPage()
+            return
+        }
+        
+        print("MergedPage - refreshMergedPage() mergeModePages: ", mergeModePages)
         
         if !refreshingMergedPage {
             refreshingMergedPage = true

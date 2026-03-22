@@ -64,7 +64,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "108"
             endingLineNumber = "108"
-            landmarkName = "refreshMergedDocument()"
+            landmarkName = "movePDFPageItems(_:to:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -112,7 +112,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "122"
             endingLineNumber = "122"
-            landmarkName = "refreshMergedDocument()"
+            landmarkName = "movePDFPageItems(_:to:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

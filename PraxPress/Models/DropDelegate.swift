@@ -62,8 +62,8 @@ final class PraxDropDelegate: DropDelegate {
     func validateDrop(info: DropInfo) -> Bool {
         print("DropTargetControl - validateDrop")
         
-        if info.hasItemsConforming(to: [.pdfPageDragType, .pdfPageSectionType]) {
-            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType, .pdfPageSectionType])")
+        if info.hasItemsConforming(to: [.pdfPageDragType, .mergedPageType]) {
+            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType, .mergedPageType])")
             return false
         }
         else {
@@ -83,8 +83,8 @@ final class PraxDropDelegate: DropDelegate {
     func dropUpdated(info: DropInfo) -> DropProposal? {
         print("DropTargetControl - dropUpdated - phase: ")
         
-        if info.hasItemsConforming(to: [.pdfPageDragType, .pdfPageSectionType]) {
-            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType, .pdfPageSectionType])")
+        if info.hasItemsConforming(to: [.pdfPageDragType, .mergedPageType]) {
+            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType, .mergedPageType])")
             return DropProposal(operation: .forbidden)
             
         }
