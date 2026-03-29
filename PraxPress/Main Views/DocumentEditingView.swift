@@ -196,7 +196,7 @@ struct DocumentEditingView: NSViewRepresentable {
             ])
 
             // Data source
-            let ds = NSCollectionViewDiffableDataSource<MergedPage, PageItem>(
+            let dataSource = NSCollectionViewDiffableDataSource<MergedPage, PageItem>(
                 collectionView: collectionView
             ) {cv, indexPath, item in
                 guard let cell = cv.makeItem(
@@ -216,7 +216,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 return cell
             }
 
-            ds.supplementaryViewProvider = { [weak self] cv, kindString, indexPath in
+            dataSource.supplementaryViewProvider = { [weak self] cv, kindString, indexPath in
                 guard let self = self else { return nil }
                 let sections = self.document.pageSections
                 guard indexPath.section >= 0, indexPath.section < sections.count else { return nil }
@@ -275,11 +275,11 @@ struct DocumentEditingView: NSViewRepresentable {
 
             switch kind {
             case .pageItem:
-                self.leftDataSource = ds
+                self.leftDataSource = dataSource
             case .pageEdit:
-                self.centerDataSource = ds
+                self.centerDataSource = dataSource
             case .mergedPage:
-                self.rightDataSource = ds
+                self.rightDataSource = dataSource
             }
         }
         
@@ -305,7 +305,7 @@ struct DocumentEditingView: NSViewRepresentable {
             switch kind {
             case .pageItem:
                 layoutSettings.itemHeight = .fractionalWidth(1.0)
-                layoutSettings.groupHeight = .fractionalWidth(0.9)
+                layoutSettings.groupHeight = .fractionalWidth(1.0)
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
@@ -602,16 +602,20 @@ struct DocumentEditingView: NSViewRepresentable {
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
                 
                 editPageSnapshot.appendSections([mergedPage])
-                for pageItem in mergedPage.pageItems {
+                editPageSnapshot.appendItems(mergedPage.pageItems)
+                
+                
+                /*for pageItem in mergedPage.pageItems {
                     if pageItem.merge != .mergeSkip {
                         editPageSnapshot.appendItems([pageItem])
                     }
                 }
+                */
                 
-                if mergedPage.mergeModePages > 0 {
+   /*             if mergedPage.mergeModePages > 0 {
                     mergedPageSnapshot.appendSections([mergedPage])
                     mergedPageSnapshot.appendItems([mergedPage.mergedPageItem()])
-                }
+                }*/
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
             centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)

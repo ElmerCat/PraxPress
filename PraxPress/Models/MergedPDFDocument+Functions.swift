@@ -11,26 +11,6 @@ import PDFKit
 import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
- 
-    func refreshMergedDocument() {
-        
-        print("\n refreshMergedDocument - Julie d'Prax\n")
-  //    fatalError("Julie d'Prax")
-   /*      if totalPDFPageItems() > 0 {
-            if !refreshingMergedDocument {
-                refreshingMergedDocument = true
-                recomputeMergedMetrics()
-                mergedPDFDocument = mergeDocumentPagesForSections()
-                refreshingMergedDocument = false
-            }
-
-        }
-    */
-    }
-   
-   
-    
-    
     
     func totalPDFPageItems() -> Int {
         var total = 0
@@ -80,7 +60,8 @@ extension MergedPDFDocument {
                 }
             }
         }
-        return nil
+        fatalError("No Such Number")
+      //  return nil
     }
     
     func pdfPageItem(indexPath: IndexPath) -> PageItem? {
@@ -154,14 +135,6 @@ extension MergedPDFDocument {
             newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
         }
         prax.selectedPageItems = newSelection
-
-        
-        DispatchQueue.main.async {
-            print ("Dispatch self.setEditingPDFDocumentFromPDFPageSections()")
-            //     self.refreshEditingDocument()
-            //        self.setEditingPDFDocumentFromPDFPageSections()
-        }
-        
     }
     
     

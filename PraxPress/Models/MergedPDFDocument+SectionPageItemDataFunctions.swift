@@ -37,7 +37,7 @@ extension MergedPDFDocument {
         // If neither URL nor bookmark provided, just save new empty section
         guard url != nil || bookmarkData != nil else {
          //   do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
-            refreshMergedDocument()
+        //    refreshMergedDocument()
             return
         }
         
@@ -49,7 +49,7 @@ extension MergedPDFDocument {
             guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
                 print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", url ?? "No URL")
         //        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
-                refreshMergedDocument()
+         //       refreshMergedDocument()
                 return
             }
             fileURL = resolved
@@ -60,7 +60,7 @@ extension MergedPDFDocument {
         } else {
             print("addPagesFromURLBookmark - no valid bookmark or url")
       //      do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
-            refreshMergedDocument()
+      //      refreshMergedDocument()
             return
         }
         
@@ -97,7 +97,7 @@ extension MergedPDFDocument {
         // Normalize page insertion index relative to pageItems count in section
         
     //    do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
-        refreshMergedDocument()
+    //    refreshMergedDocument()
     }
     
 

@@ -28,7 +28,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
 */
    
     func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
-        print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
+   //     print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
         
         return false
     }
@@ -38,7 +38,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
     //    print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
         if dividerIndex == 0 {
             if proposedMinimumPosition < prax.dividerZeroMinPos {
-                print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerZeroMinPos, "  proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerZeroMinPos, "  proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                     return prax.dividerZeroMinPos
             }
             else {
@@ -48,7 +48,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         else {
             
             if proposedMinimumPosition < prax.dividerOneMinPos {
-                print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerOneMinPos, "   proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("splitView: NSSplitView, constrainMinCoordinate:  ", prax.dividerOneMinPos, "   proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
 
                 return prax.dividerOneMinPos }
             else {
@@ -61,7 +61,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         
         if dividerIndex == 0 {
             if proposedMaximumPosition > prax.dividerZeroMaxPos {
-                print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerZeroMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerZeroMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                 return prax.dividerZeroMaxPos }
             else {
                 prax.dividerZeroPos = proposedMaximumPosition
@@ -69,7 +69,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         }
         else {
             if proposedMaximumPosition > prax.dividerOneMaxPos {
-                print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerOneMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("splitView: NSSplitView, constrainMaxCoordinate:  ", prax.dividerOneMaxPos, "   proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                 return prax.dividerOneMaxPos }
             else {
                 prax.dividerOnePos = proposedMaximumPosition
@@ -81,11 +81,11 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
     func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
          if dividerIndex == 0 {
             if proposedPosition < prax.dividerZeroMinPos {
-                print ("\nsplitView: NSSplitView, constrain dividerZeroMinPos:  ", prax.dividerZeroMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("\nsplitView: NSSplitView, constrain dividerZeroMinPos:  ", prax.dividerZeroMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                  return prax.dividerZeroMinPos }
    
              else if proposedPosition > prax.dividerZeroMaxPos {
-                 print ("\nsplitView: NSSplitView, constrain dividerZeroMaxPos:  ", prax.dividerZeroMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                 //     print ("\nsplitView: NSSplitView, constrain dividerZeroMaxPos:  ", prax.dividerZeroMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                   return prax.dividerZeroMaxPos }
              else {
                 prax.dividerZeroPos = proposedPosition
@@ -94,11 +94,11 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         }
         else {
             if proposedPosition < prax.dividerOneMinPos {
-                print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMinPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                  return prax.dividerOneMinPos }
       
             else if proposedPosition > prax.dividerOneMaxPos {
-                print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+                //     print ("\nsplitView: NSSplitView, constrain dividerOneMinPos:  ", prax.dividerOneMaxPos, "  proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
                 return prax.dividerOneMaxPos }
             else {
                 prax.dividerOnePos = proposedPosition
@@ -115,14 +115,14 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
 */
     
     func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview view: NSView) -> Bool {
-        print ("splitView: NSSplitView, shouldAdjustSizeOfSubview view: : ")
+        //     print ("splitView: NSSplitView, shouldAdjustSizeOfSubview view: : ")
         
         return false
     }
 
     
     func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
-        print ("splitView: NSSplitView, shouldHideDividerAt dividerIndex:   ", dividerIndex)
+        //     print ("splitView: NSSplitView, shouldHideDividerAt dividerIndex:   ", dividerIndex)
         
         return false
     }

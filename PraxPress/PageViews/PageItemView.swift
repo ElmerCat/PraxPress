@@ -107,7 +107,7 @@ struct PageItemView: View {
     
     func clickedGuidePageButton(_ pdfPageItem: PageItem) {
         
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
+        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name) - PageItemView!")
         
         if document.widthGuidePageID == pdfPageItem.id {
             document.clearWidthGuide()
@@ -319,7 +319,7 @@ struct PageEditView: View {
     
     func clickedGuidePageButton(_ pdfPageItem: PageItem) {
         
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
+        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name) PageEditView")
         
         if document.widthGuidePageID == pdfPageItem.id {
             document.clearWidthGuide()
@@ -603,43 +603,7 @@ struct MergedPageView: View {
             else {
                 Color.blue }}}
     
-    
-    
 
-    
-    
-    
-    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
-        
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name)")
-        
-        if document.widthGuidePageID == pdfPageItem.id {
-            document.clearWidthGuide()
-        } else {
-            if prax.optionKeyPressed {
-                if document.widthGuidePageID == nil { return }
-                guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
-                
-                var trims = pdfPageItem.trims
-                print ("old trims: ", pdfPageItem.trims )
-                print (guidePage.trims)
-                print (trims)
-                
-                
-                trims.left = guidePage.trims.left
-                trims.right = guidePage.trims.right
-                pdfPageItem.trims = trims
-                print("PageItem - clickedGuidePageButton copied guide page trims to current page")
-                print ("new trims: ",pdfPageItem.trims )
-                
-            }
-            else {
-                document.setWidthGuide(fromPage: pdfPageItem)
-                
-            }
-            
-        }
-    }
     final class Coordinator: NSObject {
         
         
