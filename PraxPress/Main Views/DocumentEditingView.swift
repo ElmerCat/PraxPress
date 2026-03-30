@@ -286,17 +286,24 @@ struct DocumentEditingView: NSViewRepresentable {
         struct LayoutSettings {
             var itemWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
             var itemHeight: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var itemSpacing: NSCollectionLayoutEdgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: nil, trailing: .fixed(0), bottom: .fixed(0))
+            var itemInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             var groupWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
             var groupHeight: NSCollectionLayoutDimension = .fractionalWidth(1.0)
+            var groupSpacing: NSCollectionLayoutEdgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: nil, trailing: .fixed(0), bottom: .fixed(0))
+            var groupInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            var sectionInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
+            var sectionSpacing: CGFloat = 20
             var headerKind: String?
             var footerKind: String?
             var backgroundKind: String?
             var headerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
             var headerHeight: NSCollectionLayoutDimension = .absolute(20)
+            var headerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             var footerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
             var footerHeight: NSCollectionLayoutDimension = .absolute(20)
-            var itemContentInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-            var itemEdgeSpacing: NSCollectionLayoutEdgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: nil, trailing: nil, bottom: nil)
+            var footerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            
             
         }
         // Build appropriate compositional layout per side
@@ -309,12 +316,18 @@ struct DocumentEditingView: NSViewRepresentable {
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 40, trailing: 5)
+                
             case .pageEdit:
                 layoutSettings.itemHeight = .fractionalWidth(1.0)
                 layoutSettings.groupHeight = .fractionalWidth(1.0)
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 40, trailing: 10)
+                
             case .mergedPage:
                 layoutSettings.itemHeight = .estimated(200)
                 layoutSettings.groupHeight = .estimated(200)
@@ -332,17 +345,18 @@ struct DocumentEditingView: NSViewRepresentable {
                 let itemSize = NSCollectionLayoutSize(widthDimension: layoutSettings.itemWidth, heightDimension: layoutSettings.itemHeight)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: nil, trailing: .fixed(0), bottom: .fixed(0))
-                
+                item.edgeSpacing = layoutSettings.itemSpacing
+                item.contentInsets = layoutSettings.itemInsets
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: layoutSettings.groupWidth, heightDimension: layoutSettings.groupHeight)
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-                group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                group.edgeSpacing = layoutSettings.groupSpacing
+                group.contentInsets = layoutSettings.groupInsets
                 let section = NSCollectionLayoutSection(group: group)
                 
                 
-                section.interGroupSpacing = 20
-                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
+                section.interGroupSpacing = layoutSettings.sectionSpacing
+                section.contentInsets = layoutSettings.sectionInsets
                 section.supplementariesFollowContentInsets = true
                 
                 
@@ -353,7 +367,7 @@ struct DocumentEditingView: NSViewRepresentable {
                         layoutSize: headerSize,
                         elementKind: layoutSettings.headerKind!,
                         alignment: .top,)
-                    sectionHeader.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
+                    sectionHeader.contentInsets = layoutSettings.headerInsets
                     sectionHeader.extendsBoundary = false
                     sectionHeader.pinToVisibleBounds = true
                     sectionHeader.zIndex = 2
@@ -365,7 +379,7 @@ struct DocumentEditingView: NSViewRepresentable {
                          layoutSize: footerSize,
                          elementKind: layoutSettings.footerKind!,
                          alignment: .bottom)
-                    sectionFooter.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 40, trailing: 40)
+                    sectionFooter.contentInsets = layoutSettings.footerInsets
                     sectionFooter.extendsBoundary = true
                     sectionFooter.pinToVisibleBounds = true
                     sectionFooter.zIndex = 2
@@ -380,9 +394,10 @@ struct DocumentEditingView: NSViewRepresentable {
                     section.decorationItems = [sectionBackground]
                 }
                  
-         //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
                     // Perform animations on the visible items.
-         //           print("section.visibleItemsInvalidationHandler")
+                    print("section.visibleItemsInvalidationHandler")
+                }
        
                 return section
             }
