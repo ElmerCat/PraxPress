@@ -69,14 +69,21 @@ struct ContentView: View {
             .background(Color.indigo.opacity(0.5))
         }
         .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
-        .onGeometryChange(for: CGFloat.self) {  windowGeometry in
-            print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width)
-            return windowGeometry.size.width
+        .onGeometryChange(for: CGSize.self) {  windowGeometry in
+      //      print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width)
+            return windowGeometry.size
         }
         action: {oldValue, newValue in
-            print ("windowGeometry.size.width:  old: ", oldValue, "  new: ", newValue )
+            print ("windowGeometry.size.width:  old: ", oldValue.width, "  new: ", newValue.width )
+            print ("windowGeometry.size.height:  old: ", oldValue.height, "  new: ", newValue.height )
+            prax.windowSize = newValue
+
         }
-        .toolbar { MainToolbar() }
+       // .toolbar(removing: .sidebarToggle)
+        
+       .toolbar {
+            MainToolbar()
+        }
         .onAppear {
             print("ContentView .onAppear")
 //            if let docCtx = document.windowModelContext, let perWindowContext {
@@ -120,11 +127,11 @@ struct ContentDetailView: View {
             }
             DocumentEditingFooter()
         }
-        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument().dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
+        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
             switch result {
             case .success(let url):
                 print ("Writing mergedPDFView to: ", url)
-                document.mergedPDFDocument().write(to: url)
+                document.mergedPDFDocument.write(to: url)
             case .failure(let error):
                 print (error.localizedDescription)
                 prax.saveError = error.localizedDescription

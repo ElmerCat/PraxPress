@@ -18,11 +18,53 @@ struct MainToolbar: ToolbarContent {
     var body: some ToolbarContent {
         @Bindable var prax = praxModel
         
+
+        
+        if prax.columnVisibility == .detailOnly {
+        
+            ToolbarItemGroup(placement: .navigation) {
+                
+                Button {
+                    withAnimation {
+                        prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                                    }
+                 //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                    
+                } label: {
+                    Label("Sidebar", systemImage: "sidebar.left")
+                }
+
+
+                
+            }
+        }
+        
+
+   
+        
+        
+        
         ToolbarItemGroup(placement: .status) {
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
         }
         
         ToolbarItemGroup(placement: .secondaryAction) {
+            
+            
+            Button {
+                if prax.columnVisibility == .detailOnly {
+                    withAnimation {
+                        prax.columnVisibility = .all
+                    }
+                    
+//                        NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                }
+                prax.showingImporter = true
+            } label: {
+                Label("Select Files", systemImage: "folder.badge.plus")
+            }
+            Spacer()
+            
             DropTargetControl()
         }
         
@@ -38,6 +80,16 @@ struct MainToolbar: ToolbarContent {
             Text(prax.optionKeyPressed ? "Julie d'Prax" : "Juliette M. Belanger")
         }
       
+        /*
+        ToolbarItemGroup(placement: .navigation) {
+            Button {
+                prax.showFilesPanel.toggle()
+            } label: {
+                Label((prax.showFilesPanel ? "Hide Files" : "Show Files"), systemImage: (prax.showFilesPanel ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+            }
+        }
+        */
+        
         ToolbarItemGroup(placement: .status) {
             Button {
                 prax.showingMergedDocumentInspector.toggle()
@@ -61,6 +113,8 @@ struct MainToolbar: ToolbarContent {
             } label: {
                 Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
             }
+            
+            
         }
 
         ToolbarItemGroup(placement: .primaryAction) {

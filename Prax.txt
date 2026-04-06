@@ -967,3 +967,11 @@ My DocumentEditingView has 3 collection views operating on the same data source.
 3/17/2026
 
 My SwiftData class PDFFile has an optional property dataFields which it can't endode. I'm thinking it could be done by conversion to a JSON string. Also, dataFields is currently a struct with fixed property names, I'd rather have it be a Dictionary so the property names can vary. Can you suggest some code to achieve this?
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+
+4/5/2026
+
+My collection view has items which contain PDFViews.  PDFViewRepresentable makes and updates the PDFView in coordination with the PageEditViewCoordinator. Everything works fine until the collection view items are recycled and reused. When the PDFView calls pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage), the PDFPage is not the same as was assigned in updateNSView(_ pdfView: PDFView, context: Context).  What could be causing this?

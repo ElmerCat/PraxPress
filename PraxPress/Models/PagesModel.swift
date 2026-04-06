@@ -43,32 +43,39 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
     var mergeModePages = 0
+
     var pageItems: [PageItem] = [] {
         didSet {
-            print("\n pdfPageItems didSet: \(self.pageItems.count)\n\n")
+            print("\n pdfPageItems didSet: \(self.pageItems.count)\nrefreshMergedPage()\n")
             refreshMergedPage()
         }
     }
     var refreshingMergedPage = false
     func refreshMergedPage() {
+        if refreshingMergedPage { return }
+        refreshingMergedPage = true
         
-        mergeModePages = 0
+        var pages = 0
         for pageItem in pageItems {
             if pageItem.merge != .mergeSkip {
-                mergeModePages += 1
+                pages += 1
             }
         }
-
-        if mergeModePages < 1 {
-            print("MergedPage - mergeModePages < 1  ")
-            pdfPage = PDFPage()
-            return
-        }
+        mergeModePages = pages
         
         print("MergedPage - refreshMergedPage() mergeModePages: ", mergeModePages)
         
-        if !refreshingMergedPage {
-            refreshingMergedPage = true
+        if mergeModePages < 1 {
+            pdfPage = nil 
+            refreshingMergedPage = false
+            document.refreshMergedDocument()
+            return
+        }
+
+        let jean = Task {
+            try? await Task.sleep(for:.milliseconds(100))
+            print("refreshMergedPage — started")
+            
             
             var maxVisibleWidth: CGFloat = 0
             var totalVisibleHeight: CGFloat = 0
@@ -217,9 +224,10 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             catch {  print("FileManager.default.removeItem(at: tmpOut) failed", error.localizedDescription) }
 
             refreshingMergedPage = false
-   
-        }
+            document.refreshMergedDocument()
 
+        }
+       
     }
     
     func mergedPageItem() -> PageItem {
@@ -238,12 +246,13 @@ final class PageItem: Identifiable, Equatable, Hashable {
     nonisolated static func == (lhs: PageItem, rhs: PageItem) -> Bool { lhs.id == rhs.id }
     nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
     let id: UUID
-    let mergedPage: MergedPage
+    var mergedPage: MergedPage
     var name: String
     var sourceBookmark: Data
     var sourceURLString: String
     var pageIndex: Int
 
+  
     let pdfPage: PDFPage
     let media: CGRect
     let aspectRatio: CGFloat

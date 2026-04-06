@@ -64,6 +64,8 @@ final class PraxModel {
     var dropTargeted = false
     var optionKeyPressed = false
     
+    var windowSize: CGSize = CGSize(width: 0, height: 0)
+    
     var saveError: String?
 
     var isOn = false

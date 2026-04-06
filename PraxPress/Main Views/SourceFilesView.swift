@@ -185,6 +185,60 @@ struct SourceFilesView: View {
             .background(Color.sourceFilesViewBackground.opacity(0.5))
             
         }
+        .toolbar(removing: .sidebarToggle)
+        
+        .toolbar {
+            
+            ToolbarItemGroup(placement: .secondaryAction) {
+                
+                if (prax.columnVisibility == .all) { //} && !prax.selectedFiles.isEmpty) {
+                    Button {
+                       // prax.listOfFiles.removeAll()
+                      //  prax.selectedFiles.removeAll()
+                    } label: {
+                        Label("Remove Files", systemImage: "folder.badge.minus")
+                    }
+                    .disabled(prax.selectedFiles.isEmpty)
+                    
+                    Button {
+                        if prax.columnVisibility == .detailOnly {
+                            NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                        }
+                        prax.showingImporter = true
+                    } label: {
+                        Label("Select Files", systemImage: "folder.badge.plus")
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        withAnimation {
+                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                                        }
+                     //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                        
+                    } label: {
+                        Label("Sidebar", systemImage: "sidebar.left")
+                    }
+                }
+            }
+            
+            /*
+            ToolbarItemGroup(placement: .navigation) {
+                Button {
+                    withAnimation {
+                        prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                                    }
+                 //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                    
+                } label: {
+                    Label("Sidebar", systemImage: "sidebar.left")
+                }
+            }
+           */
+        }
+     //   .toolbarBackground(.blue).opacity(0.2)
+      //  .toolbarColorScheme(.light)
         
         .fileImporter(
             isPresented: $prax.showingImporter,

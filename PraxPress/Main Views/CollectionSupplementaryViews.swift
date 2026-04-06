@@ -226,7 +226,7 @@ struct SectionHeaderView: View {
                 }
                 
                 .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument().dataRepresentation() else { return nil }
+                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
                     return MergedPDFTransfer(data: data, filename: document.exportFilename)
                 }()!, preview: {
                     PraxDragPreview()
@@ -527,7 +527,7 @@ struct MergedPageHeaderView: View {
                     Text("Julie d'Prax - \(section.title)") }
                 
                 .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument().dataRepresentation() else { return nil }
+                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
                     return MergedPDFTransfer(data: data, filename: document.exportFilename)
                 }()!, preview: {
                     PraxDragPreview()

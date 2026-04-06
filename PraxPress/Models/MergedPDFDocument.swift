@@ -27,11 +27,13 @@ import Foundation
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
 
-    var isLoadingPDF = false {
+/*    var isLoadingPDF = false {
         didSet {
             print ("\n isLoadingPDF: \(isLoadingPDF)\n")
         }
     }
+*/
+
     
     var pageSections: [MergedPage] = [] {
         didSet {
@@ -41,12 +43,16 @@ import Foundation
 
     
     var mergedPDFView: PDFView = {
-        let v = PDFView()
-        v.displaysPageBreaks = true
-        v.displayMode = .singlePageContinuous
-        v.displaysAsBook = false
-        v.autoScales = true
-        return v
+        let pdfView = PDFView()
+        pdfView.displaysPageBreaks = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displaysAsBook = false
+        pdfView.document = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+        pdfView.autoScales = true
+        pdfView.displayDirection = .vertical
+        pdfView.backgroundColor = .green
+
+        return pdfView
     }()
     
     var displayMode: PDFDisplayMode = .singlePageContinuous {
@@ -60,27 +66,47 @@ import Foundation
         }
     }
     
-
+    var documentVersion = UUID()
     
-    func mergedPDFDocument () -> PDFDocument {
-        let pdfDocument = PDFDocument()
-        for (pageIndex, mergedPage) in pageSections.enumerated() {
-            if let pdfPage = mergedPage.pdfPage {
-                pdfDocument.insert(pdfPage, at: pageIndex)
+    func refreshMergedDocument() {
+        if refreshingMergedDocument { return }
+        
+        print("refreshMergedDocument")
+        refreshingMergedDocument = true
+        
+        let jean = Task {
+            
+            try? await Task.sleep(for:.milliseconds(100))
+
+            print("refreshMergedDocument — started")
+
+            var insertIndex = 0
+            let pdfDocument = PDFDocument()
+            pageSections.forEach {
+                section in
+                if let pdfPage = section.pdfPage {
+                    pdfDocument.insert(pdfPage, at: insertIndex)
+                    insertIndex += 1
+                }
             }
+            mergedPDFDocument = pdfDocument
+            documentVersion = UUID()
+            self.refreshingMergedDocument = false
+            print("refreshMergedDocument — done")
         }
-        return pdfDocument
+        print("refreshMergedDocument — Task starting")
+  
     }
 
     var mergedPDFURL: URL = {
         FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
     }()
     
-    var amergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+    var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
             print ("mergedPDFDocument didSet ")
-            mergedPDFView.document = mergedPDFDocument()
-            isLoadingPDF = false
+            mergedPDFView.document = mergedPDFDocument
+   //         refreshingMergedDocument = false
         }
     }
    
@@ -118,7 +144,7 @@ import Foundation
             }
         }
     }
-    var exportFilenameBody: String = ""
+    var exportFilenameBody: String = "PraxPress"
  
     var exportFileURL: URL? {
         if exportFolderURL == nil { exportFolderURL = sourceFolderURL }

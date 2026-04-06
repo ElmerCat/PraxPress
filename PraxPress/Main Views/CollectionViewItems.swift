@@ -96,9 +96,25 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
     static let sectionBackgroundElementKind = "section-background-element-kind"
+   
+    let preferredFormat = Date.FormatStyle()
+        .hour(.defaultDigits(amPM: .omitted))
+        .minute()
+        .second(.twoDigits)
+        .secondFraction(.fractional(3))
     
     func configure(kind: CollectionElementKind, isSelected: Bool) {
-        print("CollectionViewItem - configure")
+        
+        switch kind {
+        case let .thumbnail(item):
+            print(Date().formatted(preferredFormat), "CollectionViewItem - configure thumbnail: ", item.name )
+        case let .page(item):
+            print(Date().formatted(preferredFormat), "CollectionViewItem - configure page: ", item.name )
+        default:
+            print(Date().formatted(preferredFormat), "CollectionViewItem - configure - \(String(describing: kind))")
+        }
+        
+       
         self.kind = kind
         self.isSelected = isSelected
         updateRootView() }
@@ -106,6 +122,10 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     override func loadView() {
         super.loadView()
         attachIfNeeded() }
+    
+    override func prepareForReuse() {
+        print(Date().formatted(preferredFormat), "CollectionViewItem - prepareForReuse - \(String(describing: kind))")
+    }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)

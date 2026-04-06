@@ -11,6 +11,71 @@ import UniformTypeIdentifiers
 import PDFKit
 
 
+struct EditSettingsPanel: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("import-width") var importWidth: Int = 0
+    @AppStorage("import-height") var importHeight: Int = 0
+    @FocusState var widthFocused: Bool
+    var theTip = ImportOptionsTip()
+    
+    var body: some View {
+        
+        VStack {
+            GroupBox {
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Ok", systemImage: ("checkmark"))
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                
+                
+                Grid {
+                    GridRow {
+                        Text("Import Width:")
+                        TextField("",
+                                  value: $importWidth,
+                                  format: .number
+                        ).border(Color("PraxColor"))
+                            .onSubmit({
+                                dismiss()
+                            })
+                            .focused($widthFocused)
+                            .textContentType(.postalCode)
+                    }
+                    
+                    GridRow {
+                        Text("Import Height:")
+                        TextField("",
+                                  value: $importHeight,
+                                  format: .number
+                        ).border(Color("PraxColor"))
+                        
+                        
+                    }
+                }
+                
+                
+                
+                
+                Text("\(importWidth)")
+                //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
+                
+                Text("Image Import Size")
+                    .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
+                    .background(Color("PraxColor"))
+            }
+            .padding(20)
+            
+        }
+        .background(PraxGradient(0).edgesIgnoringSafeArea(.all))
+        .popoverTip(theTip)
+    }
+}
+
+
+
+
 struct ImportOptionsInspector: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("import-width") var importWidth: Int = 0
@@ -364,7 +429,7 @@ struct DragOutControl: View {
                 Spacer(minLength: 25)
             }
             .draggable {
-                if let data = document.mergedPDFDocument().dataRepresentation() {
+                if let data = document.mergedPDFDocument.dataRepresentation() {
                     return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                 } else { return nil }
             }

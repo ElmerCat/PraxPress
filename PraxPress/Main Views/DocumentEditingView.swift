@@ -64,6 +64,7 @@ struct DocumentEditingView: NSViewRepresentable {
         pageEditScrollView.documentView = pageEditCollectionView
 
         // Right: Scroll + Collection
+        
         let mergedPageScrollView = NSScrollView()
         mergedPageScrollView.translatesAutoresizingMaskIntoConstraints = false
         mergedPageScrollView.hasVerticalScroller = true
@@ -79,10 +80,14 @@ struct DocumentEditingView: NSViewRepresentable {
         mergedPageScrollView.documentView = mergedPageCollectionView
 
         // Attach both scroll views to split view
+        
+        let mergedDoumentView = MergedPDFDocumentNSView()
+        
         splitView.arrangesAllSubviews = true
         splitView.addArrangedSubview(pageItemScrollView)
         splitView.addArrangedSubview(pageEditScrollView)
-        splitView.addArrangedSubview(mergedPageScrollView)
+     //   splitView.addArrangedSubview(mergedPageScrollView)
+        splitView.addArrangedSubview(mergedDoumentView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
@@ -105,9 +110,13 @@ struct DocumentEditingView: NSViewRepresentable {
 
         // Initial divider position
         DispatchQueue.main.async {
-            print("DocumentEditingView - plitView.setPosition(150, ofDividerAt: 0)")
-            splitView.setPosition(150, ofDividerAt: 0)
-            splitView.setPosition(250, ofDividerAt: 1)
+            
+            let splidth = splitView.frame.width
+            let position = ((splidth - 120) * 0.75) + 120
+            
+            print("DocumentEditingView - plitView.setPosition(\(position), ofDividerAt: 1)")
+            splitView.setPosition(120, ofDividerAt: 0)
+            splitView.setPosition(position, ofDividerAt: 1)
         }
 
         return splitView
@@ -393,12 +402,12 @@ struct DocumentEditingView: NSViewRepresentable {
                     let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
                     section.decorationItems = [sectionBackground]
                 }
-                 
-                section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
+                
+        /*        section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
                     // Perform animations on the visible items.
-                    print("section.visibleItemsInvalidationHandler")
+                    print("\nsection.visibleItemsInvalidationHandler\n", layoutEnvironment.container.contentSize, "\nScroll Offset: ", scrollOffset)
                 }
-       
+       */
                 return section
             }
             if layoutSettings.backgroundKind != nil {
@@ -407,8 +416,12 @@ struct DocumentEditingView: NSViewRepresentable {
             return layout
         }
         
-        
+ 
 /*
+ 
+ 
+ 
+ 
         private func createPageItemLayout() -> NSCollectionViewLayout {
             
             let layout = NSCollectionViewCompositionalLayout {
@@ -617,20 +630,19 @@ struct DocumentEditingView: NSViewRepresentable {
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
                 
                 editPageSnapshot.appendSections([mergedPage])
-                editPageSnapshot.appendItems(mergedPage.pageItems)
-                
-                
-                /*for pageItem in mergedPage.pageItems {
+                //editPageSnapshot.appendItems(mergedPage.pageItems)
+                for pageItem in mergedPage.pageItems {
                     if pageItem.merge != .mergeSkip {
                         editPageSnapshot.appendItems([pageItem])
                     }
                 }
-                */
                 
-   /*             if mergedPage.mergeModePages > 0 {
+                print (mergedPage.title, " - ", mergedPage.mergeModePages)
+                
+                if mergedPage.mergeModePages > 0 {
                     mergedPageSnapshot.appendSections([mergedPage])
                     mergedPageSnapshot.appendItems([mergedPage.mergedPageItem()])
-                }*/
+                }
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
             centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
@@ -672,7 +684,7 @@ struct DocumentEditingView: NSViewRepresentable {
             let typeIdentifier = UTType(filenameExtension: "pdf")
             
             let provider = FilePromiseProvider()
-            provider.pdfDocument = document.mergedPDFDocument()
+            provider.pdfDocument = document.mergedPDFDocument
             provider.fileName = "PraxPress-Page.pdf"
             provider.fileType = typeIdentifier!.identifier
             provider.delegate = provider
@@ -1133,6 +1145,8 @@ struct DocumentEditingToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
+    @State var showSettings = false
+    
     private func title(for mode: PDFDisplayMode) -> String {
         switch mode {
         case .singlePage: return "Single"
@@ -1158,8 +1172,25 @@ struct DocumentEditingToolbar: View {
         GroupBox {
             
             //    Text("Prax")
-            let pageCount = "Pages: " + String(document.totalPDFPageItems())
+            let pageCount = "  Pages: " + String(document.totalPDFPageItems())
+            
+            
             HStack {
+            
+                Button("", systemImage: "gear", action: {
+                    showSettings = !showSettings
+                })
+                .sheet(isPresented: $showSettings) {
+                    EditSettingsPanel()
+                    
+                        .presentationDetents(
+                            [.height(120), .medium, .large])
+                        .presentationBackgroundInteraction(
+                            .enabled(upThrough: .height(120)))
+                        .presentationSizing(.form)
+                    
+                }
+                
                 Text(pageCount)
                 Button("Clear All", systemImage: "document.on.trash", action: {
                     print (pageCount)
@@ -1228,15 +1259,14 @@ struct DocumentEditingToolbar: View {
                 Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
                     
                 
-                }.draggable {
-                    if let data = document.mergedPDFDocument().dataRepresentation() {
-                        return MergedPDFTransfer(data: data, filename: (document.exportFilename))
-                        
-                    } else {
-                        return nil
-                    }
                 }
-               
+                .draggable({ () -> MergedPDFTransfer? in
+                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                }()!, preview: {
+                    PraxDragPreview()
+                })
+                
                 Spacer(minLength: 15)
 
 
@@ -1309,7 +1339,7 @@ struct DocumentEditingFooter: View {
                 Text("\(prax.selectedFiles.count) Source files selected")
             }
             Spacer()
-            Text(String(format: "frame width: \(prax.splitViewFrameWidth) divZero:  \(prax.dividerZeroPos) divOne:   \(prax.dividerOnePos)"))
+            Text(String(format: "Window size: \(prax.windowSize.width) x \(prax.windowSize.height) -- -- SplitView width: \(prax.splitViewFrameWidth) -  divZero@:  \(prax.dividerZeroPos) -  divOne@:   \(prax.dividerOnePos)"))
         }
         .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
         .padding(8)

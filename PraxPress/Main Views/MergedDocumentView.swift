@@ -8,6 +8,263 @@
 import SwiftUI
 import PDFKit
 
+
+
+class MergedPDFDocumentNSView: NSView {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+    required init?(coder: NSCoder) {
+        fatalError("not implemented")
+    }
+    
+    private var hostingView: NSHostingView<MergedPDFDocumentView>?
+    
+    func configure() {
+        
+ //      registerForDraggedTypes([.fileURL])
+//        self.wantsLayer = true
+//        layer?.backgroundColor = NSColor.cyan.cgColor
+//        layer?.borderColor = NSColor.black.cgColor
+//        layer?.borderWidth = 1
+//        layer?.cornerRadius = 12
+
+        let root = MergedPDFDocumentView()
+        
+        if let hostingView {
+            hostingView.rootView = root
+        } else {
+            let hosting = NSHostingView(rootView: root)
+            hosting.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(hosting)
+            NSLayoutConstraint.activate([
+                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                hosting.topAnchor.constraint(equalTo: self.topAnchor),
+                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            ])
+            self.hostingView = hosting
+        }
+    }
+}
+
+struct MergedPDFDocumentView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    let praxTheme = PraxTheme(.erika)
+    @State private var pdfViewRef = WeakPDFViewRef()
+    @State private var hoveredButton: Int? = nil
+    
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+
+        
+        GroupBox {
+            GeometryReader { proxy in
+                VStack {
+                    
+                 /*
+                    HStack {
+
+                        Text("PraxPress - ")
+                            .font(Font.custom("BrushScriptMT", size: 30))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text("\(document.documentVersion)")
+                            .font(Font.custom("BrushScriptMT", size: 12))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                   
+
+                    }
+*/
+                    
+
+                    
+                    GroupBox {
+                        PDFViewRepresentable(
+                            document: document,
+                            onPDFViewReady: { pdfView in
+                                // Store a weak reference so buttons can use it
+                                pdfViewRef.view = pdfView
+                                 
+                            }
+                        )
+                        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
+                        .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
+                        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
+                    }
+                    
+                    HStack {
+
+                        Button("", systemImage: "arrow.up.and.down.circle", action: {
+                            if let pdfView =  pdfViewRef.view {
+                                MergedPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
+                                
+                            }
+                        })
+                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
+                        .onHover { hovering in
+                            hoveredButton = hovering ? 0 : nil
+                        }
+
+                        
+                        Button("", systemImage: "plus.circle", action: {
+                            pdfViewRef.view?.zoomIn(self)
+                        })
+                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                        .onHover { hovering in
+                            hoveredButton = hovering ? 1 : nil
+                        }
+                        
+                        
+
+                        Button("", systemImage: "minus.circle", action: {
+                            pdfViewRef.view?.zoomOut(self)
+                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                            .onHover { hovering in
+                                hoveredButton = hovering ? 2 : nil
+                            }
+
+                        Button("", systemImage: "arrow.left.and.right.circle", action: {
+                            pdfViewRef.view?.autoScales = true
+                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                            .onHover { hovering in
+                                hoveredButton = hovering ? 3 : nil
+                            }
+                        
+
+                    }
+                    
+                    
+                }
+                
+                //  .position(x: 0, y: 16)
+            }
+        }
+        
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(0)
+        .background(PraxGradient())
+        .overlay(
+        
+            RoundedRectangle(cornerRadius: 5)
+                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
+        )
+ //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
+ //           PraxModel.shared.acceptDrop(providers)
+ //       }
+ //       .onDropSessionUpdated({ dropSession in
+ //           print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
+//        })
+        
+
+    }
+    
+    final class MergedPDFDocumentViewCoordinator: NSObject {
+        
+        
+        init(_ document: MergedPDFDocument) {
+            self.document = document
+            
+         
+        }
+        
+        let document: MergedPDFDocument
+        
+        
+        var documentVersion = UUID()
+        
+        var pdfView: PDFView?
+        
+         
+        @objc func pageChanged(_ note: Notification) {
+            guard let pdfView = note.object as? PDFView,
+                  let doc = pdfView.document,
+                  let page = pdfView.currentPage else { return }
+            let idx = doc.index(for: page)
+            print("MergedPDFDocumentViewCoordinator - changed to page:", idx)
+            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+        }
+        
+ 
+        
+    }
+    
+    struct PDFViewRepresentable: NSViewRepresentable {
+        let document: MergedPDFDocument
+        let onPDFViewReady: (PDFView) -> Void
+        
+
+        func makeCoordinator() -> MergedPDFDocumentViewCoordinator {
+    //        print("MergedPDFDocumentView - Erika daPrax - MergedPDFDocumentViewCoordinator makeCoordinator")
+            return MergedPDFDocumentViewCoordinator(document)
+        }
+        
+        
+        func makeNSView(context: Context) -> PDFView {
+      //      print("MergedPDFDocumentView - PDFViewRepresentable - makeNSView")
+            let pdfView = PDFView()
+            
+            pdfView.document = document.mergedPDFDocument
+            pdfView.autoScales = true
+            pdfView.displayDirection = .vertical
+            pdfView.backgroundColor = .green
+            context.coordinator.pdfView = pdfView
+            onPDFViewReady(pdfView)
+            return pdfView
+        }
+        
+        func updateNSView(_ pdfView: PDFView, context: Context) {
+            
+            if context.coordinator.documentVersion != document.documentVersion {
+                var pageIndex: Int = 0
+                if let pdfViewCurrentPage = pdfView.currentPage {
+                    pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
+                }
+                
+                print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.documentVersion)
+                context.coordinator.documentVersion = document.documentVersion
+                pdfView.document = document.mergedPDFDocument
+                if let pdfPage = pdfView.document?.page(at: pageIndex) {
+                    pdfView.go(to: pdfPage)
+                }
+                
+                scalePDFViewToFit(pdfView: context.coordinator.pdfView!)
+                
+            }
+            else {
+       //         print("MergedPDFDocumentViewCoordinator - updateNSView - No Change ")
+            }
+        
+    //
+            
+        }
+        
+
+    }
+    
+    static func scalePDFViewToFit(pdfView: PDFView) {
+        if let pdfPage = pdfView.currentPage {
+            let bounds = pdfPage.bounds(for: .mediaBox)
+            let scaleFactor = pdfView.frame.height / bounds.height
+            if pdfView.frame.width > bounds.width * scaleFactor {
+                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
+                pdfView.scaleFactor = scaleFactor
+            }
+            else {
+                pdfView.autoScales = true
+                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
+            }
+        }
+    }
+}
+
+
+
 struct PDFPageItemInspector: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
@@ -41,7 +298,7 @@ struct PDFPageItemInspector: View {
     }
 }
 
-
+/*
 struct MergedDocumentHeader: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
@@ -89,7 +346,7 @@ struct MergedDocumentHeader: View {
                     
                 }
                 .draggable {
-                    if let data = document.mergedPDFDocument().dataRepresentation() {
+                    if let data = document.mergedPDFDocument.dataRepresentation() {
                         return MergedPDFTransfer(data: data, filename: (document.exportFilename))
                         
                     } else {
@@ -144,9 +401,9 @@ struct MergedDocumentFooter: View {
             .onHover { hovering in
                 hoveredButton = hovering ? 1 : nil
             }
-            .focusable(true)
-            .focused($focusedField, equals: .firstButton)
-            .keyboardShortcut(.space, modifiers: [])
+         //   .focusable(true)
+        //    .focused($focusedField, equals: .firstButton)
+       //     .keyboardShortcut(.space, modifiers: [])
             
             Button("", systemImage: "minus.circle", action: {
                 document.autoScales = false
@@ -155,18 +412,18 @@ struct MergedDocumentFooter: View {
                 .onHover { hovering in
                     hoveredButton = hovering ? 2 : nil
                 }
-                .focusable(true)
-                .focused($focusedField, equals: .secondButton)
-                .keyboardShortcut(.space, modifiers: [])
+        //        .focusable(true)
+        //        .focused($focusedField, equals: .secondButton)
+       //         .keyboardShortcut(.space, modifiers: [])
             
             Toggle("", systemImage: document.autoScales ? "circle.inset.filled" : "equal.circle", isOn: $document.autoScales).toggleStyle(.button)
                 .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
                 .onHover { hovering in
                     hoveredButton = hovering ? 3 : nil
                 }
-                .focusable(true)
-                .focused($focusedField, equals: .textField)
-                .keyboardShortcut(.space, modifiers: [])
+       //         .focusable(true)
+      //          .focused($focusedField, equals: .textField)
+       //         .keyboardShortcut(.space, modifiers: [])
             
             
                      Picker("", selection: $document.mergedPDFView.displayMode, content: {
@@ -313,6 +570,8 @@ struct MergedDocumentToolbar: View {
     }
 }
 
+
+
 final class Coordinator: NSObject {
   //  @State private var prax = PraxModel.shared
     
@@ -358,7 +617,7 @@ struct MergedDocumentView: NSViewRepresentable {
     func makeNSView(context: Context) -> PDFView {
         print("MergedDocumentView - makeNSView")
         
-        document.mergedPDFView.document = document.mergedPDFDocument()
+        document.mergedPDFView.document = document.mergedPDFDocument
         
         
         NotificationCenter.default.addObserver(
@@ -381,12 +640,13 @@ struct MergedDocumentView: NSViewRepresentable {
    
     
 }
+*/
 
 #Preview {
     
    
 //    MergedDocumentHeader()
  //       MergedDocumentView()
-    MergedDocumentFooter()
+//    MergedDocumentFooter()
    
 }
