@@ -325,8 +325,13 @@ struct DocumentEditingView: NSViewRepresentable {
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
-                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 40, trailing: 5)
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.groupSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+                layoutSettings.groupInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
+                layoutSettings.sectionSpacing = 0
+             
                 
             case .pageEdit:
                 layoutSettings.itemHeight = .fractionalWidth(1.0)
@@ -378,8 +383,8 @@ struct DocumentEditingView: NSViewRepresentable {
                         alignment: .top,)
                     sectionHeader.contentInsets = layoutSettings.headerInsets
                     sectionHeader.extendsBoundary = false
-                    sectionHeader.pinToVisibleBounds = true
-                    sectionHeader.zIndex = 2
+                    sectionHeader.pinToVisibleBounds = false
+//sectionHeader.zIndex = 2
                     boundarySupplementaryItems.append(sectionHeader)
                 }
                 if layoutSettings.footerKind != nil {
@@ -389,9 +394,9 @@ struct DocumentEditingView: NSViewRepresentable {
                          elementKind: layoutSettings.footerKind!,
                          alignment: .bottom)
                     sectionFooter.contentInsets = layoutSettings.footerInsets
-                    sectionFooter.extendsBoundary = true
-                    sectionFooter.pinToVisibleBounds = true
-                    sectionFooter.zIndex = 2
+                    sectionFooter.extendsBoundary = false
+                    sectionFooter.pinToVisibleBounds = false
+                 //   sectionFooter.zIndex = 2
                     boundarySupplementaryItems.append(sectionFooter)
                 }
                 if !boundarySupplementaryItems.isEmpty {

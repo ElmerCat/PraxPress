@@ -59,7 +59,7 @@ struct SectionBackgroundView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(0)
-            .background(PraxGradient())
+            .background(Color.prax)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.orange, lineWidth: 5)

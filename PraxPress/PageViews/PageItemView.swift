@@ -225,7 +225,7 @@ struct PageEditView: View {
                                 pdfPageItem: pdfPageItem!,
                                 onPDFViewReady: { pdfView in
                                     
-                                    print(Date().formatted(preferredFormat), "Julia Martin - onPDFViewReady ", pdfPageItem!.name)
+                                    print(Date().formatted(preferredFormat), "Julia Martin - PageEditView - onPDFViewReady ", pdfPageItem!.name)
                                     
                                     // Store a weak reference so buttons can use it
                                     pdfViewRef.view = pdfView
@@ -253,7 +253,9 @@ struct PageEditView: View {
                         .onHover { hovering in
                             hoveredButton = hovering ? 0 : nil
                         }
-
+                        
+                        .help(Text("\(pdfPageItem!.name)  L-\(Int(pdfPageItem!.trims.left)) T-\(Int(pdfPageItem!.trims.top)) B-\(Int(pdfPageItem!.trims.bottom)) R-\(Int(pdfPageItem!.trims.right))"))
+                        
                         
                         Button("", systemImage: "plus.circle", action: {
                             pdfViewRef.view?.zoomIn(self)
@@ -362,7 +364,7 @@ struct PageEditView: View {
         let pdfPageItem: PageItem
         let pdfDocument = PDFDocument()
         var pdfView: PDFView?
-        var pdfPage: PDFPage?
+    //    var pdfPage: PDFPage?
          
         @objc func pageChanged(_ note: Notification) {
             guard let pdfView = note.object as? PDFView,
@@ -383,30 +385,31 @@ struct PageEditView: View {
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor page  ", pdfPageItem.name)
-            if pdfPageItem.pdfPage != page {
-                print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor page != pdfPageItem.pdfPage ", pdfPageItem.name)
+            let pdfPage = self.pdfPageItem.pdfPage
+            if pdfPage != page {
+                print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor page != pdfPageItem.pdfPage ", pdfPageItem.name, "\n")
           //      pdfPageItem.pdfPage = page
             }
-            let view = PDFPageOverlayView()
-            view.document = document
-            view.pdfView = pdfView
+            return nil
             
-            view.onFinish = { [weak page] rectInOverlay in
-                guard let page = page else {
-                    return
-                }
+            let overlayView = PDFPageOverlayView()
+            overlayView.document = document
+            overlayView.pdfView = pdfView
+            
+            overlayView.onFinish = { rectInOverlay in
+                
                 
                 // Convert overlay-local rect to PDFView coordinates
-                let rectInView = view.convert(rectInOverlay, to: pdfView)
+                let rectInView = overlayView.convert(rectInOverlay, to: pdfView)
                 
                 // Clamp to page bounds in PDFView coordinates
-                let pageBoundsInView = pdfView.convert(page.bounds(for: .cropBox), from: page)
+                let pageBoundsInView = pdfView.convert(pdfPage.bounds(for: .cropBox), from: pdfPage)
                 let clamped = rectInView.intersection(pageBoundsInView)
                 guard !clamped.isEmpty else { return }
                 
                 // Convert to page coords
-                let pageRect = pdfView.convert(clamped, to: page)
-                let media = page.bounds(for: .cropBox)
+                let pageRect = pdfView.convert(clamped, to: pdfPage)
+                let media = pdfPage.bounds(for: .cropBox)
                 
                 let left = max(0, pageRect.minX - media.minX)
                 let right = max(0, media.maxX - pageRect.maxX)
@@ -426,13 +429,13 @@ struct PageEditView: View {
             }
             
             // Seed current rect from trims
-            DispatchQueue.main.async { [weak view, weak page, weak pdfView] in
-                guard let view = view, let page = page, let pdfView = pdfView else { return }
+            DispatchQueue.main.async { [weak overlayView, weak pdfPage, weak pdfView] in
+                guard let overlayView = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
             //    guard let pageItem = self.document.pdfPageItem(for: page) else { return }
-                let crop = page.bounds(for: .cropBox)
-                let cropInView = pdfView.convert(crop, from: page)
-                let cropInOverlay = view.convert(cropInView, from: pdfView)
-                view.clampRect = cropInOverlay
+                let crop = pdfPage.bounds(for: .cropBox)
+                let cropInView = pdfView.convert(crop, from: pdfPage)
+                let cropInOverlay = overlayView.convert(cropInView, from: pdfView)
+                overlayView.clampRect = cropInOverlay
                 // Recompute visible using current trims
                 //                 fatalError()
                 let trims = self.pdfPageItem.trims
@@ -442,14 +445,14 @@ struct PageEditView: View {
                     width: crop.width - trims.left - trims.right,
                     height: crop.height - trims.top - trims.bottom
                 )
-                let visibleInView = pdfView.convert(visibleInPage, from: page)
-                let visibleInOverlay = view.convert(visibleInView, from: pdfView)
-                view.currentRect = visibleInOverlay
+                let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
+                let visibleInOverlay = overlayView.convert(visibleInView, from: pdfView)
+                overlayView.currentRect = visibleInOverlay
                 
-                view.needsDisplay = true
+                overlayView.needsDisplay = true
             }
             
-            return view
+            return overlayView
         }
         
     }
@@ -481,8 +484,8 @@ struct PageEditView: View {
             pdfView.autoScales = true
             pdfView.displayDirection = .vertical
             pdfView.backgroundColor = .blue
-            
             onPDFViewReady(pdfView)
+
             return pdfView
         }
 
