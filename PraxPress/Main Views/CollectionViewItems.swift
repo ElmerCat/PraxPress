@@ -125,7 +125,20 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     
     override func prepareForReuse() {
         print(Date().formatted(preferredFormat), "CollectionViewItem - prepareForReuse - \(String(describing: kind))")
+        
+        switch kind {
+        case let .thumbnail(item):
+            print("Reusing thumbnail(item) - was: \(item.name)")
+        case let .page(item):
+            print("Reusing page(item) - was: \(item.name)")
+            
+        default:
+            break
+            
+        }
     }
+    
+    
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)

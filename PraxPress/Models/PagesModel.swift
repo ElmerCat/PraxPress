@@ -47,11 +47,15 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     var pageItems: [PageItem] = [] {
         didSet {
             print("\n pdfPageItems didSet: \(self.pageItems.count)\nrefreshMergedPage()\n")
-            refreshMergedPage()
+            refreshMergedPage(true)
         }
     }
     var refreshingMergedPage = false
-    func refreshMergedPage() {
+    func refreshMergedPage(_ refreshEditing: Bool = false) {
+        if refreshEditing == true {
+            document.refreshEditingDocument()
+        }
+        
         if refreshingMergedPage { return }
         refreshingMergedPage = true
         
@@ -63,7 +67,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         }
         mergeModePages = pages
         
-        print("MergedPage - refreshMergedPage() mergeModePages: ", mergeModePages)
+        print("MergedPage - refreshMergedPage(", refreshEditing, ") mergeModePages: ", mergeModePages)
         
         if mergeModePages < 1 {
             pdfPage = nil 
@@ -156,7 +160,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     
                     // Translate annotation bounds from source page space into merged page space
                     let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
-                    
+     /*
                     // Destination rect for this slice in merged page coordinates
                     let destSliceRect = CGRect(x: 0,
                                                y: placedOriginsY[pageIndex],
@@ -204,8 +208,8 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     
                     // Final safety: ensure we still overlap the slice (in case slice is extremely small)
                     guard fitted.intersects(destSliceRect) else { continue }
-                    
-                    copiedAnnotation.bounds = fitted
+   */
+                    copiedAnnotation.bounds = translatedBounds
                     mergedPDFPage.addAnnotation(copiedAnnotation)
                     
                     // Preserve text values for text widgets
@@ -297,7 +301,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
             if _merge == newValue { return }
             _merge = newValue
             print("PageItem merge didSet")
-            mergedPage.refreshMergedPage()
+            mergedPage.refreshMergedPage(true)
         }
     }
 }

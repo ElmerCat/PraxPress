@@ -66,7 +66,42 @@ import Foundation
         }
     }
     
-    var documentVersion = UUID()
+    var editingDocumentVersion = UUID()
+    var mergedDocumentVersion = UUID()
+    
+    func refreshEditingDocument() {
+        if refreshingEditingDocument { return }
+        
+        print("refreshEditingDocument")
+        refreshingEditingDocument = true
+        
+        let norma = Task {
+            
+            try? await Task.sleep(for:.milliseconds(100))
+
+            print("refreshEditingDocument — started")
+
+            var insertIndex = 0
+            let pdfDocument = PDFDocument()
+            pageSections.forEach {
+                section in
+                section.pageItems.forEach {
+                    pageItem in
+                    if pageItem.merge != .mergeSkip {
+                        pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
+                        insertIndex += 1
+                    }
+                }
+            }
+            editingPDFDocument = pdfDocument
+            editingDocumentVersion = UUID()
+            self.refreshingEditingDocument = false
+            print("refreshEditingDocument — done")
+            refreshMergedDocument()
+        }
+        print("refreshEditingDocument — Task starting")
+  
+    }
     
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
@@ -90,7 +125,7 @@ import Foundation
                 }
             }
             mergedPDFDocument = pdfDocument
-            documentVersion = UUID()
+            mergedDocumentVersion = UUID()
             self.refreshingMergedDocument = false
             print("refreshMergedDocument — done")
         }
@@ -106,20 +141,34 @@ import Foundation
         didSet {
             print ("mergedPDFDocument didSet ")
             mergedPDFView.document = mergedPDFDocument
-   //         refreshingMergedDocument = false
         }
     }
-   
-     var refreshingMergedDocument: Bool = false  {
+    var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
-            if refreshingMergedDocument {
-                print ("Refreshing Merged Document") }
-            else {
-                print ("Merged Document Refreshed") }
+            print ("editingPDFDocument didSet ")
+ //           editingPDFView.document = editingPDFDocument
         }
     }
-    
- 
+
+    var refreshingEditingDocument: Bool = false  {
+       didSet {
+           if refreshingEditingDocument {
+               print ("Refreshing Editing Document") }
+           else {
+               print ("Editing Document Refreshed") }
+       }
+   }
+   
+    var refreshingMergedDocument: Bool = false  {
+       didSet {
+           if refreshingMergedDocument {
+               print ("Refreshing Merged Document") }
+           else {
+               print ("Merged Document Refreshed") }
+       }
+   }
+   
+
     var sourceFolderURL: URL?
     var exportFolderURL: URL?
     //  var exportFolderURLBookmark: Data?

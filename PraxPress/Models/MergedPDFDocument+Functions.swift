@@ -60,8 +60,8 @@ extension MergedPDFDocument {
                 }
             }
         }
-        fatalError("No Such Number")
-      //  return nil
+      //  fatalError("No Such Number")
+        return nil
     }
     
     func pdfPageItem(indexPath: IndexPath) -> PageItem? {

@@ -49,18 +49,17 @@ struct PDFFilesListRow: View {
     var body: some View {
      GroupBox {
          HStack {
-             Text(pdfFile.fileName)
+             Text(pdfFile.fileName).lineLimit(1)
              Spacer()
-             Text(String(pdfFile.pageCount))
+             Text(String(pdfFile.pageCount)).lineLimit(1)
              if pdfFile.bookmarkData.count > 0 {
-                 Button("Merge", systemImage: "arrowshape.zigzag.forward", action: {
+                 Button("\(pdfFile.pageCount) Pages", systemImage: "arrowshape.zigzag.forward", action: {
                      let isOkay = testBookmark(for: pdfFile)
                      print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
                      if isOkay {
                          document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
                      }
-                 })
-
+                 }).controlSize(ControlSize.mini)
              }
              else {
                  Label("Not Found", systemImage: "nosign")

@@ -82,7 +82,10 @@ final class PraxModel {
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    
+    var editingDocumentPDFView: PDFView?
+    var editingDocumentCurrentPage: Int = -1
+    var mergedDocumentPDFView: PDFView?
+
     var splitView: NSSplitView?
     var dividerZeroMinPos: CGFloat = 100
     var dividerZeroMaxPos: CGFloat = 400
@@ -163,6 +166,11 @@ final class PraxModel {
     let pdfViewRegistry = PDFViewRegistry()
     
 }
+
+
+
+
+
 
 final class WeakPDFViewRef {
     weak var view: PDFView?

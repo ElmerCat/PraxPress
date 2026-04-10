@@ -289,6 +289,8 @@ struct PageEditView: View {
                             }
                             .help("Set width guide")
                         
+                       Text("\(pdfPageItem!.name)  L-\(Int(pdfPageItem!.trims.left)) T-\(Int(pdfPageItem!.trims.top)) B-\(Int(pdfPageItem!.trims.bottom)) R-\(Int(pdfPageItem!.trims.right))")
+                        
                     }
                 }
                 .padding(8)
@@ -362,8 +364,10 @@ struct PageEditView: View {
         
         let document: MergedPDFDocument
         let pdfPageItem: PageItem
-        let pdfDocument = PDFDocument()
+    //    let pdfDocument = PDFDocument()
         var pdfView: PDFView?
+        var overlayView: PDFPageOverlayView?
+        
     //    var pdfPage: PDFPage?
          
         @objc func pageChanged(_ note: Notification) {
@@ -385,57 +389,33 @@ struct PageEditView: View {
         
         func pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage) -> NSView? {
             print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor page  ", pdfPageItem.name)
+            
+            let pageItemForPDFPage = document.pdfPageItem(for: page)
+            if pageItemForPDFPage != pdfPageItem {
+                print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - pageItemForPDFPage != pdfPageItem ", pdfPageItem.name, " - ", pageItemForPDFPage?.name ?? "nil", "\n")
+            }
+            
             let pdfPage = self.pdfPageItem.pdfPage
             if pdfPage != page {
                 print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor page != pdfPageItem.pdfPage ", pdfPageItem.name, "\n")
           //      pdfPageItem.pdfPage = page
             }
+            
+            if pdfView != self.pdfView {
+                print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor pdfView != self.pdfView ", pdfPageItem.name, "\n")
+
+            }
             return nil
             
-            let overlayView = PDFPageOverlayView()
-            overlayView.document = document
-            overlayView.pdfView = pdfView
-            
-            overlayView.onFinish = { rectInOverlay in
-                
-                
-                // Convert overlay-local rect to PDFView coordinates
-                let rectInView = overlayView.convert(rectInOverlay, to: pdfView)
-                
-                // Clamp to page bounds in PDFView coordinates
-                let pageBoundsInView = pdfView.convert(pdfPage.bounds(for: .cropBox), from: pdfPage)
-                let clamped = rectInView.intersection(pageBoundsInView)
-                guard !clamped.isEmpty else { return }
-                
-                // Convert to page coords
-                let pageRect = pdfView.convert(clamped, to: pdfPage)
-                let media = pdfPage.bounds(for: .cropBox)
-                
-                let left = max(0, pageRect.minX - media.minX)
-                let right = max(0, media.maxX - pageRect.maxX)
-                let bottom = max(0, pageRect.minY - media.minY)
-                let top = max(0, media.maxY - pageRect.maxY)
-                
-                let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-                print("DocumentEditingView Coordinator - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top, "pdfPageItem.name: ", self.pdfPageItem.name)
-                
-                self.pdfPageItem.trims = trims
-/*
-                // var pdfPageItem = prax.pdfPageItem(for: page)!
-                let indexPath = self.document.pdfPageIndexPath(for: page)
-                guard let indexPath = indexPath else { return }
-                self.document.pageSections[indexPath.section].pdfPageItems[indexPath.item].trims = trims
-*/
-            }
             
             // Seed current rect from trims
-            DispatchQueue.main.async { [weak overlayView, weak pdfPage, weak pdfView] in
-                guard let overlayView = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
+            DispatchQueue.main.async { [self] in // [weak overlayView, weak pdfPage, weak pdfView] in
+              //  guard let overlayView = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
             //    guard let pageItem = self.document.pdfPageItem(for: page) else { return }
-                let crop = pdfPage.bounds(for: .cropBox)
-                let cropInView = pdfView.convert(crop, from: pdfPage)
-                let cropInOverlay = overlayView.convert(cropInView, from: pdfView)
-                overlayView.clampRect = cropInOverlay
+                let crop = self.pdfPageItem.pdfPage.bounds(for: .cropBox)
+                let cropInView = pdfView.convert(crop, from: self.pdfPageItem.pdfPage)
+                let cropInOverlay = overlayView!.convert(cropInView, from: pdfView)
+                overlayView!.clampRect = cropInOverlay
                 // Recompute visible using current trims
                 //                 fatalError()
                 let trims = self.pdfPageItem.trims
@@ -445,11 +425,11 @@ struct PageEditView: View {
                     width: crop.width - trims.left - trims.right,
                     height: crop.height - trims.top - trims.bottom
                 )
-                let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
-                let visibleInOverlay = overlayView.convert(visibleInView, from: pdfView)
-                overlayView.currentRect = visibleInOverlay
+                let visibleInView = pdfView.convert(visibleInPage, from: self.pdfPageItem.pdfPage)
+                let visibleInOverlay = overlayView!.convert(visibleInView, from: pdfView)
+                overlayView!.currentRect = visibleInOverlay
                 
-                overlayView.needsDisplay = true
+                overlayView!.needsDisplay = true
             }
             
             return overlayView
@@ -476,20 +456,57 @@ struct PageEditView: View {
         
         func makeNSView(context: Context) -> PDFView {
             print(Date().formatted(preferredFormat), "PDFViewRepresentable - makeNSView")
-            let pdfView = PDFView()
-            context.coordinator.pdfView = pdfView
-            pdfView.pageOverlayViewProvider = context.coordinator
-            pdfView.document = context.coordinator.pdfDocument
             
-            pdfView.autoScales = true
-            pdfView.displayDirection = .vertical
-            pdfView.backgroundColor = .blue
-            onPDFViewReady(pdfView)
-
-            return pdfView
+            context.coordinator.pdfView = PDFView()
+            context.coordinator.overlayView = PDFPageOverlayView()
+            context.coordinator.overlayView!.document = document
+            context.coordinator.overlayView!.pdfView = context.coordinator.pdfView
+            
+            context.coordinator.overlayView!.onFinish = { [self] rectInOverlay in
+                
+                print("overlayView.onFinish - \(pdfPageItem.name)")
+                // Convert overlay-local rect to PDFView coordinates
+                let rectInView = context.coordinator.overlayView!.convert(rectInOverlay, to: context.coordinator.pdfView)
+                
+                // Clamp to page bounds in PDFView coordinates
+                let pageBoundsInView = context.coordinator.pdfView!.convert(pdfPageItem.pdfPage.bounds(for: .cropBox), from: pdfPageItem.pdfPage)
+                let clamped = rectInView.intersection(pageBoundsInView)
+                guard !clamped.isEmpty else { return }
+                
+                // Convert to page coords
+                let pageRect = context.coordinator.pdfView!.convert(clamped, to: pdfPageItem.pdfPage)
+                let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
+                
+                let left = max(0, pageRect.minX - media.minX)
+                let right = max(0, media.maxX - pageRect.maxX)
+                let bottom = max(0, pageRect.minY - media.minY)
+                let top = max(0, media.maxY - pageRect.maxY)
+                
+                let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
+                print("DocumentEditingView Coordinator - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top, "pdfPageItem.name: ", self.pdfPageItem.name)
+                
+                self.pdfPageItem.trims = trims
+/*
+                // var pdfPageItem = prax.pdfPageItem(for: page)!
+                let indexPath = self.document.pdfPageIndexPath(for: page)
+                guard let indexPath = indexPath else { return }
+                self.document.pageSections[indexPath.section].pdfPageItems[indexPath.item].trims = trims
+*/
+            }
+            
+            context.coordinator.pdfView!.pageOverlayViewProvider = context.coordinator
+            context.coordinator.pdfView!.document = PDFDocument()
+            
+            
+            
+            context.coordinator.pdfView!.autoScales = true
+            context.coordinator.pdfView!.displayDirection = .vertical
+            context.coordinator.pdfView!.backgroundColor = .blue
+            
+            
+            onPDFViewReady(context.coordinator.pdfView!)
+            return context.coordinator.pdfView!
         }
-
-
 
         func updateNSView(_ pdfView: PDFView, context: Context) {
  
@@ -499,12 +516,13 @@ struct PageEditView: View {
             }
  
             print(Date().formatted(preferredFormat), "Updating - pdfView.document ", pdfPageItem.name)
+       
+            pdfView.pageOverlayViewProvider = context.coordinator
             
             while pdfView.document!.pageCount > 0 {
                 pdfView.document!.removePage(at: 0)
             }
-            context.coordinator.pdfDocument.insert(pdfPageItem.pdfPage, at: 0)
-
+            pdfView.document!.insert(pdfPageItem.pdfPage, at: 0)
             
         }
     }

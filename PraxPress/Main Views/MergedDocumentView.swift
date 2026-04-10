@@ -60,7 +60,7 @@ struct MergedPDFDocumentView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-
+        let _ = Self._printChanges()
         
         GroupBox {
             GeometryReader { proxy in
@@ -208,7 +208,7 @@ struct MergedPDFDocumentView: View {
         func makeNSView(context: Context) -> PDFView {
       //      print("MergedPDFDocumentView - PDFViewRepresentable - makeNSView")
             let pdfView = PDFView()
-            
+            document.prax.mergedDocumentPDFView = pdfView
             pdfView.document = document.mergedPDFDocument
             pdfView.autoScales = true
             pdfView.displayDirection = .vertical
@@ -220,14 +220,14 @@ struct MergedPDFDocumentView: View {
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
             
-            if context.coordinator.documentVersion != document.documentVersion {
+            if context.coordinator.documentVersion != document.mergedDocumentVersion {
                 var pageIndex: Int = 0
                 if let pdfViewCurrentPage = pdfView.currentPage {
                     pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
                 }
                 
-                print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.documentVersion)
-                context.coordinator.documentVersion = document.documentVersion
+                print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.mergedDocumentVersion)
+                context.coordinator.documentVersion = document.mergedDocumentVersion
                 pdfView.document = document.mergedPDFDocument
                 if let pdfPage = pdfView.document?.page(at: pageIndex) {
                     pdfView.go(to: pdfPage)

@@ -82,11 +82,13 @@ struct DocumentEditingView: NSViewRepresentable {
         // Attach both scroll views to split view
         
         let mergedDoumentView = MergedPDFDocumentNSView()
+        let editingDoumentView = EditingPDFDocumentNSView()
         
         splitView.arrangesAllSubviews = true
         splitView.addArrangedSubview(pageItemScrollView)
-        splitView.addArrangedSubview(pageEditScrollView)
+     //   splitView.addArrangedSubview(pageEditScrollView)
      //   splitView.addArrangedSubview(mergedPageScrollView)
+        splitView.addArrangedSubview(editingDoumentView)
         splitView.addArrangedSubview(mergedDoumentView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
