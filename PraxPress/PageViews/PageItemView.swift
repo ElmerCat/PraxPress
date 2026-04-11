@@ -462,7 +462,7 @@ struct PageEditView: View {
             context.coordinator.overlayView!.document = document
             context.coordinator.overlayView!.pdfView = context.coordinator.pdfView
             
-            context.coordinator.overlayView!.onFinish = { [self] rectInOverlay in
+ /*           context.coordinator.overlayView!.onFinish = { [self] rectInOverlay in
                 
                 print("overlayView.onFinish - \(pdfPageItem.name)")
                 // Convert overlay-local rect to PDFView coordinates
@@ -493,7 +493,7 @@ struct PageEditView: View {
                 self.document.pageSections[indexPath.section].pdfPageItems[indexPath.item].trims = trims
 */
             }
-            
+   */
             context.coordinator.pdfView!.pageOverlayViewProvider = context.coordinator
             context.coordinator.pdfView!.document = PDFDocument()
             

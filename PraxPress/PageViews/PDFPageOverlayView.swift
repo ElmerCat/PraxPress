@@ -11,9 +11,8 @@ import AppKit
 // Minimal trim overlay handle view reused per page by the provider
 final class PDFPageOverlayView: NSView {
     var document: MergedPDFDocument?
-    
+    var pageItem: PageItem?
     var pdfView: PDFView?
-    var onFinish: ((CGRect) -> Void)?
     var currentRect: CGRect? { didSet { needsDisplay = true } }
     var clampRect: CGRect?
     
@@ -322,7 +321,7 @@ final class PDFPageOverlayView: NSView {
                 let adjusted = adjustedMethod(point, rect)
                 if adjusted.width >= handleSize * 2 && adjusted.height >= handleSize * 2 {
                     currentRect = adjusted
-                    onFinish?(adjusted)
+                    setTrims()
                     return
                 }
             }
@@ -339,7 +338,7 @@ final class PDFPageOverlayView: NSView {
             // Initialize to full-page-based largest crop with click as a corner
             let initRect = initialRectForClick(point)
             currentRect = initRect
-            onFinish?(initRect)
+            setTrims()
             dragMode = .none
             originalRect = nil
             return
@@ -391,7 +390,7 @@ final class PDFPageOverlayView: NSView {
         dragMode = .none
         dragStart = nil
         originalRect = nil
-        if let rect = currentRect { onFinish?(rect) }
+        if let rect = currentRect { setTrims()}
     }
     
     private func handleRects(for rect: CGRect) -> [Handle: CGRect] {
@@ -415,5 +414,41 @@ final class PDFPageOverlayView: NSView {
             if handleRect.insetBy(dx: -hitInset, dy: -hitInset).contains(point) { return handle }
         }
         return nil
+    }
+    
+    
+    private func setTrims() {
+        
+        guard let pageItem, let currentRect, let document else {
+            print("overlayView.onFinish - No Page Item")
+            return
+        }
+        // Convert overlay-local rect to PDFView coordinates
+        let rectInView = convert(currentRect, to: document.prax.editingDocumentPDFView)
+        
+        // Clamp to page bounds in PDFView coordinates
+        let pageBoundsInView = document.prax.editingDocumentPDFView.convert(pageItem.pdfPage.bounds(for: .cropBox), from: pageItem.pdfPage)
+        let clamped = rectInView.intersection(pageBoundsInView)
+        guard !clamped.isEmpty else { return }
+        
+        // Convert to page coords
+        let pageRect = document.prax.editingDocumentPDFView.convert(clamped, to: pageItem.pdfPage)
+        let media = pageItem.pdfPage.bounds(for: .cropBox)
+        
+        let left = max(0, pageRect.minX - media.minX)
+        let right = max(0, media.maxX - pageRect.maxX)
+        let bottom = max(0, pageRect.minY - media.minY)
+        let top = max(0, media.maxY - pageRect.maxY)
+        
+        let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
+        print("overlayView.onFinish - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top, "pdfPageItem.name: ", pageItem.name)
+        
+        pageItem.trims = trims
+        /*
+         // var pdfPageItem = prax.pdfPageItem(for: page)!
+         let indexPath = self.document.pdfPageIndexPath(for: page)
+         guard let indexPath = indexPath else { return }
+         self.document.pageSections[indexPath.section].pdfPageItems[indexPath.item].trims = trims
+         */
     }
 }

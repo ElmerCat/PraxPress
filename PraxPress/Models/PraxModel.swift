@@ -82,8 +82,15 @@ final class PraxModel {
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    var editingDocumentPDFView: PDFView?
-    var editingDocumentCurrentPage: Int = -1
+    var editingDocumentPDFView: PDFView = PDFView()
+    var editingDocumentCurrentPage: Int = -1 {
+        didSet {
+            print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
+        }
+    }
+    var editingDocumentCurrentPageItem: PageItem?
+    
+    
     var mergedDocumentPDFView: PDFView?
 
     var splitView: NSSplitView?

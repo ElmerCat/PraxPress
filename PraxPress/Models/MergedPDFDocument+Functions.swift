@@ -468,7 +468,7 @@ extension MergedPDFDocument {
                     // Translate annotation bounds from source page space into merged page space
                     let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
                     
-                    // Destination rect for this slice in merged page coordinates
+   /*                 // Destination rect for this slice in merged page coordinates
                     let destSliceRect = CGRect(x: 0,
                                                y: placedOriginsY[pageIndex],
                                                width: trimmedPageRect.width,
@@ -517,6 +517,9 @@ extension MergedPDFDocument {
                     guard fitted.intersects(destSliceRect) else { continue }
                     
                     copiedAnnotation.bounds = fitted
+   */
+                    copiedAnnotation.bounds = translatedBounds
+               
                     mergedPage.addAnnotation(copiedAnnotation)
                     
                     // Preserve text values for text widgets
