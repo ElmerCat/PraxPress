@@ -102,6 +102,16 @@ struct PageItemView: View {
                             }
                             .help("Merge page mode")
                             
+                            Button("", systemImage: "ruler", action: {
+                                document.clickedGuidePageButton(pdfPageItem!)
+                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
+                                .onHover { hovering in
+                                    hoveredButton = hovering ? 4 : nil
+                                }
+                                .help("Set width guide")
+                            
+                           Text("\(pdfPageItem!.name)  L-\(Int(pdfPageItem!.trims.left)) T-\(Int(pdfPageItem!.trims.top)) B-\(Int(pdfPageItem!.trims.bottom)) R-\(Int(pdfPageItem!.trims.right))")
+                            
                         }
                     }
                     )
@@ -130,41 +140,6 @@ struct PageItemView: View {
             EmptyView()
         }
         
-    }
-    
-
-    
-    
-    func clickedGuidePageButton(_ pdfPageItem: PageItem) {
-        
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(pdfPageItem.name) - PageItemView!")
-        
-        if document.widthGuidePageID == pdfPageItem.id {
-            document.clearWidthGuide()
-        } else {
-            if prax.optionKeyPressed {
-                if document.widthGuidePageID == nil { return }
-                guard let guidePage = document.pdfPageItem(id: document.widthGuidePageID!) else { return }
-                
-                var trims = pdfPageItem.trims
-                print ("old trims: ", pdfPageItem.trims )
-                print (guidePage.trims)
-                print (trims)
-                
-                
-                trims.left = guidePage.trims.left
-                trims.right = guidePage.trims.right
-                pdfPageItem.trims = trims
-                print("PageItem - clickedGuidePageButton copied guide page trims to current page")
-                print ("new trims: ",pdfPageItem.trims )
-                
-            }
-            else {
-                document.setWidthGuide(fromPage: pdfPageItem)
-                
-            }
-            
-        }
     }
 }
 
@@ -405,7 +380,7 @@ struct PageEditView: View {
                 print(Date().formatted(preferredFormat), "PageItemPDFViewCoordinator - overlayViewFor pdfView != self.pdfView ", pdfPageItem.name, "\n")
 
             }
-            return nil
+           // return nil
             
             
             // Seed current rect from trims

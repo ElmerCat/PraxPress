@@ -72,7 +72,8 @@ final class PDFPageOverlayView: NSView {
     
     private func computeGuidelines() {
         
-        if let guideLeftX = document!.widthGuideLeftX,
+        if let pdfView,
+           let guideLeftX = document!.widthGuideLeftX,
            let guideRightX = document!.widthGuideRightX,
            let widthGuidePage = document!.widthGuidePage()  {
             
@@ -93,8 +94,8 @@ final class PDFPageOverlayView: NSView {
             let leftRectInPage = CGRect(x: currentLeftX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
             let rightRectInPage = CGRect(x: currentRightX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
             // Convert to view space and then overlay space
-            let leftInView = (pdfView?.convert(leftRectInPage, from: widthGuidePage.pdfPage))!
-            let rightInView = (pdfView?.convert(rightRectInPage, from: widthGuidePage.pdfPage))!
+            let leftInView = (pdfView.convert(leftRectInPage, from: widthGuidePage.pdfPage))
+            let rightInView = (pdfView.convert(rightRectInPage, from: widthGuidePage.pdfPage))
             let leftInOverlay = self.convert(leftInView, from: pdfView)
             let rightInOverlay = self.convert(rightInView, from: pdfView)
             guideXLeft = leftInOverlay.midX
@@ -115,6 +116,7 @@ final class PDFPageOverlayView: NSView {
             
             
         } else {
+            print("PDFPageOverlayView - computeGuidelines - No pdfView ")
             guideXLeft = nil
             guideXRight = nil
         }

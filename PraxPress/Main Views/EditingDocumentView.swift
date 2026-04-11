@@ -165,6 +165,7 @@ struct EditingPDFDocumentView: View {
             if let pageItem = document.pdfPageItem(for: pdfPage) {
                 print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
                 let overlayView = PDFPageOverlayView()
+                overlayView.pdfView = pdfView
                 overlayView.pageItem = pageItem
                 overlayView.document = document
                 
