@@ -86,7 +86,7 @@ struct DocumentEditingView: NSViewRepresentable {
         
         splitView.arrangesAllSubviews = true
         splitView.addArrangedSubview(pageItemScrollView)
-     //   splitView.addArrangedSubview(pageEditScrollView)
+        splitView.addArrangedSubview(pageEditScrollView)
      //   splitView.addArrangedSubview(mergedPageScrollView)
         splitView.addArrangedSubview(editingDoumentView)
         splitView.addArrangedSubview(mergedDoumentView)
@@ -114,11 +114,13 @@ struct DocumentEditingView: NSViewRepresentable {
         DispatchQueue.main.async {
             
             let splidth = splitView.frame.width
-            let position = ((splidth - 120) * 0.75) + 120
-            
-            print("DocumentEditingView - plitView.setPosition(\(position), ofDividerAt: 1)")
+            let positionOne = ((splidth - 120) * 0.50) + 120
+            let positionTwo = ((splidth - 120) * 0.75) + 120
+
+            print("DocumentEditingView - plitView.setPosition(\(String(describing: positionOne)), ofDividerAt: 1  - \(String(describing: positionTwo)) ofDividerAt: 2")
             splitView.setPosition(120, ofDividerAt: 0)
-            splitView.setPosition(position, ofDividerAt: 1)
+            splitView.setPosition(positionOne, ofDividerAt: 1)
+            splitView.setPosition(positionTwo, ofDividerAt: 2)
         }
 
         return splitView

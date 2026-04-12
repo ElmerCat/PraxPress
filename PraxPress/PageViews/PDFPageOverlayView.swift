@@ -10,9 +10,65 @@ import AppKit
 
 // Minimal trim overlay handle view reused per page by the provider
 final class PDFPageOverlayView: NSView {
+    let pageItem: PageItem
+    init(pageItem: PageItem) {
+        self.pageItem = pageItem
+        super.init(frame: .zero)
+ //       wantsLayer = true
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     var document: MergedPDFDocument?
-    var pageItem: PageItem?
-    var pdfView: PDFView?
+    
+    var pdfView: PDFView? { didSet {
+        
+        DispatchQueue.main.async { [weak self, weak pageItem, weak pdfView] in
+            guard let self, let pageItem, let pdfView = pdfView else { return }
+            
+            let crop = pageItem.pdfPage.bounds(for: .cropBox)
+            let cropInView = pdfView.convert(crop, from: pageItem.pdfPage)
+            let cropInOverlay = self.convert(cropInView, from: pdfView)
+            self.clampRect = cropInOverlay
+            // Recompute visible using current trims
+            //                 fatalError()
+            let trims = pageItem.trims
+            let visibleInPage = CGRect(
+                x: crop.minX + trims.left,
+                y: crop.minY + trims.bottom,
+                width: crop.width - trims.left - trims.right,
+                height: crop.height - trims.top - trims.bottom
+            )
+            
+            let visibleInView = pdfView.convert(visibleInPage, from: pageItem.pdfPage)
+            let visibleInOverlay = self.convert(visibleInView, from: pdfView)
+            
+            self.currentRect = visibleInOverlay
+            
+            self.needsDisplay = true
+        }
+        
+       
+    }}
+    
+    func setCurrentRectFromPageItemTrims() {
+        let crop = pageItem.pdfPage.bounds(for: .cropBox)
+        let visibleInPage = CGRect(
+            x: crop.minX + pageItem.trims.left,
+            y: crop.minY + pageItem.trims.bottom,
+            width: crop.width - pageItem.trims.left - pageItem.trims.right,
+            height: crop.height - pageItem.trims.top - pageItem.trims.bottom
+        )
+        
+        let visibleInView = pdfView!.convert(visibleInPage, from: pageItem.pdfPage)
+        let visibleInOverlay = self.convert(visibleInView, from: pdfView)
+        
+        currentRect = visibleInOverlay
+
+        
+    }
     var currentRect: CGRect? { didSet { needsDisplay = true } }
     var clampRect: CGRect?
     
@@ -34,6 +90,19 @@ final class PDFPageOverlayView: NSView {
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
+        
+        Observation.withObservationTracking {
+            print("Observation.withObservationTracking Trims: \(pageItem.trims)")
+                    // Access properties here to start tracking
+                } onChange: {
+                    // 3. React to changes
+                    DispatchQueue.main.async {
+                        self.setCurrentRectFromPageItemTrims()
+                        self.setNeedsDisplay(self.bounds)
+                        print("Observation.withObservationTracking Trims: Property changed, Trims: \(self.pageItem.trims)")
+                    }
+                }
+        
         guard let r = currentRect else { return }
         NSColor.systemBlue.setStroke()
         NSColor.systemBlue.withAlphaComponent(0.15).setFill()
@@ -49,6 +118,8 @@ final class PDFPageOverlayView: NSView {
             handlePath.lineWidth = 1.5
             handlePath.stroke()
         }
+        
+        
         
         computeGuidelines()
         // Draw guidelines if provided
@@ -392,7 +463,7 @@ final class PDFPageOverlayView: NSView {
         dragMode = .none
         dragStart = nil
         originalRect = nil
-        if let rect = currentRect { setTrims()}
+        setTrims()
     }
     
     private func handleRects(for rect: CGRect) -> [Handle: CGRect] {
@@ -421,7 +492,7 @@ final class PDFPageOverlayView: NSView {
     
     private func setTrims() {
         
-        guard let pageItem, let currentRect, let document else {
+        guard let currentRect, let document else {
             print("overlayView.onFinish - No Page Item")
             return
         }

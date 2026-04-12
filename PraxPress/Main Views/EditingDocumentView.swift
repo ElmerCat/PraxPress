@@ -164,20 +164,20 @@ struct EditingPDFDocumentView: View {
             
             if let pageItem = document.pdfPageItem(for: pdfPage) {
                 print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
-                let overlayView = PDFPageOverlayView()
+                let overlayView = pageItem.overlayView
                 overlayView.pdfView = pdfView
-                overlayView.pageItem = pageItem
                 overlayView.document = document
                 
-                
+                /*
                 // Seed current rect from trims
                             DispatchQueue.main.async { [weak overlayView, weak pdfPage, weak pdfView] in
                                 guard let view = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
                                 guard let pageItem = self.document.pdfPageItem(for: pdfPage) else { return }
+                                
                                 let crop = pdfPage.bounds(for: .cropBox)
                                 let cropInView = pdfView.convert(crop, from: pdfPage)
                                 let cropInOverlay = view.convert(cropInView, from: pdfView)
-                                view.clampRect = cropInOverlay
+                          //      view.clampRect = cropInOverlay
                                 // Recompute visible using current trims
                                 //                 fatalError()
                                 let trims = pageItem.trims
@@ -187,14 +187,15 @@ struct EditingPDFDocumentView: View {
                                     width: crop.width - trims.left - trims.right,
                                     height: crop.height - trims.top - trims.bottom
                                 )
+                                
                                 let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
                                 let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+                                
                                 view.currentRect = visibleInOverlay
                                 
                                 view.needsDisplay = true
                             }
-                            
-                
+                  */
                 
                 return overlayView
             }

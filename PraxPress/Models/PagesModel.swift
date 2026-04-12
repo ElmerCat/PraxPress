@@ -156,7 +156,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 for annotation in pageItem.pdfPage.annotations {
                     // Only handle form fields; skip others as before
                     
-                    print(annotation.fieldName, " - ", annotation.widgetFieldType, " - ", annotation.widgetStringValue)
+                    print("\(String(describing: annotation.fieldName)) - \(annotation.widgetFieldType) - \(String(describing: annotation.widgetStringValue))")
                     
                     guard annotation.fieldName != nil else { continue }
                     guard let copiedAnnotation = annotation.copy() as? PDFAnnotation else { continue }
@@ -289,12 +289,17 @@ final class PageItem: Identifiable, Equatable, Hashable {
         }()
     }
     
+    var overlayView: PDFPageOverlayView {
+      return PDFPageOverlayView(pageItem: self)
+    }
+        
+    
     var thumbnail: NSImage?
     var trims: EdgeTrims = .zero {
         didSet {
             print(oldValue)
             print("PageItem trims didSet")
-            mergedPage.refreshMergedPage()
+            self.mergedPage.refreshMergedPage()
         }
     }
     private var _merge: MergeMode = .mergeDown

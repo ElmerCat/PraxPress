@@ -194,7 +194,7 @@ struct PageEditView: View {
                             }
                         }()
                         
-                        GroupBox {
+                      /*  GroupBox {
                             PDFViewRepresentable(
                                 document: document,
                                 pdfPageItem: pdfPageItem!,
@@ -212,7 +212,7 @@ struct PageEditView: View {
                         .frame(width: fittedSize.width, height: fittedSize.height)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .help(Text("\(pdfPageItem!.name)  L-\(Int(pdfPageItem!.trims.left)) T-\(Int(pdfPageItem!.trims.top)) B-\(Int(pdfPageItem!.trims.bottom)) R-\(Int(pdfPageItem!.trims.right))"))
-                        
+                     */
                     }
                     
                     
@@ -433,7 +433,7 @@ struct PageEditView: View {
             print(Date().formatted(preferredFormat), "PDFViewRepresentable - makeNSView")
             
             context.coordinator.pdfView = PDFView()
-            context.coordinator.overlayView = PDFPageOverlayView()
+            context.coordinator.overlayView = PDFPageOverlayView(pageItem: pdfPageItem)
             context.coordinator.overlayView!.document = document
             context.coordinator.overlayView!.pdfView = context.coordinator.pdfView
             

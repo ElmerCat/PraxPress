@@ -654,6 +654,8 @@ extension MergedPDFDocument {
                 trims.left = guidePage.trims.left
                 trims.right = guidePage.trims.right
                 pageItem.trims = trims
+            //    pageItem.overlayView.needsDisplay = true
+            //    pageItem.overlayView.display()
                 print("PageItem - clickedGuidePageButton copied guide page trims to current page")
                 print ("new trims: ", pageItem.trims )
                 
