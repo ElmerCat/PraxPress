@@ -42,7 +42,7 @@ import Foundation
     }
 
     
-    var mergedPDFView: PDFView = {
+    var amergedPDFView: PDFView = {
         let pdfView = PDFView()
         pdfView.displaysPageBreaks = true
         pdfView.displayMode = .singlePageContinuous
@@ -55,6 +55,8 @@ import Foundation
         return pdfView
     }()
     
+  
+/*
     var displayMode: PDFDisplayMode = .singlePageContinuous {
         didSet {
             mergedPDFView.displayMode = displayMode
@@ -65,21 +67,21 @@ import Foundation
             mergedPDFView.autoScales = autoScales
         }
     }
-    
+*/
     var editingDocumentVersion = UUID()
     var mergedDocumentVersion = UUID()
     
     func refreshEditingDocument() {
         if refreshingEditingDocument { return }
         
-        print("refreshEditingDocument")
+  //      print("refreshEditingDocument")
         refreshingEditingDocument = true
         
         let norma = Task {
             
             try? await Task.sleep(for:.milliseconds(100))
 
-            print("refreshEditingDocument — started")
+  //          print("refreshEditingDocument — started")
 
             var insertIndex = 0
             let pdfDocument = PDFDocument()
@@ -87,7 +89,7 @@ import Foundation
                 section in
                 section.pageItems.forEach {
                     pageItem in
-                    if pageItem.merge != .mergeSkip {
+                    if !pageItem.skipped {
                         pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
                         insertIndex += 1
                     }
@@ -96,24 +98,24 @@ import Foundation
             editingPDFDocument = pdfDocument
             editingDocumentVersion = UUID()
             self.refreshingEditingDocument = false
-            print("refreshEditingDocument — done")
+ //           print("refreshEditingDocument — done")
             refreshMergedDocument()
         }
-        print("refreshEditingDocument — Task starting")
+ //       print("refreshEditingDocument — Task starting")
   
     }
     
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
         
-        print("refreshMergedDocument")
+     //   print("refreshMergedDocument")
         refreshingMergedDocument = true
         
         let jean = Task {
             
             try? await Task.sleep(for:.milliseconds(100))
 
-            print("refreshMergedDocument — started")
+    //        print("refreshMergedDocument — started")
 
             var insertIndex = 0
             let pdfDocument = PDFDocument()
@@ -127,9 +129,9 @@ import Foundation
             mergedPDFDocument = pdfDocument
             mergedDocumentVersion = UUID()
             self.refreshingMergedDocument = false
-            print("refreshMergedDocument — done")
+  //          print("refreshMergedDocument — done")
         }
-        print("refreshMergedDocument — Task starting")
+ //       print("refreshMergedDocument — Task starting")
   
     }
 
@@ -139,13 +141,13 @@ import Foundation
     
     var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
-            print ("mergedPDFDocument didSet ")
-            mergedPDFView.document = mergedPDFDocument
+//            print ("mergedPDFDocument didSet ")
+           prax.mergedDocumentPDFView.document = mergedPDFDocument
         }
     }
     var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
-            print ("editingPDFDocument didSet ")
+//            print ("editingPDFDocument didSet ")
  //           editingPDFView.document = editingPDFDocument
         }
     }
@@ -153,18 +155,22 @@ import Foundation
     var refreshingEditingDocument: Bool = false  {
        didSet {
            if refreshingEditingDocument {
-               print ("Refreshing Editing Document") }
+  //             print ("Refreshing Editing Document")
+           }
            else {
-               print ("Editing Document Refreshed") }
+ //              print ("Editing Document Refreshed")
+           }
        }
    }
    
     var refreshingMergedDocument: Bool = false  {
        didSet {
            if refreshingMergedDocument {
-               print ("Refreshing Merged Document") }
+ //              print ("Refreshing Merged Document")
+           }
            else {
-               print ("Merged Document Refreshed") }
+  //             print ("Merged Document Refreshed")
+           }
        }
    }
    

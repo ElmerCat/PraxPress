@@ -82,7 +82,10 @@ final class PraxModel {
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    var editingDocumentPDFView: PDFView = PDFView()
+    let editingDocumentPDFView = PDFView()
+    let mergedDocumentPDFView = PDFView()
+   
+    
     var editingDocumentCurrentPage: Int = -1 {
         didSet {
             print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
@@ -91,8 +94,8 @@ final class PraxModel {
     var editingDocumentCurrentPageItem: PageItem?
     
     
-    var mergedDocumentPDFView: PDFView?
-
+//    var mergedDocumentPDFView: PDFView?
+/*
     var splitView: NSSplitView?
     var dividerZeroMinPos: CGFloat = 100
     var dividerZeroMaxPos: CGFloat = 400
@@ -116,7 +119,7 @@ final class PraxModel {
     //    print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
     }
 
-   
+ */
     
     
     
@@ -149,8 +152,8 @@ final class PraxModel {
     //        print("\($0)") }
     }}
     
-    var selectedPages: Set<IndexPath> = [] { didSet {
-        print("PraxModel - selectedPages didSet:  ", selectedPages)
+    var selectedEditPages: Set<IndexPath> = [] { didSet {
+        print("PraxModel - selectedEditPages didSet:  ", selectedEditPages)
     //          selectedPages.forEach {
     //              print("\($0)") }}
     }}

@@ -17,7 +17,63 @@ import PDFKit
 import UniformTypeIdentifiers
 
 
-struct SectionBackgroundView: View {
+struct PageItemSectionBackgroundView: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    
+    let indexPath: IndexPath
+    let isSelected: Bool
+    let highlightState: NSCollectionViewItem.HighlightState
+    
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        if document.pageSections.count > indexPath.section {
+            let mergedPage = document.pageSections[indexPath.section]
+            let imageSize = CGSize(width: 1200, height: 1600)
+            let sectionHeaderHeight = CGFloat(40)
+            
+            GroupBox {
+             /*   GeometryReader { proxy in
+                    VStack {
+                        Text("w: \(proxy.size.width)")
+                        Spacer()
+                        Text("h: \(proxy.size.height)")
+
+                        if let pdfPage = mergedPage.pdfPage {
+                            Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: proxy.size.width * 0.45) // 40% of GroupBox width
+                            //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
+                                .cornerRadius(6)
+                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
+                            
+                    }
+
+                        
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    
+                    //  .position(x: 0, y: 16)
+                }
+           */
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(0)
+            .background(PraxGradient(0))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.accentColor : Color.orange, lineWidth: 5)
+            )
+        }
+        
+        else { EmptyView() }
+    }
+}
+
+struct EditPageSectionBackgroundView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
@@ -36,21 +92,24 @@ struct SectionBackgroundView: View {
             GroupBox {
                 GeometryReader { proxy in
                     VStack {
-
-  //          Spacer()
-                       if let pdfPage = mergedPage.pdfPage {
+                        Text("\(mergedPage.title)")
+                       
+                        if let pdfPage = mergedPage.pdfPage {
                             Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: proxy.size.width * 0.45) // 40% of GroupBox width
+                                .frame(width: proxy.size.width * 0.45, alignment: .topLeading) // 40% of GroupBox width
                             //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
-                                .cornerRadius(6)
-                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
+                            //    .cornerRadius(6)
+                           //     .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
                             
                         }
-                    
+                        Spacer()
+                       
+
                         
                     }
+                    .padding(.top, sectionHeaderHeight)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     
@@ -69,9 +128,6 @@ struct SectionBackgroundView: View {
         else { EmptyView() }
     }
 }
-
-
-
 class CollectionViewBackground: NSView {
     
     override init(frame: CGRect) {
@@ -81,8 +137,7 @@ class CollectionViewBackground: NSView {
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
-    
-    private var hostingView: NSHostingView<CollectionViewBackgroundView>?
+        private var hostingView: NSHostingView<CollectionViewBackgroundView>?
     
     func configure() {
         
@@ -200,6 +255,12 @@ struct CollectionViewBackgroundView: View {
 struct SectionHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
+    
+    let praxTheme = PraxTheme(.erika)
+    
+    @State var showSettings = false
+    @State private var hoveredButton: Int? = nil
+    
     let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
@@ -220,17 +281,41 @@ struct SectionHeaderView: View {
                 }
             
             GroupBox {
-                Group {
-                    TextField("Title", text: $section.title )
-                //    Text("Merged Page \(section.title)")
+                HStack {
+              //      TextField("Title", text: $section.title )
+                    
+                    
+                    Button {
+                        showSettings = !showSettings
+                    }
+                    label: { Image(systemName: "gear")}
+                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 2))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 2 : nil
+                    }
+                    .popover(isPresented: $showSettings, arrowEdge: .leading) {
+                        SectionHeaderPopover(mergedPage: mergedPage!)
+                        
+                            .presentationDetents(
+                                [.height(120), .medium, .large])
+                            .presentationBackgroundInteraction(
+                                .enabled(upThrough: .height(120)))
+                            .presentationSizing(.form)
+                        
+                        
+                    }
+                    Spacer()
+                    Text("\(section.title)")
+                        .font(.system(.subheadline))
+                        .draggable({ () -> MergedPDFTransfer? in
+                            guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                            return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                        }()!, preview: {
+                            PraxDragPreview()
+                        })
                 }
                 
-                .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
-                }()!, preview: {
-                    PraxDragPreview()
-                })
+
                 
                 
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -244,7 +329,7 @@ struct SectionHeaderView: View {
                 .gesture(clickGesture)
                 
             }
-            .padding(20)
+            .padding(0)
             
             
             
@@ -292,6 +377,8 @@ struct SectionHeaderView: View {
         }
         else {
             print("Plain Click detected")
+            
+            
  //      fatalError()
             //     document.mergedPDFView.go(to: mergedPage.pdfPage!)
         }

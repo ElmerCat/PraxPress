@@ -67,31 +67,15 @@ struct EditingPDFDocumentView: View {
     
     var body: some View {
         @Bindable var prax = praxModel
+        @Bindable var document = self.document
         
         let _ = Self._printChanges()
         
         GroupBox {
             GeometryReader { proxy in
                 VStack {
-                    
-                    /*
-                     HStack {
-                     
-                     Text("PraxPress - ")
-                     .font(Font.custom("BrushScriptMT", size: 30))
-                     .foregroundColor(.white)
-                     .frame(maxWidth: .infinity, alignment: .center)
-                     Text("\(document.documentVersion)")
-                     .font(Font.custom("BrushScriptMT", size: 12))
-                     .foregroundColor(.white)
-                     .frame(maxWidth: .infinity, alignment: .center)
-                     
-                     
-                     }
-                     */
+
                     EditingDocumentToolbar()
-                    
-                    
                     GroupBox {
                         EditingPDFViewRepresentable(
                             document: document,
@@ -105,7 +89,6 @@ struct EditingPDFDocumentView: View {
                         .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
                         .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
                     }
-                    
                     EditingDocumentFooter()
                     
                     
@@ -145,10 +128,7 @@ struct EditingPDFDocumentView: View {
             self.document = document
             
             document.prax.editingDocumentPDFView.document = document.editingPDFDocument
-            document.prax.editingDocumentPDFView.autoScales = true
-            document.prax.editingDocumentPDFView.displayDirection = .vertical
-            document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
-            document.prax.editingDocumentPDFView.backgroundColor = .yellow
+            
             
        //    self.overlayView = PDFPageOverlayView()
             
@@ -158,15 +138,21 @@ struct EditingPDFDocumentView: View {
         }
         
         var documentVersion = UUID()
-        var pdfPageItem: PageItem?
+      //  var pdfPageItem: PageItem?
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
             
-            if let pageItem = document.pdfPageItem(for: pdfPage) {
-                print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
+            if let pageItem = document.pageItem(for: pdfPage) {
+  //              print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
                 let overlayView = pageItem.overlayView
                 overlayView.pdfView = pdfView
                 overlayView.document = document
+            //    let overlayControlView = OverlayControlNSView(frame: CGRect(x: -50, y: 0, width: 100, height: 100))
+                
+                pdfView.wantsLayer = true
+                pdfView.layer?.masksToBounds = false
+                
+           //     overlayView.addSubview(overlayControlView)
                 
                 /*
                 // Seed current rect from trims
@@ -200,7 +186,7 @@ struct EditingPDFDocumentView: View {
                 return overlayView
             }
             else {
-                print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - NO PAGE ITEM")
+ //               print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - NO PAGE ITEM")
                 return nil
             }
             
@@ -228,7 +214,7 @@ struct EditingPDFDocumentView: View {
          }
         
         @objc func viewScaleChanged(_ note: Notification) {
-            print("EditingPDFDocumentViewCoordinator - viewScaleChanged: ")
+//            print("EditingPDFDocumentViewCoordinator - viewScaleChanged: ")
          }
         
       @objc func pageChanged(_ note: Notification) {
@@ -258,7 +244,16 @@ struct EditingPDFDocumentView: View {
         func makeNSView(context: Context) -> PDFView {
             print("EditingPDFViewRepresentable - makeNSView")
              
-            document.prax.editingDocumentPDFView.pageOverlayViewProvider = context.coordinator
+            
+          
+            document.prax.editingDocumentPDFView.autoScales = true
+            document.prax.editingDocumentPDFView.displayDirection = .vertical
+            document.prax.editingDocumentPDFView.displaysPageBreaks = true
+            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 10, left: 0, bottom: 20, right: 0)
+            document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
+            document.prax.editingDocumentPDFView.backgroundColor = .yellow
+                
+           document.prax.editingDocumentPDFView.pageOverlayViewProvider = context.coordinator
          //   context.coordinator.overlayView.onFinish = context.coordinator.overlayViewOnFinish
             
       //      context.coordinator.overlayView.document = document
@@ -343,12 +338,12 @@ struct EditingPDFDocumentView: View {
             let bounds = pdfPage.bounds(for: .mediaBox)
             let scaleFactor = pdfView.frame.height / bounds.height
             if pdfView.frame.width > bounds.width * scaleFactor {
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
                 pdfView.scaleFactor = scaleFactor
             }
             else {
                 pdfView.autoScales = true
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
             }
         }
     }

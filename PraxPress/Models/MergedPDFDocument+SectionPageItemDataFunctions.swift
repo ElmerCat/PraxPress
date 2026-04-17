@@ -82,7 +82,7 @@ extension MergedPDFDocument {
                         name: displayName,
                         sourceBookmark: baseBookmark,
                         sourceURL: fileURL,
-                        pageIndex: index,
+                        sourcePageIndex: index,
                         pdfPage: doc.page(at: index)!
 
                     )

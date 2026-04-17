@@ -417,7 +417,7 @@ final class PDFPageOverlayView: NSView {
             return
         }
     }
-    
+
     override func mouseDragged(with event: NSEvent) {
         guard let dragStart = dragStart else { return }
         let point = convert(event.locationInWindow, from: nil)
@@ -525,3 +525,167 @@ final class PDFPageOverlayView: NSView {
          */
     }
 }
+
+class OverlayControlNSView: NSView {
+    
+    
+    let pageItem: PageItem
+
+    init(pageItem: PageItem) {
+        self.pageItem = pageItem
+        super.init(frame: CGRect(x: 100, y: 300, width: 400, height: 400))
+        wantsLayer = true
+        configure()
+        
+    }
+
+    
+   /* init(frame: CGRect, pageItem: PageItem) {
+        self.pageItem = pageItem
+        super.init(frame: frame)
+        configure()
+    }
+    */
+    required init?(coder: NSCoder) {
+        fatalError("not implemented")
+    }
+    
+    override var wantsDefaultClipping: Bool { false }
+    
+    private var hostingView: NSHostingView<OverlayControlView>?
+    
+    func configure() {
+        
+ //      registerForDraggedTypes([.fileURL])
+//        self.wantsLayer = true
+//        layer?.backgroundColor = NSColor.cyan.cgColor
+//        layer?.borderColor = NSColor.black.cgColor
+//        layer?.borderWidth = 1
+//        layer?.cornerRadius = 12
+
+        let root = OverlayControlView(pageItem: pageItem)
+        
+        if let hostingView {
+            hostingView.rootView = root
+        } else {
+            let hosting = NSHostingView(rootView: root)
+            hosting.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(hosting)
+            NSLayoutConstraint.activate([
+                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                hosting.topAnchor.constraint(equalTo: self.topAnchor),
+                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            ])
+            self.hostingView = hosting
+        }
+    }
+    
+
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        
+        print("OverlayControlView - draggingEntered")
+        layer?.backgroundColor = NSColor.green.cgColor
+        return .copy
+    }
+    
+    override func draggingExited(_ sender: NSDraggingInfo?)  {
+        print("OverlayControlView - draggingExited")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+    
+    override func concludeDragOperation(_ sender: NSDraggingInfo?)  {
+        print("OverlayControlView - concludeDragOperation")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+    
+    override func draggingEnded(_ sender: NSDraggingInfo)  {
+        print("OverlayControlView - draggingEnded")
+        layer?.backgroundColor = NSColor.cyan.cgColor
+    }
+    
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        print("OverlayControlView - prepareForDragOperation")
+        return true
+    }
+    
+    func wantsPeriodicUpdates() -> Bool {
+        print("OverlayControlView - wantsPeriodicUpdates")
+        return true
+    }
+    
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        let pboard = sender.draggingPasteboard
+        
+        // Extract file URLs from the pasteboard
+        if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
+            for url in urls {
+                print("OverlayControlView - Dropped file: \(url.path)")
+            }
+            return true // Drop was successful
+        }
+        return false // Drop rejected
+    }
+    
+}
+
+struct OverlayControlView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    let pageItem: PageItem
+    
+    @State var hoveredButton: Int?
+    let praxTheme = PraxTheme(.erika)
+    
+    var body: some View {
+        @Bindable var prax = praxModel
+        @Bindable var document = document
+        
+        GroupBox {
+            GeometryReader { proxy in
+                VStack {
+                    Button("", systemImage: "ruler", action: {
+                        document.clickedGuidePageButton(pageItem)
+                    })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
+                        .onHover { hovering in
+                            hoveredButton = hovering ? 4 : nil
+                        }
+                        .help("Set width guide")
+                    //  .position(x: 0, y: 16)
+                    Spacer()
+                        Text("Trims")
+                            .font(Font.custom("BrushScriptMT", size: 30))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    Text("\(pageItem.name)  L-\(Int(pageItem.trims.left)) T-\(Int(pageItem.trims.top)) B-\(Int(pageItem.trims.bottom)) R-\(Int(pageItem.trims.right))")
+                        .font(.system(size: 4, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .init(horizontal: .center, vertical: .center))
+                   
+                }
+                
+                
+
+            }
+        }
+        
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .zIndex(1000)
+        .padding(0)
+        .background(PraxGradient())
+        .overlay(
+            RoundedRectangle(cornerRadius: 5)
+                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
+        )
+ //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
+ //           PraxModel.shared.acceptDrop(providers)
+ //       }
+ //       .onDropSessionUpdated({ dropSession in
+ //           print("OverlayControlView - dropSessionUpdated phase: ", dropSession.phase)
+//        })
+        
+
+    }
+        
+}
+

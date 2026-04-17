@@ -9,14 +9,15 @@ import SwiftUI
 import AppKit
 
 enum CollectionElementKind {
-    case thumbnail(item: PageItem)
-    case page(item: PageItem)
+    case pageItem(item: PageItem)
+    case editPage(item: PageItem)
     case mergedPage(item: PageItem)
     case header(item: MergedPage)
     case mergedPageHeader(item: MergedPage)
     case footer(item: MergedPage)
     case mergedPageFooter(item: MergedPage)
-    case background(indexPath: IndexPath)
+    case pageItemBackground(indexPath: IndexPath)
+    case editPageBackground(indexPath: IndexPath)
     case none
     
 }
@@ -27,12 +28,12 @@ struct CollectionElementHostView: View {
     let highlightState: NSCollectionViewItem.HighlightState
     var body: some View {
         switch kind {
-        case let .thumbnail(item):
-            PageItemView( pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
-        case let .page(item):
-            PageEditView(pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
+        case let .pageItem(item):
+            PageItemView( pageItem: item, isSelected: isSelected, highlightState: highlightState )
+        case let .editPage(item):
+            PageEditView(pageItem: item, isSelected: isSelected, highlightState: highlightState )
         case let .mergedPage(item):
-            MergedPageView(pdfPageItem: item, isSelected: isSelected, highlightState: highlightState )
+            MergedPageView(pageItem: item, isSelected: isSelected, highlightState: highlightState )
         case let .header(item):
             SectionHeaderView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .mergedPageHeader(item):
@@ -41,8 +42,10 @@ struct CollectionElementHostView: View {
             SectionFooterView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .mergedPageFooter(item):
             MergedPageFooterView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
-        case let .background(indexPath):
-            SectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
+        case let .pageItemBackground(indexPath):
+            PageItemSectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
+        case let .editPageBackground(indexPath):
+            EditPageSectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
         case .none:
             EmptyView()
         }
@@ -95,7 +98,8 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     static let mergedPageFooterElementKind = "merged-page-footer-element-kind"
     static let sectionHeaderElementKind = "section-header-element-kind"
     static let sectionFooterElementKind = "section-footer-element-kind"
-    static let sectionBackgroundElementKind = "section-background-element-kind"
+    static let pageItemSectionBackgroundElementKind = "page-item-section-background-element-kind"
+    static let editPageSectionBackgroundElementKind = "edit-page-section-background-element-kind"
    
     let preferredFormat = Date.FormatStyle()
         .hour(.defaultDigits(amPM: .omitted))
@@ -106,9 +110,9 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     func configure(kind: CollectionElementKind, isSelected: Bool) {
         
         switch kind {
-        case let .thumbnail(item):
+        case let .pageItem(item):
             print(Date().formatted(preferredFormat), "CollectionViewItem - configure thumbnail: ", item.name )
-        case let .page(item):
+        case let .editPage(item):
             print(Date().formatted(preferredFormat), "CollectionViewItem - configure page: ", item.name )
         default:
             print(Date().formatted(preferredFormat), "CollectionViewItem - configure - \(String(describing: kind))")
@@ -127,9 +131,9 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
         print(Date().formatted(preferredFormat), "CollectionViewItem - prepareForReuse - \(String(describing: kind))")
         
         switch kind {
-        case let .thumbnail(item):
-            print("Reusing thumbnail(item) - was: \(item.name)")
-        case let .page(item):
+        case let .pageItem(item):
+            print("Reusing pageItem(item) - was: \(item.name)")
+        case let .editPage(item):
             print("Reusing page(item) - was: \(item.name)")
             
         default:
@@ -143,12 +147,12 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)
         
- //       print("CollectionViewItem - preferredLayoutAttributesFitting kind: ", kind as Any)
+  //      print("CollectionViewItem - preferredLayoutAttributesFitting kind: ", kind as Any)
         
         switch kind {
-//        case let .thumbnail(item):
+//        case let .pageItem(item):
             
-        case let .page(item):
+        case let .editPage(item):
             let width = layoutAttributes.size.width
             let height = ceil(width / item.aspectRatio)
             attrs.size = CGSize(width: width, height: height)
@@ -204,9 +208,13 @@ final class CollectionSupplementaryView: NSView, NSCollectionViewElement, Collec
     }
     
     func apply(_ layoutAttributes: NSCollectionViewLayoutAttributes) {
-        if layoutAttributes.representedElementKind == "section-background-element-kind" {
+        if layoutAttributes.representedElementKind == "page-item-section-background-element-kind" {
             guard let indexPath = layoutAttributes.indexPath else {return}
-            self.kind = .background(indexPath: indexPath)
+            self.kind = .pageItemBackground(indexPath: indexPath)
+        }
+        else if layoutAttributes.representedElementKind == "edit-page-section-background-element-kind" {
+            guard let indexPath = layoutAttributes.indexPath else {return}
+            self.kind = .editPageBackground(indexPath: indexPath)
         }
     //    print("CollectionSupplementaryView - apply:  ", layoutAttributes.representedElementKind ?? "No representedElementKind")
     }

@@ -206,6 +206,8 @@ struct EditingDocumentFooter: View {
 
         }
         .background(PraxGradient(1))
+
+        
     }
 }
 

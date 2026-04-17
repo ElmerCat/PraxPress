@@ -11,6 +11,61 @@ import UniformTypeIdentifiers
 import PDFKit
 
 
+struct FlagControlView: View {
+    // Available flag colors like Mail
+    let flagColors: [(name: String, color: Color)] = [
+        ("Red", .red),
+        ("Orange", .orange),
+        ("Yellow", .yellow),
+        ("Green", .green),
+        ("Blue", .blue),
+        ("Purple", .purple),
+        ("Gray", .gray)
+    ]
+    
+    @State private var selectedFlagColor: Color = .gray // Default
+    @State private var isFlagged: Bool = false
+    
+    var body: some View {
+        VStack {
+            Text(isFlagged ? "Item Flagged" : "No Flag")
+                .foregroundColor(isFlagged ? selectedFlagColor : .primary)
+                .font(.headline)
+            
+            // The Flag Control Button (Mac Mail Style)
+            Menu {
+                Button(action: { isFlagged = false }) {
+                    Label("No Flag", systemImage: "flag.slash")
+                }
+                
+                Divider()
+                
+                ForEach(flagColors, id: \.name) { item in
+                    Button(action: {
+                        selectedFlagColor = item.color
+                        isFlagged = true
+                    }) {
+                        Label(item.name, systemImage: "flag").background(selectedFlagColor)
+                    }
+                }
+            } label: {
+                Image(systemName: "flag.fill")
+                    .symbolEffect(.rotate.byLayer, options: .repeat(.continuous))
+                    .foregroundStyle(selectedFlagColor, .yellow, .green)
+                
+//                Label("Flag", systemImage: isFlagged ? "flag.fill" : "flag")
+//                    .foregroundColor(isFlagged ? selectedFlagColor : .secondary)
+            }
+            .foregroundStyle(selectedFlagColor)
+        }
+        .padding()
+    }
+}
+
+
+
+
+
 struct EditSettingsPanel: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("import-width") var importWidth: Int = 0
@@ -62,8 +117,8 @@ struct EditSettingsPanel: View {
                 //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
                 
                 Text("Image Import Size")
-                    .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
-                    .background(Color("PraxColor"))
+                    .frame(minWidth: 100, maxWidth: 200, maxHeight: 50)
+                    .background(Color("AccentColor"))
             }
             .padding(20)
             
@@ -140,17 +195,15 @@ struct ImportOptionsInspector: View {
 
 
 
+
+
 struct ImportOptionsTip: Tip {
     var title: Text {
         Text("Image Import Options")
     }
-    
-    
     var message: Text? {
         Text("Imported images are resampled to reduce the size of the resulting PDF file. Use these options to control the quality of the output.")
     }
-    
-    
     var image: Image? {
         Image(systemName: "photo.badge.arrow.down")
     }

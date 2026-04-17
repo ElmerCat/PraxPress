@@ -35,7 +35,7 @@ extension MergedPDFDocument {
     }
   */
     
-    func pdfPageItem(id: UUID) -> PageItem? {
+    func pageItem(id: UUID) -> PageItem? {
         for piSection in pageSections.indices {
             let section = pageSections[piSection]
             for piItem in section.pageItems.indices {
@@ -50,7 +50,7 @@ extension MergedPDFDocument {
     
     
     
-    func pdfPageItem(for pdfPage: PDFPage) -> PageItem? {
+    func pageItem(for pdfPage: PDFPage) -> PageItem? {
         for piSection in pageSections.indices {
             let section = pageSections[piSection]
             for piItem in section.pageItems.indices {
@@ -64,7 +64,7 @@ extension MergedPDFDocument {
         return nil
     }
     
-    func pdfPageItem(indexPath: IndexPath) -> PageItem? {
+    func pageItem(indexPath: IndexPath) -> PageItem? {
         let piSection = indexPath.section
         let piItem = indexPath.item
         if pageSections.count > piSection {
@@ -212,12 +212,12 @@ extension MergedPDFDocument {
             
             sourceFileName = url.deletingPathExtension().lastPathComponent
             guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-            let pdfPageItem = PDFPageItem(
+            let pageItem = PDFPageItem(
                 document: self,
                 name: "Image - \(sourceFileName)",
                 pdfPage: docPage
             )
-            pages.append(pdfPageItem)
+            pages.append(pageItem)
         }
         if indexPath.section >= 0 {
             if indexPath.item < 0 || indexPath.item >= pageSections[indexPath.section].pageItems.count {
@@ -241,12 +241,12 @@ extension MergedPDFDocument {
             
             let sourceFileName = url.deletingPathExtension().lastPathComponent
             guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-            let pdfPageItem = PDFPageItem(
+            let pageItem = PDFPageItem(
                 document: self,
                 name: "Image - \(sourceFileName)",
                 pdfPage: docPage
             )
-            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pdfPageItem]))
+            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
         }
         
     }
@@ -549,12 +549,12 @@ extension MergedPDFDocument {
     
     
     
-    func clickedDeletePageButton(_ pdfPageItem: PageItem) {
+    func clickedDeletePageButton(_ pageItem: PageItem) {
         
-        print("PageItem - clickedDeletePageButton pdfPageItem: \(pdfPageItem.name)")
+        print("PageItem - clickedDeletePageButton pageItem: \(pageItem.name)")
         for section in pageSections {
-            if section.pageItems.contains(pdfPageItem) {
-                section.pageItems.removeAll(where: {$0 == pdfPageItem})
+            if section.pageItems.contains(pageItem) {
+                section.pageItems.removeAll(where: {$0 == pageItem})
                 if section.pageItems.isEmpty {
                     pageSections.removeAll(where: {$0 == section})
                 }
@@ -562,64 +562,114 @@ extension MergedPDFDocument {
         }
     }
     
-    func clickedMergeModeButton(_ pdfPageItem: PageItem) {
+    func clickedSkipPageButton(_ pageItem: PageItem) {
+        print("pageItem.skipped \(pageItem.skipped) OptionKey \(prax.optionKeyPressed ) - clickedSkipPageButtonpageItem: \(pageItem.name)")
+        
         if prax.optionKeyPressed {
-            switch(pdfPageItem.merge) {
+            if pageItem.skipped {
+                showAllExcept(exceptPageItem: pageItem)
+            }
+            else {
+                skipAllExcept(exceptPageItem: pageItem)
+            }
+        }
+        else {
+            pageItem.skipped = !pageItem.skipped
+        }
+    }
+
+    func showAllExcept(exceptPageItem: PageItem) {
+        for pageSection in self.pageSections {
+            for pageItem in pageSection.pageItems {
+                if pageItem == exceptPageItem {
+                    if !pageItem.skipped {
+                        pageItem.skipped = true
+                    }
+                }
+                else {
+                    if pageItem.skipped {
+                        pageItem.skipped = false
+                    }
+                }
+            }
+        }
+    }
+    
+    func skipAllExcept(exceptPageItem: PageItem) {
+        for pageSection in self.pageSections {
+            for pageItem in pageSection.pageItems {
+                if pageItem == exceptPageItem {
+                    if pageItem.skipped {
+                        pageItem.skipped = false
+                    }
+                }
+                else {
+                    if pageItem.skipped != true {
+                        pageItem.skipped = true
+                    }
+                }
+            }
+        }
+    }
+    
+    func clickedMergeModeButton(_ pageItem: PageItem) {
+        if prax.optionKeyPressed {
+            switch(pageItem.merge) {
             case .mergeSkip:
-                print("case .mergeSkip: OptionKey - PageItem - clickedMergeModeButton pdfPageItem: \(pdfPageItem.name)")
-               // pdfPageItem.merge = .mergeRight
+                print("case .mergeSkip: OptionKey - PageItem - clickedMergeModeButton pageItem: \(pageItem.name)")
+               // pageItem.merge = .mergeRight
                 
             case .mergeDown:
-                print("case .mergeDown: OptionKey - PageItem - clickedMergeModeButton pdfPageItem: \(pdfPageItem.name)")
-                mergeAllExcept(pdfPageItem: pdfPageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
- //               pdfPageItem.merge = .mergeSkip
+                print("case .mergeDown: OptionKey - PageItem - clickedMergeModeButton pageItem: \(pageItem.name)")
+                mergeAllExcept(exceptPageItem: pageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
+ //               pageItem.merge = .mergeSkip
 
             case .mergeRight:
-                print("case .mergeRight: OptionKey - PageItem - clickedMergeModeButton pdfPageItem: \(pdfPageItem.name)")
-               // pdfPageItem.merge = .mergeDown
+                print("case .mergeRight: OptionKey - PageItem - clickedMergeModeButton pageItem: \(pageItem.name)")
+               // pageItem.merge = .mergeDown
             }
             
         }
         else {
-            print("PageItem - clickedMergeModeButton pdfPageItem: \(pdfPageItem.name)")
+            print("PageItem - clickedMergeModeButton pageItem: \(pageItem.name)")
 
-            switch(pdfPageItem.merge) {
+            switch(pageItem.merge) {
             case .mergeSkip:
-                pdfPageItem.merge = .mergeRight
+                pageItem.merge = .mergeRight
             case .mergeDown:
-                pdfPageItem.merge = .mergeSkip
+                pageItem.merge = .mergeSkip
             case .mergeRight:
-                pdfPageItem.merge = .mergeDown
+                pageItem.merge = .mergeDown
             }
         }
     }
 
     
-    func clickedIncludePageButton(_ pdfPageItem: PageItem) {
-        print("PageItem - clickedIncludePageButton pdfPageItem: \(pdfPageItem.name)")
+    func clickedIncludePageButton(_ pageItem: PageItem) {
+        print("PageItem - clickedIncludePageButton pageItem: \(pageItem.name)")
         
-        if pdfPageItem.merge == .mergeSkip {
+        if pageItem.merge == .mergeSkip {
             if prax.optionKeyPressed {
-               mergeAllExcept(pdfPageItem: pdfPageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
+               mergeAllExcept(exceptPageItem: pageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
             }
             else {
-                pdfPageItem.merge = .mergeDown
+                pageItem.merge = .mergeDown
             }
         }
         else {
             if prax.optionKeyPressed {
-                mergeAllExcept(pdfPageItem: pdfPageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
+                mergeAllExcept(exceptPageItem: pageItem, mergeAllMode: .mergeSkip, mergeExceptMode: .mergeDown)
              }
             else {
-                pdfPageItem.merge = .mergeSkip
+                pageItem.merge = .mergeSkip
             }
         }
     }
 
-    func mergeAllExcept(pdfPageItem: PageItem, mergeAllMode: MergeMode, mergeExceptMode: MergeMode) {
+    func mergeAllExcept(exceptPageItem: PageItem, mergeAllMode: MergeMode, mergeExceptMode: MergeMode) {
         for pageSection in self.pageSections {
             for pageItem in pageSection.pageItems {
-                if pdfPageItem == pageItem {
+                if pageItem == exceptPageItem {
                     if pageItem.merge != mergeExceptMode {
                         pageItem.merge = mergeExceptMode
                     }
@@ -634,34 +684,34 @@ extension MergedPDFDocument {
     }
     
     
-    func clickedGuidePageButton(_ pageItem: PageItem) {
+    func clickedGuidePageButton(_ clickedPageItem: PageItem) {
         
-        print("PageItem - clickedGuidePageButton pdfPageItem: \(pageItem.name) PageEditView")
+        print("PageItem - clickedGuidePageButton pageItem: \(clickedPageItem.name) PageEditView")
         
-        if widthGuidePageID == pageItem.id {
+        if widthGuidePageID == clickedPageItem.id {
             clearWidthGuide()
         } else {
             if prax.optionKeyPressed {
                 if widthGuidePageID == nil { return }
-                guard let guidePage = pdfPageItem(id: widthGuidePageID!) else { return }
+                guard let guidePage = pageItem(id: widthGuidePageID!) else { return }
                 
-                var trims = pageItem.trims
-                print ("old trims: ", pageItem.trims )
+                var trims = clickedPageItem.trims
+                print ("old trims: ", clickedPageItem.trims )
                 print (guidePage.trims)
                 print (trims)
                 
                 
                 trims.left = guidePage.trims.left
                 trims.right = guidePage.trims.right
-                pageItem.trims = trims
+                clickedPageItem.trims = trims
             //    pageItem.overlayView.needsDisplay = true
             //    pageItem.overlayView.display()
                 print("PageItem - clickedGuidePageButton copied guide page trims to current page")
-                print ("new trims: ", pageItem.trims )
+                print ("new trims: ", clickedPageItem.trims )
                 
             }
             else {
-                setWidthGuide(fromPage: pageItem)
+                setWidthGuide(fromPage: clickedPageItem)
                 
             }
             
@@ -671,16 +721,16 @@ extension MergedPDFDocument {
     
     func widthGuidePage() -> PageItem? {
         if widthGuidePageID == nil { return nil }
-        return pdfPageItem(id: widthGuidePageID!)
+        return pageItem(id: widthGuidePageID!)
     }
 
     /// Compute and store the width guide X positions (in page space of the guide page)
-    func setWidthGuide(fromPage pdfPageItem: PageItem) {
-  //      if pdfPageItem.id == widthGuidePageID { clearWidthGuide() }
-        let media = pdfPageItem.pdfPage.bounds(for: .cropBox)
-        let per = pdfPageItem.trims
+    func setWidthGuide(fromPage pageItem: PageItem) {
+  //      if pageItem.id == widthGuidePageID { clearWidthGuide() }
+        let media = pageItem.pdfPage.bounds(for: .cropBox)
+        let per = pageItem.trims
         let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
-        widthGuidePageID = pdfPageItem.id
+        widthGuidePageID = pageItem.id
         widthGuideLeftX = vis.minX
         widthGuideRightX = vis.maxX
 //        if isLoadingPDF { return }

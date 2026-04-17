@@ -18,10 +18,14 @@ struct PraxPressApp: App {
 
     init() {
         self.persistence = FilesPersistenceController(modelContainer: modelContainer)
-
-        try? Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
-        try? Tips.resetDatastore()
-        // Initializes TipKit with default settings
+        do {
+            try Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
+ //           try Tips.resetDatastore()
+            Tips.showAllTipsForTesting()
+            }
+        catch {
+            print("Error configuring Tips: \(error)")
+        }
     }
 
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -40,6 +44,10 @@ struct PraxPressApp: App {
                 .environment(persistence)
                 .background(
                     WindowReader { window in
+                        window.styleMask.insert(.fullSizeContentView)
+                      //  window.styleMask.insert(.unifiedTitleAndToolbar)
+                     //   window.styleMask.insert(.hiddenTitleBar)
+                        
                         WindowCoordinator.shared.attachIfPending(newWindow: window)
                     }
                 )
@@ -49,8 +57,10 @@ struct PraxPressApp: App {
             InspectorCommands()
         }
         .windowStyle(.hiddenTitleBar)
+    //    .windowToolbarStyle(.unified)
         .windowToolbarStyle(.unified(showsTitle: false))  //.expanded)  //
-        .windowToolbarLabelStyle($toolbarLabelStyle)
+   //     .windowToolbarLabelStyle($toolbarLabelStyle)
+        
         .windowResizability(.contentSize)
     /*    .defaultWindowPlacement { content, context in
             // 1. Get the usable screen area (excludes Dock/Menu Bar)

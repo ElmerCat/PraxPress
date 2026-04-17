@@ -975,3 +975,29 @@ My SwiftData class PDFFile has an optional property dataFields which it can't en
 4/5/2026
 
 My collection view has items which contain PDFViews.  PDFViewRepresentable makes and updates the PDFView in coordination with the PageEditViewCoordinator. Everything works fine until the collection view items are recycled and reused. When the PDFView calls pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage), the PDFPage is not the same as was assigned in updateNSView(_ pdfView: PDFView, context: Context).  What could be causing this?
+
+
+
+ @State private var hoverLocation: CGPoint = .zero
+ @State private var isHovering = false
+ var body: some View {
+     VStack {
+         Color.red
+             .frame(width: 400, height: 400)
+             .onContinuousHover { phase in
+                 switch phase {
+                 case .active(let location):
+                     hoverLocation = location
+                     isHovering = true
+                 case .ended:
+                     isHovering = false
+                 }
+             }
+             .overlay {
+                 Rectangle()
+                     .frame(width: 50, height: 50)
+                     .foregroundColor(isHovering ? .green : .blue)
+                     .offset(x: hoverLocation.x, y: hoverLocation.y)
+             }
+     }
+ }

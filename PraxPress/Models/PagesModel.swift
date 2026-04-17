@@ -61,13 +61,13 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         
         var pages = 0
         for pageItem in pageItems {
-            if pageItem.merge != .mergeSkip {
+            if !pageItem.skipped {
                 pages += 1
             }
         }
         mergeModePages = pages
         
-        print("MergedPage - refreshMergedPage(", refreshEditing, ") mergeModePages: ", mergeModePages)
+ //       print("MergedPage - refreshMergedPage(", refreshEditing, ") mergeModePages: ", mergeModePages)
         
         if mergeModePages < 1 {
             pdfPage = nil 
@@ -78,7 +78,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
 
         let jean = Task {
             try? await Task.sleep(for:.milliseconds(100))
-            print("refreshMergedPage — started")
+ //           print("refreshMergedPage — started")
             
             
             var maxVisibleWidth: CGFloat = 0
@@ -86,7 +86,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
            
             for pageItem in pageItems {
                 
-                if pageItem.merge != .mergeSkip {
+                if !pageItem.skipped {
                     let vis = PDFGeometry.visibleRect(media: pageItem.media, trims: pageItem.trims, seamTop: 0, seamBottom: 0)
                     maxVisibleWidth = max(maxVisibleWidth, vis.width)
                     totalVisibleHeight += vis.height
@@ -108,7 +108,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageItems.count)
             
             for (pageIndex, pageItem) in pageItems.enumerated() {
-                if pageItem.merge == .mergeSkip { continue }
+                if pageItem.skipped { continue }
                     
                     let trimmedMedia = pageItem.media.trimmed(pageItem.trims, seamTop: 0, seamBottom: 0)
                     let trimmedWidth = trimmedMedia.width
@@ -147,7 +147,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             guard let mergedPDFPage = tempDoc.page(at: 0) else { fatalError("mergedDoc.page(at: 0) failed") }
             
             for (pageIndex, pageItem) in pageItems.enumerated() {
-                if pageItem.merge == .mergeSkip { continue }
+                if pageItem.skipped { continue }
                 
                 let trimmedMedia = pageItem.media.trimmed(pageItem.trims, seamTop: 0, seamBottom: 0)
                 let dx = 0 - trimmedMedia.minX
@@ -257,7 +257,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
     var name: String
     var sourceBookmark: Data
     var sourceURLString: String
-    var pageIndex: Int
+    var sourcePageIndex: Int
 
   
     let pdfPage: PDFPage
@@ -270,7 +270,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
         name: String,
         sourceBookmark: Data = Data(),
         sourceURL: URL,
-        pageIndex: Int = 0,
+        sourcePageIndex: Int = 0,
         pdfPage: PDFPage,
     ) {
         self.id = id
@@ -278,7 +278,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
         self.name = name
         self.sourceBookmark = sourceBookmark
         self.sourceURLString = sourceURL.absoluteString
-        self.pageIndex = pageIndex
+        self.sourcePageIndex = sourcePageIndex
         self.pdfPage = pdfPage
         self.aspectRatio = {
             let bounds = pdfPage.bounds(for: .cropBox)
@@ -290,18 +290,33 @@ final class PageItem: Identifiable, Equatable, Hashable {
     }
     
     var overlayView: PDFPageOverlayView {
-      return PDFPageOverlayView(pageItem: self)
+      PDFPageOverlayView(pageItem: self)
     }
-        
     
     var thumbnail: NSImage?
-    var trims: EdgeTrims = .zero {
-        didSet {
-            print(oldValue)
+    
+    private var _trims: EdgeTrims = .zero
+    var trims: EdgeTrims {
+        get { _trims }
+        set {
+            if _trims == newValue { return }
+            _trims = newValue
             print("PageItem trims didSet")
-            self.mergedPage.refreshMergedPage()
+            mergedPage.refreshMergedPage()
         }
     }
+    
+    private var _skipped: Bool = false
+    var skipped: Bool {
+        get { _skipped }
+        set {
+            if _skipped == newValue { return }
+            _skipped = newValue
+            print("PageItem skipped didSet")
+            mergedPage.refreshMergedPage(true)
+        }
+    }
+    
     private var _merge: MergeMode = .mergeDown
     var merge: MergeMode {
         get { _merge }

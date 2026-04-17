@@ -49,17 +49,35 @@ struct PDFFilesListRow: View {
     var body: some View {
      GroupBox {
          HStack {
-             Text(pdfFile.fileName).lineLimit(1)
+             Text(pdfFile.fileName).lineLimit(1).font(.system(size: 12))
              Spacer()
-             Text(String(pdfFile.pageCount)).lineLimit(1)
+     //        Text(String(pdfFile.pageCount)).lineLimit(1)
              if pdfFile.bookmarkData.count > 0 {
-                 Button("\(pdfFile.pageCount) Pages", systemImage: "arrowshape.zigzag.forward", action: {
+                 
+                 Button {
                      let isOkay = testBookmark(for: pdfFile)
                      print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
                      if isOkay {
                          document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
                      }
-                 }).controlSize(ControlSize.mini)
+                 } label: {
+                     HStack {
+                         Spacer(minLength: 0)
+                         Text("\(pdfFile.pageCount)")
+                         Image(systemName: "arrow.trianglehead.merge").rotationEffect(Angle(degrees: 90))
+                         Text("Merge").font(.system(size: 8))
+                     }
+                    
+                 }
+                 .frame(minWidth: 84, maxWidth: 84, maxHeight: .infinity)
+                 
+          /*       Button("\(pdfFile.pageCount) Pages", systemImage: "arrowshape.zigzag.forward", action: {
+                     let isOkay = testBookmark(for: pdfFile)
+                     print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+                     if isOkay {
+                         document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
+                     }
+                 }).controlSize(ControlSize.mini) */
              }
              else {
                  Label("Not Found", systemImage: "nosign")
@@ -82,6 +100,7 @@ struct PDFFilesListRow: View {
          }
          
         }
+     .padding(0)
      
      .draggable {
          return PDFFileTransfer(pdfFile: pdfFile)
@@ -134,7 +153,8 @@ struct SourceFilesView: View {
                             } label: {
                                 Label("Add Files", systemImage: "folder.badge.plus")
                             }
-                            
+
+
                             if !prax.selectedFiles.isEmpty {
                                 Button {
                                     deleteSelectedFilesFromDatabase()
@@ -181,11 +201,13 @@ struct SourceFilesView: View {
                 }
                 
             }
-            .background(Color.sourceFilesViewBackground.opacity(0.5))
+        //    .background(Color.sourceFilesViewBackground.opacity(0.5))
             
         }
-        .toolbar(removing: .sidebarToggle)
         
+        
+        .toolbar(removing: .sidebarToggle)
+    
         .toolbar {
             
             ToolbarItemGroup(placement: .secondaryAction) {
@@ -213,12 +235,22 @@ struct SourceFilesView: View {
                     Button {
                         withAnimation {
                             prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                        }
+                    } label: {
+                        Label("Hide Library", systemImage: "building.columns")
+                    }
+                    
+               /*
+                    Button {
+                        withAnimation {
+                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
                                         }
                      //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
                         
                     } label: {
                         Label("Sidebar", systemImage: "sidebar.left")
                     }
+                  */
                 }
             }
             
@@ -238,6 +270,8 @@ struct SourceFilesView: View {
         }
      //   .toolbarBackground(.blue).opacity(0.2)
       //  .toolbarColorScheme(.light)
+        
+        
         
         .fileImporter(
             isPresented: $prax.showingImporter,

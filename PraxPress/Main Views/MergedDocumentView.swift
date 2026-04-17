@@ -207,15 +207,16 @@ struct MergedPDFDocumentView: View {
         
         func makeNSView(context: Context) -> PDFView {
       //      print("MergedPDFDocumentView - PDFViewRepresentable - makeNSView")
-            let pdfView = PDFView()
-            document.prax.mergedDocumentPDFView = pdfView
-            pdfView.document = document.mergedPDFDocument
-            pdfView.autoScales = true
-            pdfView.displayDirection = .vertical
-            pdfView.backgroundColor = .green
-            context.coordinator.pdfView = pdfView
-            onPDFViewReady(pdfView)
-            return pdfView
+            document.prax.mergedDocumentPDFView.document = document.mergedPDFDocument
+            document.prax.mergedDocumentPDFView.autoScales = true
+            document.prax.mergedDocumentPDFView.displaysPageBreaks = true
+            document.prax.mergedDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+            
+            document.prax.mergedDocumentPDFView.displayDirection = .vertical
+            document.prax.mergedDocumentPDFView.backgroundColor = .green
+            context.coordinator.pdfView = document.prax.mergedDocumentPDFView
+            onPDFViewReady(document.prax.mergedDocumentPDFView)
+            return document.prax.mergedDocumentPDFView
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
@@ -226,7 +227,7 @@ struct MergedPDFDocumentView: View {
                     pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
                 }
                 
-                print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.mergedDocumentVersion)
+               // print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.mergedDocumentVersion)
                 context.coordinator.documentVersion = document.mergedDocumentVersion
                 pdfView.document = document.mergedPDFDocument
                 if let pdfPage = pdfView.document?.page(at: pageIndex) {
@@ -252,12 +253,12 @@ struct MergedPDFDocumentView: View {
             let bounds = pdfPage.bounds(for: .mediaBox)
             let scaleFactor = pdfView.frame.height / bounds.height
             if pdfView.frame.width > bounds.width * scaleFactor {
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
+   //             print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
                 pdfView.scaleFactor = scaleFactor
             }
             else {
                 pdfView.autoScales = true
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
             }
         }
     }

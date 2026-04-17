@@ -34,7 +34,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
     }
 
     
-    func asplitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+ /*   func asplitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
     //    print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
         if dividerIndex == 0 {
             if proposedMinimumPosition < prax.dividerZeroMinPos {
@@ -106,7 +106,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
         
         }
     }
-
+*/
     
 /*    func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
         print ("splitView: NSSplitView, resizeSubviewsWithOldSize oldSize:  ", oldSize)
@@ -142,11 +142,11 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
     }
 
 */
-    func splitViewWillResizeSubviews(_ notification: Notification) {
-        prax.splitViewFrameWidth = self.splitView?.frame.width ?? 1000
+//    func splitViewWillResizeSubviews(_ notification: Notification) {
+//        prax.splitViewFrameWidth = self.splitView?.frame.width ?? 1000
  //       print ("splitViewWillResizeSubviews(_ notification: Notification) ")
         
-    }
+//    }
 /*
     
     func splitViewDidResizeSubviews(_ notification: Notification) {
