@@ -12,12 +12,14 @@ import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
     
-    func totalPDFPageItems() -> Int {
-        var total = 0
-        for section in pageSections {
-            total += section.pageItems.count
+    var totalPageItems: Int {
+        get {
+            var total = 0
+            for section in pageSections {
+                total += section.pageItems.count
+            }
+            return total
         }
-        return total
     }
     
     
@@ -80,6 +82,37 @@ extension MergedPDFDocument {
         return section.pageItems
     }
     
+    
+    func copyPDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
+        guard !items.isEmpty else { return }
+        // Ensure destination section exists
+        guard pageSections.indices.contains(destination.section) else { return }
+        let mergedPage = pageSections[destination.section]
+        let insertIndex = destination.item
+        var pageItems: [PageItem] = []
+        for item in items {
+            if let pageItem = pageItem(indexPath: item) {
+                guard let pageData = pageItem.pdfPage.dataRepresentation else {continue}
+                let pdfDocument = PDFDocument(data: pageData)
+                guard let pdfPage = pdfDocument?.page(at: 0) else {continue}
+                let copiedPageItem = PageItem(
+                    mergedPage: mergedPage,
+                    name: pageItem.name + "-copy",
+                    sourceBookmark: pageItem.sourceBookmark,
+                    sourceURL: URL(string: pageItem.sourceURLString)!,
+                    sourcePageIndex: pageItem.sourcePageIndex,
+                    pdfPage: pdfPage
+                )
+                copiedPageItem.trims = pageItem.trims
+                copiedPageItem.merge = pageItem.merge
+                copiedPageItem.skipped = pageItem.skipped
+                pageItems.append(copiedPageItem)
+            }
+            
+        }
+        mergedPage.pageItems.insert(contentsOf: pageItems, at: insertIndex)
+ 
+    }
     
     
     
@@ -563,22 +596,44 @@ extension MergedPDFDocument {
     }
     
     func clickedSkipPageButton(_ pageItem: PageItem) {
-        print("pageItem.skipped \(pageItem.skipped) OptionKey \(prax.optionKeyPressed ) - clickedSkipPageButtonpageItem: \(pageItem.name)")
-        
-        if prax.optionKeyPressed {
-            if pageItem.skipped {
-                showAllExcept(exceptPageItem: pageItem)
+       
+            print("pageItem.skipped \(pageItem.skipped) OptionKey \(prax.optionKeyPressed ) - clickedSkipPageButtonpageItem: \(pageItem.name)")
+            if prax.optionKeyPressed {
+                if pageItem.skipped {
+                    includeAllExcept(exceptPageItem: pageItem)
+                }
+                else {
+                    skipAllExcept(exceptPageItem: pageItem)
+                }
             }
             else {
-                skipAllExcept(exceptPageItem: pageItem)
+                pageItem.skipped = !pageItem.skipped
             }
-        }
-        else {
-            pageItem.skipped = !pageItem.skipped
-        }
+       
+
     }
 
-    func showAllExcept(exceptPageItem: PageItem) {
+    func skipAllPages() {
+        for pageSection in self.pageSections {
+            for pageItem in pageSection.pageItems {
+                    if !pageItem.skipped {
+                        pageItem.skipped = true
+                    }
+            }
+        }
+    }
+    
+    func includeAllPages() {
+        for pageSection in self.pageSections {
+            for pageItem in pageSection.pageItems {
+                    if pageItem.skipped {
+                        pageItem.skipped = false
+                    }
+            }
+        }
+    }
+    
+    func includeAllExcept(exceptPageItem: PageItem) {
         for pageSection in self.pageSections {
             for pageItem in pageSection.pageItems {
                 if pageItem == exceptPageItem {

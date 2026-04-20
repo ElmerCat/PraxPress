@@ -70,11 +70,8 @@ struct PageItemView: View {
         
         if pageItem != nil {
             GeometryReader { proxy in
-                GroupBox {
-                    
-                    HStack(alignment: .center, spacing: 0, content: {
-                        
-                        
+                ZStack {
+                    GroupBox {
                         Image(nsImage: pageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -82,79 +79,28 @@ struct PageItemView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                             .padding(3)
                             .opacity(pageItem!.skipped ? 0.25 : 1.0)
-                        
-                        VStack {
-                            
-                            Button {
-                                document.clickedSkipPageButton(pageItem!)
-                                }
-                            label: {
-                                if pageItem!.skipped {
-                                    Image(systemName: "rectangle.portrait.slash.fill")
-                                }
-                                else {
-                                    Image(systemName: "rectangle.portrait.slash")
-                                }
+                    }
+                                            
+                    GroupBox {
+                        Button {
+                            document.clickedSkipPageButton(pageItem!)
                             }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 126))
-                            .onHover { hovering in hoveredButton = hovering ? 126 : nil }
-                            
-                            Button {
-                                showSettings = !showSettings
+                        label: {
+                            if pageItem!.skipped {
+                                Image(systemName: "text.page.slash")
                             }
-                            label: { Image(systemName: "gear")}
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 2))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 2 : nil
+                            else {
+                                Image(systemName: "text.page")
                             }
-                            .popover(isPresented: $showSettings) {
-                                PageItemPopover(pageItem: pageItem!)
-                                
-                                    .presentationDetents(
-                                        [.height(120), .medium, .large])
-                                    .presentationBackgroundInteraction(
-                                        .enabled(upThrough: .height(120)))
-                                    .presentationSizing(.form)
-                                
-                            }
-                            
-                            
-
-                            
-                     /*       Button { document.clickedMergeModeButton(pageItem!) }
-                            
-                            label: {
-                                switch(pageItem!.merge) {
-                                case .mergeSkip:
-                                    Image(systemName: "rectangle.portrait.slash.fill")
-                                 case .mergeDown:
-                                    Image(systemName: "arrow.down.document.fill")
-                                case .mergeRight:
-                                    Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle")
-                                }
-                            }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 1))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 1 : nil
-                            }
-                            .help("Merge page mode")
-                            
-                            Button("", systemImage: "ruler", action: {
-                                document.clickedGuidePageButton(pageItem!)
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 4 : nil
-                                }
-                                .help("Set width guide")
-                     */
-                            
-                     //       FlagControlView()
-                            
-                    //       Text("\(pageItem!.name)  L-\(Int(pageItem!.trims.left)) T-\(Int(pageItem!.trims.top)) B-\(Int(pageItem!.trims.bottom)) R-\(Int(pageItem!.trims.right))")
                             
                         }
+                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 126))
+                        .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                        .position(x: proxy.size.width - 30, y: 20)
+                        
                     }
-                    )
+                    
+                    
                 }
                 
                 .padding(proxy.size.width * 0.01)
@@ -183,200 +129,6 @@ struct PageItemView: View {
     }
 }
 
-struct SectionHeaderPopover: View {
-    let mergedPage: MergedPage
-    @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
-    
-    @State private var hoveredButton: Int? = nil
-    
-    var theTip = PageItemTip()
-    
-    var body: some View {
-        
-        VStack {
-            Text(mergedPage.title)
-            Divider()
-            GroupBox {
-   
-                
-                Grid(alignment: .trailing) {
-                    GridRow {
-                        if prax.optionKeyPressed {
-                            Text( "Skip All Pages")
-                        }
-                        else {
-                            Text("Include All Pages")
-                        }
-
-                        Button {
-                            document.clickedSkipPageButton(mergedPage.mergedPageItem())
-                            dismiss() }
-                        label: {
-                            
-                                Image(systemName: "rectangle.portrait.slash")
-                          
-                        }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 156))
-                        .onHover { hovering in hoveredButton = hovering ? 156 : nil }
-                        
-                    }
-                    
-
-                    GridRow {
-                        Text("Delete All Pages In This Section")
-                        Button {
-                            document.clickedDeletePageButton(mergedPage.mergedPageItem())
-                            dismiss() }
-                        label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 150))
-                        .onHover { hovering in
-                            hoveredButton = hovering ? 150 : nil
-                        }
-                        .help("Delete page")
-                        
-                        
-                    }
-                }
-
-            }
-            .padding(5)
-            Button {
-                dismiss()
-            } label: {
-                Label("Ok", systemImage: ("checkmark"))
-            }
-            
-        }
-        .background(PraxGradient(0).ignoresSafeArea())
-        .foregroundColor(.white)
- //       .popoverTip(theTip)
-    }
-}
-
-struct PageItemPopover: View {
-    let pageItem: PageItem
-    @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
-    
-    @State private var hoveredButton: Int? = nil
-    
-    var theTip = PageItemTip()
-    
-    var body: some View {
-        
-        VStack {
-            Text(pageItem.name)
-            Divider()
-            GroupBox {
-   
-                
-                Grid(alignment: .trailing) {
-                    GridRow {
-                        if prax.optionKeyPressed {
-                            Text(pageItem.skipped ? "Include All Except This Page" : "Skip All Except This Page")
-                        }
-                        else {
-                            Text(pageItem.skipped ? "Include This Page" : "Skip This Page")
-                        }
-
-                        Button {
-                            document.clickedSkipPageButton(pageItem)
-                            dismiss() }
-                        label: {
-                            if pageItem.skipped {
-                                Image(systemName: "rectangle.portrait.slash.fill")
-                            }
-                            else {
-                                Image(systemName: "rectangle.portrait.slash")
-                            }
-                        }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 126))
-                        .onHover { hovering in hoveredButton = hovering ? 126 : nil }
-                        
-                    }
-                    
-                    GridRow {
-                        Text("Merge Mode")
-                        Button { document.clickedMergeModeButton(pageItem)
-                            dismiss() }
-                        label: {
-                            switch(pageItem.merge) {
-                            case .mergeSkip:
-                                Image(systemName: "rectangle.portrait.slash.fill")
-                             case .mergeDown:
-                                Image(systemName: "arrow.down.document.fill")
-                            case .mergeRight:
-                                Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle")
-                            }
-                        }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 121))
-                        .onHover { hovering in hoveredButton = hovering ? 121 : nil }
-                        .help("Merge page mode")
-                    }
-                    
-                    GridRow {
-                        Text("Set Width Guide")
-                        Button {
-                            document.clickedGuidePageButton(pageItem)
-                            dismiss() }
-                        label: { Image(systemName: "ruler") }
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 124, isFocused: false))
-                        .onHover { hovering in hoveredButton = hovering ? 124 : nil }
-                        .help("Set width guide")
-                        
-                        
-                    }
-                    GridRow {
-                        Text("Delete page")
-                        Button {
-                            document.clickedDeletePageButton(pageItem)
-                            dismiss() }
-                        label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 120))
-                        .onHover { hovering in
-                            hoveredButton = hovering ? 120 : nil
-                        }
-                        .help("Delete page")
-                        
-                        
-                    }
-                }
-
-            }
-            .padding(5)
-            Button {
-                dismiss()
-            } label: {
-                Label("Ok", systemImage: ("checkmark"))
-            }
-            
-        }
-        .background(PraxGradient(0).ignoresSafeArea())
-        .foregroundColor(.white)
- //       .popoverTip(theTip)
-    }
-}
-
-struct PageItemTip: Tip {
-    var title: Text {
-        Text("Page Item Options")
-    }
-    var message: Text? {
-        Text("Hide or Delele page items")
-    }
-    var image: Image? {
-        Image(systemName: "doc.badge.gearshape")
-    }
-}
-
-
 
 struct PageEditView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
@@ -391,11 +143,22 @@ struct PageEditView: View {
     
     @State private var pdfViewRef = WeakPDFViewRef()
    
+    func mergedSizeText() -> String {
+        if let pageItem {
+           
+            let wIn = pageItem.trimmedPageSize().width / 72.0
+            let hIn = pageItem.trimmedPageSize().height / 72.0
+            return String(format: "%.1f\" × %.1f\"", wIn, hIn)
+        }
+        else {
+            return "No Page"
+        }
+    }
+    
     
     var body: some View {
         
         
-        let imageSize = CGSize(width: 170, height: 220)
         let backgroundColor: Color = {
             switch highlightState {
             case .forSelection:
@@ -432,90 +195,112 @@ struct PageEditView: View {
             }
         }()
         
-        if pageItem != nil {
+        if let pageItem {
             GeometryReader { proxy in
-                GroupBox {
-                        
-                        VStack {
-
-                            Image(nsImage: pageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                              //  .cornerRadius(6)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                .padding(3)
+                let imageSize = CGSize(width: proxy.size.width / 2, height: proxy.size.width / pageItem.aspectRatio)
+                VStack {
+                    GroupBox {
+                        HStack {
+                            Text("Skip This Page")
                             
-                            Button("", systemImage: "arrow.up.and.down.circle", action: {
-                                if let pdfView =  pdfViewRef.view {
-                                    MergedPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
-                                    
-                                }
-                            })
-                            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 0 : nil
+                            Button { document.clickedSkipPageButton(pageItem) }
+                            label: { if pageItem.skipped {
+                                Image(systemName: "text.page.slash") } else {
+                                    Image(systemName: "text.page") }
+                                
                             }
+                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 236))
+                            .onHover { hovering in hoveredButton = hovering ? 236 : nil }
+                            .help("Skip This Page")
                             
-                            .help(Text("\(pageItem!.name)  L-\(Int(pageItem!.trims.left)) T-\(Int(pageItem!.trims.top)) B-\(Int(pageItem!.trims.bottom)) R-\(Int(pageItem!.trims.right))"))
-                            
-                            
-                            Button("", systemImage: "plus.circle", action: {
-                                pdfViewRef.view?.zoomIn(self)
-                            })
-                            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 1 : nil
-                            }
-                            
-                            
-
-                            Button("", systemImage: "minus.circle", action: {
-                                pdfViewRef.view?.zoomOut(self)
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 2 : nil
-                                }
-
-                            Button("", systemImage: "arrow.left.and.right.circle", action: {
-                                pdfViewRef.view?.autoScales = true
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 3 : nil
-                                }
-                            
-                            Button("", systemImage: "ruler", action: {
-                                document.clickedGuidePageButton(pageItem!)
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 4 : nil
-                                }
-                                .help("Set width guide")
-                            
-                           Text("\(pageItem!.name)  L-\(Int(pageItem!.trims.left)) T-\(Int(pageItem!.trims.top)) B-\(Int(pageItem!.trims.bottom)) R-\(Int(pageItem!.trims.right))")
                             
                         }
+                        .padding(0)
+                    }
+                    HStack {
                         
+                        Group {
+                            Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: proxy.size.width / 3)
+                              //  .offset(x: 20, y: 0)
+                            
+                                .overlay(alignment: .topTrailing, content: {
+                                    ZStack {
+                                        VStack {
+                                            HStack {
+                                                Image(systemName: "arrow.backward.to.line") //.padding(.leading, 3)
+                                                Spacer()
+                                                Text(String(format: "%.1f\" ", pageItem.trimmedPageSize().width / 72.0)).lineLimit(1)
+                                                Spacer()
+                                                Image(systemName: "arrow.forward.to.line") //.padding(.trailing, 3)
+                                               
+                                            }
+                                            Spacer()
+                                        }
+                                       
+                                        
+                                        HStack {
+                                            VStack {
+                                                Image(systemName: "arrow.up.to.line") // .padding(.top, proxy.size.width / 10)
+                                                Spacer()
+                                                Text(String(format: "%.1f\" ", pageItem.trimmedPageSize().height / 72.0)).lineLimit(1)
+                                                Spacer()
+                                                Image(systemName: "arrow.down.to.line") // .padding(.bottom, 3)
+                                            }
+                                            Spacer()
+                                        }
+                                    }
+                                    .font(.system(size: 6))
+                                    
+                                })
+                        }
+                        .padding(.leading, (proxy.size.width / 30))
+                       
+                          //  .padding(3)
+                            
+                      //      .padding(.horizontal, 5) // (proxy.size.width * 0.01)
+                     
+                        Spacer()
+                    }
 
+                       
+                    GroupBox {
+                        Text(String(format: "Width: %.1f\" ", pageItem.trimmedPageSize().width / 72.0))
+                        Divider()
+                            HStack {
+                                Text("Set Width Guide")
+                            }
+                            Button { document.clickedGuidePageButton(pageItem) }
+                            label: { if pageItem.skipped {
+                                    Image(systemName: "ruler.fill")  }  else {
+                                    Image(systemName: "ruler") }
+                            }
+                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
+                            .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                            .help("Set Width Guide")
+                    }
+
+                    GroupBox {
+                        VStack {
+                            Text("\(pageItem.name)")
+                            Text("Aspect Ratio: \(pageItem.aspectRatio)")
+                            Text("L-\(Int(pageItem.trims.left))")
+                            Text("T-\(Int(pageItem.trims.top)))")
+                            Text("B-\(Int(pageItem.trims.bottom))")
+                            Text("R-\(Int(pageItem.trims.right))")
+                        }
+                    }
+               
                 }
-                
-                .padding(proxy.size.width * 0.01)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(foregroundColor, lineWidth: 3) )
-                .foregroundColor(foregroundColor)
-                .background(backgroundColor)
-                
+               // .foregroundColor(foregroundColor)
+               // .background(backgroundColor)
             }
- //           .padding(EdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)) // proxy.size.width * 0.01))
-            //     .frame(width: proxy.size.width * 0.58)
-            //     .position(x: proxy.size.width * 0.72, y: proxy.size.height * 0.5)
-            
-            //                .inspector(isPresented: $showInspector) {
-            //                    PDFPageItemInspector()
-            //                }
         }
-    
-            
 //            .background(backgroundColor)
          else {
             EmptyView()
@@ -1075,6 +860,7 @@ struct MergedPageView: View {
         
     }
 }
+
 
 
 /*

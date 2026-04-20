@@ -65,30 +65,43 @@ struct EditingPDFDocumentView: View {
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
+    let imageSize = CGSize(width: 1200, height: 1600)
+    
     var body: some View {
         @Bindable var prax = praxModel
         @Bindable var document = self.document
         
         let _ = Self._printChanges()
         
+        let pdfPage = prax.selectedMergedPage?.pdfPage
+        
         GroupBox {
             GeometryReader { proxy in
                 VStack {
 
                     EditingDocumentToolbar()
+                    
                     GroupBox {
-                        EditingPDFViewRepresentable(
-                            document: document,
-                            onPDFViewReady: { pdfView in
-                                // Store a weak reference so buttons can use it
-                                pdfViewRef.view = pdfView
-                                
-                            }
-                        )
+                      
+                            
+                            
+                            EditingPDFViewRepresentable(
+                                document: document,
+                                onPDFViewReady: { pdfView in
+                                    // Store a weak reference so buttons can use it
+                                    pdfViewRef.view = pdfView
+                                    
+                                }
+                            )
+
+                            
+                            
+                        }
                         .opacity(document.refreshingMergedDocument ? 0.75 : 1)
                         .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
                         .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-                    }
+                    
+                    
                     EditingDocumentFooter()
                     
                     
@@ -102,12 +115,14 @@ struct EditingPDFDocumentView: View {
         
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
-        .background(PraxGradient())
-        .overlay(
-            
-            RoundedRectangle(cornerRadius: 5)
-                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
-        )
+     //   .background(PraxGradient())
+      //  .overlay(
+      //      RoundedRectangle(cornerRadius: 5)
+      //          .stroke(Color.blue, lineWidth: 5).opacity(0.5)
+      //  )
+        
+        
+        
         //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
         //           PraxModel.shared.acceptDrop(providers)
         //       }

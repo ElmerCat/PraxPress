@@ -43,7 +43,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .background(PraxGradient(2))
+  //          .background(PraxGradient(2))
 //            .background(Color.indigo.opacity(0.5))
             
         }
@@ -63,7 +63,7 @@ struct ContentView: View {
        .toolbar {
            MainToolbar()
         }
-       .toolbarBackground(PraxGradient())
+  //     .toolbarBackground(PraxGradient())
         
         .onAppear {
             print("ContentView .onAppear")

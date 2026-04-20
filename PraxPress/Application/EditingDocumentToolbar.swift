@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PDFKit
+import TipKit
 
 
 struct EditingDocumentToolbar: View {
@@ -15,27 +16,31 @@ struct EditingDocumentToolbar: View {
     let praxTheme = PraxTheme(.erika)
     
     @State private var hoveredButton: Int? = nil
+    @State private var showFilenamePrefixPopover = false
     
-   
+    func mergedSizeText() -> String {
+        if let mergedPage = praxModel.selectedMergedPage {
+           
+            let wIn = mergedPage.mergedWidthPts / 72.0
+            let hIn = mergedPage.mergedHeightPts / 72.0
+            var sizeText = "Merged Page Size: " + String(format: "%.1f\" × %.1f\"", wIn, hIn)
+
+            if mergedPage.minWidthPts < mergedPage.mergedWidthPts {
+                let mIn = mergedPage.minWidthPts / 72.0
+                sizeText += "  -  Minimum Width: " + String(format: "%.1f\"", mIn)
+            }
+            return sizeText
+            
+        }
+        else {
+            return "No Pages"
+        }
+    }
+    
     var body: some View {
         @Bindable var prax = praxModel
-        
-        //let pdfView: PDFView? = prax.editingDocumentPDFView
-        
-      //  let pdfDocument: PDFDocument? = prax.editingDocumentPDFView.document
-      //  let pageCount: Int = pdfDocument?.pageCount ?? 0
-      //  let pdfPage: PDFPage? = prax.editingDocumentPDFView.currentPage
-        
-   //     let pageIndex = pdfDocument?.index(for: pdfPage!) ?? 0
-        
-        
-        
-        
-
        
-        
         HStack {
-            
            
             GroupBox {
                 HStack {
@@ -62,76 +67,13 @@ struct EditingDocumentToolbar: View {
                     .onHover { hovering in
                         hoveredButton = hovering ? 12 : nil
                     }
-       
-                    
-     
                 }
-
             }
             
             GroupBox {
                 
-                HStack {
-                   // Spacer(minLength: 5)
-                    Text("Drag as...   ")
-                //    Spacer(minLength: 5)
-                    Text(document.exportFilenamePrefix)
-                    //    Spacer(minLength: 5)
-                    TextField("Filename", text: Binding<String>(
-                        get: { document.exportFilenameBody },
-                        set: { newValue in
-                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            // Ensure we don't accidentally include a dot/extension typed by the user
-                            if let dotRange = newName.range(of: ".") {
-                                newName = String(newName[..<dotRange.lowerBound])}
-                            document.exportFilenameBody = newName
-                        })
-                              
-                    )
-                    .frame(minWidth: 20, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                    .textFieldStyle(SquareBorderTextFieldStyle())
-                    .disabled(document.exportFolderURL == nil)
-                    .foregroundStyle(.cyan)
-                    .backgroundStyle(.yellow)
-                    
-                    // Spacer(minLength: 5)
-                    Text(document.exportFilenameSuffix)
-             //       Spacer(minLength: 5)
-                    
-                    Image(systemName: "arrow.right.doc.on.clipboard")
-                //    Spacer(minLength: 5)
-                    Text(".\(document.exportFilenameExtension)")
-                   // Spacer(minLength: 15)
-                    Button("Save As …", systemImage: "arrow.down.document") {
-                        prax.showSavePanel.toggle()
-                    }
-                //    .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-              //      .padding(8)
-                    .background(Color.black)
-                    .draggable {
-                        if let data = document.mergedPDFDocument.dataRepresentation() {
-                            return MergedPDFTransfer(data: data, filename: (document.exportFilename))
-                            
-                        } else {
-                            return nil
-                        }
-                    }
-                    .padding(5)
-                    .lineLimit(1)
-                    .background {
-                        Capsule()
-                            .foregroundStyle(Color.blue.gradient)
-                    }
-                    
-                }
-                HStack {
-                    
- 
-                        
-                        
-                    }
-                .background(Color.cyan)
+                Text(mergedSizeText())
+
                 }
             }
 
@@ -141,6 +83,7 @@ struct EditingDocumentToolbar: View {
 
     }
 }
+
 
 struct EditingDocumentFooter: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
@@ -155,14 +98,14 @@ struct EditingDocumentFooter: View {
         
         let pdfView: PDFView? = prax.editingDocumentPDFView
         
-        let pdfDocument: PDFDocument? = prax.editingDocumentPDFView.document
-        let pageCount: Int = pdfDocument?.pageCount ?? 0
-        let pdfPage: PDFPage? = prax.editingDocumentPDFView.currentPage
+   //     let pdfDocument: PDFDocument? = prax.editingDocumentPDFView.document
+   //     let pageCount: Int = pdfDocument?.pageCount ?? 0
+   //     let pdfPage: PDFPage? = prax.editingDocumentPDFView.currentPage
         
    //     let pageIndex = pdfDocument?.index(for: pdfPage!) ?? 0
         
         
-        
+
         
 
        
@@ -203,6 +146,37 @@ struct EditingDocumentFooter: View {
                 }
             
          Spacer()
+            GroupBox {
+                HStack {
+                    Button("", systemImage: "arrowshape.left.circle", action: {
+                        prax.editingDocumentPDFView.goToPreviousPage(self)
+                    })
+                    .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 11, isFocused: false))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 11 : nil
+                    }
+                    
+                    Text(String("Page \(prax.editingDocumentCurrentPage + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
+                        .background {
+                            Capsule()
+                                .foregroundStyle(Color.blue.gradient)
+                        }
+                    
+                    Button("", systemImage: "arrowshape.right.circle", action: {
+                        prax.editingDocumentPDFView.goToNextPage(self)
+                    })
+                    .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 12, isFocused: false))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 12 : nil
+                    }
+       
+                    
+     
+                }
+
+            }
 
         }
         .background(PraxGradient(1))

@@ -37,7 +37,8 @@ import Foundation
     
     var pageSections: [MergedPage] = [] {
         didSet {
-            print("pageSections didSet:  ", pageSections.count)
+            self.prax.selectedMergedPage = pageSections.first
+
         }
     }
 

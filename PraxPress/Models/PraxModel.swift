@@ -140,6 +140,13 @@ final class PraxModel {
     */    }
     }
 
+    var selectedMergedPage: MergedPage? { didSet {
+        if selectedMergedPage != nil {
+            print("PraxModel - selectedMergedPage didSet:  ", selectedMergedPage?.title, "Julie d'Prax")
+        }
+        
+    }}
+    
     var selectedSections: Set<Int> = [] { didSet {
         print("PraxModel - electedSections didSet:  ", selectedSections)
     //    selectedSections.forEach {
@@ -152,11 +159,12 @@ final class PraxModel {
     //        print("\($0)") }
     }}
     
-    var selectedEditPages: Set<IndexPath> = [] { didSet {
+   var selectedEditPages: Set<IndexPath> = [] { didSet {
         print("PraxModel - selectedEditPages didSet:  ", selectedEditPages)
+        }
     //          selectedPages.forEach {
     //              print("\($0)") }}
-    }}
+    }
 
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")

@@ -294,7 +294,10 @@ struct SourceFilesView: View {
             }
            
         }
-        
+        .fileDialogDefaultDirectory(document.sourceFolderURL)
+        .fileDialogMessage("Add Files to the PraxPress Library")
+        .fileDialogConfirmationLabel(Text("Add to Library"))
+        .fileDialogCustomizationID("AddToLibraryFileDialog")
         .task {
             DispatchQueue.main.async {
                 print ("Fortunareed")

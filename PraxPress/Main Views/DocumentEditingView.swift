@@ -13,12 +13,12 @@ import UniformTypeIdentifiers
 
 struct DocumentEditingView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
+    @Environment(PraxModel.self) private var prax
     
     
     func makeCoordinator() -> DocumentEditingViewCoordinator {
-        let svd = SplitViewDelegate(prax: praxModel)
-        return DocumentEditingViewCoordinator(document: document, prax: praxModel, splitViewDelegate: svd)
+        let svd = SplitViewDelegate(prax: prax)
+        return DocumentEditingViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
     }
 
     func makeNSView(context: Context) -> NSSplitView {
@@ -31,6 +31,10 @@ struct DocumentEditingView: NSViewRepresentable {
         context.coordinator.splitView = splitView
         splitView.isVertical = true
         splitView.dividerStyle = .thin
+        splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
+        splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 1)
+        splitView.setHoldingPriority(.defaultLow, forSubviewAt: 2)
+        splitView.setHoldingPriority(.defaultLow, forSubviewAt: 3)
         splitView.translatesAutoresizingMaskIntoConstraints = false
 
         // Left: Scroll + Collection
@@ -59,7 +63,7 @@ struct DocumentEditingView: NSViewRepresentable {
         pageEditCollectionView.backgroundColors = [.clear]
         pageEditCollectionView.isSelectable = true
         pageEditCollectionView.allowsEmptySelection = true
-        pageEditCollectionView.allowsMultipleSelection = true
+        pageEditCollectionView.allowsMultipleSelection = false
         pageEditCollectionView.delegate = context.coordinator
         pageEditScrollView.documentView = pageEditCollectionView
         
@@ -114,7 +118,7 @@ struct DocumentEditingView: NSViewRepresentable {
     }
 
     func updateNSView(_ splitView: NSSplitView, context: Context) {
-        print("DocumentEditingView - updateNSView - context.coordinator.applySnapshot(animated: true)")
+        print("DocumentEditingView - updateNSView - ", prax.selectedMergedPage?.title ?? "No selectedMergedPage")
         context.coordinator.applySnapshot(animated: true)
     }
 
@@ -186,7 +190,7 @@ struct DocumentEditingView: NSViewRepresentable {
                     withIdentifier: NSUserInterfaceItemIdentifier("Cell"),
                     for: indexPath
                 ) as? CollectionViewItem else { return nil }
-
+                cell.representedObject = item
                 let isSelected = cv.selectionIndexPaths.contains(indexPath)
                 switch kind {
                 case .pageItem:
@@ -253,10 +257,10 @@ struct DocumentEditingView: NSViewRepresentable {
             var footerKind: String?
             var backgroundKind: String?
             var headerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
-            var headerHeight: NSCollectionLayoutDimension = .absolute(40)
+            var headerHeight: NSCollectionLayoutDimension = .absolute(20)
             var headerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             var footerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
-            var footerHeight: NSCollectionLayoutDimension = .absolute(20)
+            var footerHeight: NSCollectionLayoutDimension = .absolute(30)
             var footerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             
             
@@ -266,37 +270,42 @@ struct DocumentEditingView: NSViewRepresentable {
             var layoutSettings = LayoutSettings()
             switch kind {
             case .pageItem:
-                layoutSettings.itemHeight = .fractionalWidth(1.0)
-                layoutSettings.groupHeight = .fractionalWidth(1.0)
+                layoutSettings.itemHeight = .fractionalWidth(0.5)
+                layoutSettings.itemWidth = .fractionalWidth(0.75)
+                layoutSettings.groupHeight = .fractionalWidth(0.5)
              
-                layoutSettings.itemSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+      //          layoutSettings.itemSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
                 layoutSettings.groupSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
-                layoutSettings.sectionSpacing = 0
+                layoutSettings.sectionSpacing = 5
                 
                 //   layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 100, leading: 30, bottom: 100, trailing: 30)
                 layoutSettings.itemInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 layoutSettings.groupInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 35, leading: 5, bottom: 10, trailing: 5)
                 
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
+         //       layoutSettings.headerHeight = .absolute(20)
+         //       layoutSettings.footerHeight = .absolute(30)
+                
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
-                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -25, leading: 0, bottom: 0, trailing: 0)
                 
              
                 
             case .pageEdit:
-                layoutSettings.itemHeight = .fractionalWidth(3.0)
-                layoutSettings.groupHeight = .fractionalWidth(3.0)
+                layoutSettings.itemHeight = .fractionalWidth(2.0)
                 
-                layoutSettings.itemInsets = NSDirectionalEdgeInsets(top: 0, leading: 50, bottom: 0, trailing: 0)
+                layoutSettings.groupHeight = .fractionalWidth(2.0)
                 
+                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 60, leading: 5, bottom: 50, trailing: 5)
+                layoutSettings.sectionSpacing = 25
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
-                layoutSettings.backgroundKind = CollectionViewItem.editPageSectionBackgroundElementKind
-//                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
-//                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 40, trailing: 10)
+                layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -50, leading: 0, bottom: 0, trailing: 0)
                 
 
             }
@@ -322,7 +331,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 
                 section.interGroupSpacing = layoutSettings.sectionSpacing
                 section.contentInsets = layoutSettings.sectionInsets
-                section.supplementariesFollowContentInsets = true
+           //     section.supplementariesFollowContentInsets = true
                 
                 
                 var boundarySupplementaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
@@ -333,7 +342,7 @@ struct DocumentEditingView: NSViewRepresentable {
                         elementKind: layoutSettings.headerKind!,
                         alignment: .top,)
                     sectionHeader.contentInsets = layoutSettings.headerInsets
-                    sectionHeader.extendsBoundary = false
+                    sectionHeader.extendsBoundary = true
                     sectionHeader.pinToVisibleBounds = true
 //sectionHeader.zIndex = 2
                     boundarySupplementaryItems.append(sectionHeader)
@@ -345,8 +354,8 @@ struct DocumentEditingView: NSViewRepresentable {
                          elementKind: layoutSettings.footerKind!,
                          alignment: .bottom)
                     sectionFooter.contentInsets = layoutSettings.footerInsets
-                    sectionFooter.extendsBoundary = true
-                    sectionFooter.pinToVisibleBounds = false
+                //    sectionFooter.extendsBoundary = true
+                    sectionFooter.pinToVisibleBounds = true
                  //   sectionFooter.zIndex = 2
                     boundarySupplementaryItems.append(sectionFooter)
                 }
@@ -396,10 +405,19 @@ struct DocumentEditingView: NSViewRepresentable {
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
             if collectionView == pageItemCollectionView {
+                
                 prax.selectedPageItems = collectionView.selectionIndexPaths
             }
             else if collectionView == pageEditCollectionView {
+                if let indexPath = collectionView.selectionIndexPaths.first {
+                    if let pageItem = collectionView.item(at: indexPath)?.representedObject as? PageItem {
+                        print(pageItem.name)
+                        prax.editingDocumentPDFView.go(to: pageItem.pdfPage)
+                    }
+                }
+                
                 prax.selectedEditPages = collectionView.selectionIndexPaths
+                
             }
             else {
                 assertionFailure("Unexpected collection view")
@@ -459,6 +477,8 @@ struct DocumentEditingView: NSViewRepresentable {
             return provider
         }
     
+        private var validatedDropOperation: NSDragOperation = []
+        
         func collectionView(
             _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
         ) -> NSDragOperation {
@@ -467,23 +487,30 @@ struct DocumentEditingView: NSViewRepresentable {
              
             if prax.optionKeyPressed {
                 print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
-               return [.copy]
-
+                validatedDropOperation = [.copy]
+        
             }
             else {
                 print("ThumbnailViewController validateDrop [.move]  ", indexPath)
-                return [.move]
-
+                validatedDropOperation = [.move]
+        
             }
+            return validatedDropOperation
         }
                  
         func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
-            print("ThumbnailViewController acceptDrop  ", indexPath.item)
+            print("ThumbnailViewController acceptDrop  ", indexPath.item, " -  dropOperation: ", dropOperation, " - draggingInfo: ", draggingInfo)
             
             guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return false }
             
             if draggingTypes.contains(.pdfPageDragType) {
-                dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+                if validatedDropOperation == [.copy] {
+                    dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: true)
+                }
+                else {
+                    dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: false)
+                }
+                
             }
             else if draggingTypes.contains(.mergedPageType) {
                 dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
@@ -786,8 +813,8 @@ struct DocumentEditingView: NSViewRepresentable {
             
         }
             
-        func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-            print("dropInternalPages to: ", indexPath)
+        func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath, copy: Bool) {
+            print("dropInternalPages to: ", indexPath, " - copy: ", copy)
             
             var draggedItems: [IndexPath] = []
             
@@ -808,8 +835,16 @@ struct DocumentEditingView: NSViewRepresentable {
                             }
                         } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                         
-                        print ("self.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                        self.document.movePDFPageItems(draggedItems, to: indexPath)
+                        if copy {
+                            print ("document.copyPDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                            self.document.copyPDFPageItems(draggedItems, to: indexPath)
+
+                        }
+                        else {
+                            print ("document.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                            self.document.movePDFPageItems(draggedItems, to: indexPath)
+
+                        }
                        
                //         self.updateUI()
                     }
@@ -817,86 +852,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         
     }
-    
-    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
-        print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
-        
-        return false
-    }
 
-   
-    func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
-        print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedMinimumPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedMaximumPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
-        print ("splitView: NSSplitView, resizeSubviewsWithOldSize oldSize:  ", oldSize)
-
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview view: NSView) -> Bool {
-        print ("splitView: NSSplitView, shouldAdjustSizeOfSubview view: : ")
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
-        print ("splitView: NSSplitView, shouldHideDividerAt dividerIndex:   ", dividerIndex)
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
-        print ("ssplitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex:   ", dividerIndex)
-        
-        return proposedEffectiveRect
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex: Int) -> NSRect {
-        print ("splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex:   ", dividerIndex)
-        
-        return NSRect.zero
-    }
-
-    
-    func splitViewWillResizeSubviews(_ notification: Notification) {
-        print ("splitViewWillResizeSubviews(_ notification: Notification) ")
-        
-    }
-
-    
-    func splitViewDidResizeSubviews(_ notification: Notification) {
-        print ("splitViewDidResizeSubviews(_ notification: Notification) ")
-        
-    }
 }
 
 
@@ -905,7 +861,11 @@ struct DocumentEditingToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
+    let praxTheme = PraxTheme(.erika)
+    
     @State var showSettings = false
+    @State private var hoveredButton: Int? = nil
+    @State private var showFilenamePrefixPopover = false
     
     private func title(for mode: PDFDisplayMode) -> String {
         switch mode {
@@ -932,14 +892,16 @@ struct DocumentEditingToolbar: View {
         GroupBox {
             
             //    Text("Prax")
-            let pageCount = "  Pages: " + String(document.totalPDFPageItems())
+           
             
             
             HStack {
             
-                Button("", systemImage: "gear", action: {
+                Button {
                     showSettings = !showSettings
-                })
+                }label: {
+                    Image(systemName: "gear")
+                }
                 .sheet(isPresented: $showSettings) {
                     EditSettingsPanel()
                     
@@ -951,52 +913,21 @@ struct DocumentEditingToolbar: View {
                     
                 }
                 
-                Text(pageCount)
-                Button("Clear All", systemImage: "document.on.trash", action: {
-                    print (pageCount)
-                    
-                })
-                Button {
-                    prax.showingFileImporter = true }
-                label: {
-                    Text("Import Files") //.frame(minWidth: 100, maxWidth: 200, alignment: .center)
-                }
+                Spacer()
                 
-                //       .background(dropTargeted ? Color.green : Color.blue)
-                .fileImporter(
-                    isPresented: $prax.showingFileImporter,
-                    allowedContentTypes: [.pdf, .image, .text, .video],
-                    allowsMultipleSelection: true
-                ) { result in
-                    switch result {
-                    case .success(let urls):
-                        print (urls)
-                    case .failure(let error):
-                        print(error.localizedDescription)
+                Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
+                label: {
+                    if document.exportFilenamePrefix == "" {
+                        Text("prefix...").italic()
+                    }
+                    else {
+                        Text(document.exportFilenamePrefix).bold()
                     }
                 }
-                Button("Export…", systemImage: "arrow.down.document") {
-                    prax.showSavePanel.toggle()
-                }
-                Spacer()
-                ZStack {
-                    TextField("Prefix", text: $document.exportFilenamePrefix)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                        .overlay(alignment: .trailing) {
-                            if !document.exportFilenamePrefix.isEmpty {
-                                Button {
-                                    document.exportFilenamePrefix = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundStyle(.secondary)
-                                        .padding(.trailing, 6) // adjust for your field style
-                                }
-                                .buttonStyle(.plain)
-                                .help("Clear")
-                            }
-                        }
-                }
+                .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 42))
+                .onHover { hovering in hoveredButton = hovering ? 42 : nil }
+                .popover(isPresented: $showFilenamePrefixPopover, arrowEdge: .leading) {
+                    FilenamePrefixPopover() }
                 
                 TextField("Filename", text: Binding<String>(
                     get: { document.exportFilenameBody },
@@ -1010,8 +941,11 @@ struct DocumentEditingToolbar: View {
                           
                 )
                 //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
+                
+                .frame(width: 200)
+                .multilineTextAlignment(.center)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                
                // .disabled(document.exportFolderURL == nil)
                 
                 
@@ -1029,7 +963,9 @@ struct DocumentEditingToolbar: View {
                 
                 Spacer(minLength: 15)
 
-
+                Button("Export…", systemImage: "arrow.down.document") {
+                    prax.showSavePanel.toggle()
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
             .padding(0)
@@ -1038,14 +974,11 @@ struct DocumentEditingToolbar: View {
         
         
         .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
-        
-        .fileDialogDefaultDirectory(document.sourceFolderURL)
-        .fileDialogMessage("Add Files to PraxPress")
-        .fileDialogConfirmationLabel(Text("Add to PraxPress"))
+
         
   //     .background(PraxGradient(2))
   //      .background(prax.dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
-        .foregroundStyle(Color.white)
+    //    .foregroundStyle(Color.white)
         
         
     }

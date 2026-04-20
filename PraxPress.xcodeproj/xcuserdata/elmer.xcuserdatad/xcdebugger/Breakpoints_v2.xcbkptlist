@@ -94,8 +94,8 @@
             filePath = "PraxPress/PageViews/PageItemView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "689"
-            endingLineNumber = "689"
+            startingLineNumber = "474"
+            endingLineNumber = "474"
             landmarkName = "pdfView(_:overlayViewFor:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -114,6 +114,68 @@
             endingLineNumber = "648"
             landmarkName = "body"
             landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DD14AD88-57A7-4106-98A6-1D7E4A99955D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PraxPress/Application/SplitViewDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
+            landmarkName = "SplitViewDelegate"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "DD14AD88-57A7-4106-98A6-1D7E4A99955D - 8fc9921f2881d24"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "PraxPress.SplitViewDelegate.splitView(_: __C.NSSplitView, shouldCollapseSubview: __C.NSView, forDoubleClickOnDividerAt: Swift.Int) -&gt; Swift.Bool"
+                  moduleName = "PraxPress.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elmer/MIT%20Dropbox/Elmer%20Cat/Elmer/Projects/PraxPress/PraxPress/Application/SplitViewDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "81"
+                  endingLineNumber = "81">
+               </Location>
+               <Location
+                  uuid = "DD14AD88-57A7-4106-98A6-1D7E4A99955D - 8fc9921f2881ee2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "PraxPress.SplitViewDelegate.splitView(_: __C.NSSplitView, shouldCollapseSubview: __C.NSView, forDoubleClickOnDividerAt: Swift.Int) -&gt; Swift.Bool"
+                  moduleName = "PraxPress.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elmer/MIT%20Dropbox/Elmer%20Cat/Elmer/Projects/PraxPress/PraxPress/Application/SplitViewDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "79"
+                  endingLineNumber = "79">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FF892A04-D8DE-4795-BD8A-EB0AF33AD96F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PraxPress/Application/SplitViewDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "SplitViewDelegate"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

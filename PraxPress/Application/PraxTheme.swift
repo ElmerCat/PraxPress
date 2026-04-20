@@ -80,6 +80,43 @@ struct PraxTheme {
 }
 
 
+struct PrefixButtonStyle: ButtonStyle {
+    var theme: PraxTheme
+    var isHovering: Bool
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        
+        if configuration.isPressed {
+            backgroundColor = theme.backgroundColorPressed
+            foregroundColor = theme.foregroundColorPressed
+        } else if isHovering {
+            backgroundColor = theme.backgroundColorHover
+            foregroundColor = theme.foregroundColorHover
+        } else {
+            backgroundColor = theme.backgroundColor
+            foregroundColor = theme.foregroundColor
+        }
+        
+        return configuration.label
+            .buttonStyle(.glassProminent)
+ //           .imageScale(.large)
+ //           .frame(width: 20, height: 25, alignment: .center )
+            .padding(3)
+            .padding(.trailing, 0)
+            .foregroundColor(foregroundColor)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 5, height: 8))
+                    .foregroundStyle(backgroundColor)
+            }
+         //   .cornerRadius(8)
+            .animation(.bouncy(duration: 0.5), value: isHovering)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
+}
+
+
+
 struct ItemButtonStyle: ButtonStyle {
     var theme: PraxTheme
     var isHovering: Bool

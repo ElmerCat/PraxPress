@@ -40,6 +40,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     var pdfPage: PDFPage? = nil
     var aspectRatio: CGFloat {
         mergedWidthPts / mergedHeightPts}
+    var minWidthPts: CGFloat = 0
     var mergedWidthPts: CGFloat = 0
     var mergedHeightPts: CGFloat = 0
     var mergeModePages = 0
@@ -50,6 +51,37 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             refreshMergedPage(true)
         }
     }
+    
+    var skippedPages: Int {
+        get {
+            var count = 0
+            for pageItem in pageItems {
+                if pageItem.skipped {count += 1}
+            }
+            return count
+        }
+    }
+    func skipAllPages() {
+        
+            for pageItem in pageItems {
+                    if !pageItem.skipped {
+                        pageItem.skipped = true
+                    }
+            }
+        
+    }
+    
+    func includeAllPages() {
+        
+            for pageItem in pageItems {
+                    if pageItem.skipped {
+                        pageItem.skipped = false
+                    }
+            }
+       
+    }
+    
+    
     var refreshingMergedPage = false
     func refreshMergedPage(_ refreshEditing: Bool = false) {
         if refreshEditing == true {
@@ -82,6 +114,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             
             
             var maxVisibleWidth: CGFloat = 0
+            var minVisibleWidth: CGFloat = 9999.0
             var totalVisibleHeight: CGFloat = 0
            
             for pageItem in pageItems {
@@ -89,9 +122,13 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 if !pageItem.skipped {
                     let vis = PDFGeometry.visibleRect(media: pageItem.media, trims: pageItem.trims, seamTop: 0, seamBottom: 0)
                     maxVisibleWidth = max(maxVisibleWidth, vis.width)
+                    minVisibleWidth = min(minVisibleWidth, vis.width)
+                    
                     totalVisibleHeight += vis.height
                 }
             }
+            minWidthPts = minVisibleWidth
+
             mergedWidthPts = maxVisibleWidth
             mergedHeightPts = totalVisibleHeight
 
@@ -289,12 +326,22 @@ final class PageItem: Identifiable, Equatable, Hashable {
         }()
     }
     
+    func trimmedPageSize() -> CGRect {
+        let minX = media.minX + trims.left
+        let maxX = media.maxX - trims.right
+        let minY = media.minY + trims.bottom
+        let maxY = media.maxY - trims.top
+        let w = max(0, maxX - minX)
+        let h = max(0, maxY - minY)
+        return CGRect(x: minX, y: minY, width: w, height: h)
+    }
+    
     var overlayView: PDFPageOverlayView {
       PDFPageOverlayView(pageItem: self)
     }
     
-    var thumbnail: NSImage?
-    
+//    var thumbnail: NSImage?
+
     private var _trims: EdgeTrims = .zero
     var trims: EdgeTrims {
         get { _trims }
