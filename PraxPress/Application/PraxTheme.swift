@@ -225,6 +225,35 @@ func PraxGradient(_ style: Int? = nil) -> MeshGradient {
                 .clear, .green, .clear
             ]
         )
+    
+    case 3:
+        MeshGradient(
+            width: 2,
+            height: 2,
+            points: [
+                [0.0, 0.0], [1.0, 0.0],
+                [0.0, 1.0], [1.0, 1.0]
+                
+            ],
+            colors: [
+                Color("GradientDarkOne").opacity(0.75), Color("GradientLightOne").opacity(0.75),
+                Color("GradientLightOne").opacity(0.5), Color("GradientDarkOne").opacity(0.5)
+            ])
+        
+    case 4:
+        MeshGradient(
+            width: 2,
+            height: 2,
+            points: [
+                [0.0, 0.0], [1.0, 0.0],
+                [0.0, 1.0], [1.0, 1.0]
+                
+            ],
+            colors: [
+                Color("GradientDarkTwo").opacity(0.15), Color("GradientLightTwo").opacity(0.25),
+                Color("GradientLightTwo").opacity(0.25), Color("GradientDarkTwo").opacity(0.15)
+            ])
+        
     default:
         MeshGradient(
             width: 3,

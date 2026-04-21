@@ -11,15 +11,34 @@ import PDFKit
 
 
 class MergedPDFDocumentNSView: NSView {
+    let prax: PraxModel
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(prax: PraxModel) {
+        self.prax = prax
+        super.init(frame: .zero)
         configure()
     }
+    
+//    override init(frame: CGRect) {
+//       super.init(frame: frame)
+//        configure()
+//    }
+ 
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
     
+    
+    override func mouseEntered(with event: NSEvent) {
+        print("MergedPDFDocumentNSView - mouseEntered")
+        prax.hoverSection.insert(.mergedDocument)
+
+    }
+    override func mouseExited(with event: NSEvent) {
+        print("MergedPDFDocumentNSView - mouseExited")
+        prax.hoverSection.remove(.mergedDocument)
+    }
+
     private var hostingView: NSHostingView<MergedPDFDocumentView>?
     
     func configure() {

@@ -19,14 +19,32 @@ import PDFKit
 
 
 class EditingPDFDocumentNSView: NSView {
+    let prax: PraxModel
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(prax: PraxModel) {
+        self.prax = prax
+        super.init(frame: .zero)
         configure()
     }
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        configure()
+//    }
+  
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
+    
+    override func mouseEntered(with event: NSEvent) {
+        print("EditingPDFDocumentNSView - mouseEntered")
+        prax.hoverSection.insert(.editingDocument)
+
+    }
+    override func mouseExited(with event: NSEvent) {
+        print("EditingPDFDocumentNSView - mouseExited")
+        prax.hoverSection.remove(.editingDocument)
+    }
+
     
     private var hostingView: NSHostingView<EditingPDFDocumentView>?
     
@@ -73,13 +91,15 @@ struct EditingPDFDocumentView: View {
         
         let _ = Self._printChanges()
         
-        let pdfPage = prax.selectedMergedPage?.pdfPage
+   //     let pdfPage = prax.selectedMergedPage?.pdfPage
         
         GroupBox {
             GeometryReader { proxy in
                 VStack {
 
                     EditingDocumentToolbar()
+                        .frame(maxWidth: .infinity, maxHeight: 10.0)
+                        .zIndex(258)
                     
                     GroupBox {
                       
@@ -236,7 +256,11 @@ struct EditingPDFDocumentView: View {
             guard let pdfView = note.object as? PDFView,
                   let doc = pdfView.document,
                   let page = pdfView.currentPage else { return }
-            document.prax.editingDocumentCurrentPage = doc.index(for: page)
+                    let pageIndex = doc.index(for: page)
+         
+              document.prax.editingDocumentCurrentPage = doc.index(for: page)
+
+         
             print("EditingPDFDocumentViewCoordinator - changed to page:", document.prax.editingDocumentCurrentPage)
             //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
         }
@@ -264,9 +288,9 @@ struct EditingPDFDocumentView: View {
             document.prax.editingDocumentPDFView.autoScales = true
             document.prax.editingDocumentPDFView.displayDirection = .vertical
             document.prax.editingDocumentPDFView.displaysPageBreaks = true
-            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 10, left: 0, bottom: 20, right: 0)
+            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 30, left: 0, bottom: 0, right: 0)
             document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
-            document.prax.editingDocumentPDFView.backgroundColor = .yellow
+            document.prax.editingDocumentPDFView.backgroundColor = .clear
                 
            document.prax.editingDocumentPDFView.pageOverlayViewProvider = context.coordinator
          //   context.coordinator.overlayView.onFinish = context.coordinator.overlayViewOnFinish

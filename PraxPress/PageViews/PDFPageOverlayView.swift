@@ -187,7 +187,7 @@ final class PDFPageOverlayView: NSView {
             
             
         } else {
-            print("PDFPageOverlayView - computeGuidelines - No pdfView ")
+     //       print("PDFPageOverlayView - computeGuidelines - No pdfView ")
             guideXLeft = nil
             guideXRight = nil
         }
@@ -376,7 +376,20 @@ final class PDFPageOverlayView: NSView {
         return snapped
     }
     
+    override func mouseEntered(with event: NSEvent) {
+        print("PDFPageOverlayView - mouseEntered")
+    }
+    
+    
     override func mouseDown(with event: NSEvent) {
+        guard let document else {return}
+        
+        if document.prax.currentEditPage != pageItem {
+            print("Changing currentEditPage to :", pageItem.name)
+            document.prax.currentEditPage = pageItem
+            
+        }
+        
         let point = convert(event.locationInWindow, from: nil)
         dragStart = point
         

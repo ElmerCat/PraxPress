@@ -86,16 +86,22 @@ import Foundation
 
             var insertIndex = 0
             let pdfDocument = PDFDocument()
+            var firstPageItem: PageItem?
             pageSections.forEach {
                 section in
                 section.pageItems.forEach {
                     pageItem in
                     if !pageItem.skipped {
+                        if firstPageItem == nil { firstPageItem = pageItem }
                         pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
                         insertIndex += 1
                     }
+                    else if pageItem == prax.currentEditPage {
+                        prax.currentEditPage = nil
+                    }
                 }
             }
+            if prax.currentEditPage == nil { prax.currentEditPage = firstPageItem }
             editingPDFDocument = pdfDocument
             editingDocumentVersion = UUID()
             self.refreshingEditingDocument = false
@@ -120,9 +126,11 @@ import Foundation
 
             var insertIndex = 0
             let pdfDocument = PDFDocument()
+            
             pageSections.forEach {
                 section in
                 if let pdfPage = section.pdfPage {
+                    
                     pdfDocument.insert(pdfPage, at: insertIndex)
                     insertIndex += 1
                 }

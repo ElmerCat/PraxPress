@@ -83,17 +83,11 @@ final class PraxModel {
     var columnVisibility: NavigationSplitViewVisibility = .all
     
     let editingDocumentPDFView = PDFView()
+    let pageEditCollectionView = NSCollectionView()
     let mergedDocumentPDFView = PDFView()
    
     
-    var editingDocumentCurrentPage: Int = -1 {
-        didSet {
-            print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
-        }
-    }
-    var editingDocumentCurrentPageItem: PageItem?
-    
-    
+     
 //    var mergedDocumentPDFView: PDFView?
 /*
     var splitView: NSSplitView?
@@ -121,7 +115,14 @@ final class PraxModel {
 
  */
     
+
+    enum HoverSection {
+        case editingDocument
+        case mergedDocument
+    }
+
     
+    var hoverSection: Set<HoverSection> = []
     
     
     var selectedFiles = Set<PDFFile.ID>() {
@@ -142,7 +143,47 @@ final class PraxModel {
 
     var selectedMergedPage: MergedPage? { didSet {
         if selectedMergedPage != nil {
-            print("PraxModel - selectedMergedPage didSet:  ", selectedMergedPage?.title, "Julie d'Prax")
+            print("PraxModel - selectedMergedPage didSet:  ", selectedMergedPage!.title, "Julie d'Prax")
+        }
+        
+    }}
+    
+    var editingDocumentCurrentPage: Int = -1 {
+        didSet {
+            print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
+            
+            if editingDocumentCurrentPage == NSNotFound { return }
+            
+            if let mergedPage = selectedMergedPage {
+                if mergedPage.pageItems.count > editingDocumentCurrentPage {
+                    currentEditPage = mergedPage.pageItems[editingDocumentCurrentPage]
+                    let indexPath = IndexPath(item: editingDocumentCurrentPage, section: 0)
+                    withAnimation {
+                        pageEditCollectionView.scrollToItems(at: [indexPath], scrollPosition: .centeredVertically)
+                        pageEditCollectionView.selectionIndexPaths = [indexPath]
+                    }
+                    
+                }
+            }
+        }
+    }
+ 
+
+    var currentEditPage: PageItem? { didSet {
+        if let currentEditPage {
+            var currentIndex = documment.editingPDFDocument.index(for: currentEditPage.pdfPage)
+            if currentIndex == NSNotFound { currentIndex = 0 }
+            if editingDocumentCurrentPage != currentIndex {
+                editingDocumentCurrentPage = currentIndex
+            }
+            print("PraxModel - currentEditPage didSet:  ", currentEditPage.name, "Juliette M. Belanger")
+            
+            
+        }
+        else {
+            if editingDocumentCurrentPage != 0 {
+                editingDocumentCurrentPage = 0
+            }
         }
         
     }}
@@ -155,6 +196,9 @@ final class PraxModel {
     
     var selectedPageItems: Set<IndexPath> = [] { didSet {
         print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
+        if !selectedPageItems.isEmpty {
+            currentEditPage = documment.pageItem(indexPath: selectedPageItems.first!)
+        }
     //    selectedPageItems.forEach {
     //        print("\($0)") }
     }}

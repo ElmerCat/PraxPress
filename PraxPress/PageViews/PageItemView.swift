@@ -217,13 +217,14 @@ struct PageEditView: View {
                         }
                         .padding(0)
                     }
-                    HStack {
+                    
                         
                         Group {
                             Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: proxy.size.width / 3)
+                                .frame(width: proxy.size.width * 0.5,  height: (proxy.size.width * 0.5 / pageItem.aspectRatio), alignment: .center)
+                               //.padding(10)
                               //  .offset(x: 20, y: 0)
                             
                                 .overlay(alignment: .topTrailing, content: {
@@ -256,14 +257,15 @@ struct PageEditView: View {
                                     
                                 })
                         }
-                        .padding(.leading, (proxy.size.width / 30))
+                       //.padding(.leading, (proxy.size.width / 30))
                        
                           //  .padding(3)
                             
                       //      .padding(.horizontal, 5) // (proxy.size.width * 0.01)
                      
-                        Spacer()
-                    }
+                    //
+                   //     Spacer()
+                    
 
                        
                     GroupBox {
