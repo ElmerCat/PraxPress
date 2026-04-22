@@ -19,18 +19,18 @@ import SwiftData
 final class PraxModel {
     
     // Non-optional reference to the document; attached after both are created.
-    unowned private(set) var documment: MergedPDFDocument!
-
+    unowned private(set) var document: MergedPDFDocument!
+    
     init() {
         // Document will be attached immediately after both instances are created.
         // We keep it implicitly unwrapped to avoid unsafe placeholders while still
         // making it non-optional for consumers once attached.
     }
-
+    
     func attach(document: MergedPDFDocument) {
-        self.documment = document
+        self.document = document
     }
-
+    
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
         case merge = "Merge Mode"
@@ -67,7 +67,7 @@ final class PraxModel {
     var windowSize: CGSize = CGSize(width: 0, height: 0)
     
     var saveError: String?
-
+    
     var isOn = false
     var isLarge: Bool = false
     var showFilesPanel = true
@@ -83,44 +83,45 @@ final class PraxModel {
     var columnVisibility: NavigationSplitViewVisibility = .all
     
     let editingDocumentPDFView = PDFView()
+    let pageItemCollectionView = NSCollectionView()
     let pageEditCollectionView = NSCollectionView()
     let mergedDocumentPDFView = PDFView()
-   
     
+    
+    
+    //    var mergedDocumentPDFView: PDFView?
+    /*
+     var splitView: NSSplitView?
+     var dividerZeroMinPos: CGFloat = 100
+     var dividerZeroMaxPos: CGFloat = 400
+     var dividerOneMinPos: CGFloat = 400
+     var dividerOneMaxPos: CGFloat = 700
+     var dividerZeroPos: CGFloat = 100 {
+     didSet { updateDividerLimits() }
+     }
+     var dividerOnePos: CGFloat = 400 {
+     didSet { updateDividerLimits() }
+     }
      
-//    var mergedDocumentPDFView: PDFView?
-/*
-    var splitView: NSSplitView?
-    var dividerZeroMinPos: CGFloat = 100
-    var dividerZeroMaxPos: CGFloat = 400
-    var dividerOneMinPos: CGFloat = 400
-    var dividerOneMaxPos: CGFloat = 700
-    var dividerZeroPos: CGFloat = 100 {
-        didSet { updateDividerLimits() }
-    }
-    var dividerOnePos: CGFloat = 400 {
-        didSet { updateDividerLimits() }
-    }
-
-    var splitViewFrameWidth: CGFloat = 1000 {
-        didSet { updateDividerLimits() }
-    }
-    func updateDividerLimits() {
+     var splitViewFrameWidth: CGFloat = 1000 {
+     didSet { updateDividerLimits() }
+     }
+     func updateDividerLimits() {
      //   dividerZeroMinPos = min(100, splitViewFrameWidth / 10)
-        dividerZeroMaxPos = max(100, (splitView!.arrangedSubviews[1].frame.size.width) / 2)
-        dividerOneMaxPos = splitViewFrameWidth - 200
-        dividerOneMinPos = dividerZeroPos + 300        
-    //    print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
-    }
-
- */
+     dividerZeroMaxPos = max(100, (splitView!.arrangedSubviews[1].frame.size.width) / 2)
+     dividerOneMaxPos = splitViewFrameWidth - 200
+     dividerOneMinPos = dividerZeroPos + 300
+     //    print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
+     }
+     
+     */
     
-
+    
     enum HoverSection {
         case editingDocument
         case mergedDocument
     }
-
+    
     
     var hoverSection: Set<HoverSection> = []
     
@@ -133,82 +134,169 @@ final class PraxModel {
             //           clearWidthGuide()
             
             
-/*            DispatchQueue.main.async {
-                print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
-                       self.setPageSectionsFromSelectedFiles()
-                       self.refreshMergedDocument()
-            }
-    */    }
+            /*            DispatchQueue.main.async {
+             print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
+             self.setPageSectionsFromSelectedFiles()
+             self.refreshMergedDocument()
+             }
+             */    }
     }
-
+    
     var selectedMergedPage: MergedPage? { didSet {
         if selectedMergedPage != nil {
             print("PraxModel - selectedMergedPage didSet:  ", selectedMergedPage!.title, "Julie d'Prax")
         }
-        
     }}
     
-    var editingDocumentCurrentPage: Int = -1 {
-        didSet {
-            print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
+    private var _currentEditingPDFPage: PDFPage?
+    var currentEditingPDFPage: PDFPage? {
+        get { _currentEditingPDFPage }
+        set {
+            if _currentEditingPDFPage != newValue {
+                _currentEditingPDFPage = newValue
+                
+                if let currentEditingPDFPage {
+                    if let currentEditingPageItem {
+                        if currentEditingPageItem.pdfPage != currentEditingPDFPage {
+                            print("PraxModel - currentEditingPDFPage didSet:  currentEditingPageItem.pdfPage != currentEditingPDFPage")
+                            self.currentEditingPageItem = document.pageItem(for: currentEditingPDFPage)
+                        }
+                        editingDocumentPDFView.go(to: currentEditingPDFPage)
+                    }
+                    else {
+                        if document.editingPDFDocument.pageCount > 0 {
+                            currentEditingPageIndex = document.editingPDFDocument.index(for: currentEditingPDFPage)
+                        }
+                    }
+                }
+                
+                print("PraxModel - currentEditingPDFPage didSet:  ", currentEditingPDFPage != nil ? currentEditingPDFPage! : "No PDFPage", " - Marie")
+            }
+        }
+    }
+    
+    
+    private var _currentEditingPageIndex: Int = NSNotFound
+    var currentEditingPageIndex: Int {
+        get {
+            if _currentEditingPageIndex  == NSNotFound {
+                if document.editingPDFDocument.pageCount > 0 {
+                    _currentEditingPageIndex = 0
+                }
+            }
+            return _currentEditingPageIndex
             
-            if editingDocumentCurrentPage == NSNotFound { return }
+        }
+        set {
+            if document.refreshingEditingDocument { return }
             
-            if let mergedPage = selectedMergedPage {
-                if mergedPage.pageItems.count > editingDocumentCurrentPage {
-                    currentEditPage = mergedPage.pageItems[editingDocumentCurrentPage]
-                    let indexPath = IndexPath(item: editingDocumentCurrentPage, section: 0)
+            print("set currentEditingPageIndex: Int = ", newValue)
+            if newValue == NSNotFound {
+                fatalError("set currentEditingPageIndex:   NSNotFound ")
+            }
+            else {
+                _currentEditingPageIndex = newValue
+                
+                guard let mergedPage = selectedMergedPage
+                else { fatalError("set currentEditingPageIndex:  No selectedMergedPage ") }
+                    guard let section = document.pageSections.firstIndex(of: mergedPage)
+                    else { fatalError("set currentEditingPageIndex:   Not enough pages in mergedPage ") }
+                    guard mergedPage.pageItems.count > currentEditingPageIndex
+                    else { fatalError("set currentEditingPageIndex:   No section for mergedPage ") }
+                
+                
+                if currentEditingPageItem != mergedPage.pageItems[currentEditingPageIndex] {
+                    currentEditingPageItem = mergedPage.pageItems[currentEditingPageIndex]
+                }
+                
+                
+                let indexPath = IndexPath(item: currentEditingPageIndex, section: section)
+                
+                DispatchQueue.main.async { [self] in
                     withAnimation {
+                        selectedEditPages = [indexPath]
                         pageEditCollectionView.scrollToItems(at: [indexPath], scrollPosition: .centeredVertically)
                         pageEditCollectionView.selectionIndexPaths = [indexPath]
                     }
-                    
                 }
+                
+                     
             }
         }
     }
  
+    private var _currentEditingPageItem: PageItem?
+    var currentEditingPageItem: PageItem? {
+        get { _currentEditingPageItem }
+        set {
+            if document.refreshingEditingDocument { return }
+            _currentEditingPageItem = newValue
+            
+            if let newValue {
+                let pageIndex = document.editingPDFDocument.index(for: newValue.pdfPage)
+                if pageIndex == NSNotFound {
+                    fatalError("PraxModel - currentEditingPageItem set: pdfPage Not Found in editingPDFDocument")
+                }
+                else {
+                    if currentEditingPageIndex != pageIndex {
+                        currentEditingPageIndex = pageIndex
+                    }
 
-    var currentEditPage: PageItem? { didSet {
-        if let currentEditPage {
-            var currentIndex = documment.editingPDFDocument.index(for: currentEditPage.pdfPage)
-            if currentIndex == NSNotFound { currentIndex = 0 }
-            if editingDocumentCurrentPage != currentIndex {
-                editingDocumentCurrentPage = currentIndex
+                    if currentEditingPDFPage != newValue.pdfPage {
+                        currentEditingPDFPage = newValue.pdfPage
+                    }
+
+                }
+                print("PraxModel - currentEditingPageItem set:  ", newValue.name, "Juliette M. Belanger")
             }
-            print("PraxModel - currentEditPage didSet:  ", currentEditPage.name, "Juliette M. Belanger")
-            
-            
-        }
-        else {
-            if editingDocumentCurrentPage != 0 {
-                editingDocumentCurrentPage = 0
+            else {
+                print("PraxModel - currentEditingPageItem set: ** None **  ")
             }
         }
-        
-    }}
+    }
     
     var selectedSections: Set<Int> = [] { didSet {
-        print("PraxModel - electedSections didSet:  ", selectedSections)
+        print("PraxModel - selectedSections didSet:  ", selectedSections)
     //    selectedSections.forEach {
     //        print("\($0)") }
     }}
     
     var selectedPageItems: Set<IndexPath> = [] { didSet {
         print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
-        if !selectedPageItems.isEmpty {
-            currentEditPage = documment.pageItem(indexPath: selectedPageItems.first!)
+        if let indexPath = selectedPageItems.first {
+            if let pageItem = document.pageItem(indexPath: indexPath) {
+                if !pageItem.skipped {
+                    currentEditingPageItem = pageItem
+                }
+            }
         }
-    //    selectedPageItems.forEach {
-    //        print("\($0)") }
     }}
     
-   var selectedEditPages: Set<IndexPath> = [] { didSet {
-        print("PraxModel - selectedEditPages didSet:  ", selectedEditPages)
+    
+    private var _selectedEditPages: Set<IndexPath> = []
+    var selectedEditPages: Set<IndexPath> {
+        get { _selectedEditPages  }
+        set {
+            if newValue == _selectedEditPages {return}
+            _selectedEditPages = newValue
+            if selectedPageItems != newValue {
+                pageItemCollectionView.selectionIndexPaths = newValue
+                selectedPageItems = newValue
+            }
+            
+            if let indexPath = selectedEditPages.first {
+                if let collectionItem = pageEditCollectionView.item(at: indexPath) {
+                    guard let pageItem = collectionItem.representedObject as? PageItem
+                    else { fatalError("selectedEditPages: representedObject as? PageItem - NOT FOUND") }
+                    
+                    if currentEditingPageItem != pageItem {
+                        currentEditingPageItem = pageItem
+                    }
+                }
+            }
+            print("selectedEditPages set to: ", selectedEditPages)
         }
-    //          selectedPages.forEach {
-    //              print("\($0)") }}
-    }
+     }
 
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")

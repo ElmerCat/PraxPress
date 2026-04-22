@@ -44,7 +44,7 @@ struct EditingDocumentToolbar: View {
     
     var body: some View {
         @Bindable var prax = praxModel
-        if prax.editingDocumentCurrentPage != NSNotFound {
+        if prax.currentEditingPageIndex != NSNotFound,  prax.currentEditingPageItem != nil {
             GeometryReader { proxy in
                 let thePoint = computeGuidelines()
                 
@@ -54,6 +54,31 @@ struct EditingDocumentToolbar: View {
                             
                             GroupBox {
                                 HStack {
+                                    Text("Skip This Page").font(.system(size: 8))
+                                    Button { document.clickedSkipPageButton(prax.currentEditingPageItem!) }
+                                    label: { if prax.currentEditingPageItem!.skipped {
+                                        Image(systemName: "text.page.slash") } else {
+                                            Image(systemName: "text.page") }
+                                        
+                                    }
+                                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 236))
+                                    .onHover { hovering in hoveredButton = hovering ? 236 : nil }
+                                    .help("Skip This Page")
+                                    
+                                    Spacer()
+                                    
+                                    Text("Set Width Guide").font(.system(size: 8))
+                                    Button { document.clickedGuidePageButton(prax.currentEditingPageItem!) }
+                                    label: { if prax.currentEditingPageItem!.skipped {
+                                            Image(systemName: "ruler.fill")  }  else {
+                                            Image(systemName: "ruler") }
+                                    }
+                                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
+                                    .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                                    .help("Set Width Guide")
+                                    
+                                    Spacer()
+                                    
                                     Button("", systemImage: "arrowshape.left.circle", action: {
                                         prax.editingDocumentPDFView.goToPreviousPage(self)
                                     })
@@ -63,7 +88,7 @@ struct EditingDocumentToolbar: View {
                                         hoveredButton = hovering ? 11 : nil
                                     }
                                     
-                                    Text(String("Page \(prax.editingDocumentCurrentPage + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
+                                    Text(String("Page \(prax.currentEditingPageIndex + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
                                         .background {
                                             Capsule()
                                                 .foregroundStyle(Color.blue.gradient)
@@ -81,7 +106,7 @@ struct EditingDocumentToolbar: View {
                             }
                             
                             GroupBox {
-                                Text((prax.currentEditPage?.name  ?? "No Current Page") + mergedSizeText() )
+                                Text((prax.currentEditingPageItem?.name  ?? "No Current Page") + mergedSizeText() )
                                 
                             }
                         }
@@ -117,7 +142,7 @@ struct EditingDocumentToolbar: View {
     
     private func computeGuidelines() -> CGPoint {
         
-        if let pageItem = praxModel.currentEditPage {
+        if let pageItem = praxModel.currentEditingPageItem {
             
       //     let widthGuidePage = document!.widthGuidePage()
        
@@ -186,92 +211,80 @@ struct EditingDocumentFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        let pdfView: PDFView? = prax.editingDocumentPDFView
-        
-   //     let pdfDocument: PDFDocument? = prax.editingDocumentPDFView.document
-   //     let pageCount: Int = pdfDocument?.pageCount ?? 0
-   //     let pdfPage: PDFPage? = prax.editingDocumentPDFView.currentPage
-        
-   //     let pageIndex = pdfDocument?.index(for: pdfPage!) ?? 0
-        
-        
-
-        
-
-       
-        
-        HStack {
-
-            Button("", systemImage: "arrow.up.and.down.circle", action: {
-                if let pdfView  {
-                    EditingPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
-                    
-                }
-            })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
-            .onHover { hovering in
-                hoveredButton = hovering ? 0 : nil
-            }
-
-            Button("", systemImage: "minus.circle", action: {
-                pdfView?.zoomOut(self)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
-                .onHover { hovering in
-                    hoveredButton = hovering ? 2 : nil
-                }
-
-            Button("", systemImage: "plus.circle", action: {
-                pdfView?.zoomIn(self)
-            })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
-            .onHover { hovering in
-                hoveredButton = hovering ? 1 : nil
-            }
-
-            Button("", systemImage: "arrow.left.and.right.circle", action: {
-                pdfView?.autoScales = true
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
-                .onHover { hovering in
-                    hoveredButton = hovering ? 3 : nil
-                }
+        if prax.currentEditingPDFPage != nil, prax.currentEditingPageItem != nil, prax.currentEditingPageIndex != NSNotFound {
             
-         Spacer()
-            GroupBox {
-                HStack {
-                    Button("", systemImage: "arrowshape.left.circle", action: {
-                        prax.editingDocumentPDFView.goToPreviousPage(self)
-                    })
-                    .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 11, isFocused: false))
-                    .onHover { hovering in
-                        hoveredButton = hovering ? 11 : nil
-                    }
-                    
-                    Text(String("Page \(prax.editingDocumentCurrentPage + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
-                        .background {
-                            Capsule()
-                                .foregroundStyle(Color.blue.gradient)
-                        }
-                    
-                    Button("", systemImage: "arrowshape.right.circle", action: {
-                        prax.editingDocumentPDFView.goToNextPage(self)
-                    })
-                    .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 12, isFocused: false))
-                    .onHover { hovering in
-                        hoveredButton = hovering ? 12 : nil
-                    }
-       
-                    
-     
+            let mergedSizeText = {
+                let wIn = prax.currentEditingPageItem!.trimmedPageSize().width / 72.0
+                let hIn = prax.currentEditingPageItem!.trimmedPageSize().height / 72.0
+                return String(format: "%.1f\" × %.1f\"", wIn, hIn)
+            }
+            
+            HStack {
+
+                Button("", systemImage: "arrow.up.and.down.circle", action: {
+                    EditingPDFDocumentView.scalePDFViewToFit(pdfView: prax.editingDocumentPDFView)
+                })
+                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
+                .onHover { hovering in
+                    hoveredButton = hovering ? 0 : nil
                 }
 
+                Button("", systemImage: "minus.circle", action: {
+                    prax.editingDocumentPDFView.zoomOut(self)
+                })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 2 : nil
+                    }
+
+                Button("", systemImage: "plus.circle", action: {
+                    prax.editingDocumentPDFView.zoomIn(self)
+                })
+                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                .onHover { hovering in
+                    hoveredButton = hovering ? 1 : nil
+                }
+
+                Button("", systemImage: "arrow.left.and.right.circle", action: {
+                    prax.editingDocumentPDFView.autoScales = true
+                })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 3 : nil
+                    }
+                
+                Spacer()
+                Text((prax.currentEditingPageItem?.name  ?? "No Current Page") + mergedSizeText() )
+                Spacer()
+                GroupBox {
+                    HStack {
+                        Button("", systemImage: "arrowshape.left.circle", action: {
+                            prax.editingDocumentPDFView.goToPreviousPage(self)
+                        })
+                        .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 11, isFocused: false))
+                        .onHover { hovering in
+                            hoveredButton = hovering ? 11 : nil
+                        }
+                        
+                        Text(String("Page \(prax.currentEditingPageIndex + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
+                            .background {
+                                Capsule()
+                                    .foregroundStyle(Color.blue.gradient)
+                            }
+                        
+                        Button("", systemImage: "arrowshape.right.circle", action: {
+                            prax.editingDocumentPDFView.goToNextPage(self)
+                        })
+                        .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 12, isFocused: false))
+                        .onHover { hovering in
+                            hoveredButton = hovering ? 12 : nil
+                        }
+                    }
+              }
             }
-
+            .background(PraxGradient(1))
         }
-        .background(PraxGradient(1))
-
-        
+        else { EmptyView() }
     }
 }
 

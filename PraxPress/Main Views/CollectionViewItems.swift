@@ -152,11 +152,11 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
         switch kind {
 //        case let .pageItem(item):
             
-        case let .editPage(item):
-            let width = layoutAttributes.size.width
-            let height = ceil(width / item.aspectRatio)
-            attrs.size = CGSize(width: width, height: height)
-            return attrs
+ //       case let .editPage(item):
+ //           let width = layoutAttributes.size.width
+ //           let height = ceil(width / item.aspectRatio)
+ //           attrs.size = CGSize(width: width, height: height)
+ //           return attrs
 
         case let .mergedPage(item):
             let width = layoutAttributes.size.width

@@ -14,12 +14,10 @@ import Foundation
 
 
 @Observable @MainActor class MergedPDFDocument {
- //   let windowModelContext: ModelContext
     unowned let prax: PraxModel
     unowned let persistence: FilesPersistenceController
 
     init(prax: PraxModel, persistence: FilesPersistenceController) {
- //       self.windowModelContext = windowModelContext
         self.prax = prax
         self.persistence = persistence
     }
@@ -27,48 +25,12 @@ import Foundation
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
 
-/*    var isLoadingPDF = false {
-        didSet {
-            print ("\n isLoadingPDF: \(isLoadingPDF)\n")
-        }
-    }
-*/
-
-    
     var pageSections: [MergedPage] = [] {
         didSet {
             self.prax.selectedMergedPage = pageSections.first
-
         }
     }
 
-    
-    var amergedPDFView: PDFView = {
-        let pdfView = PDFView()
-        pdfView.displaysPageBreaks = true
-        pdfView.displayMode = .singlePageContinuous
-        pdfView.displaysAsBook = false
-        pdfView.document = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
-        pdfView.autoScales = true
-        pdfView.displayDirection = .vertical
-        pdfView.backgroundColor = .green
-
-        return pdfView
-    }()
-    
-  
-/*
-    var displayMode: PDFDisplayMode = .singlePageContinuous {
-        didSet {
-            mergedPDFView.displayMode = displayMode
-        }
-    }
-    var autoScales = true {
-        didSet {
-            mergedPDFView.autoScales = autoScales
-        }
-    }
-*/
     var editingDocumentVersion = UUID()
     var mergedDocumentVersion = UUID()
     
@@ -87,6 +49,7 @@ import Foundation
             var insertIndex = 0
             let pdfDocument = PDFDocument()
             var firstPageItem: PageItem?
+            var removedAtIndex = 0
             pageSections.forEach {
                 section in
                 section.pageItems.forEach {
@@ -96,16 +59,27 @@ import Foundation
                         pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
                         insertIndex += 1
                     }
-                    else if pageItem == prax.currentEditPage {
-                        prax.currentEditPage = nil
+                    else if pageItem == prax.currentEditingPageItem {
+                        prax.currentEditingPageIndex = NSNotFound
+                        removedAtIndex = insertIndex
+                        
                     }
                 }
             }
-            if prax.currentEditPage == nil { prax.currentEditPage = firstPageItem }
-            editingPDFDocument = pdfDocument
+            
+            
+
             editingDocumentVersion = UUID()
+            editingPDFDocument = pdfDocument
+
             self.refreshingEditingDocument = false
- //           print("refreshEditingDocument — done")
+            
+            if prax.currentEditingPageIndex == NSNotFound {
+                print("MergedPDFDocument - Setting prax.currentEditingPageIndex to: \(removedAtIndex)")
+                prax.currentEditingPageIndex = removedAtIndex
+            }
+            
+            print("refreshEditingDocument — done")
             refreshMergedDocument()
         }
  //       print("refreshEditingDocument — Task starting")

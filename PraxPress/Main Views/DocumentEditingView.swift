@@ -43,14 +43,14 @@ struct DocumentEditingView: NSViewRepresentable {
         pageItemScrollView.hasVerticalScroller = true
         pageItemScrollView.hasHorizontalScroller = false
 
-        let pageItemCollectionView = NSCollectionView()
-        pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        pageItemCollectionView.backgroundColors = [.clear]
-        pageItemCollectionView.isSelectable = true
-        pageItemCollectionView.allowsEmptySelection = true
-        pageItemCollectionView.allowsMultipleSelection = true
-        pageItemCollectionView.delegate = context.coordinator
-        pageItemScrollView.documentView = pageItemCollectionView
+        //let pageItemCollectionView = NSCollectionView()
+        prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        prax.pageItemCollectionView.backgroundColors = [.clear]
+        prax.pageItemCollectionView.isSelectable = true
+        prax.pageItemCollectionView.allowsEmptySelection = true
+        prax.pageItemCollectionView.allowsMultipleSelection = true
+        prax.pageItemCollectionView.delegate = context.coordinator
+        pageItemScrollView.documentView = prax.pageItemCollectionView
         
         // Left: Scroll + Collection
         let pageEditScrollView = NSScrollView()
@@ -81,7 +81,7 @@ struct DocumentEditingView: NSViewRepresentable {
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
         
         // Store references on the coordinator
-        context.coordinator.pageItemCollectionView = pageItemCollectionView
+   //     context.coordinator.pageItemCollectionView = pageItemCollectionView
         context.coordinator.pageItemScrollView = pageItemScrollView
       //  context.coordinator.pageEditCollectionView = prax.pageEditCollectionView
         context.coordinator.pageEditScrollView = pageEditScrollView
@@ -89,7 +89,7 @@ struct DocumentEditingView: NSViewRepresentable {
   //      context.coordinator.mergedPageScrollView = mergedPageScrollView
 
         // Configure collection views: layout, registration, data sources
-        context.coordinator.configure(collectionView: pageItemCollectionView, kind: .pageItem)
+        context.coordinator.configure(collectionView: prax.pageItemCollectionView, kind: .pageItem)
         context.coordinator.configure(collectionView: prax.pageEditCollectionView, kind: .pageEdit)
  //       context.coordinator.configure(collectionView: mergedPageCollectionView, kind: .mergedPage)
 
@@ -130,7 +130,7 @@ struct DocumentEditingView: NSViewRepresentable {
         
         // Views
         weak var splitView: NSSplitView?
-        weak var pageItemCollectionView: NSCollectionView?
+ //       weak var pageItemCollectionView: NSCollectionView?
  //       weak var pageEditCollectionView: NSCollectionView?
     //    weak var mergedPageCollectionView: NSCollectionView?
         weak var pageItemScrollView: NSScrollView?
@@ -300,7 +300,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 layoutSettings.groupHeight = .fractionalWidth(2.0)
                 
                 layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 60, leading: 5, bottom: 50, trailing: 5)
-                layoutSettings.sectionSpacing = 25
+                layoutSettings.sectionSpacing = 15
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
                 layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
@@ -404,17 +404,12 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-            if collectionView == pageItemCollectionView {
+            if collectionView == prax.pageItemCollectionView {
                 
                 prax.selectedPageItems = collectionView.selectionIndexPaths
             }
             else if collectionView == prax.pageEditCollectionView {
-                if let indexPath = collectionView.selectionIndexPaths.first {
-                    if let pageItem = collectionView.item(at: indexPath)?.representedObject as? PageItem {
-                        print(pageItem.name)
-                        prax.editingDocumentPDFView.go(to: pageItem.pdfPage)
-                    }
-                }
+                print("pageEditCollectionView - didSelectItemsAt - ", indexPaths)
                 
                 prax.selectedEditPages = collectionView.selectionIndexPaths
                 
@@ -426,10 +421,11 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 
         func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
-            if collectionView == pageItemCollectionView {
+            if collectionView == prax.pageItemCollectionView {
                 prax.selectedPageItems = collectionView.selectionIndexPaths
             }
             else if collectionView == prax.pageEditCollectionView {
+                print("pageEditCollectionView - did DE SelectItemsAt - ", indexPaths)
                 prax.selectedEditPages = collectionView.selectionIndexPaths
             }
             else {

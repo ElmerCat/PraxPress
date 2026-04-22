@@ -66,6 +66,21 @@ extension MergedPDFDocument {
         return nil
     }
     
+    func indexPath(for pageItem: PageItem) -> IndexPath? {
+        var section = 0
+        for aSection in self.pageSections {
+            var item = 0
+            for anItem in aSection.pageItems {
+                if anItem == pageItem {
+                    return IndexPath(item: item, section: section)
+                }
+                item += 1
+            }
+            section += 1
+        }
+        return nil
+    }
+    
     func pageItem(indexPath: IndexPath) -> PageItem? {
         let piSection = indexPath.section
         let piItem = indexPath.item

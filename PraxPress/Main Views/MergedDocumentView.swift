@@ -167,7 +167,7 @@ struct MergedPDFDocumentView: View {
         
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
-//        .background(PraxGradient())
+        .background(PraxGradient(prax.hoverSection.contains(.mergedDocument) ? 0 : 1))
 
  //       .overlay(
  //

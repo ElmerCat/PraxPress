@@ -223,7 +223,7 @@ struct PageEditView: View {
                             Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: proxy.size.width * 0.5,  height: (proxy.size.width * 0.5 / pageItem.aspectRatio), alignment: .center)
+                                .frame(width: proxy.size.width * 0.8,  height: (proxy.size.width * 0.8 / pageItem.aspectRatio), alignment: .center)
                                //.padding(10)
                               //  .offset(x: 20, y: 0)
                             
@@ -269,22 +269,24 @@ struct PageEditView: View {
 
                        
                     GroupBox {
-                        Text(String(format: "Width: %.1f\" ", pageItem.trimmedPageSize().width / 72.0))
-                        Divider()
+                   //     Text(String(format: "Width: %.1f\" ", pageItem.trimmedPageSize().width / 72.0))
+                     //   Divider()
                             HStack {
                                 Text("Set Width Guide")
+                                Button { document.clickedGuidePageButton(pageItem) }
+                                label: { if pageItem.skipped {
+                                        Image(systemName: "ruler.fill")  }  else {
+                                        Image(systemName: "ruler") }
+                                }
+                                .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
+                                .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                                .help("Set Width Guide")
                             }
-                            Button { document.clickedGuidePageButton(pageItem) }
-                            label: { if pageItem.skipped {
-                                    Image(systemName: "ruler.fill")  }  else {
-                                    Image(systemName: "ruler") }
-                            }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
-                            .onHover { hovering in hoveredButton = hovering ? 235 : nil }
-                            .help("Set Width Guide")
+                            .padding(0)
+                           
                     }
 
-                    GroupBox {
+                /*    GroupBox {
                         VStack {
                             Text("\(pageItem.name)")
                             Text("Aspect Ratio: \(pageItem.aspectRatio)")
@@ -294,7 +296,7 @@ struct PageEditView: View {
                             Text("R-\(Int(pageItem.trims.right))")
                         }
                     }
-               
+               */
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)

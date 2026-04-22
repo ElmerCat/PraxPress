@@ -92,7 +92,7 @@ final class PDFPageOverlayView: NSView {
         super.draw(dirtyRect)
         
         Observation.withObservationTracking {
-            print("Observation.withObservationTracking Trims: \(pageItem.trims)")
+          //  print("Observation.withObservationTracking Trims: \(pageItem.trims)")
                     // Access properties here to start tracking
                 } onChange: {
                     // 3. React to changes
@@ -384,9 +384,9 @@ final class PDFPageOverlayView: NSView {
     override func mouseDown(with event: NSEvent) {
         guard let document else {return}
         
-        if document.prax.currentEditPage != pageItem {
-            print("Changing currentEditPage to :", pageItem.name)
-            document.prax.currentEditPage = pageItem
+        if document.prax.currentEditingPageItem != pageItem {
+            print("Changing currentEditingPageItem to :", pageItem.name)
+            document.prax.currentEditingPageItem = pageItem
             
         }
         
@@ -527,7 +527,7 @@ final class PDFPageOverlayView: NSView {
         let top = max(0, media.maxY - pageRect.maxY)
         
         let trims = EdgeTrims(left: left, right: right, top: top, bottom: bottom)
-        print("overlayView.onFinish - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top, "pdfPageItem.name: ", pageItem.name)
+//        print("overlayView.onFinish - trims l:", trims.left, " r:", trims.right, " b:", trims.bottom, " t:", trims.top, "pdfPageItem.name: ", pageItem.name)
         
         pageItem.trims = trims
         /*

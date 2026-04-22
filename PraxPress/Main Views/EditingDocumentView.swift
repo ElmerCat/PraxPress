@@ -83,6 +83,7 @@ struct EditingPDFDocumentView: View {
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
+    
     let imageSize = CGSize(width: 1200, height: 1600)
     
     var body: some View {
@@ -90,6 +91,7 @@ struct EditingPDFDocumentView: View {
         @Bindable var document = self.document
         
         let _ = Self._printChanges()
+        let hovering = prax.hoverSection.contains(.editingDocument)
         
    //     let pdfPage = prax.selectedMergedPage?.pdfPage
         
@@ -102,39 +104,30 @@ struct EditingPDFDocumentView: View {
                         .zIndex(258)
                     
                     GroupBox {
-                      
-                            
-                            
                             EditingPDFViewRepresentable(
                                 document: document,
                                 onPDFViewReady: { pdfView in
                                     // Store a weak reference so buttons can use it
                                     pdfViewRef.view = pdfView
-                                    
                                 }
                             )
-
-                            
-                            
-                        }
+                       }
                         .opacity(document.refreshingMergedDocument ? 0.75 : 1)
                         .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
                         .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
                     
-                    
                     EditingDocumentFooter()
                     
-                    
-                    
-                    
                 }
-                
-                //  .position(x: 0, y: 16)
             }
         }
         
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
+        .background(PraxGradient(hovering ? 0 : 1)).animation(.easeInOut(duration: 1.5), value: praxModel.hoverSection)
+        
+        
+        
      //   .background(PraxGradient())
       //  .overlay(
       //      RoundedRectangle(cornerRadius: 5)
@@ -253,19 +246,11 @@ struct EditingPDFDocumentView: View {
          }
         
       @objc func pageChanged(_ note: Notification) {
-            guard let pdfView = note.object as? PDFView,
-                  let doc = pdfView.document,
-                  let page = pdfView.currentPage else { return }
-                    let pageIndex = doc.index(for: page)
-         
-              document.prax.editingDocumentCurrentPage = doc.index(for: page)
-
-         
-            print("EditingPDFDocumentViewCoordinator - changed to page:", document.prax.editingDocumentCurrentPage)
-            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+          print("EditingPDFDocumentViewCoordinator - pageChanged ")
+          guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
+          document.prax.currentEditingPDFPage = pdfView.currentPage
+          
         }
-        
- 
         
     }
     
