@@ -41,6 +41,8 @@ struct PraxTheme {
     
     var foregroundColor: Color
     var backgroundColor: Color
+    var foregroundColorDisabled: Color
+    var backgroundColorDisabled: Color
     var foregroundColorHover: Color
     var backgroundColorHover: Color
     var foregroundColorPressed: Color
@@ -56,6 +58,8 @@ struct PraxTheme {
             case .erika:
                 self.foregroundColor = Color.praxButtonForeground
                 self.backgroundColor = Color.praxButtonBackground
+                self.foregroundColorDisabled = Color.praxButtonForeground.opacity(0.5)
+                self.backgroundColorDisabled = Color.praxButtonBackground.opacity(0.5)
                 self.foregroundColorHover = Color.praxButtonForegroundHover
                 self.backgroundColorHover = Color.praxButtonBackgroundHover
                 self.foregroundColorPressed = Color.praxButtonForegroundPressed
@@ -66,6 +70,8 @@ struct PraxTheme {
             case .julie:
                 self.foregroundColor = Color.praxDeleteForeground
                 self.backgroundColor = Color.praxDeleteBackground
+                self.foregroundColorDisabled = Color.praxDeleteForeground.opacity(0.5)
+                self.backgroundColorDisabled = Color.praxDeleteBackground.opacity(0.5)
                 self.foregroundColorHover = Color.praxDeleteForegroundHover
                 self.backgroundColorHover = Color.praxDeleteBackgroundHover
                 self.foregroundColorPressed = Color.praxButtonForegroundPressed
@@ -82,7 +88,8 @@ struct PraxTheme {
 
 struct PrefixButtonStyle: ButtonStyle {
     var theme: PraxTheme
-    var isHovering: Bool
+    var isHovering = false
+    var isDisabled = false
     
     func makeBody(configuration: Self.Configuration) -> some View {
         let backgroundColor: Color
@@ -91,9 +98,12 @@ struct PrefixButtonStyle: ButtonStyle {
         if configuration.isPressed {
             backgroundColor = theme.backgroundColorPressed
             foregroundColor = theme.foregroundColorPressed
-        } else if isHovering {
-            backgroundColor = theme.backgroundColorHover
-            foregroundColor = theme.foregroundColorHover
+        } else if isDisabled {
+            backgroundColor = theme.backgroundColorDisabled
+            foregroundColor = theme.foregroundColorDisabled }
+        else if isHovering {
+                backgroundColor = theme.backgroundColorHover
+                foregroundColor = theme.foregroundColorHover
         } else {
             backgroundColor = theme.backgroundColor
             foregroundColor = theme.foregroundColor

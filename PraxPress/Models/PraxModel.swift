@@ -145,6 +145,12 @@ final class PraxModel {
     var selectedMergedPage: MergedPage? { didSet {
         if selectedMergedPage != nil {
             print("PraxModel - selectedMergedPage didSet:  ", selectedMergedPage!.title, "Julie d'Prax")
+            guard let pageItem = selectedMergedPage?.pageItems.first
+            else {
+                print ("selectedMergedPage?.pageItems.first  NotFound ")
+                return
+            }
+            document.setExportURL(from: pageItem)
         }
     }}
     
@@ -197,20 +203,21 @@ final class PraxModel {
             else {
                 _currentEditingPageIndex = newValue
                 
-                guard let mergedPage = selectedMergedPage
-                else { fatalError("set currentEditingPageIndex:  No selectedMergedPage ") }
-                    guard let section = document.pageSections.firstIndex(of: mergedPage)
-                    else { fatalError("set currentEditingPageIndex:   Not enough pages in mergedPage ") }
-                    guard mergedPage.pageItems.count > currentEditingPageIndex
-                    else { fatalError("set currentEditingPageIndex:   No section for mergedPage ") }
+                guard let pdfPage = document.editingPDFDocument.page(at: currentEditingPageIndex)
+                else { fatalError("set currentEditingPageIndex:  No editingPDFDocument.page(at: currentEditingPageIndex) \(currentEditingPageIndex) ") }
+                guard let pageItem = document.pageItem(for: pdfPage)
+                    else { fatalError("set currentEditingPageIndex:  No pageItem = document.pageItem(for: pdfPage) ") }
                 
+                guard let indexPath = document.indexPath(for: pageItem)
+                    else { fatalError("set currentEditingPageIndex:  No indexPath for pageItem ") }
                 
-                if currentEditingPageItem != mergedPage.pageItems[currentEditingPageIndex] {
-                    currentEditingPageItem = mergedPage.pageItems[currentEditingPageIndex]
+                if selectedMergedPage !=  pageItem.mergedPage {
+                    selectedMergedPage =  pageItem.mergedPage
                 }
                 
-                
-                let indexPath = IndexPath(item: currentEditingPageIndex, section: section)
+                if currentEditingPageItem != pageItem {
+                    currentEditingPageItem = pageItem
+                }
                 
                 DispatchQueue.main.async { [self] in
                     withAnimation {

@@ -161,6 +161,7 @@ import Foundation
     var sourceFolderURL: URL?
     var exportFolderURL: URL?
     //  var exportFolderURLBookmark: Data?
+    var exportFileURLBookmark: Data?
     var exportFilenamePrefix: String = ""
     
     var exportFilename: String {
@@ -170,7 +171,21 @@ import Foundation
     var exportFilenameSuffix: String = ""
     var exportFilenameExtension: String = "pdf"
     
-    var firstSelectedFileURL: URL?  {
+    
+    func setExportURL(from pageItem: PageItem) {
+        var isStale = false
+        if let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+            exportFileURLBookmark = pageItem.sourceBookmark
+            sourceFolderURL = url.deletingLastPathComponent()
+            exportFilenameBody = url.deletingPathExtension().lastPathComponent
+            if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
+            
+        }
+        
+    }
+    
+    
+ /*   var firstSelectedFileURL: URL?  {
         didSet {
             if firstSelectedFileURL != nil {
                 sourceFolderURL = firstSelectedFileURL!.deletingLastPathComponent()
@@ -182,6 +197,7 @@ import Foundation
             }
         }
     }
+  */
     var exportFilenameBody: String = "PraxPress"
  
     var exportFileURL: URL? {

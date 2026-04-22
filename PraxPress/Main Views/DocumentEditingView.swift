@@ -860,6 +860,7 @@ struct DocumentEditingToolbar: View {
     let praxTheme = PraxTheme(.erika)
     
     @State var showSettings = false
+    @State var showDelete = false
     @State private var hoveredButton: Int? = nil
     @State private var showFilenamePrefixPopover = false
     
@@ -894,21 +895,16 @@ struct DocumentEditingToolbar: View {
             HStack {
             
                 Button {
-                    showSettings = !showSettings
+                    showDelete = !showDelete
                 }label: {
-                    Image(systemName: "gear")
+                    Image(systemName: "document.on.trash")
                 }
-                .sheet(isPresented: $showSettings) {
-                    EditSettingsPanel()
-                    
-                        .presentationDetents(
-                            [.height(120), .medium, .large])
-                        .presentationBackgroundInteraction(
-                            .enabled(upThrough: .height(120)))
-                        .presentationSizing(.form)
-                    
-                }
+                .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
+                .onHover { hovering in hoveredButton = hovering ? 40 : nil }
                 
+                
+                .popover(isPresented: $showDelete, arrowEdge: .leading) {
+                    DeletePopover() }
                 Spacer()
                 
                 Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
@@ -959,9 +955,25 @@ struct DocumentEditingToolbar: View {
                 
                 Spacer(minLength: 15)
 
-                Button("Export…", systemImage: "arrow.down.document") {
+                Button("Save", systemImage: "square.and.arrow.down") {
+                    var isStale = false
+                    if let bookmark = document.exportFileURLBookmark, let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+                        let needsStop = url.startAccessingSecurityScopedResource()
+                        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+                    
+                        document.mergedPDFDocument.write(to: url, withOptions: [.burnInAnnotationsOption: true])
+                        
+                    }
+                    else {
+                        prax.showSavePanel.toggle()
+
+                    }
+                    
+                }
+                Button("Save As…", systemImage: "square.and.arrow.down.on.square") {
                     prax.showSavePanel.toggle()
                 }
+                
             }
             .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
             .padding(0)
@@ -1025,7 +1037,7 @@ struct DocumentEditingFooter: View {
             case 0:
                 Text("No files selected")
             case 1:
-                Text("Source file: \(document.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
+                Text("Source file: \(document.exportFilenameBody)")
             default:
                 Text("\(prax.selectedFiles.count) Source files selected")
             }

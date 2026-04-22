@@ -11,6 +11,93 @@ import TipKit
 
 
 
+struct DeletePopover: View {
+//    let mergedPage: MergedPage
+    @Environment(\.dismiss) private var dismiss
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
+    let praxTheme = PraxTheme(.erika)
+    let deleteTheme = PraxTheme(.julie)
+    
+    @State private var hoveredButton: Int? = nil
+    @State private var imageAngle = 0.0
+    
+  //  var theTip = FilenamePrefixTip()
+
+   
+    var body: some View {
+        @Bindable var document = document
+        
+        VStack {
+            GroupBox {
+                HStack {
+                    Image("PraxPress").resizable().aspectRatio(contentMode: .fit).frame(width: 20)
+                        .padding(3)
+                        .rotationEffect(Angle(degrees: imageAngle))
+                        .onAppear {
+                            withAnimation {
+                                    imageAngle -= (2 * 360) - 120
+                            }
+                        }
+                        .onDisappear {
+                            withAnimation {
+                                    imageAngle = 0
+                            }
+                        }
+                    Text("Delete All Page Items?")
+                }
+            }
+            Divider()
+            
+            GroupBox {
+                VStack {
+                    HStack {
+                        Spacer()
+
+                        
+                        Button { dismiss() }
+                        label: {
+                            HStack {
+                                Text("Cancel")
+                                Image(systemName: "checkmark.rectangle.stack")
+                            }
+                                
+                       }
+                        .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 427))
+                        .onHover { hovering in hoveredButton = hovering ? 427 : nil }
+
+                        
+                        Button {
+                            document.pageSections.removeAll()
+                            dismiss()
+                            }
+                        label: {
+                            HStack {
+                                Text("Delete")
+                                Image(systemName: "document.on.trash")
+                            }
+                                
+                       }
+                        .buttonStyle(PrefixButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 426))
+                        .onHover { hovering in hoveredButton = hovering ? 426 : nil }
+                    }
+                }
+            }
+           Divider()
+        }
+  //      .containerShape(.rect(cornerRadius: 24)).border(.white, width: 5)
+        .padding(20)
+    //    .padding(.horizontal, 10)
+        .background(PraxGradient(0).ignoresSafeArea())
+        .foregroundColor(.white)
+//        .popoverTip(theTip)
+      //  .tipImageSize(CGSize(width: 500, height: 500))
+        
+        
+        
+    }
+}
+
 struct FilenamePrefixPopover: View {
 //    let mergedPage: MergedPage
     @Environment(\.dismiss) private var dismiss
@@ -153,8 +240,6 @@ struct FilenamePrefixPopover: View {
         
     }
 }
-
-
 
 struct SectionHeaderPopover: View {
     let mergedPage: MergedPage
