@@ -20,118 +20,123 @@ struct EditingDocumentToolbar: View {
 //    @State private var guideXLeft = 0.0
 //    @State private var guideXRight = 0.0
     
-    func mergedSizeText() -> String {
-        if let mergedPage = praxModel.selectedMergedPage {
-           
-            let wIn = mergedPage.mergedWidthPts / 72.0
-            let hIn = mergedPage.mergedHeightPts / 72.0
-            
-            return String(format: "%.1f\" × %.1f\"", wIn, hIn)
-            
-   /*         var sizeText = "Merged Page Size: " + String(format: "%.1f\" × %.1f\"", wIn, hIn)
-
-            if mergedPage.minWidthPts < mergedPage.mergedWidthPts {
-                let mIn = mergedPage.minWidthPts / 72.0
-                sizeText += "  -  Minimum Width: " + String(format: "%.1f\"", mIn)
-            }
-           return sizeText
-    */
-        }
-        else {
-            return "No Pages"
-        }
-    }
-    
     var body: some View {
         @Bindable var prax = praxModel
-        if prax.currentEditingPageIndex != NSNotFound,  prax.currentEditingPageItem != nil {
-            GeometryReader { proxy in
-                let thePoint = computeGuidelines()
-                
-                GroupBox {
-                    VStack {
-                        HStack {
-                            
-                            GroupBox {
-                                HStack {
-                                    Text("Skip This Page").font(.system(size: 8))
-                                    Button { document.clickedSkipPageButton(prax.currentEditingPageItem!) }
-                                    label: { if prax.currentEditingPageItem!.skipped {
-                                        Image(systemName: "text.page.slash") } else {
-                                            Image(systemName: "text.page") }
-                                        
-                                    }
-                                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 236))
-                                    .onHover { hovering in hoveredButton = hovering ? 236 : nil }
-                                    .help("Skip This Page")
-                                    
-                                    Spacer()
-                                    
-                                    Text("Set Width Guide").font(.system(size: 8))
-                                    Button { document.clickedGuidePageButton(prax.currentEditingPageItem!) }
-                                    label: { if prax.currentEditingPageItem!.skipped {
-                                            Image(systemName: "ruler.fill")  }  else {
-                                            Image(systemName: "ruler") }
-                                    }
-                                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
-                                    .onHover { hovering in hoveredButton = hovering ? 235 : nil }
-                                    .help("Set Width Guide")
-                                    
-                                    Spacer()
-                                    
-                                    Button("", systemImage: "arrowshape.left.circle", action: {
-                                        prax.editingDocumentPDFView.goToPreviousPage(self)
-                                    })
-                                    .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 11, isFocused: false))
-                                    .onHover { hovering in
-                                        hoveredButton = hovering ? 11 : nil
-                                    }
-                                    
-                                    Text(String("Page \(prax.currentEditingPageIndex + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
-                                        .background {
-                                            Capsule()
-                                                .foregroundStyle(Color.blue.gradient)
+        if let pageItem = prax.currentEditingPageItem {
+            
+            let pageCount = pageItem.mergedPage.pageItems.count
+     //       let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)
+            
+                GeometryReader { proxy in
+                    let thePoint = computeGuidelines()
+                    
+                    GroupBox {
+                        VStack {
+                            HStack {
+                                
+                                GroupBox {
+                                    HStack {
+                                        if pageCount > 1 {
+                                            GroupBox() {
+                                                VStack {
+                                                    Text("\(pageCount) Pages").font(.system(size: 8))
+/*
+                                                    HStack {
+                                                        Text(String(curentPageIndex + 1)).monospaced()
+                                                        VStack(spacing: 0) {
+                                                            Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+                                                            label: { Image(systemName: "arrowtriangle.up")  }
+                                                            .disabled(curentPageIndex < 1)
+                                                               
+//                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                                                            .buttonStyle(StackedButtonStyle(theme: praxTheme,
+                                                                                            isDisabled: curentPageIndex < 1,
+                                                                                            isHovering: hoveredButton == 11, isFocused: false))
+                                                            .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                                                          
+                                                            Button { prax.editingDocumentPDFView.goToNextPage(self) }
+                                                            label: {  Image(systemName: "arrowtriangle.down")}
+                                                                .disabled(pageCount - 1 < curentPageIndex )
+                                                            .buttonStyle(StackedButtonStyle(theme: praxTheme,
+                                                                                            isDisabled: pageCount - 1 < curentPageIndex,
+                                                                                            isHovering: hoveredButton == 12, isFocused: false))
+                                                            .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+                                                        }
+                                                    }
+                                              */
+                                                    
+                                                }
+                                                
+                                               
+                                                
+                                            }
+                                            .background(Color.clear, in: .containerRelative)
+                                            .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
+                                            
+                                            .padding(2)
+                                            
                                         }
-                                    
-                                    Button("", systemImage: "arrowshape.right.circle", action: {
-                                        prax.editingDocumentPDFView.goToNextPage(self)
-                                    })
-                                    .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                                    .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 12, isFocused: false))
-                                    .onHover { hovering in
-                                        hoveredButton = hovering ? 12 : nil
+
+                                        
+                                        
+                                        Divider().foregroundStyle(.white).background(.white)
+                                        
+                                        Text("\(pageItem.name)  Skip This Page").font(.system(size: 8))
+                                        Button { document.clickedSkipPageButton(pageItem) }
+                                        label: { if pageItem.skipped {
+                                            Image(systemName: "text.page.slash") } else {
+                                                Image(systemName: "text.page") }
+                                            
+                                        }
+                                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 236))
+                                        .onHover { hovering in hoveredButton = hovering ? 236 : nil }
+                                        .help("Skip This Page")
+                                        
+                                        Spacer()
+                                        
+                                        Text("Set Width Guide").font(.system(size: 8))
+                                        Button { document.clickedGuidePageButton(pageItem) }
+                                        label: { if pageItem.skipped {
+                                                Image(systemName: "ruler.fill")  }  else {
+                                                Image(systemName: "ruler") }
+                                        }
+                                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
+                                        .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                                        .help("Set Width Guide")
+                                        
+                                        Spacer()
+                                        Text("\(prax.currentEditingMergedPage?.title)")
+
                                     }
                                 }
-                            }
-                            
-                            GroupBox {
-                                Text((prax.currentEditingPageItem?.name  ?? "No Current Page") + mergedSizeText() )
+                                
                                 
                             }
-                        }
-                    //    Text("\(thePoint.x) x \(thePoint.y)")
+                        //    Text("\(thePoint.x) x \(thePoint.y)")
 
-                        HStack(spacing: 0) {
-                            Rectangle()
-                                .foregroundStyle(.green)
-                                .frame(width: thePoint.x, height: 10)
-                            Rectangle()
-                                .foregroundStyle(PraxGradient())
-                                .frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
-                            Rectangle()
-                                .foregroundStyle(.yellow)
-                                .frame(width: thePoint.y, height: 10)
-                        }
+                            HStack(spacing: 0) {
+                                Rectangle()
+                                    .foregroundStyle(.green)
+                                    .frame(width: thePoint.x, height: 10)
+                                Rectangle()
+                                    .foregroundStyle(PraxGradient())
+                                    .frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
+                                Rectangle()
+                                    .foregroundStyle(.yellow)
+                                    .frame(width: thePoint.y, height: 10)
+                            }
 
-                    }.padding(0)
+                        }.padding(0)
+
+                    }
+                    .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
+                  //  .background(.yellow)
 
                 }
-                .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
-              //  .background(.yellow)
-
             }
-        }
+        
+        
+        
         else {
             EmptyView()
         }
@@ -211,11 +216,14 @@ struct EditingDocumentFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if prax.currentEditingPDFPage != nil, prax.currentEditingPageItem != nil, prax.currentEditingPageIndex != NSNotFound {
+        if let pageItem = prax.currentEditingPageItem {
+            let pageCount = pageItem.mergedPage.pageItems.count
+            let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
+
             
             let mergedSizeText = {
-                let wIn = prax.currentEditingPageItem!.trimmedPageSize().width / 72.0
-                let hIn = prax.currentEditingPageItem!.trimmedPageSize().height / 72.0
+                let wIn = pageItem.trimmedPageSize().width / 72.0
+                let hIn = pageItem.trimmedPageSize().height / 72.0
                 return String(format: "%.1f\" × %.1f\"", wIn, hIn)
             }
             
@@ -265,7 +273,7 @@ struct EditingDocumentFooter: View {
                             hoveredButton = hovering ? 11 : nil
                         }
                         
-                        Text(String("Page \(prax.currentEditingPageIndex + 1) of \(prax.editingDocumentPDFView.document?.pageCount ?? 0)"))
+                        Text(String("Page \(curentPageIndex + 1) of \(pageCount)"))
                             .background {
                                 Capsule()
                                     .foregroundStyle(Color.blue.gradient)

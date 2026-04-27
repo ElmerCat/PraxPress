@@ -58,7 +58,9 @@ struct PDFFilesListRow: View {
                      let isOkay = testBookmark(for: pdfFile)
                      print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
                      if isOkay {
-                         document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
+                         document.addPagesFrom(pdfFile: pdfFile, to: nil)
+
+      //                   document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
                      }
                  } label: {
                      HStack {

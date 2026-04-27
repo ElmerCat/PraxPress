@@ -161,6 +161,47 @@ struct ItemButtonStyle: ButtonStyle {
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
 }
 
+struct StackedButtonStyle: ButtonStyle {
+    var theme: PraxTheme
+    var isDisabled: Bool
+    var isHovering: Bool
+    var isFocused: Bool
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        
+        if configuration.isPressed {
+            backgroundColor = theme.backgroundColorPressed
+            foregroundColor = theme.foregroundColorPressed
+        } else if isDisabled {
+            backgroundColor = .clear
+            foregroundColor = .clear
+        } else if isHovering {
+            backgroundColor = theme.backgroundColorHover
+            foregroundColor = theme.foregroundColorHover
+        } else {
+            backgroundColor = theme.backgroundColor
+            foregroundColor = theme.foregroundColor
+        }
+        
+        
+        return configuration.label
+            .buttonStyle(.glass)
+            .imageScale( .medium)
+          //  .frame(width: 15, height: 15, alignment: .center )
+           // .padding(.leading, 8)
+            .foregroundColor(foregroundColor)
+            .background {
+                Rectangle()
+                    .foregroundStyle(backgroundColor)
+            }
+//            .cornerRadius(8)
+            .animation(.bouncy(duration: 0.2), value: isHovering)
+          //  .animation(.bouncy(duration: 0.5), value: isSelected)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed )    }
+}
+
 
 struct SelectableButtonStyle: ButtonStyle {
     var theme: PraxTheme

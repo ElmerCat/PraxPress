@@ -116,7 +116,8 @@ extension MergedPDFDocument {
                     sourceBookmark: pageItem.sourceBookmark,
                     sourceURL: URL(string: pageItem.sourceURLString)!,
                     sourcePageIndex: pageItem.sourcePageIndex,
-                    pdfPage: pdfPage
+                    pdfPage: pdfPage,
+                    dataFields: pageItem.dataFields
                 )
                 copiedPageItem.trims = pageItem.trims
                 copiedPageItem.merge = pageItem.merge

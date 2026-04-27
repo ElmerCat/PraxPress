@@ -333,7 +333,7 @@ struct SectionHeaderView: View {
             print("Control + Click detected")  }
         else {
             print("Plain Click detected")
-            praxModel.selectedMergedPage = mergedPage
+            praxModel.currentEditingMergedPage = mergedPage
         }
     }
 }

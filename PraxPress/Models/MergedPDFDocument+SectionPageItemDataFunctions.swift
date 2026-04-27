@@ -13,8 +13,9 @@ import PDFKit
 import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
-    
-    func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: MergedPage?, at location: Int? = 0) {
+    func addPagesFrom(pdfFile: PDFFile, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
+
+ //   func addPagesFromURLBookmark(, url: URL?, bookmarkData: Data?, to pageSection: MergedPage?, at location: Int? = 0) {
  //       guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
@@ -27,24 +28,25 @@ extension MergedPDFDocument {
                 return givenSection
             } else {
 
-                let newMergedPage = MergedPage(document: self, title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section")
+                let newMergedPage = MergedPage(document: self, title: (title ?? (pdfFile.url.deletingPathExtension().lastPathComponent)))
   
                 pageSections.insert(newMergedPage, at: sectionIndex)
                 return newMergedPage
             }
         }()
         
-        // If neither URL nor bookmark provided, just save new empty section
-        guard url != nil || bookmarkData != nil else {
+/*        // If neither URL nor bookmark provided, just save new empty section
+        guard url != nil || pdfFile.bookmarkData != nil else {
          //   do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
         //    refreshMergedDocument()
             return
         }
+*/
         
         // Resolve bookmark or direct url
-        let fileURL: URL
+/*        let fileURL: URL
         let baseBookmark: Data
-        if let data = bookmarkData {
+        if let data = pdfFile.bookmarkData {
             var isStale = false
             guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
                 print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", url ?? "No URL")
@@ -54,13 +56,23 @@ extension MergedPDFDocument {
             }
             fileURL = resolved
             baseBookmark = data
-        } else if let direct = url {
+        } else if let direct = pdfFile.url {
             fileURL = direct
             baseBookmark = (try? direct.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)) ?? Data()
         } else {
             print("addPagesFromURLBookmark - no valid bookmark or url")
       //      do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
       //      refreshMergedDocument()
+            return
+        }
+        
+*/
+        var isStale = false
+        guard let fileURL = try? URL(resolvingBookmarkData: pdfFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            else {
+            print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", pdfFile.url)
+    //        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+     //       refreshMergedDocument()
             return
         }
         
@@ -80,12 +92,13 @@ extension MergedPDFDocument {
                 let item = PageItem(
                         mergedPage: mergedPage,
                         name: displayName,
-                        sourceBookmark: baseBookmark,
+                        sourceBookmark: pdfFile.bookmarkData,
                         sourceURL: fileURL,
                         sourcePageIndex: index,
-                        pdfPage: doc.page(at: index)!
-
+                        pdfPage: doc.page(at: index)!,
+                        dataFields: pdfFile.dataFields ?? [:]
                     )
+                
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
               //  windowModelContext.insert(item)
                 pageInsertIndex += 1

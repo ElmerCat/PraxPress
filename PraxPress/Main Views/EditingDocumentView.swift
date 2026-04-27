@@ -93,7 +93,7 @@ struct EditingPDFDocumentView: View {
         let _ = Self._printChanges()
         let hovering = prax.hoverSection.contains(.editingDocument)
         
-   //     let pdfPage = prax.selectedMergedPage?.pdfPage
+   //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
         
         GroupBox {
             GeometryReader { proxy in
@@ -151,18 +151,11 @@ struct EditingPDFDocumentView: View {
     final class EditingPDFDocumentViewCoordinator: NSObject, PDFPageOverlayViewProvider {
         
         let document: MergedPDFDocument
-     //  let overlayView: PDFPageOverlayView
+        let prax: PraxModel
         init(_ document: MergedPDFDocument) {
             self.document = document
-            
-            document.prax.editingDocumentPDFView.document = document.editingPDFDocument
-            
-            
-       //    self.overlayView = PDFPageOverlayView()
-            
-            
-            
-            
+            self.prax = document.prax
+            document.prax.editingDocumentPDFView.document = PDFDocument()
         }
         
         var documentVersion = UUID()
@@ -245,13 +238,18 @@ struct EditingPDFDocumentView: View {
 //            print("EditingPDFDocumentViewCoordinator - viewScaleChanged: ")
          }
         
-      @objc func pageChanged(_ note: Notification) {
-          print("EditingPDFDocumentViewCoordinator - pageChanged ")
-          guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
-          document.prax.currentEditingPDFPage = pdfView.currentPage
-          
+        @objc func pageChanged(_ note: Notification) {
+            print("EditingPDFDocumentViewCoordinator - pageChanged ")
+            guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
+            
+ /*           if let pdfPage = document.prax.currentEditingPDFPage {
+                if !pdfView.visiblePages.contains(pdfPage) {
+                    document.prax.currentEditingPDFPage = pdfView.currentPage
+                }
+            }
+ */
+            
         }
-        
     }
     
     struct EditingPDFViewRepresentable: NSViewRepresentable {
@@ -273,7 +271,7 @@ struct EditingPDFDocumentView: View {
             document.prax.editingDocumentPDFView.autoScales = true
             document.prax.editingDocumentPDFView.displayDirection = .vertical
             document.prax.editingDocumentPDFView.displaysPageBreaks = true
-            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 30, left: 0, bottom: 0, right: 0)
+            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 100, left: 0, bottom: 0, right: 0)
             document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
             document.prax.editingDocumentPDFView.backgroundColor = .clear
                 
@@ -329,34 +327,30 @@ struct EditingPDFDocumentView: View {
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
+            print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
             
-            if context.coordinator.documentVersion != document.editingDocumentVersion {
-                var pageIndex: Int = 0
-                if let pdfViewCurrentPage = pdfView.currentPage {
-                    pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
+            if let pageItem = context.coordinator.prax.currentEditingPageItem {
+                if context.coordinator.documentVersion != pageItem.mergedPage.editingDocumentVersion {
+                    context.coordinator.documentVersion = pageItem.mergedPage.editingDocumentVersion
+                    pdfView.document = pageItem.mergedPage.editingPDFDocument
+                    scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
+                    if !pdfView.visiblePages.contains(pageItem.pdfPage) {
+                        pdfView.go(to: pageItem.pdfPage)
+                    }
+                }
+                else {
+                    print("EditingPDFViewRepresentable - updateNSView - No Change currentEditingPageItem: ", pageItem.name)
                 }
                 
-                print("EditingPDFViewRepresentable - updateNSView - ", context.coordinator.documentVersion, " - to ", document.editingDocumentVersion)
-                context.coordinator.documentVersion = document.editingDocumentVersion
-                pdfView.document = document.editingPDFDocument
-                if let pdfPage = pdfView.document?.page(at: pageIndex) {
-                    pdfView.go(to: pdfPage)
-                }
-                
-                scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
-                
+
             }
             else {
-       //         print("MergedPDFDocumentViewCoordinator - updateNSView - No Change ")
+                print("EditingPDFViewRepresentable - updateNSView - No currentEditingPageItem ")
             }
-        
-    //
-            
         }
-        
-
     }
     
+   
     static func scalePDFViewToFit(pdfView: PDFView) {
         if let pdfPage = pdfView.currentPage {
             let bounds = pdfPage.bounds(for: .mediaBox)

@@ -10,6 +10,7 @@ import AppKit
 import SwiftData
 import TipKit
 import Carbon.HIToolbox
+import OSLog
 
 @main
 struct PraxPressApp: App {

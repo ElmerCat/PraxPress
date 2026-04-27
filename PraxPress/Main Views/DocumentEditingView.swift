@@ -118,7 +118,7 @@ struct DocumentEditingView: NSViewRepresentable {
     }
 
     func updateNSView(_ splitView: NSSplitView, context: Context) {
-        print("DocumentEditingView - updateNSView - ", prax.selectedMergedPage?.title ?? "No selectedMergedPage")
+        print("DocumentEditingView - updateNSView - ", prax.currentEditingMergedPage?.title ?? "No currentEditingMergedPage")
         context.coordinator.applySnapshot(animated: true)
     }
 
@@ -887,96 +887,114 @@ struct DocumentEditingToolbar: View {
         @Bindable var prax = praxModel
         @Bindable var document = document
         GroupBox {
-            
-            //    Text("Prax")
-           
-            
-            
-            HStack {
-            
-                Button {
-                    showDelete = !showDelete
-                }label: {
-                    Image(systemName: "document.on.trash")
-                }
-                .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
-                .onHover { hovering in hoveredButton = hovering ? 40 : nil }
+             if let mergedPage = prax.currentEditingMergedPage {
                 
+                HStack {
                 
-                .popover(isPresented: $showDelete, arrowEdge: .leading) {
-                    DeletePopover() }
-                Spacer()
-                
-                Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
-                label: {
-                    if document.exportFilenamePrefix == "" {
-                        Text("prefix...").italic()
+                    Button {
+                        showDelete = !showDelete
+                    }label: {
+                        Image(systemName: "document.on.trash")
                     }
-                    else {
-                        Text(document.exportFilenamePrefix).bold()
+                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
+                    .onHover { hovering in hoveredButton = hovering ? 40 : nil }
+                    
+                    
+                    .popover(isPresented: $showDelete, arrowEdge: .leading) {
+                        DeletePopover() }
+                    Spacer()
+                    
+                    Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
+                    label: {
+                        if document.exportFilenamePrefix == "" {
+                            Text("prefix...").italic()
+                        }
+                        else {
+                            Text(document.exportFilenamePrefix).bold()
+                        }
                     }
-                }
-                .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 42))
-                .onHover { hovering in hoveredButton = hovering ? 42 : nil }
-                .popover(isPresented: $showFilenamePrefixPopover, arrowEdge: .leading) {
-                    FilenamePrefixPopover() }
-                
-                TextField("Filename", text: Binding<String>(
-                    get: { document.exportFilenameBody },
-                    set: { newValue in
-                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        // Ensure we don't accidentally include a dot/extension typed by the user
-                        if let dotRange = newName.range(of: ".") {
-                            newName = String(newName[..<dotRange.lowerBound])}
-                        document.exportFilenameBody = newName
+                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 42))
+                    .onHover { hovering in hoveredButton = hovering ? 42 : nil }
+                    .popover(isPresented: $showFilenamePrefixPopover, arrowEdge: .leading) {
+                        FilenamePrefixPopover() }
+                    
+                    TextField("Filename", text: Binding<String>(
+                        get: { document.exportFilenameBody },
+                        set: { newValue in
+                            var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                            // Ensure we don't accidentally include a dot/extension typed by the user
+                            if let dotRange = newName.range(of: ".") {
+                                newName = String(newName[..<dotRange.lowerBound])}
+                            document.exportFilenameBody = newName
+                        })
+                              
+                    )
+                    //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
+                    
+                    .frame(width: 200)
+                    .multilineTextAlignment(.center)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                   // .disabled(document.exportFolderURL == nil)
+                    
+                    
+                    Text(".pdf")
+                    Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
+                        
+                    
+                    }
+                    .draggable({ () -> MergedPDFTransfer? in
+                        guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                        return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                    }()!, preview: {
+                        PraxDragPreview()
                     })
-                          
-                )
-                //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                
-                .frame(width: 200)
-                .multilineTextAlignment(.center)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-               // .disabled(document.exportFolderURL == nil)
-                
-                
-                Text(".pdf")
-                Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
                     
-                
-                }
-                .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
-                }()!, preview: {
-                    PraxDragPreview()
-                })
-                
-                Spacer(minLength: 15)
+                    GroupBox {
+                        HStack {
+                            if mergedPage.hasDataFields {
+                                Text("hasDataFields")
+                            }
+                            else {
+                                Text("No Data Fields")
+                            }
+                        }
+                    }
+                    
+                    Spacer(minLength: 15)
 
-                Button("Save", systemImage: "square.and.arrow.down") {
-                    var isStale = false
-                    if let bookmark = document.exportFileURLBookmark, let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
-                        let needsStop = url.startAccessingSecurityScopedResource()
-                        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                    
-                        document.mergedPDFDocument.write(to: url, withOptions: [.burnInAnnotationsOption: true])
+                    Button("Save", systemImage: "square.and.arrow.down") {
+                        var isStale = false
+                        if let bookmark = document.exportFileURLBookmark, let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+                            let needsStop = url.startAccessingSecurityScopedResource()
+                            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+                        
+                            document.mergedPDFDocument.write(to: url)
+                      //      document.mergedPDFDocument.write(to: url, withOptions: [.burnInAnnotationsOption: true])
+                   
+                        }
+                        else {
+                            prax.showSavePanel.toggle()
+
+                        }
                         
                     }
-                    else {
+                    Button("Save As…", systemImage: "square.and.arrow.down.on.square") {
                         prax.showSavePanel.toggle()
-
                     }
                     
                 }
-                Button("Save As…", systemImage: "square.and.arrow.down.on.square") {
-                    prax.showSavePanel.toggle()
-                }
+                .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+                .padding(0)
                 
             }
-            .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-            .padding(0)
+            else {
+                EmptyView()
+            }
+            
+            
+            
+
             
         }
         

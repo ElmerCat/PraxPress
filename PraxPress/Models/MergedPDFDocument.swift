@@ -10,7 +10,7 @@ import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
 import Foundation
-
+import OSLog
 
 
 @Observable @MainActor class MergedPDFDocument {
@@ -27,68 +27,26 @@ import Foundation
 
     var pageSections: [MergedPage] = [] {
         didSet {
-            self.prax.selectedMergedPage = pageSections.first
-        }
-    }
-
-    var editingDocumentVersion = UUID()
-    var mergedDocumentVersion = UUID()
-    
-    func refreshEditingDocument() {
-        if refreshingEditingDocument { return }
-        
-  //      print("refreshEditingDocument")
-        refreshingEditingDocument = true
-        
-        let norma = Task {
-            
-            try? await Task.sleep(for:.milliseconds(100))
-
-  //          print("refreshEditingDocument — started")
-
-            var insertIndex = 0
-            let pdfDocument = PDFDocument()
-            var firstPageItem: PageItem?
-            var removedAtIndex = 0
-            pageSections.forEach {
-                section in
-                section.pageItems.forEach {
-                    pageItem in
-                    if !pageItem.skipped {
-                        if firstPageItem == nil { firstPageItem = pageItem }
-                        pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
-                        insertIndex += 1
-                    }
-                    else if pageItem == prax.currentEditingPageItem {
-                        prax.currentEditingPageIndex = NSNotFound
-                        removedAtIndex = insertIndex
-                        
-                    }
+            print("MergedPDFDocument - pageSections: didSet ")
+            if pageSections.contains { $0 == prax.currentEditingMergedPage} {
+                self.prax.currentEditingMergedPage = pageSections.first
+            }
+            else {
+                if let mergedPage = pageSections.first {
+                    prax.currentEditingMergedPage = pageSections.first
+                }
+                else {
+                    prax.currentEditingMergedPage = nil
                 }
             }
             
-            
-
-            editingDocumentVersion = UUID()
-            editingPDFDocument = pdfDocument
-
-            self.refreshingEditingDocument = false
-            
-            if prax.currentEditingPageIndex == NSNotFound {
-                print("MergedPDFDocument - Setting prax.currentEditingPageIndex to: \(removedAtIndex)")
-                prax.currentEditingPageIndex = removedAtIndex
-            }
-            
-            print("refreshEditingDocument — done")
-            refreshMergedDocument()
         }
- //       print("refreshEditingDocument — Task starting")
-  
     }
+
+    var mergedDocumentVersion = UUID()
     
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
-        
      //   print("refreshMergedDocument")
         refreshingMergedDocument = true
         
@@ -128,7 +86,7 @@ import Foundation
            prax.mergedDocumentPDFView.document = mergedPDFDocument
         }
     }
-    var editingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
+    var aeditingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
 //            print ("editingPDFDocument didSet ")
  //           editingPDFView.document = editingPDFDocument
