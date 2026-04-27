@@ -51,13 +51,19 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         get { _pageItems }
         set {
             if newValue != _pageItems {
-                let wasCurrent = (document.prax.currentEditingPageItem != nil && pageItems.contains(document.prax.currentEditingPageItem!))
+                var wasCurrentItem: PageItem?
+                if document.prax.currentEditingPageItem != nil && pageItems.contains(document.prax.currentEditingPageItem!) {
+                    wasCurrentItem = document.prax.currentEditingPageItem!
+                }
                 _pageItems = newValue
-          
-                if wasCurrent, document.prax.currentEditingPageItem != nil, !pageItems.contains(document.prax.currentEditingPageItem!) {
-                    if mergeModePages < 1 { document.prax.currentEditingPageItem = nil }
-                    else { document.prax.currentEditingPageItem =  pageItems.first(where: { $0.skipped == false }) } }
-            }
+                if let wasCurrentItem, !pageItems.contains(wasCurrentItem) {
+                    refreshEditingDocument(wasCurrentItem)
+                }
+                else {
+                    refreshEditingDocument()
+                }
+                    
+          }
     } }
     
     var skippedPages: Int {
@@ -93,7 +99,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     
     var  refreshingEditingDocument = false
     var editingDocumentVersion = UUID()
-    func refreshEditingDocument() {
+    func refreshEditingDocument(_ wasCurrentItem: PageItem? = nil) {
         if refreshingEditingDocument { return }
         refreshingEditingDocument = true
 
@@ -120,9 +126,19 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     document.prax.currentEditingPageItem = nil
                 }
             }
+            else if let wasCurrentItem {
+                document.prax.currentEditingPageItem = wasCurrentItem
+            }
+            else if mergeModePages > 0 && document.prax.currentEditingMergedPage == nil {
                 
-            editingDocumentVersion = UUID()
+                document.prax.currentEditingMergedPage = self
+            }
+                
+            
+            
+              
             self.editingPDFDocument = pdfDocument
+            editingDocumentVersion = UUID()
             
             refreshingEditingDocument = false
             print("refreshEditingDocument — done")

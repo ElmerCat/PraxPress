@@ -16,7 +16,7 @@ import OSLog
 @Observable @MainActor class MergedPDFDocument {
     unowned let prax: PraxModel
     unowned let persistence: FilesPersistenceController
-
+    
     init(prax: PraxModel, persistence: FilesPersistenceController) {
         self.prax = prax
         self.persistence = persistence
@@ -24,24 +24,21 @@ import OSLog
     var widthGuidePageID: UUID? = nil
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
-
+    
     var pageSections: [MergedPage] = [] {
         didSet {
             print("MergedPDFDocument - pageSections: didSet ")
-            if pageSections.contains { $0 == prax.currentEditingMergedPage} {
-                self.prax.currentEditingMergedPage = pageSections.first
-            }
-            else {
-                if let mergedPage = pageSections.first {
-                    prax.currentEditingMergedPage = pageSections.first
-                }
-                else {
-                    prax.currentEditingMergedPage = nil
-                }
-            }
             
-        }
-    }
+            if pageSections.isEmpty {
+                prax.selectedEditPages = []
+                prax.selectedPageItems = []
+            }
+            else if prax.currentEditingMergedPage == nil {
+                if let mergedPage = pageSections.first {
+                    if mergedPage.mergeModePages > 0 {
+                        prax.currentEditingMergedPage = mergedPage } } }
+            
+    } }
 
     var mergedDocumentVersion = UUID()
     

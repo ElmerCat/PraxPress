@@ -62,7 +62,7 @@ struct DocumentEditingView: NSViewRepresentable {
         prax.pageEditCollectionView.translatesAutoresizingMaskIntoConstraints = false
         prax.pageEditCollectionView.backgroundColors = [.clear]
         prax.pageEditCollectionView.isSelectable = true
-        prax.pageEditCollectionView.allowsEmptySelection = true
+        prax.pageEditCollectionView.allowsEmptySelection = false
         prax.pageEditCollectionView.allowsMultipleSelection = false
         prax.pageEditCollectionView.delegate = context.coordinator
         pageEditScrollView.documentView = prax.pageEditCollectionView
@@ -122,6 +122,10 @@ struct DocumentEditingView: NSViewRepresentable {
         context.coordinator.applySnapshot(animated: true)
     }
 
+    
+    
+    
+    
     final class DocumentEditingViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
         // Shared model
         private let document: MergedPDFDocument
@@ -147,6 +151,20 @@ struct DocumentEditingView: NSViewRepresentable {
             self.prax = prax
             self.splitViewDelegate = splitViewDelegate
         }
+        
+        
+        private func selectFirstPageEditItemIfNeeded() {
+            if prax.selectedEditPages.isEmpty {
+                guard let firstSection = document.pageSections.first,
+                      let firstItem = firstSection.pageItems.first else { return }
+                let firstIndexPath = IndexPath(item: 0, section: 0)
+                self.prax.pageEditCollectionView.selectItems(at: [firstIndexPath], scrollPosition: [])
+                prax.selectedEditPages = [firstIndexPath] // keep your model in sync
+            }
+            
+            
+        }
+        
         
         enum CollectionKind { case pageItem, pageEdit} //, mergedPage }
 
@@ -401,6 +419,9 @@ struct DocumentEditingView: NSViewRepresentable {
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
             centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
+            DispatchQueue.main.async {
+                self.selectFirstPageEditItemIfNeeded()
+             }
         }
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {

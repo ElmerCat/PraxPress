@@ -233,6 +233,7 @@ final class PraxModel {
         set {
             if let mergedPage = newValue {
                 if mergedPage.mergeModePages > 0 {
+                    _currentEditingMergedPage = newValue
                     if currentEditingPageItem == nil {
                         currentEditingPageItem = mergedPage.pageItems.first(where: {$0.skipped == false})
                     }
