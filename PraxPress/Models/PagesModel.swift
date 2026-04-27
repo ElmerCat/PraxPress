@@ -250,6 +250,9 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     guard fitted.intersects(destSliceRect) else { continue }
    */
                     copiedAnnotation.bounds = translatedBounds
+                    
+                    copiedAnnotation.isReadOnly = true
+                    
                     mergedPDFPage.addAnnotation(copiedAnnotation)
                     
                     // Preserve text values for text widgets
