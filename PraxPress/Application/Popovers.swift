@@ -112,7 +112,7 @@ struct FilenamePrefixPopover: View {
     var theTip = FilenamePrefixTip()
 
     
-    var savedPrefixes = ["airfare-", "conference-", "meal-", "taxi-" ]
+    var savedPrefixes = ["Amazon", "airfare-", "conference-", "meal-", "taxi-" ]
     
     var body: some View {
         @Bindable var document = document
