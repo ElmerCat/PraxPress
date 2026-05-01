@@ -192,27 +192,8 @@ extension MergedPDFDocument {
     
     
     
-    func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
-        
-        
-        var urls: [URL] = []
-        for provider in providers {
-            
-            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (data, error) in
-                if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
-                    urls.append(url)
-                    print("Julie Belanger URL: ", url)
-                    
-                }
-            }
-            if urls.isEmpty {
-                provider.loadFileRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { (url, error) in
-                    if let url = url {
-                        urls.append(url)
-                        print("Julie Belanger URL: ", url)
-                    }
-                }
-            }
+
+
 
 /*
             let pdfURLs = urls.filter { $0.pathExtension.lowercased() == "pdf" }
@@ -244,61 +225,9 @@ extension MergedPDFDocument {
             }
 */
 
-        }
-
-        print("Julie d Prax", urls)
-        
-        return true
-        
-    }
+         //   print("Julie d'Prax", urls)
     
-/*    func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-        var pages: [PDFPageItem] = []
-        var sourceFileName = ""
-        for url in urls {
-            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-            image = image.resize(to: NSSize(width: 50, height: 70))!
-            
-            sourceFileName = url.deletingPathExtension().lastPathComponent
-            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-            let pageItem = PDFPageItem(
-                document: self,
-                name: "Image - \(sourceFileName)",
-                pdfPage: docPage
-            )
-            pages.append(pageItem)
-        }
-        if indexPath.section >= 0 {
-            if indexPath.item < 0 || indexPath.item >= pageSections[indexPath.section].pageItems.count {
-                pageSections[indexPath.section].pageItems.append(contentsOf: pages)
-            }
-            else {
-                pageSections[indexPath.section].pageItems.insert(contentsOf: pages, at: indexPath.item)
-            }
-        }
-        else {
-            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: pages))
-        }
-        
-    }
-
-    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-        
-        for url in urls {
-            guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-            image = image.resize(to: NSSize(width: 50, height: 70))!
-            
-            let sourceFileName = url.deletingPathExtension().lastPathComponent
-            guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-            let pageItem = PDFPageItem(
-                document: self,
-                name: "Image - \(sourceFileName)",
-                pdfPage: docPage
-            )
-            pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
-        }
-        
-    }
+/*  
 
     func insertPDFPageSectionsFromDocumentURLS(_ urls: [URL], at indexPath: IndexPath)  async throws {
         

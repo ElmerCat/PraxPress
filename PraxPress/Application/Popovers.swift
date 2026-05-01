@@ -9,7 +9,141 @@ import SwiftUI
 import PDFKit
 import TipKit
 
+struct ImageInspectingPopover: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("import-width") var importWidth: Int = 0
+    @AppStorage("import-height") var importHeight: Int = 0
 
+    @Environment(PraxModel.self) private var prax
+    let praxTheme = PraxTheme(.erika)
+    let deleteTheme = PraxTheme(.julie)
+    
+    @State private var hoveredButton: Int? = nil
+    @State private var imageAngle = 0.0
+    
+    @FocusState var widthFocused: Bool
+    
+    func editingImage() -> Image {
+        if let editingImage = prax.inspectingImage {
+            var imageSize = editingImage.size
+            if editingImage.size.height > CGFloat(importHeight) || editingImage.size.width > CGFloat(importWidth){
+                let aspectRatio = imageSize.height / imageSize.width
+                if aspectRatio > 1 {
+                    imageSize.height =  CGFloat(importHeight)
+                    imageSize.width =  CGFloat(importHeight) / aspectRatio
+                }
+                else {
+                    imageSize.height =  CGFloat(importWidth) * aspectRatio
+                    imageSize.width =  CGFloat(importWidth) / aspectRatio
+                    
+                }
+            }
+            
+            print (imageSize)
+            
+            let resizedImage = editingImage.resize(to: imageSize)!
+            
+            return Image(nsImage: resizedImage)
+            
+        }
+        else {
+            return Image("PraxPress")
+        }
+    }
+   
+    var body: some View {
+        @Bindable var prax = prax
+        
+        
+        VStack {
+            GroupBox {
+                HStack {
+                    Image("PraxPress").resizable().aspectRatio(contentMode: .fit).frame(width: 20)
+                        .padding(3)
+                        .rotationEffect(Angle(degrees: imageAngle))
+                        .onAppear {
+                            withAnimation {
+                                imageAngle -= (2 * 360) - 120
+                            }
+                        }
+                        .onDisappear {
+                            withAnimation {
+                                imageAngle = 0
+                            }
+                        }
+                    Text("Delete All Page Items?")
+                }
+            }
+            Divider()
+            
+            
+            
+            
+            GroupBox {
+                editingImage()
+            }
+            
+            Toggle(isOn: $prax.inspectNextImageDrop, label: {
+                    Text("Test on Next Drop")
+            })
+            
+            Grid {
+                GridRow {
+                    Text("Import Width:")
+                    TextField("",
+                              value: $importWidth,
+                              format: .number
+                    ).border(Color("PraxColor"))
+                        .onSubmit({
+                            dismiss()
+                        })
+                        .focused($widthFocused)
+                        .textContentType(.postalCode)
+                }
+                
+                GridRow {
+                    Text("Import Height:")
+                    TextField("",
+                              value: $importHeight,
+                              format: .number
+                    ).border(Color("PraxColor"))
+                    
+                    
+                }
+            }
+            
+
+            
+            
+            GroupBox {
+                VStack {
+                    HStack {
+                        Spacer()
+                        
+                        
+                        Button { dismiss() }
+                        label: {
+                            HStack {
+                                Text("Cancel")
+                                Image(systemName: "checkmark.rectangle.stack")
+                            }
+                            
+                        }
+                        .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 427))
+                        .onHover { hovering in hoveredButton = hovering ? 427 : nil }
+                        
+
+                    }
+                }
+            }
+        }
+          .containerShape(.rect(cornerRadius: 24)).border(.white, width: 5)
+        .padding(20)
+        .background(PraxGradient(0).ignoresSafeArea())
+        .foregroundColor(.white)
+        
+    }
+}
 
 struct DeletePopover: View {
 //    let mergedPage: MergedPage
@@ -112,7 +246,7 @@ struct FilenamePrefixPopover: View {
     var theTip = FilenamePrefixTip()
 
     
-    var savedPrefixes = ["Amazon", "airfare-", "conference-", "meal-", "taxi-" ]
+    var savedPrefixes = ["Amazon-", "Costco-", "ezCater-", "airfare-", "conference-", "meal-", "taxi-" ]
     
     var body: some View {
         @Bindable var document = document

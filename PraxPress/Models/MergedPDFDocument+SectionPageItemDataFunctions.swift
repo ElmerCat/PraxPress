@@ -13,6 +13,97 @@ import PDFKit
 import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
+
+    func addPagesFromURL(_ url: URL, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
+
+        
+        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
+        
+        // Determine target section
+        let mergedPage: MergedPage = {
+            if let givenSection = pageSection {
+                ensureSectionInOrder(givenSection, at: sectionIndex)
+                return givenSection
+            } else {
+
+                let newMergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
+  
+                pageSections.insert(newMergedPage, at: sectionIndex)
+                return newMergedPage
+            }
+        }()
+
+        var pageCount = 1
+        if let doc = PDFDocument(url: url) {
+            pageCount = doc.pageCount
+            var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
+            for index in 0..<pageCount {
+                let displayName = nameForPage(url: url, index: index)
+                let item = PageItem(
+                        mergedPage: mergedPage,
+                        name: displayName,
+                        sourceBookmark: Data(),
+                        sourceURL: url,
+                        sourcePageIndex: index,
+                        pdfPage: doc.page(at: index)!,
+                        dataFields: [:]
+                    )
+                mergedPage.pageItems.insert(item, at: pageInsertIndex)
+                pageInsertIndex += 1
+            }
+        }
+        else {
+            print("No PDFDocument from url: ", url)
+        }
+    }
+
+    
+    func addPageFromImageURL(_ url: URL, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
+        @AppStorage("import-width") var importWidth: Int = 0
+        @AppStorage("import-height") var importHeight: Int = 0
+        
+        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
+        let mergedPage: MergedPage = {
+            if let givenSection = pageSection {
+                ensureSectionInOrder(givenSection, at: sectionIndex)
+                return givenSection
+            } else {
+                let newMergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
+                pageSections.insert(newMergedPage, at: sectionIndex)
+                return newMergedPage
+            }
+        }()
+
+        guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+        var imageSize = image.size
+        if image.size.height > CGFloat(importHeight) || image.size.width > CGFloat(importWidth){
+            let aspectRatio = imageSize.height / imageSize.width
+            if aspectRatio > 1 {
+                imageSize.height =  CGFloat(importHeight)
+                imageSize.width =  CGFloat(importHeight) / aspectRatio
+            }
+            else {
+                imageSize.height =  CGFloat(importWidth) * aspectRatio
+                imageSize.width =  CGFloat(importWidth) / aspectRatio
+
+            }
+        }
+        
+        print (imageSize)
+        
+        image = image.resize(to: imageSize)!
+        
+        guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+        let pageItem = PageItem(mergedPage: mergedPage,
+                                name: url.deletingPathExtension().lastPathComponent,
+                                sourceURL: url, pdfPage: pdfPage, dataFields: [:])
+            
+        mergedPage.pageItems.append(pageItem)
+          
+      }
+
+  
+    
     func addPagesFrom(pdfFile: PDFFile, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
 
  //   func addPagesFromURLBookmark(, url: URL?, bookmarkData: Data?, to pageSection: MergedPage?, at location: Int? = 0) {
@@ -166,6 +257,32 @@ extension MergedPDFDocument {
     
     
 /*
+ 
+ 
+ 
+ func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+     
+     for url in urls {
+         guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+         image = image.resize(to: NSSize(width: 50, height: 70))!
+         
+         let sourceFileName = url.deletingPathExtension().lastPathComponent
+         guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+         let pageItem = PDFPageItem(
+             document: self,
+             name: "Image - \(sourceFileName)",
+             pdfPage: docPage
+         )
+         pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
+     }
+     
+ }
+
+
+ 
+ 
+ 
+ 
     // MARK: - Cross-section move/copy
 
         func performDropOrAction(for item: PageItem,

@@ -65,6 +65,10 @@ final class PraxModel {
     var isOn = false
     var isLarge: Bool = false
     var showFilesPanel = true
+    var showingImageDropInspector: Bool = false
+    var inspectNextImageDrop: Bool = false
+    var inspectingImage: NSImage?
+    
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
     var showingMergedDocumentInspector = false
@@ -75,6 +79,7 @@ final class PraxModel {
     var isShowingInspector: Bool = false
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
+    
     
     let editingDocumentPDFView = PDFView()
     let pageItemCollectionView = NSCollectionView()

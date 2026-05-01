@@ -43,7 +43,7 @@ struct CollectionElementHostView: View {
         case let .mergedPageFooter(item):
             MergedPageFooterView(mergedPage: item, isSelected: isSelected, highlightState: highlightState )
         case let .pageItemBackground(indexPath):
-            PageItemSectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
+            PageItemSectionBackgroundView(indexPath: indexPath )
         case let .editPageBackground(indexPath):
             EditPageSectionBackgroundView(indexPath: indexPath, isSelected: isSelected, highlightState: highlightState )
         case .none:

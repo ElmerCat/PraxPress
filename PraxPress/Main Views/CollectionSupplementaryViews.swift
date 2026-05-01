@@ -18,15 +18,15 @@ import UniformTypeIdentifiers
 
 
 struct PageItemSectionBackgroundView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
-    
     let indexPath: IndexPath
-    let isSelected: Bool
-    let highlightState: NSCollectionViewItem.HighlightState
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
     
     var body: some View {
-        @Bindable var prax = praxModel
+        @Bindable var prax = prax
+        let isSelected = prax.selectedSections.contains(indexPath.section)
+
+        
             
         VStack {
             GroupBox {
@@ -55,10 +55,11 @@ struct PageItemSectionBackgroundView: View {
                     //  .position(x: 0, y: 16)
                 }
            */
+                Text(isSelected ? "Julie d'Prax" : "Juliette M. Belanger")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(0)
-            .background(PraxGradient(0))
+            .background(isSelected ? PraxGradient(2) : PraxGradient(0))
             .opacity(0.5)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)

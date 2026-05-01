@@ -409,13 +409,19 @@ struct DocumentEditingView: NSViewRepresentable {
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
                 
-                editPageSnapshot.appendSections([mergedPage])
-                //editPageSnapshot.appendItems(mergedPage.pageItems)
-                for pageItem in mergedPage.pageItems {
-                    if !pageItem.skipped {
-                        editPageSnapshot.appendItems([pageItem])
-                    }
+                if mergedPage.mergeModePages > 0 {
+                    editPageSnapshot.appendSections([mergedPage])
+                    
+                    editPageSnapshot.appendItems([mergedPage.mergedPageItem()])
+                    
+                   // for pageItem in mergedPage.pageItems {
+                   //     if !pageItem.skipped {
+                     //       editPageSnapshot.appendItems([pageItem])
+                   //     }
+                 //   }
+
                 }
+                
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
             centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
@@ -426,8 +432,17 @@ struct DocumentEditingView: NSViewRepresentable {
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
             if collectionView == prax.pageItemCollectionView {
-                
+                print("pageItemCollectionView - didSelectItemsAt - ", indexPaths)
+
                 prax.selectedPageItems = collectionView.selectionIndexPaths
+                
+                var selectedSections: Set<Int> = []
+                for item in prax.selectedPageItems {
+                    let section = item.section
+                    selectedSections.insert(section)
+                }
+                prax.selectedSections = selectedSections
+ 
             }
             else if collectionView == prax.pageEditCollectionView {
                 print("pageEditCollectionView - didSelectItemsAt - ", indexPaths)
@@ -444,6 +459,14 @@ struct DocumentEditingView: NSViewRepresentable {
         func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
             if collectionView == prax.pageItemCollectionView {
                 prax.selectedPageItems = collectionView.selectionIndexPaths
+                
+                var selectedSections: Set<Int> = []
+                for item in prax.selectedPageItems {
+                    let section = item.section
+                    selectedSections.insert(section)
+                }
+                prax.selectedSections = selectedSections
+                
             }
             else if collectionView == prax.pageEditCollectionView {
                 print("pageEditCollectionView - did DE SelectItemsAt - ", indexPaths)
@@ -626,7 +649,16 @@ struct DocumentEditingView: NSViewRepresentable {
                 print ("\n\(url)")
             }
       
-            fatalError()
+            Task {
+                do {
+                    try await document.persistence.processImportedURLs(droppedURLs)
+                }
+                catch {
+                    print("Failed to processImportedURLs(urls)", droppedURLs)
+                }
+            }
+            
+        //    fatalError()
     /*
             // 3) Filter for PDFs (by path extension or UTI check)
             let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }

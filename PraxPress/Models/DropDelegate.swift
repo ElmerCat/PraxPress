@@ -110,8 +110,70 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     func performDrop(info: DropInfo) -> Bool { //  print("DropTargetControl - performDrop")
+        
+        
+        print("PraxDropDelegate performDrop(info: DropInfo)  ", info)
+        
+        let providers = info.itemProviders(for: [UTType.fileURL])
+        
+        
+        for provider in providers {
+            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { [self] (data, error) in
+                if let data = data,
+                   let path = String(data: data, encoding: .utf8),
+                   let url = URL(string: path) {
+                    
+                    print("Julie Belanger path = ", path, "  URL: ", url)
+                    
+                    
+                    let ext = url.pathExtension.lowercased()
+                    
+                    switch (ext) {
+                    case "pdf":
+                        
+                        DispatchQueue.main.async { [self] in
+                            document.addPagesFromURL(url, to: nil) }
+                        
+                        Task { do { try await
+                            document.persistence.processImportedURLs([url]) }
+                            catch { fatalError("It didn't work") } }
+                        
+                    case "png", "jpeg", "jpg", "gif", "heic":
+                       
+                        if prax.inspectNextImageDrop {
+                            
+                            if let image = NSImage(contentsOf: url) {
+                                prax.inspectingImage = image
+                                prax.showingImageDropInspector = true
+
+                                var imageSize = image.size
+                                
+                                print ("case png heic ", image.size)
+                                
+
+                            }
+                            
+                            else { print("Failed to open Image at \(url)") }
+                            
+                            
+                        }
+                        else {
+                            DispatchQueue.main.async { [self] in
+                                document.addPageFromImageURL(url, to: nil) }
+
+                        }
+                        
+                        
+                        
+                    default:
+                        break
+                        
+                    } }
+                    
+        } }
+        
         prax.dropTargeted = false
-        return document.acceptDrop(info.itemProviders(for: [UTType.fileURL]))
+        return true
     }
     
     func dropEntered(info: DropInfo) {

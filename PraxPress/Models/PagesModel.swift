@@ -263,7 +263,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 for annotation in pageItem.pdfPage.annotations {
                     // Only handle form fields; skip others as before
                     
-                    print("\(String(describing: annotation.fieldName)) - \(annotation.widgetFieldType) - \(String(describing: annotation.widgetStringValue))")
+                 //   print("\(String(describing: annotation.fieldName)) - \(annotation.widgetFieldType) - \(String(describing: annotation.widgetStringValue))")
                     
                     guard annotation.fieldName != nil else { continue }
                     guard let copiedAnnotation = annotation.copy() as? PDFAnnotation else { continue }

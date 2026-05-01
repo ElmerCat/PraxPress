@@ -430,6 +430,8 @@ struct PDFFilesList: View {
                                     Text(displayValue(for: fieldName, in: entry))
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .id("\(entry.id.uuidString)|\(fieldName)")
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
                                 }
                             }
                         }

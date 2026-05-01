@@ -192,6 +192,8 @@ actor FilesPersistenceController: Observable {
         
         do {
             for urlBookmark in uniquePairs {
+                
+                
                 guard let pdfFile = try await newPDFFileFromURLBookmark(url: urlBookmark.url, bookmarkData: urlBookmark.bookmark) else {
                     print("Failed newPDFFileFromURLBookmark(url: ", urlBookmark.url)
                     continue

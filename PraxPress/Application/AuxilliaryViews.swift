@@ -135,11 +135,12 @@ struct ImportOptionsInspector: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("import-width") var importWidth: Int = 0
     @AppStorage("import-height") var importHeight: Int = 0
+    @Environment(PraxModel.self) private var prax
     @FocusState var widthFocused: Bool
     var theTip = ImportOptionsTip()
     
     var body: some View {
-        
+        @Bindable var prax = prax
         VStack {
             GroupBox {
                 Button {
@@ -152,7 +153,7 @@ struct ImportOptionsInspector: View {
                 
                 Grid {
                     GridRow {
-                        Text("Import Width:")
+                        Text("Maximum Width:")
                         TextField("",
                                   value: $importWidth,
                                   format: .number
@@ -165,7 +166,7 @@ struct ImportOptionsInspector: View {
                     }
                     
                     GridRow {
-                        Text("Import Height:")
+                        Text("Maximum Height:")
                         TextField("",
                                   value: $importHeight,
                                   format: .number
@@ -180,7 +181,10 @@ struct ImportOptionsInspector: View {
                 
                 Text("\(importWidth)")
                 //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
-                
+
+                Toggle(isOn: $prax.inspectNextImageDrop, label: {
+                        Text("Test on Next Drop")
+                })
                 Text("Image Import Size")
                     .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
                     .background(Color("PraxColor"))
@@ -540,6 +544,7 @@ struct DropTargetControl: View {
                     .foregroundStyle(prax.dropTargeted ? Color.green.gradient : Color.blue.gradient )
             }
         }
+        .popover(isPresented: $prax.showingImageDropInspector) { ImageInspectingPopover() }
         
         .onDrop(of: [.fileURL, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
         
