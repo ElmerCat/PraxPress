@@ -912,6 +912,7 @@ struct DocumentEditingToolbar: View {
     
     let praxTheme = PraxTheme(.erika)
     
+    @State var showDataFields = false
     @State var showSettings = false
     @State var showDelete = false
     @State private var hoveredButton: Int? = nil
@@ -1013,6 +1014,21 @@ struct DocumentEditingToolbar: View {
                             }
                         }
                     }
+                    
+                    Button {
+                        showDataFields = !showDataFields
+                    }label: {
+                        Image(systemName: "document.badge.gearshape")
+                    }
+                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 417, isDisabled: document.pageSections.isEmpty))
+                    .onHover { hovering in hoveredButton = hovering ? 417 : nil }
+                    
+                    
+                    .popover(isPresented: $showDataFields, arrowEdge: .leading) {
+                        DataFieldsEditor() }
+                    Spacer()
+                    
+                    
                     
                     Spacer(minLength: 15)
 

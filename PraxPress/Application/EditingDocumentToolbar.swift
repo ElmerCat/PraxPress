@@ -216,9 +216,9 @@ struct EditingDocumentFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if let pageItem = prax.currentEditingPageItem {
+        if let mergedPage = prax.currentEditingMergedPage, let pageItem = prax.currentEditingPageItem {
             let pageCount = pageItem.mergedPage.pageItems.count
-            let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
+            let curentPageIndex = 764 //pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
 
             
             let mergedSizeText = {

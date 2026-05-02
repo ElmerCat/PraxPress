@@ -10,6 +10,45 @@ import TipKit
 import UniformTypeIdentifiers
 import PDFKit
 
+struct Example: View {
+    @State var dict: [String: String] = ["A": "Alpha", "B": "Beta"]
+
+    var body: some View {
+        List {
+            ForEach(Array(dict.keys), id: \.self) { key in
+                HStack {
+                    Text(key)
+                    TextField("Value", text: Binding(
+                        get: { dict[key] ?? "" },
+                        set: { dict[key] = $0 }
+                    ))
+                }
+            }
+        }
+    }
+}
+
+struct DataFieldsEditor: View {
+    
+ //   @Binding var dataFields: [String: FieldValue]
+
+    @Environment(PraxModel.self) private var prax
+    
+    var body: some View {
+        @Bindable var prax = prax
+        
+        if prax.currentEditingMergedPage != nil {
+            List(prax.currentEditingMergedPage!.dataFields.keys.sorted(), id: \.self) { key in
+                HStack {
+                           Text(key)
+                           Spacer()
+                           Text(String("\(prax.currentEditingMergedPage!.dataFields[key]?.stringValue ?? "")"))
+                               .foregroundColor(.gray)
+                       }
+                   }
+        }
+     }
+}
 
 struct FlagControlView: View {
     // Available flag colors like Mail
@@ -424,7 +463,7 @@ struct DragOutControl: View {
         Group {
             HStack {
                 Spacer(minLength: 25)
-                Text("Drag out PDF as...   ")
+                Text("Drag out")
                     .font(.headline)
                     .padding(.vertical, 10)
                 
@@ -432,64 +471,25 @@ struct DragOutControl: View {
                 
                     .contentShape(.rect)
                 
-                Button {
-                    prax.showingFileExportOptions.toggle()
-                } label: {
-                    Label("Import Options", systemImage: (prax.showingMergedDocumentInspector ? "gearshape.fill" : "gearshape"))
-                }
-                .sheet(isPresented: $prax.showingFileExportOptions) {
-                    ImportOptionsInspector()
-                    
-                        .presentationDetents(
-                            [.height(120), .medium, .large])
-                        .presentationBackgroundInteraction(
-                            .enabled(upThrough: .height(120)))
-                        .presentationSizing(.form)
-                    
-                }
-                
-                Spacer(minLength: 5)
-                Text(document.exportFilenamePrefix)
-                TextField("Filename", text: Binding<String>(
-                    get: { document.exportFilenameBody },
-                    set: { newValue in
-                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if let dotRange = newName.range(of: ".") {
-                            newName = String(newName[..<dotRange.lowerBound])
-                        }
-                        document.exportFilenameBody = newName
-                    }),selection: $selection).focused($isFocused)
-                .onChange(of: isFocused) {
-                    if isFocused {
-                        // Select the entire string range
-                        selection = .init(range: document.exportFilenameBody.startIndex..<document.exportFilenameBody.endIndex)
-                    }
-                }
-                .font(.headline)
-           //     .padding(.vertical, 10)
-                
-                .foregroundStyle(.white)
-                
-                .frame(minWidth: 50, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                .textFieldStyle(.automatic)
-                    .padding(.horizontal, 20)
-                //    .disabled(prax.exportFolderURL == nil)
-//                .foregroundStyle(.cyan)
- //               .backgroundStyle(.yellow)
-                
-                Text(document.exportFilenameSuffix)
                 Spacer(minLength: 5)
                 Image(systemName: "arrow.right.doc.on.clipboard")
+                
                 Spacer(minLength: 5)
-                Text(".\(document.exportFilenameExtension)          ")
+                Text(String("\(document.exportFilename).pdf"))
+                    .font(.system(size: 10, weight: .ultraLight, design: .monospaced))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .init(horizontal: .center, vertical: .center))
 
                 Spacer(minLength: 25)
             }
-            .draggable {
-                if let data = document.mergedPDFDocument.dataRepresentation() {
-                    return MergedPDFTransfer(data: data, filename: (document.exportFilename))
-                } else { return nil }
-            }
+            .draggable({ () -> MergedPDFTransfer? in
+                guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                return MergedPDFTransfer(data: data, filename: document.exportFilename)
+            }()!, preview: {
+                PraxDragPreview()
+            })
+            
+            
             .background {
                 Capsule()
                     .foregroundStyle(Color.blue.gradient)

@@ -96,6 +96,9 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     }
     
     var hasDataFields = false
+    var dataFields: [String: FieldValue] = [:]
+    
+
     
     var  refreshingEditingDocument = false
     var editingDocumentVersion = UUID()
@@ -115,6 +118,11 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             for pageItem in pageItems {
                     if !pageItem.skipped {
                         pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
+                        if !pageItem.dataFields.isEmpty {
+                            dataFields = pageItem.dataFields
+                            hasDataFields = true
+                            
+                        }
                         insertIndex += 1
                     }
             }
