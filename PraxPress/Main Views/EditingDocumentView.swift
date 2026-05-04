@@ -36,12 +36,12 @@ class EditingPDFDocumentNSView: NSView {
     }
     
     override func mouseEntered(with event: NSEvent) {
-        print("EditingPDFDocumentNSView - mouseEntered")
+  //      print("EditingPDFDocumentNSView - mouseEntered")
         prax.hoverSection.insert(.editingDocument)
 
     }
     override func mouseExited(with event: NSEvent) {
-        print("EditingPDFDocumentNSView - mouseExited")
+//        print("EditingPDFDocumentNSView - mouseExited")
         prax.hoverSection.remove(.editingDocument)
     }
 
@@ -90,7 +90,7 @@ struct EditingPDFDocumentView: View {
         @Bindable var prax = praxModel
         @Bindable var document = self.document
         
-        let _ = Self._printChanges()
+    //    let _ = Self._printChanges()
         let hovering = prax.hoverSection.contains(.editingDocument)
         
    //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
@@ -98,9 +98,10 @@ struct EditingPDFDocumentView: View {
         GroupBox {
             GeometryReader { proxy in
                 VStack {
-
+                    let toolbarHeight = prax.selectedPageItem != nil ? 100 : 20.0
                     EditingDocumentToolbar()
-                        .frame(maxWidth: .infinity, maxHeight: 10.0)
+                        .frame(maxWidth: .infinity, minHeight: toolbarHeight, maxHeight: toolbarHeight, alignment: .center)
+                        .animation(.snappy(duration: 0.25), value: toolbarHeight)
                         .zIndex(258)
                     
                     GroupBox {
@@ -271,7 +272,7 @@ struct EditingPDFDocumentView: View {
             document.prax.editingDocumentPDFView.autoScales = true
             document.prax.editingDocumentPDFView.displayDirection = .vertical
             document.prax.editingDocumentPDFView.displaysPageBreaks = true
-            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 100, left: 0, bottom: 0, right: 0)
+            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 10, bottom: 0, right: 10)
             document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
             document.prax.editingDocumentPDFView.backgroundColor = .clear
                 
@@ -329,7 +330,7 @@ struct EditingPDFDocumentView: View {
         func updateNSView(_ pdfView: PDFView, context: Context) {
             print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
             
-            if let pageItem = context.coordinator.prax.currentEditingPageItem {
+            if let pageItem = document.prax.selectedPageItem {
                 if context.coordinator.documentVersion != pageItem.mergedPage.editingDocumentVersion {
                     context.coordinator.documentVersion = pageItem.mergedPage.editingDocumentVersion
                     pdfView.document = pageItem.mergedPage.editingPDFDocument
@@ -339,13 +340,13 @@ struct EditingPDFDocumentView: View {
                     }
                 }
                 else {
-                    print("EditingPDFViewRepresentable - updateNSView - No Change currentEditingPageItem: ", pageItem.name)
+                    print("EditingPDFViewRepresentable - updateNSView - No Change selectedPageItem: ", pageItem.name)
                 }
                 
 
             }
             else {
-                print("EditingPDFViewRepresentable - updateNSView - No currentEditingPageItem ")
+                print("EditingPDFViewRepresentable - updateNSView - No selectedPageItem ")
             }
         }
     }

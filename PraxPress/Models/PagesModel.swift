@@ -52,8 +52,8 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         set {
             if newValue != _pageItems {
                 var wasCurrentItem: PageItem?
-                if document.prax.currentEditingPageItem != nil && pageItems.contains(document.prax.currentEditingPageItem!) {
-                    wasCurrentItem = document.prax.currentEditingPageItem!
+                if document.prax.selectedPageItem != nil && pageItems.contains(document.prax.selectedPageItem!) {
+                    wasCurrentItem = document.prax.selectedPageItem!
                 }
                 _pageItems = newValue
                 if let wasCurrentItem, !pageItems.contains(wasCurrentItem) {
@@ -65,6 +65,24 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     
           }
     } }
+    
+    private var _skipped: Bool = false
+    var skipped: Bool {
+        get { _skipped }
+        set {
+            if _skipped == newValue { return }
+            
+            let oldValue = skipped
+            document.prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.skipped = oldValue
+            })
+            _skipped = newValue
+            document.prax.undoManager.setActionName("Skip Merged Page \(title)")
+            print("MergedPage skipped didSet")
+            refreshEditingDocument()
+
+        }
+    }
     
     var skippedPages: Int {
         get {
@@ -127,23 +145,24 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     }
             }
             mergeModePages = insertIndex
-            
-            if mergeModePages == 0 && document.prax.currentEditingMergedPage == self {
-                document.prax.currentEditingMergedPage = nil
-                if let curentItem = document.prax.currentEditingPageItem, pageItems.contains(curentItem) {
-                    document.prax.currentEditingPageItem = nil
+
+/*
+            if mergeModePages == 0 && document.prax.selectedPageItem?.mergedPage == self {
+     //           document.prax.currentEditingMergedPage = nil
+                if let curentItem = document.prax.selectedPageItem, pageItems.contains(curentItem) {
+                    document.prax.selectedPageItem = nil
                 }
             }
             else if let wasCurrentItem {
-                document.prax.currentEditingPageItem = wasCurrentItem
+                document.prax.selectedPageItem = wasCurrentItem
             }
-            else if mergeModePages > 0 && document.prax.currentEditingMergedPage == nil {
+  //          else if mergeModePages > 0 && document.prax.currentEditingMergedPage == nil {
                 
-                document.prax.currentEditingMergedPage = self
-            }
+   //             document.prax.currentEditingMergedPage = self
+   //         }
                 
             
-            
+ */
               
             self.editingPDFDocument = pdfDocument
             editingDocumentVersion = UUID()
@@ -268,10 +287,31 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 let dx = 0 - trimmedMedia.minX
                 let dy = placedOriginsY[pageIndex] - trimmedMedia.minY
                 
+                let keys = pageItem.dataFields.keys
+                print(keys)
+                
                 for annotation in pageItem.pdfPage.annotations {
                     // Only handle form fields; skip others as before
                     
-                 //   print("\(String(describing: annotation.fieldName)) - \(annotation.widgetFieldType) - \(String(describing: annotation.widgetStringValue))")
+//                    print("\(String(describing: annotation.fieldName)) - \(annotation.widgetFieldType) - \(String(describing: annotation.widgetStringValue))")
+                    
+                    if let key = annotation.fieldName {
+                        if keys.contains(key) {
+                            if let value = annotation.widgetStringValue {
+                                print("key: ", key, " - widgetStringValue: ", value, " - pageItemValue: ", pageItem.dataFields[key]!.stringValue!)
+                                if value != pageItem.dataFields[key]!.stringValue! {
+                                    annotation.widgetStringValue = pageItem.dataFields[key]!.stringValue!
+                                }
+                            }
+                            else  {
+                                print("key: ", key, " - value: ")
+
+                            }
+                          //  annotation.widgetStringValue = "Julie d'Prax"
+
+                        }
+                        
+                    }
                     
                     guard annotation.fieldName != nil else { continue }
                     guard let copiedAnnotation = annotation.copy() as? PDFAnnotation else { continue }
@@ -372,13 +412,21 @@ final class PageItem: Identifiable, Equatable, Hashable {
     nonisolated static func == (lhs: PageItem, rhs: PageItem) -> Bool { lhs.id == rhs.id }
     nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
     let id: UUID
+    var prax: PraxModel
     var mergedPage: MergedPage
     var name: String
     var sourceBookmark: Data
     var sourceURLString: String
     var sourcePageIndex: Int
-    var dataFields: [String: FieldValue]
-
+    var dataFields: [String: FieldValue] {
+        didSet {
+            print("dataFields: [String: FieldValue] didSet ", dataFields)
+            mergedPage.refreshEditingDocument()
+        }
+    }
+    
+    
+    
   
     let pdfPage: PDFPage
     let media: CGRect
@@ -397,6 +445,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
     ) {
         self.id = id
         self.mergedPage = mergedPage
+        self.prax = mergedPage.document.prax
         self.name = name
         self.sourceBookmark = sourceBookmark
         self.sourceURLString = sourceURL.absoluteString
@@ -411,6 +460,8 @@ final class PageItem: Identifiable, Equatable, Hashable {
             return pdfPage.bounds(for: .cropBox)
         }()
     }
+    
+    
     
     func trimmedPageSize() -> CGRect {
         let minX = media.minX + trims.left
@@ -431,9 +482,17 @@ final class PageItem: Identifiable, Equatable, Hashable {
         get { _trims }
         set {
             if _trims == newValue { return }
+            
+            let oldValue = trims
+            prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.trims = oldValue
+                self.mergedPage.refreshMergedPage()
+            })
             _trims = newValue
+            
+            prax.undoManager.setActionName("Set Trims for Page \(name)")
             print("PageItem trims didSet")
-            mergedPage.refreshMergedPage()
+            mergedPage.refreshEditingDocument()
         }
     }
     
@@ -442,20 +501,16 @@ final class PageItem: Identifiable, Equatable, Hashable {
         get { _skipped }
         set {
             if _skipped == newValue { return }
+            
+            let oldValue = skipped
+            prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.skipped = oldValue
+            })
             _skipped = newValue
-            
+            prax.undoManager.setActionName("Skip Page \(name)")
             print("PageItem skipped didSet")
-      /*      if newValue {
-                if mergedPage.pageItems.count < 2 {
-                    mergedPage.document.prax.currentEditingPageIndex = NSNotFound }
-                else if mergedPage.document.prax.currentEditingPageIndex > 0 {
-                    mergedPage.document.prax.currentEditingPageIndex -= 1
-                }
-      
-            }
-      */
-            
             mergedPage.refreshEditingDocument()
+
         }
     }
     
@@ -464,7 +519,13 @@ final class PageItem: Identifiable, Equatable, Hashable {
         get { _merge }
         set {
             if _merge == newValue { return }
+            let oldValue = merge
+            prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.merge = oldValue
+            })
+            
             _merge = newValue
+            prax.undoManager.setActionName("Set Merge Mode for Page \(name)")
             print("PageItem merge didSet")
             mergedPage.refreshEditingDocument()
         }

@@ -383,13 +383,14 @@ final class PDFPageOverlayView: NSView {
     
     override func mouseDown(with event: NSEvent) {
         guard let document else {return}
-        
-        if document.prax.currentEditingPageItem != pageItem {
-            print("Changing currentEditingPageItem to :", pageItem.name)
-            document.prax.currentEditingPageItem = pageItem
+
+/*
+        if document.prax.selectedPageItem != pageItem {
+            print("Changing selectedPageItem to :", pageItem.name)
+            document.prax.selectedPageItem = pageItem
             
         }
-        
+ */
         let point = convert(event.locationInWindow, from: nil)
         dragStart = point
         
@@ -659,7 +660,7 @@ struct OverlayControlView: View {
                 VStack {
                     Button("", systemImage: "ruler", action: {
                         document.clickedGuidePageButton(pageItem)
-                    })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
+                    })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
                         .onHover { hovering in
                             hoveredButton = hovering ? 4 : nil
                         }

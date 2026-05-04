@@ -24,9 +24,9 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
     }
     
     var firstViewMinWidth = 100.0
-    var firstViewMaxWidth = 100.0
-    var secondViewMinWidth = 100.0
-    var secondViewMaxWidth = 100.0
+    var firstViewMaxWidth = 400.0
+    var secondViewMinWidth = 400.0
+    var secondViewMaxWidth = 2000.0
 
     var splitView: NSSplitView?
 

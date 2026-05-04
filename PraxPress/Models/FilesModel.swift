@@ -30,7 +30,7 @@ struct PDFDataFields: Codable {
 @Model
 final class PDFFile {
     
-    static let defaultFieldNames = ["PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
+    static let defaultFieldNames = ["Date", "PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
     
     var id: UUID
     var url: URL

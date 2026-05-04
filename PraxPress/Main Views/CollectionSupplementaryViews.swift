@@ -283,7 +283,7 @@ struct SectionHeaderView: View {
                         showSettings = !showSettings
                     }
                     label: { Image(systemName: "gear")}
-                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 2))
+                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 2))
                     .onHover { hovering in
                         hoveredButton = hovering ? 2 : nil
                     }
@@ -334,7 +334,7 @@ struct SectionHeaderView: View {
             print("Control + Click detected")  }
         else {
             print("Plain Click detected")
-            praxModel.currentEditingMergedPage = mergedPage
+    //        praxModel.currentEditingMergedPage = mergedPage
         }
     }
 }
@@ -455,15 +455,15 @@ struct MergedPageFooterView: View {
             Button("", systemImage: "plus.circle", action: {
                 pdfViewMode(.zoomIn)
             })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
             
             Button("", systemImage: "minus.circle", action: {
                 pdfViewMode(.zoomOut)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
             
             Button("", systemImage: "equal.circle", action: {
                 pdfViewMode(.zoomFit)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
             
             Spacer()
 

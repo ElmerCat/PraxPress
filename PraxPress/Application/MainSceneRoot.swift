@@ -80,13 +80,26 @@ struct MainSceneRoot: View {
 
 struct MainCommands: Commands {
     @Environment(\.openWindow) private var openWindow
+//    @Environment(\.undoManager) var undoManager
+            
+        
     
     var body: some Commands {
+        
+  /*      CommandGroup(replacing: .undoRedo) {
+            Button("Undo") { undoManager?.undo() }
+                .keyboardShortcut("z")
+                .disabled(!(undoManager?.canUndo ?? false))
+            Button("Redo") { undoManager?.redo() }
+                .keyboardShortcut("Z", modifiers: [.command, .shift])
+                .disabled(!(undoManager?.canRedo ?? false))
+        } */
+        
         CommandGroup(after: .textEditing) {
-            Button("Select All") {
+            Button("Select All Prax") {
                 NSApp.keyWindow?.makeFirstResponder(nil)
             }
-            .keyboardShortcut("a", modifiers: [.command])
+            .keyboardShortcut("a", modifiers: [.command, .option])
         }
         CommandGroup(after: .newItem) {
             Button("New Tab") {

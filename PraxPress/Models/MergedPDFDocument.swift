@@ -30,17 +30,23 @@ import OSLog
             print("MergedPDFDocument - pageSections: didSet ")
             
             if pageSections.isEmpty {
-                prax.selectedEditPages = []
+  //              prax.selectedEditPages = []
                 prax.selectedPageItems = []
+       //         prax.selectedPageItem = nil
             }
-            else if prax.currentEditingMergedPage == nil {
+       
+  //          refreshMergedDocument()
+            
+          /*  else if prax.selectedPageItem == nil {
                 if let mergedPage = pageSections.first {
                     if mergedPage.mergeModePages > 0 {
-                        prax.currentEditingMergedPage = mergedPage } } }
-            
+                        prax.currentEditingMergedPage = mergedPage } }
+            }
+        */
     } }
 
     var mergedDocumentVersion = UUID()
+    var mergedDocumentSize = 0.0
     
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
@@ -66,8 +72,14 @@ import OSLog
             }
             mergedPDFDocument = pdfDocument
             mergedDocumentVersion = UUID()
+            
+            if let pdfData = pdfDocument.dataRepresentation() {
+                let sizeInBytes = pdfData.count
+                mergedDocumentSize = Double(sizeInBytes) / (1024)
+                print("mergedDocumentSize: \(mergedDocumentSize) KB")
+            }
             self.refreshingMergedDocument = false
-  //          print("refreshMergedDocument — done")
+            print("refreshMergedDocument — done")
         }
  //       print("refreshMergedDocument — Task starting")
   

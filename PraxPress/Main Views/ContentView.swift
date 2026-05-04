@@ -16,11 +16,12 @@ struct ContentView: View {
  //   @Environment(\.perWindowModelContext) private var perWindowContext // The one-and-only editor context
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-   
+    @Environment(\.undoManager) var undoManager
+    
     var body: some View {
         @Bindable var prax = praxModel
 
-        let _ = Self._printChanges()
+  //      let _ = Self._printChanges()
 
         GeometryReader { proxy in
             HStack(spacing: 0) {
@@ -63,10 +64,12 @@ struct ContentView: View {
        .toolbar {
            MainToolbar()
         }
+        
   //     .toolbarBackground(PraxGradient())
         
         .onAppear {
             print("ContentView .onAppear")
+            prax.undoManager = undoManager!
 
         }
     }
@@ -93,6 +96,10 @@ struct ContentDetailView: View {
                     DocumentEditingView()
                         .inspector(isPresented: $prax.showingPDFPageItemInspector) {
                             PDFPageItemInspector()
+                        }
+                        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
+                            VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+           //                 Example()
                         }
                 }
             }

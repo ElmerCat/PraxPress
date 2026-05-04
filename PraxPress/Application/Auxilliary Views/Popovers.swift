@@ -129,7 +129,7 @@ struct ImageInspectingPopover: View {
                             }
                             
                         }
-                        .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 427))
+                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 427))
                         .onHover { hovering in hoveredButton = hovering ? 427 : nil }
                         
 
@@ -170,7 +170,7 @@ struct DeletePopover: View {
                         .rotationEffect(Angle(degrees: imageAngle))
                         .onAppear {
                             withAnimation {
-                                    imageAngle -= (2 * 360) - 120
+                                    imageAngle -= (1 * 360) 
                             }
                         }
                         .onDisappear {
@@ -178,15 +178,8 @@ struct DeletePopover: View {
                                     imageAngle = 0
                             }
                         }
-                    Text("Delete All Page Items?")
-                }
-            }
-            Divider()
-            
-            GroupBox {
-                VStack {
-                    HStack {
-                        Spacer()
+               //     Text("Clear All Page Items?")
+                //        Spacer()
 
                         
                         Button { dismiss() }
@@ -197,7 +190,7 @@ struct DeletePopover: View {
                             }
                                 
                        }
-                        .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 427))
+                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 427))
                         .onHover { hovering in hoveredButton = hovering ? 427 : nil }
 
                         
@@ -207,20 +200,19 @@ struct DeletePopover: View {
                             }
                         label: {
                             HStack {
-                                Text("Delete")
-                                Image(systemName: "document.on.trash")
+                                Text("Clear All Page Items")
+                                Image(systemName: "rectangle.stack.slash").rotationEffect(Angle(degrees: imageAngle))
                             }
                                 
                        }
-                        .buttonStyle(PrefixButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 426))
+                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 426))
                         .onHover { hovering in hoveredButton = hovering ? 426 : nil }
                     }
-                }
+                
             }
-           Divider()
         }
   //      .containerShape(.rect(cornerRadius: 24)).border(.white, width: 5)
-        .padding(20)
+      //  .padding(20)
     //    .padding(.horizontal, 10)
         .background(PraxGradient(0).ignoresSafeArea())
         .foregroundColor(.white)
@@ -334,7 +326,7 @@ struct FilenamePrefixPopover: View {
                     } label: {
                         Image(systemName: "checkmark")
                     }
-                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 427))
+                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 427))
                     .onHover { hovering in hoveredButton = hovering ? 427 : nil }
                 }
                 
@@ -353,7 +345,7 @@ struct FilenamePrefixPopover: View {
 
                             
                         }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 426))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 426))
                         .onHover { hovering in hoveredButton = hovering ? 426 : nil }
                     }
 
@@ -455,7 +447,7 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 153))
+                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 153))
                     .onHover { hovering in hoveredButton = hovering ? 153 : nil }
                     
                 }
@@ -482,7 +474,7 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 156))
+                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 156))
                     .onHover { hovering in hoveredButton = hovering ? 156 : nil }
                     
                 }
@@ -500,10 +492,10 @@ struct SectionHeaderPopover: View {
                         document.pageSections.removeAll(where: { mergedPage in
                             mergedPage == self.mergedPage
                         })
-                        document.refreshMergedDocument()
+                      
                         dismiss() }
                     label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 150))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
                         .onHover { hovering in
                             hoveredButton = hovering ? 150 : nil
                         }
@@ -554,7 +546,7 @@ struct SectionHeaderPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 153))
+                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 153))
                             .onHover { hovering in hoveredButton = hovering ? 153 : nil }
                             
                         }
@@ -578,7 +570,7 @@ struct SectionHeaderPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 176))
+                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 176))
                             .onHover { hovering in hoveredButton = hovering ? 176 : nil }
                             
                         }
@@ -597,7 +589,7 @@ struct SectionHeaderPopover: View {
                             document.refreshMergedDocument()
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                            .buttonStyle(ItemButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 150))
+                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 150 : nil
                             }
@@ -666,7 +658,7 @@ struct PageItemPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                             }
                         }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 126))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
                         .onHover { hovering in hoveredButton = hovering ? 126 : nil }
                         
                     }
@@ -685,7 +677,7 @@ struct PageItemPopover: View {
                                 Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle")
                             }
                         }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 121))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 121))
                         .onHover { hovering in hoveredButton = hovering ? 121 : nil }
                         .help("Merge page mode")
                     }
@@ -696,7 +688,7 @@ struct PageItemPopover: View {
                             document.clickedGuidePageButton(pageItem)
                             dismiss() }
                         label: { Image(systemName: "ruler") }
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 124, isFocused: false))
+                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 124, isFocused: false))
                         .onHover { hovering in hoveredButton = hovering ? 124 : nil }
                         .help("Set width guide")
                         
@@ -708,7 +700,7 @@ struct PageItemPopover: View {
                             document.clickedDeletePageButton(pageItem)
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(theme: deleteTheme, isHovering: hoveredButton == 120))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 120))
                         .onHover { hovering in
                             hoveredButton = hovering ? 120 : nil
                         }

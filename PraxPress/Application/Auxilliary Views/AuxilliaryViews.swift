@@ -28,28 +28,6 @@ struct Example: View {
     }
 }
 
-struct DataFieldsEditor: View {
-    
- //   @Binding var dataFields: [String: FieldValue]
-
-    @Environment(PraxModel.self) private var prax
-    
-    var body: some View {
-        @Bindable var prax = prax
-        
-        if prax.currentEditingMergedPage != nil {
-            List(prax.currentEditingMergedPage!.dataFields.keys.sorted(), id: \.self) { key in
-                HStack {
-                           Text(key)
-                           Spacer()
-                           Text(String("\(prax.currentEditingMergedPage!.dataFields[key]?.stringValue ?? "")"))
-                               .foregroundColor(.gray)
-                       }
-                   }
-        }
-     }
-}
-
 struct FlagControlView: View {
     // Available flag colors like Mail
     let flagColors: [(name: String, color: Color)] = [

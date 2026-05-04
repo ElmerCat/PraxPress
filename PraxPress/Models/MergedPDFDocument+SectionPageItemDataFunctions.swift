@@ -13,31 +13,31 @@ import PDFKit
 import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
-
-    func addPagesFromURL(_ url: URL, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
-
-        
-        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
-        
-        // Determine target section
-        let mergedPage: MergedPage = {
-            if let givenSection = pageSection {
-                ensureSectionInOrder(givenSection, at: sectionIndex)
-                return givenSection
-            } else {
-
-                let newMergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
-  
-                pageSections.insert(newMergedPage, at: sectionIndex)
-                return newMergedPage
-            }
-        }()
-
-        var pageCount = 1
+    
+    func mergedPagefrom(_ url: URL, at indexPath: IndexPath? = nil, title: String? = nil) -> MergedPage  {
+        if indexPath == nil || indexPath?.section ?? -1 < 0 {
+            let mergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
+            pageSections.append(mergedPage)
+            return mergedPage
+        }
+        else {
+            let index = max(indexPath!.section, pageSections.count - 1)
+            return pageSections[index]
+        }
+    }
+    
+    
+    func addPagesFromPDFURL(_ url: URL, at indexPath: IndexPath? = nil, title: String? = nil) {
+        let mergedPage = mergedPagefrom(url, at: indexPath)
+        var location = 1
+        if let indexPath {
+            location = indexPath.item + 1
+        }
+    
         if let doc = PDFDocument(url: url) {
-            pageCount = doc.pageCount
+//            pageCount = doc.pageCount
             var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
-            for index in 0..<pageCount {
+            for index in 0..<doc.pageCount {
                 let displayName = nameForPage(url: url, index: index)
                 let item = PageItem(
                         mergedPage: mergedPage,
@@ -58,22 +58,16 @@ extension MergedPDFDocument {
     }
 
     
-    func addPageFromImageURL(_ url: URL, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
+    func addPageFromImageURL(_ url: URL,  at indexPath: IndexPath? = nil, title: String? = nil) {
         @AppStorage("import-width") var importWidth: Int = 0
         @AppStorage("import-height") var importHeight: Int = 0
         
-        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
-        let mergedPage: MergedPage = {
-            if let givenSection = pageSection {
-                ensureSectionInOrder(givenSection, at: sectionIndex)
-                return givenSection
-            } else {
-                let newMergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
-                pageSections.insert(newMergedPage, at: sectionIndex)
-                return newMergedPage
-            }
-        }()
-
+        let mergedPage = mergedPagefrom(url, at: indexPath)
+        var location = 1
+        if let indexPath {
+            location = indexPath.item + 1
+        }
+        var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
         guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
         var imageSize = image.size
         if image.size.height > CGFloat(importHeight) || image.size.width > CGFloat(importWidth){
@@ -89,16 +83,18 @@ extension MergedPDFDocument {
             }
         }
         
+        print (image.size)
         print (imageSize)
         
         image = image.resize(to: imageSize)!
-        
+        print (image.size)
+
         guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
         let pageItem = PageItem(mergedPage: mergedPage,
                                 name: url.deletingPathExtension().lastPathComponent,
                                 sourceURL: url, pdfPage: pdfPage, dataFields: [:])
             
-        mergedPage.pageItems.append(pageItem)
+        mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
           
       }
 

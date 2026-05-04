@@ -23,102 +23,65 @@ struct DocumentEditingView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSSplitView {
         
-        // Split view
         let splitView = NSSplitView()
- //       praxModel.splitView = splitView
-        context.coordinator.splitViewDelegate.splitView = splitView
-        splitView.delegate = context.coordinator.splitViewDelegate
-        context.coordinator.splitView = splitView
         splitView.isVertical = true
-        splitView.dividerStyle = .thin
-        splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
-        splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 1)
-        splitView.setHoldingPriority(.defaultLow, forSubviewAt: 2)
-        splitView.setHoldingPriority(.defaultLow, forSubviewAt: 3)
-        splitView.translatesAutoresizingMaskIntoConstraints = false
+        splitView.dividerStyle = .paneSplitter
+        
+        splitView.autosaveName = NSSplitView.AutosaveName("DocumentEditingSplitView")
+        let scrollView = NSScrollView()
+    //    pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
 
-        // Left: Scroll + Collection
-        let pageItemScrollView = NSScrollView()
-        pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
-        pageItemScrollView.hasVerticalScroller = true
-        pageItemScrollView.hasHorizontalScroller = false
-
-        //let pageItemCollectionView = NSCollectionView()
-        prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
+   //     prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
         prax.pageItemCollectionView.backgroundColors = [.clear]
         prax.pageItemCollectionView.isSelectable = true
         prax.pageItemCollectionView.allowsEmptySelection = true
         prax.pageItemCollectionView.allowsMultipleSelection = true
         prax.pageItemCollectionView.delegate = context.coordinator
-        pageItemScrollView.documentView = prax.pageItemCollectionView
-        
-        // Left: Scroll + Collection
-        let pageEditScrollView = NSScrollView()
-        pageEditScrollView.translatesAutoresizingMaskIntoConstraints = false
-        pageEditScrollView.hasVerticalScroller = true
-        pageEditScrollView.hasHorizontalScroller = false
-
-    //    let pageEditCollectionView = NSCollectionView()
-        prax.pageEditCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        prax.pageEditCollectionView.backgroundColors = [.clear]
-        prax.pageEditCollectionView.isSelectable = true
-        prax.pageEditCollectionView.allowsEmptySelection = false
-        prax.pageEditCollectionView.allowsMultipleSelection = false
-        prax.pageEditCollectionView.delegate = context.coordinator
-        pageEditScrollView.documentView = prax.pageEditCollectionView
+        scrollView.documentView = prax.pageItemCollectionView
         
         let mergedDoumentView = MergedPDFDocumentNSView(prax: prax)
         let editingDoumentView = EditingPDFDocumentNSView(prax: prax)
         
         splitView.arrangesAllSubviews = true
-        splitView.addArrangedSubview(pageItemScrollView)
-        splitView.addArrangedSubview(pageEditScrollView)
-     //   splitView.addArrangedSubview(mergedPageScrollView)
+        splitView.addArrangedSubview(scrollView)
         splitView.addArrangedSubview(editingDoumentView)
         splitView.addArrangedSubview(mergedDoumentView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
         
-        // Store references on the coordinator
-   //     context.coordinator.pageItemCollectionView = pageItemCollectionView
-        context.coordinator.pageItemScrollView = pageItemScrollView
-      //  context.coordinator.pageEditCollectionView = prax.pageEditCollectionView
-        context.coordinator.pageEditScrollView = pageEditScrollView
-  //      context.coordinator.mergedPageCollectionView = mergedPageCollectionView
-  //      context.coordinator.mergedPageScrollView = mergedPageScrollView
-
         // Configure collection views: layout, registration, data sources
         context.coordinator.configure(collectionView: prax.pageItemCollectionView, kind: .pageItem)
-        context.coordinator.configure(collectionView: prax.pageEditCollectionView, kind: .pageEdit)
- //       context.coordinator.configure(collectionView: mergedPageCollectionView, kind: .mergedPage)
-
+ 
         // Apply initial snapshot to both
         context.coordinator.applySnapshot(animated: false)
 
         // Initial divider position
         DispatchQueue.main.async {
             
-            let pageItemWidth = 120.0
-            let pageEditWidth = 100.0
+//            let pageItemWidth = 120.0
+ //           let pageEditWidth = 100.0
             
-            let positionOne = pageEditWidth + pageItemWidth
-            var remainingWidth = splitView.frame.width - positionOne
-            remainingWidth = remainingWidth * 0.25
+//            let positionOne = pageEditWidth + pageItemWidth
+//            var remainingWidth = splitView.frame.width - positionOne
+//            remainingWidth = remainingWidth * 0.25
             
-            let positionTwo = splitView.frame.width - remainingWidth
+//            let positionTwo = splitView.frame.width - remainingWidth
 
-            print("DocumentEditingView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
-            splitView.setPosition(120, ofDividerAt: 0)
-            splitView.setPosition(positionOne, ofDividerAt: 1)
-            splitView.setPosition(positionTwo, ofDividerAt: 2)
+ //           print("DocumentEditingView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
+            splitView.setPosition(200, ofDividerAt: 0)
+            splitView.setPosition(600, ofDividerAt: 1)
+   //         splitView.setPosition(positionTwo, ofDividerAt: 2)
         }
 
+        
         return splitView
     }
 
     func updateNSView(_ splitView: NSSplitView, context: Context) {
-        print("DocumentEditingView - updateNSView - ", prax.currentEditingMergedPage?.title ?? "No currentEditingMergedPage")
+        print("DocumentEditingView - updateNSView - ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
     }
 
@@ -133,18 +96,11 @@ struct DocumentEditingView: NSViewRepresentable {
         let splitViewDelegate: SplitViewDelegate
         
         // Views
-        weak var splitView: NSSplitView?
- //       weak var pageItemCollectionView: NSCollectionView?
- //       weak var pageEditCollectionView: NSCollectionView?
-    //    weak var mergedPageCollectionView: NSCollectionView?
-        weak var pageItemScrollView: NSScrollView?
-        weak var pageEditScrollView: NSScrollView?
-   //     weak var mergedPageScrollView: NSScrollView?
+//        weak var splitView: NSSplitView?
+ //       weak var pageItemScrollView: NSScrollView?
 
         // Data sources
         private var leftDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
-        private var centerDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
-   //     private var rightDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
 
         init(document: MergedPDFDocument, prax: PraxModel, splitViewDelegate: SplitViewDelegate) {
             self.document = document
@@ -152,19 +108,13 @@ struct DocumentEditingView: NSViewRepresentable {
             self.splitViewDelegate = splitViewDelegate
         }
         
-        
-        private func selectFirstPageEditItemIfNeeded() {
-            if prax.selectedEditPages.isEmpty {
-                guard let firstSection = document.pageSections.first,
-                      let firstItem = firstSection.pageItems.first else { return }
-                let firstIndexPath = IndexPath(item: 0, section: 0)
-                self.prax.pageEditCollectionView.selectItems(at: [firstIndexPath], scrollPosition: [])
-                prax.selectedEditPages = [firstIndexPath] // keep your model in sync
+
+        private func selectFirstPageItemIfNeeded() {
+            if prax.selectedPageItems.isEmpty {
+                prax.selectedPageItems = [IndexPath(item: 0, section: 0)]
             }
-            
-            
         }
-        
+  
         
         enum CollectionKind { case pageItem, pageEdit} //, mergedPage }
 
@@ -256,7 +206,8 @@ struct DocumentEditingView: NSViewRepresentable {
             case .pageItem:
                 self.leftDataSource = dataSource
             case .pageEdit:
-                self.centerDataSource = dataSource
+                break
+              //  self.centerDataSource = dataSource
             }
         }
         
@@ -403,13 +354,13 @@ struct DocumentEditingView: NSViewRepresentable {
 
         func applySnapshot(animated: Bool) {
             var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+ //           var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
             for mergedPage in document.pageSections {
                 
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
                 
-                if mergedPage.mergeModePages > 0 {
+      /*          if mergedPage.mergeModePages > 0 {
                     editPageSnapshot.appendSections([mergedPage])
                     
                     editPageSnapshot.appendItems([mergedPage.mergedPageItem()])
@@ -421,13 +372,16 @@ struct DocumentEditingView: NSViewRepresentable {
                  //   }
 
                 }
-                
+*/
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
-            centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
-            DispatchQueue.main.async {
-                self.selectFirstPageEditItemIfNeeded()
-             }
+     //       centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
+            
+     //      DispatchQueue.main.async {
+       //         self.selectFirstPageItemIfNeeded()
+     //       }
+            
+            
         }
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
@@ -444,12 +398,13 @@ struct DocumentEditingView: NSViewRepresentable {
                 prax.selectedSections = selectedSections
  
             }
-            else if collectionView == prax.pageEditCollectionView {
+ /*           else if collectionView == prax.pageEditCollectionView {
                 print("pageEditCollectionView - didSelectItemsAt - ", indexPaths)
                 
                 prax.selectedEditPages = collectionView.selectionIndexPaths
                 
             }
+ */
             else {
                 assertionFailure("Unexpected collection view")
             }
@@ -468,10 +423,12 @@ struct DocumentEditingView: NSViewRepresentable {
                 prax.selectedSections = selectedSections
                 
             }
-            else if collectionView == prax.pageEditCollectionView {
+            
+/*            else if collectionView == prax.pageEditCollectionView {
                 print("pageEditCollectionView - did DE SelectItemsAt - ", indexPaths)
                 prax.selectedEditPages = collectionView.selectionIndexPaths
             }
+*/
             else {
                 assertionFailure("Unexpected collection view")
             }
@@ -658,80 +615,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 }
             }
             
-        //    fatalError()
-    /*
-            // 3) Filter for PDFs (by path extension or UTI check)
-            let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
-            self.insertPDFPageItemsFromDocumentURLS(pdfURLs, at: indexPath)
-            
-            let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
-            let imageURLs = droppedURLs.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
-            if prax.optionKeyPressed {
-                self.insertPDFPageSectionsFromImageURLS(imageURLs, at: indexPath)
-
-            }
-            else {
-                self.insertPDFPageItemsFromImageURLS(imageURLs, at: indexPath)
-
-            }
-            
-    */
-            
-            /*
-     
-            guard candidateURLs.isNotEmpty else {
-                Swift.debugPrint("No PDF URLs found in external drop.")
-                return
-            }
-            
-            // 4) Build PDFDocuments and insert pages at the drop position
-            var insertionIndex = indexPath.item
-            for url in candidateURLs {
-                guard let document = PDFDocument(url: url) else {
-                    Swift.debugPrint("Failed to open PDF at url: \(url)")
-                    continue
-                }
-                
-                // Insert each page from the external document into the model
-                let pageCount = document.pageCount
-                var pagesToInsert: [PDFPage] = []
-                pagesToInsert.reserveCapacity(pageCount)
-                
-                for i in 0..<pageCount {
-                    if let page = document.page(at: i) {
-                        pagesToInsert.append(page)
-                    }
-                }
-                
-                // If PraxModel has an API for inserting pages, call it here.
-                // Example approach A: If there’s a method to insert PDFPages directly:
-                // PraxModel.shared.insertPDFPages(pagesToInsert, at: insertionIndex)
-                
-                // Example approach B: If PraxModel works with a single PDFDocument, we can merge:
-                if let targetDoc = PraxModel.shared.editingPDFDocument {
-                    // Insert each page into the current working document
-                    for page in pagesToInsert {
-                        // PDFKit allows inserting a page into a document at an index
-                        targetDoc.insert(page, at: insertionIndex)
-                        insertionIndex += 1
-                    }
-                } else {
-                    // If no working document exists, you might set it to the first dropped doc
-                    PraxModel.shared.editingPDFDocument = PDFDocument()
-                    if let targetDoc = PraxModel.shared.editingPDFDocument {
-                        for page in pagesToInsert {
-                            targetDoc.insert(page, at: insertionIndex)
-                            insertionIndex += 1
-                        }
-                    }
-                }
-
-        */
-            
-            
-            
-            
-        }
+          }
         
         // MARK: - File promise handling
         
@@ -777,45 +661,7 @@ struct DocumentEditingView: NSViewRepresentable {
     //            self.updateUI()
             }
         }
-
-        // MARK: - Insert helper
-            
-        /*    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-                
-                for url in urls {
-                    guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-                    image = image.resize(to: NSSize(width: 50, height: 70))!
-                    
-                    let sourceFileName = url.deletingPathExtension().lastPathComponent
-                    guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-                    let pdfPageItem = PDFPageItem(
-                        document: document,
-                        name: "Image - \(sourceFileName)",
-                        pdfPage: docPage
-                    )
-                    document.sections.append(PDFPageSection(document: document, title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
-                }
-               
-            }
-            func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-                var pages: [PDFPageItem] = []
-                for url in urls {
-                    guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-                    image = image.resize(to: NSSize(width: 50, height: 70))!
-                    
-                    let sourceFileName = url.deletingPathExtension().lastPathComponent
-                    guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-                    pages.append(PDFPageItem(
-                        document: document,
-                        name: "Image - \(sourceFileName)",
-                        pdfPage: docPage
-                    ))
-                }
-                document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
-            }
-        */
-            
-         
+        
         func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropPDFFiles to: ", indexPath)
             
@@ -941,17 +787,18 @@ struct DocumentEditingToolbar: View {
         @Bindable var prax = praxModel
         @Bindable var document = document
         GroupBox {
-             if let mergedPage = prax.currentEditingMergedPage {
                 
                 HStack {
                 
                     Button {
                         showDelete = !showDelete
                     }label: {
-                        Image(systemName: "document.on.trash")
+                        Image(systemName: document.pageSections.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
                     }
-                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
+                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
                     .onHover { hovering in hoveredButton = hovering ? 40 : nil }
+                    .disabled(document.pageSections.isEmpty)
+                    
                     
                     
                     .popover(isPresented: $showDelete, arrowEdge: .leading) {
@@ -961,13 +808,13 @@ struct DocumentEditingToolbar: View {
                     Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
                     label: {
                         if document.exportFilenamePrefix == "" {
-                            Text("prefix...").italic()
+                            Text("prefix...").italic().foregroundStyle(.gray)
                         }
                         else {
                             Text(document.exportFilenamePrefix).bold()
                         }
                     }
-                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 42))
+                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 42))
                     .onHover { hovering in hoveredButton = hovering ? 42 : nil }
                     .popover(isPresented: $showFilenamePrefixPopover, arrowEdge: .leading) {
                         FilenamePrefixPopover() }
@@ -1004,31 +851,27 @@ struct DocumentEditingToolbar: View {
                         PraxDragPreview()
                     })
                     
-                    GroupBox {
-                        HStack {
-                            if mergedPage.hasDataFields {
-                                Text("hasDataFields")
-                            }
-                            else {
-                                Text("No Data Fields")
+                    if let pageItem = prax.selectedPageItem, !pageItem.dataFields.isEmpty {
+                        
+                        Spacer()
+                        
+                        Button { showDataFields = !showDataFields }label: {
+                            GroupBox {
+                                HStack {
+                                    Image(systemName: showDataFields ? "list.bullet.rectangle.fill": "list.bullet.rectangle")
+                                    Text("Data Fields")
+                                }
                             }
                         }
+                        
+                        .buttonStyle(SwitchButtonStyle(isOn: showDataFields, isHovering: hoveredButton == 417))
+                        .controlSize(.extraLarge)
+                        .onHover { hovering in hoveredButton = hovering ? 417 : nil }
+                        .inspectorPanel(isPresented: $showDataFields) { DataFieldsEditor(prax: prax) }
+     
+                        Spacer()
+                        
                     }
-                    
-                    Button {
-                        showDataFields = !showDataFields
-                    }label: {
-                        Image(systemName: "document.badge.gearshape")
-                    }
-                    .buttonStyle(PrefixButtonStyle(theme: praxTheme, isHovering: hoveredButton == 417, isDisabled: document.pageSections.isEmpty))
-                    .onHover { hovering in hoveredButton = hovering ? 417 : nil }
-                    
-                    
-                    .popover(isPresented: $showDataFields, arrowEdge: .leading) {
-                        DataFieldsEditor() }
-                    Spacer()
-                    
-                    
                     
                     Spacer(minLength: 15)
 
@@ -1056,11 +899,7 @@ struct DocumentEditingToolbar: View {
                 .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
                 .padding(0)
                 
-            }
-            else {
-                EmptyView()
-            }
-            
+       
             
             
 

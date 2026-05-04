@@ -96,6 +96,8 @@ final class PraxDropDelegate: DropDelegate {
         self.prax = praxModel
     }
     
+
+    
     func validateDrop(info: DropInfo) -> Bool {
         print("DropTargetControl - validateDrop")
         
@@ -125,52 +127,9 @@ final class PraxDropDelegate: DropDelegate {
                     
                     print("Julie Belanger path = ", path, "  URL: ", url)
                     
+                    prax.receiveDroppedURL(url)
                     
-                    let ext = url.pathExtension.lowercased()
-                    
-                    switch (ext) {
-                    case "pdf":
-                        
-                        DispatchQueue.main.async { [self] in
-                            document.addPagesFromURL(url, to: nil) }
-                        
-                        Task { do { try await
-                            document.persistence.processImportedURLs([url]) }
-                            catch { fatalError("It didn't work") } }
-                        
-                    case "png", "jpeg", "jpg", "gif", "heic":
-                       
-                        if prax.inspectNextImageDrop {
-                            
-                            if let image = NSImage(contentsOf: url) {
-                                prax.inspectingImage = image
-                                prax.showingImageDropInspector = true
-
-                                var imageSize = image.size
-                                
-                                print ("case png heic ", image.size)
-                                
-
-                            }
-                            
-                            else { print("Failed to open Image at \(url)") }
-                            
-                            
-                        }
-                        else {
-                            DispatchQueue.main.async { [self] in
-                                document.addPageFromImageURL(url, to: nil) }
-
-                        }
-                        
-                        
-                        
-                    default:
-                        break
-                        
-                    } }
-                    
-        } }
+                } } }
         
         prax.dropTargeted = false
         return true

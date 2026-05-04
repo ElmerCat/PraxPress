@@ -30,12 +30,12 @@ class MergedPDFDocumentNSView: NSView {
     
     
     override func mouseEntered(with event: NSEvent) {
-        print("MergedPDFDocumentNSView - mouseEntered")
+ //       print("MergedPDFDocumentNSView - mouseEntered")
         prax.hoverSection.insert(.mergedDocument)
 
     }
     override func mouseExited(with event: NSEvent) {
-        print("MergedPDFDocumentNSView - mouseExited")
+ //       print("MergedPDFDocumentNSView - mouseExited")
         prax.hoverSection.remove(.mergedDocument)
     }
 
@@ -79,7 +79,7 @@ struct MergedPDFDocumentView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        let _ = Self._printChanges()
+   //     let _ = Self._printChanges()
         
         GroupBox {
             GeometryReader { proxy in
@@ -125,7 +125,7 @@ struct MergedPDFDocumentView: View {
                                 
                             }
                         })
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
+                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
                         .onHover { hovering in
                             hoveredButton = hovering ? 0 : nil
                         }
@@ -134,7 +134,7 @@ struct MergedPDFDocumentView: View {
                         Button("", systemImage: "plus.circle", action: {
                             pdfViewRef.view?.zoomIn(self)
                         })
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
                         .onHover { hovering in
                             hoveredButton = hovering ? 1 : nil
                         }
@@ -143,14 +143,14 @@ struct MergedPDFDocumentView: View {
 
                         Button("", systemImage: "minus.circle", action: {
                             pdfViewRef.view?.zoomOut(self)
-                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 2 : nil
                             }
 
                         Button("", systemImage: "arrow.left.and.right.circle", action: {
                             pdfViewRef.view?.autoScales = true
-                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 3 : nil
                             }
@@ -418,7 +418,7 @@ struct MergedDocumentFooter: View {
                 document.autoScales = false
                 document.mergedPDFView.zoomIn(self)
             })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
+            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
             .onHover { hovering in
                 hoveredButton = hovering ? 1 : nil
             }
@@ -429,7 +429,7 @@ struct MergedDocumentFooter: View {
             Button("", systemImage: "minus.circle", action: {
                 document.autoScales = false
                 document.mergedPDFView.zoomOut(self)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
                 .onHover { hovering in
                     hoveredButton = hovering ? 2 : nil
                 }
@@ -438,7 +438,7 @@ struct MergedDocumentFooter: View {
        //         .keyboardShortcut(.space, modifiers: [])
             
             Toggle("", systemImage: document.autoScales ? "circle.inset.filled" : "equal.circle", isOn: $document.autoScales).toggleStyle(.button)
-                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
+                .buttonStyle(SelectableButtonStyle(isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
                 .onHover { hovering in
                     hoveredButton = hovering ? 3 : nil
                 }

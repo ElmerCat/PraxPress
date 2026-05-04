@@ -31,6 +31,11 @@ final class PraxModel {
         self.document = document
     }
     
+    var undoManager = UndoManager()
+    
+    let theme = PraxTheme(.erika)
+   
+    
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
         case merge = "Merge Mode"
@@ -86,36 +91,7 @@ final class PraxModel {
     let pageEditCollectionView = NSCollectionView()
     let mergedDocumentPDFView = PDFView()
     
-    
-    
-    //    var mergedDocumentPDFView: PDFView?
-    /*
-     var splitView: NSSplitView?
-     var dividerZeroMinPos: CGFloat = 100
-     var dividerZeroMaxPos: CGFloat = 400
-     var dividerOneMinPos: CGFloat = 400
-     var dividerOneMaxPos: CGFloat = 700
-     var dividerZeroPos: CGFloat = 100 {
-     didSet { updateDividerLimits() }
-     }
-     var dividerOnePos: CGFloat = 400 {
-     didSet { updateDividerLimits() }
-     }
-     
-     var splitViewFrameWidth: CGFloat = 1000 {
-     didSet { updateDividerLimits() }
-     }
-     func updateDividerLimits() {
-     //   dividerZeroMinPos = min(100, splitViewFrameWidth / 10)
-     dividerZeroMaxPos = max(100, (splitView!.arrangedSubviews[1].frame.size.width) / 2)
-     dividerOneMaxPos = splitViewFrameWidth - 200
-     dividerOneMinPos = dividerZeroPos + 300
-     //    print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
-     }
-     
-     */
-    
-    
+ 
     enum HoverSection {
         case editingDocument
         case mergedDocument
@@ -128,157 +104,28 @@ final class PraxModel {
     var selectedFiles = Set<PDFFile.ID>() {
         didSet {
             print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
-            //         isLoadingPDF = true
-            //            selectedPageItems = []
-            //           clearWidthGuide()
-            
-            
-            /*            DispatchQueue.main.async {
-             print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
-             self.setPageSectionsFromSelectedFiles()
-             self.refreshMergedDocument()
-             }
-             */    }
-    }
-    
-    /*
-     private var _currentEditingPDFPage: PDFPage?
-     var currentEditingPDFPage: PDFPage? {
-     get { _currentEditingPDFPage }
-     set {
-     if _currentEditingPDFPage != newValue {
-     _currentEditingPDFPage = newValue
-     
-     if let currentEditingPDFPage {
-     if let currentEditingPageItem {
-     if currentEditingPageItem.pdfPage != currentEditingPDFPage {
-     print("PraxModel - currentEditingPDFPage didSet:  currentEditingPageItem.pdfPage != currentEditingPDFPage")
-     self.currentEditingPageItem = document.pageItem(for: currentEditingPDFPage)
-     }
-     editingDocumentPDFView.go(to: currentEditingPDFPage)
-     }
-     else {
-     if document.editingPDFDocument.pageCount > 0 {
-     currentEditingPageIndex = document.editingPDFDocument.index(for: currentEditingPDFPage)
-     }
-     }
-     }
-     
-     print("PraxModel - currentEditingPDFPage didSet:  ", currentEditingPDFPage != nil ? currentEditingPDFPage! : "No PDFPage", " - Marie")
-     }
-     }
-     }
-     */
-    
-    /*    private var _currentEditingPageIndex: Int = NSNotFound
-     var currentEditingPageIndex: Int {
-     get { _currentEditingPageIndex }
-     set {
-     if document.refreshingEditingDocument { return }
-     
-     print("set currentEditingPageIndex: Int = ", newValue)
-     if newValue == NSNotFound {
-     if document.editingPDFDocument.pageCount > 0 {
-     _currentEditingPageIndex = currentEditingMergedPage?.pageItems.firstIndex(of: currentEditingPageItem)
-     }
-     else { fatalError("set currentEditingPageIndex:  document.editingPDFDocument.pageCount > 0  *** NOT ***") }
-     
-     }
-     else {
-     _currentEditingPageIndex = newValue
-     
-     if let pdfPage = document.editingPDFDocument.page(at: currentEditingPageIndex) {
-     guard let pageItem = document.pageItem(for: pdfPage)
-     
-     else {
-     print ("No Such Number")
-     return
-     //       fatalError("set currentEditingPageIndex:  No pageItem = document.pageItem(for: pdfPage) ")
-     }
-     
-     guard let indexPath = document.indexPath(for: pageItem)
-     else { fatalError("set currentEditingPageIndex:  No indexPath for pageItem ") }
-     
-     if currentEditingMergedPage !=  pageItem.mergedPage {
-     currentEditingMergedPage =  pageItem.mergedPage
-     }
-     
-     if currentEditingPageItem != pageItem {
-     currentEditingPageItem = pageItem
-     }
-     
-     DispatchQueue.main.async { [self] in
-     withAnimation {
-     selectedEditPages = [indexPath]
-     pageEditCollectionView.scrollToItems(at: [indexPath], scrollPosition: .centeredVertically)
-     pageEditCollectionView.selectionIndexPaths = [indexPath]
-     }
-     }
-     }
-     else {
-     
-     fatalError("set currentEditingPageIndex:  document.editingPDFDocument.pageCount > 0  *** NOT ***")
-     
-     }
-     
-     
-     
-     
-     
-     
-     }
-     }
-     }
-     */
-    
-    
-    private var _currentEditingMergedPage: MergedPage?
-    var currentEditingMergedPage: MergedPage? {
-        get { _currentEditingMergedPage }
-        set {
-            if let mergedPage = newValue {
-                if mergedPage.mergeModePages > 0 {
-                    _currentEditingMergedPage = newValue
-                    if currentEditingPageItem == nil {
-                        currentEditingPageItem = mergedPage.pageItems.first(where: {$0.skipped == false})
-                    }
-                }
-                else {
-                    print ("do not set currentEditingMergedPage - mergedPage.mergeModePages 0 ")
-                }
-            }
-            else {
-                print ("set currentEditingMergedPage to **** nil **** ")
-                _currentEditingMergedPage = newValue
-            }
-            
-            if _currentEditingMergedPage != newValue {
-            _currentEditingMergedPage = newValue
-            if let currentEditingMergedPage, let pageItem = currentEditingMergedPage.pageItems.first {
-                    print ("set currentEditingMergedPage document.setExportURL(from: pageItem) ")
-                    document.setExportURL(from: pageItem)
-                    if currentEditingPageItem == nil {
-                        print ("set currentEditingMergedPage currentEditingPageItem = pageItem) ")
-                        currentEditingPageItem = pageItem } }
-            else { print ("set currentEditingMergedPage to **** nil **** ") } }
-    } }
-    
-    private var _currentEditingPageItem: PageItem?
-    var currentEditingPageItem: PageItem? {
-        get { _currentEditingPageItem }
-        set { if _currentEditingPageItem != newValue { _currentEditingPageItem = newValue
-            print ("set currentEditingPageItem  ", currentEditingPageItem?.name ?? " *** nil ***")
-            if currentEditingPageItem != nil {
-                if currentEditingMergedPage == nil {
-                    currentEditingMergedPage = currentEditingPageItem!.mergedPage
-                }
-                else if currentEditingMergedPage != nil, currentEditingMergedPage! != currentEditingPageItem!.mergedPage {
-                    print ("set currentEditingPageItem - setting currentEditingMergedPage = currentEditingPageItem.mergedPage")
-                    currentEditingMergedPage = currentEditingPageItem!.mergedPage }
-            }
-            else { print ("set currentEditingPageItem to **** nil **** ") }
         }
-    } }
+    }
+   
+    private var _selectedPageItem: PageItem?
+    var aselectedPageItem: PageItem? {
+        get { _selectedPageItem }
+        set { if _selectedPageItem != newValue { _selectedPageItem = newValue
+            print ("set selectedPageItem  ", aselectedPageItem?.name ?? " *** nil ***")
+            
+            /*           if selectedPageItem != nil {
+             if currentEditingMergedPage == nil {
+             currentEditingMergedPage = selectedPageItem!.mergedPage
+             }
+             else if currentEditingMergedPage != nil, currentEditingMergedPage! != selectedPageItem!.mergedPage {
+             print ("set selectedPageItem - setting currentEditingMergedPage = selectedPageItem.mergedPage")
+             currentEditingMergedPage = selectedPageItem!.mergedPage }
+             }
+             else { print ("set selectedPageItem to **** nil **** ") }
+             */
+        }
+        }
+    }
     
     var selectedSections: Set<Int> = [] { didSet {
         print("PraxModel - selectedSections didSet:  ", selectedSections)
@@ -288,41 +135,23 @@ final class PraxModel {
     
     var selectedPageItems: Set<IndexPath> = [] { didSet {
         print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
-        if let indexPath = selectedPageItems.first {
-            if let pageItem = document.pageItem(indexPath: indexPath) {
-                if !pageItem.skipped {
-                    currentEditingPageItem = pageItem
-                }
-            }
+  //      if let indexPath = selectedPageItems.first {
+  //          if let pageItem = document.pageItem(indexPath: indexPath) {
+  //              if !pageItem.skipped {
+  //                  selectedPageItem = pageItem
+  //              }
+  //          }
         }
-    }}
+    }
     
-    
-    private var _selectedEditPages: Set<IndexPath> = []
-    var selectedEditPages: Set<IndexPath> {
-        get { _selectedEditPages  }
-        set {
-            if newValue == _selectedEditPages {return}
-            _selectedEditPages = newValue
-            if selectedPageItems != newValue {
-                pageItemCollectionView.selectionIndexPaths = newValue
-                selectedPageItems = newValue
-            }
-            
-            if let indexPath = selectedEditPages.first {
-                if let collectionItem = pageEditCollectionView.item(at: indexPath) {
-                    guard let pageItem = collectionItem.representedObject as? PageItem
-                    else { fatalError("selectedEditPages: representedObject as? PageItem - NOT FOUND") }
-                    
-                    if currentEditingPageItem != pageItem {
-                        currentEditingPageItem = pageItem
-                    }
-                }
-            }
-            print("selectedEditPages set to: ", selectedEditPages)
+    var selectedPageItem: PageItem? {
+        if !selectedPageItems.isEmpty, let indexPath = selectedPageItems.first,
+           let pageItem = document.pageItem(indexPath: indexPath) {
+            return pageItem
         }
-     }
-
+        else { return nil }
+    }
+    
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
         
@@ -493,3 +322,37 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     
 }
 
+extension PraxModel {
+    
+    func receiveDroppedURL(_ url: URL, at indexPath: IndexPath? = nil) {
+        let ext = url.pathExtension.lowercased()
+        switch (ext) {
+
+        case "pdf":
+            DispatchQueue.main.async { [self] in
+                document.addPagesFromPDFURL(url, at: indexPath) }
+            
+            Task { do { try await
+                document.persistence.processImportedURLs([url]) }
+                catch { fatalError("It didn't work") } }
+            
+        case "png", "jpeg", "jpg", "gif", "heic":
+            if inspectNextImageDrop {
+                if let image = NSImage(contentsOf: url) {
+                    inspectingImage = image
+                    showingImageDropInspector = true
+                }
+                else { print("Failed to open Image at \(url)") }
+            }
+            else {
+                DispatchQueue.main.async { [self] in
+                    document.addPageFromImageURL(url, at: indexPath) }
+            }
+            
+        default:
+            break
+            
+        }
+        
+    }
+}

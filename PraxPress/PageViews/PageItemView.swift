@@ -94,7 +94,7 @@ struct PageItemView: View {
                             }
                             
                         }
-                        .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 126))
+                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
                         .onHover { hovering in hoveredButton = hovering ? 126 : nil }
                         .position(x: proxy.size.width - 30, y: 20)
                         
@@ -209,7 +209,7 @@ struct PageEditView: View {
                                     Image(systemName: "text.page") }
                                 
                             }
-                            .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 236))
+                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 236))
                             .onHover { hovering in hoveredButton = hovering ? 236 : nil }
                             .help("Skip This Page")
                             
@@ -278,7 +278,7 @@ struct PageEditView: View {
                                         Image(systemName: "ruler.fill")  }  else {
                                         Image(systemName: "ruler") }
                                 }
-                                .buttonStyle(ItemButtonStyle(theme: praxTheme, isHovering: hoveredButton == 235))
+                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 235))
                                 .onHover { hovering in hoveredButton = hovering ? 235 : nil }
                                 .help("Set Width Guide")
                             }
@@ -646,7 +646,7 @@ struct MergedPageView: View {
                             Button("", systemImage: "plus.circle", action: {
                                 viewScale += 0.5
                             })
-                            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 1 : nil
                             }
@@ -655,14 +655,14 @@ struct MergedPageView: View {
                             
                             Button("", systemImage: "minus.circle", action: {
                                 viewScale -= 0.5
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
                                 .onHover { hovering in
                                     hoveredButton = hovering ? 2 : nil
                                 }
                             
                             Button("", systemImage: "equal.circle", action: {
                                 viewScale = 1.0
-                            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
                                 .onHover { hovering in
                                     hoveredButton = hovering ? 3 : nil
                                 }
