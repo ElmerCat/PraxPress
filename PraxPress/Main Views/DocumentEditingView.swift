@@ -444,14 +444,14 @@ struct DocumentEditingView: NSViewRepresentable {
         
         func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
         ) -> Bool {
-            print("ThumbnailViewController canDragItemsAt  ", indexPaths, " event ", event)
+            print("collectionView canDragItemsAt  ", indexPaths, " event ", event)
             return true
         }
         
         func collectionView(_ collectionView: NSCollectionView,
                             pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
             
-            print("ThumbnailViewController pasteboardWriterForItemAt  ", indexPath)
+            print("collectionView pasteboardWriterForItemAt  ", indexPath)
 
             
             //       guard let pageItem = dataSource.itemIdentifier(for: IndexPath(item: indexPath.item, section: 0)) else { return provider }
@@ -476,51 +476,62 @@ struct DocumentEditingView: NSViewRepresentable {
     
         private var validatedDropOperation: NSDragOperation = []
         
-        func collectionView(
-            _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
-        ) -> NSDragOperation {
+        func collectionView(_ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo,
+                            proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>,
+                            dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation> ) -> NSDragOperation {
             
-                 let indexPath = proposedDropIndexPath.pointee
-             
-            if prax.optionKeyPressed {
-                print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
-                validatedDropOperation = [.copy]
-        
-            }
+            guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return [] }
+            let propsedIndexPath = proposedDropIndexPath.pointee
+            let dropOperation = proposedDropOperation.pointee
+            
+            if draggingTypes.contains(.pdfPageDragType) {
+ //               print("collectionView validateDrop .pdfPageDragType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
+            
+            else if draggingTypes.contains(.mergedPageType) {
+//                print("collectionView validateDrop .mergedPageType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
+            
+            else if draggingTypes.contains(.pdfFileType) {
+ //               print("collectionView validateDrop .pdfFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = [.copy]  }
+
+            else if draggingTypes.contains(.fileURL) {
+  //              print("collectionView validateDrop .fileURL - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = [.copy]  }
+
             else {
-                print("ThumbnailViewController validateDrop [.move]  ", indexPath)
-                validatedDropOperation = [.move]
-        
-            }
+                print("collectionView validateDrop -- Some Other Type: ", draggingTypes, "\n - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = []  }
+
             return validatedDropOperation
         }
                  
         func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
-            print("ThumbnailViewController acceptDrop  ", indexPath.item, " -  dropOperation: ", dropOperation, " - draggingInfo: ", draggingInfo)
-            
+
             guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return false }
-            
+
             if draggingTypes.contains(.pdfPageDragType) {
-                if validatedDropOperation == [.copy] {
-                    dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: true)
-                }
-                else {
-                    dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: false)
-                }
-                
-            }
+                print("collectionView acceptDrop .pdfPageDragType")
+                dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: validatedDropOperation == [.copy])  }
+  
             else if draggingTypes.contains(.mergedPageType) {
+                print("collectionView acceptDrop .mergedPageType")
                 dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
             else if draggingTypes.contains(.pdfFileType) {
+                print("collectionView acceptDrop .pdfFileType")
                 dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
 
-            else {
-                // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
-                // Drop each dragged image file to their new place.
+            else if draggingTypes.contains(.fileURL) {
+                print("collectionView acceptDrop .fileURL")
+                dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
                 dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
             }
+
+            else { print("collectionView acceptDrop -- Some Other Type \n ", draggingTypes);  return false }
+            
             return true
         }
         
@@ -604,6 +615,7 @@ struct DocumentEditingView: NSViewRepresentable {
             
             for url in droppedURLs {
                 print ("\n\(url)")
+                prax.receiveDroppedURL(url, at: indexPath)
             }
       
             Task {
@@ -664,14 +676,7 @@ struct DocumentEditingView: NSViewRepresentable {
         
         func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropPDFFiles to: ", indexPath)
-            
-            var urls: [URL] = []
-            
-            struct Payload: Codable {
-                let fileName: String
-                let bookmarkData: Data
-            }
-            
+            var pdfFilePayloads: [PDFFilePayload] = []
             draggingInfo.enumerateDraggingItems(
                 options: NSDraggingItemEnumerationOptions.concurrent,
                 for: collectionView,
@@ -679,26 +684,15 @@ struct DocumentEditingView: NSViewRepresentable {
                 searchOptions: [:],
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
-                        do {
-                            if let data = pasteboardItem.data(forType: .pdfFileType) {
-                                
-                                let payload = try JSONDecoder().decode(Payload.self, from: data)
-                                // Resolve the URL from the bookmark to rebuild a PDFFile
-                                var isStale = false
-                                let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-                                
-                                urls.append(url)
-                                
-                                
-                            }
-                        } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
-                        
-                        print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
-    fatalError()
-                        //                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
-                 //       self.updateUI()
-                    }
-                })
+                        do { if let data = pasteboardItem.data(forType: .pdfFileType) {
+                            let pdfFilePayload = try JSONDecoder().decode(PDFFilePayload.self, from: data)
+                            pdfFilePayloads.append(pdfFilePayload)
+                            print ("dropPDFFile: ", pdfFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
+                        catch { print(" -- Failed to unarchive indexPath for dropped item.") }
+                    } else { print( " -- No NSPasteboardItem")} })
+            for pdfFilePayload in pdfFilePayloads {
+                document.addPagesFromPDFURL(pdfFilePayload.fileURL, bookmarkData: pdfFilePayload.bookmarkData, at: indexPath)
+            }
         }
             
 

@@ -251,86 +251,19 @@ extension Notification.Name {
 }
 
 
-extension NSPasteboard.PasteboardType {
-    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
-    static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
-    static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
-}
-
-extension UTType {
-    static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
-    static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
-    static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
-}
-
-class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
-    
-    var pdfDocument: PDFDocument?
-    var fileName: String = "PraxPress-Prax.pdf"
-    
-    struct UserInfoKeys {
-        static let indexPathKey = "indexPath"
-        static let urlKey = "url"
-    }
-    
-    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
-        var types = super.writableTypes(for: pasteboard)
-        types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.mergedPageType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
-        return types
-    }
-    
-    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
-        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
-        switch type {
-        case .fileURL:
-            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
-            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
-                return url.pasteboardPropertyList(forType: type)
-            }
-        case .mergedPageType:
-            print ("mergedPageType")
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-
-        case .pdfPageDragType:
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-        default:
-            break
-        }
-        return super.pasteboardPropertyList(forType: type)
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
-        
-        print("filePromiseProvider fileNameForType: ", fileType)
-        return fileName
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
-        
-        print("filePromiseProvider writePromiseTo url:  ", url)
-        pdfDocument?.write(to: url)
-        
-    }
-    
-}
-
 extension PraxModel {
     
-    func receiveDroppedURL(_ url: URL, at indexPath: IndexPath? = nil) {
+    func receiveDroppedURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil) {
+        let needsStop = url.startAccessingSecurityScopedResource()
+        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+        
+        
         let ext = url.pathExtension.lowercased()
         switch (ext) {
 
         case "pdf":
             DispatchQueue.main.async { [self] in
-                document.addPagesFromPDFURL(url, at: indexPath) }
+                document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath) }
             
             Task { do { try await
                 document.persistence.processImportedURLs([url]) }

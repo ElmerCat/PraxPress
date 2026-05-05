@@ -6,108 +6,42 @@
 //
 import SwiftUI
 import SwiftData
+
 import PDFKit
 import UniformTypeIdentifiers
 //import Combine
 
 private let DEBUG_LOGS = true
 
-struct PDFFileTransfer: Transferable, Identifiable, @unchecked Sendable {
-    let id = UUID()
-    let pdfFile: PDFFile
-
-    struct Payload: Codable {
-        let fileName: String
-        let bookmarkData: Data
-    }
-
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(contentType: .pdfFileType) { item in
-            // Encode a small payload containing the file's name and bookmark data
-            let payload = Payload(fileName: item.pdfFile.fileName, bookmarkData: item.pdfFile.bookmarkData)
-            return try JSONEncoder().encode(payload)
-        } importing: { data in
-            // Decode the payload and reconstruct a minimal PDFFile via its bookmark
-            let payload = try JSONDecoder().decode(Payload.self, from: data)
-            // Resolve the URL from the bookmark to rebuild a PDFFile
-            var isStale = false
-            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-            // Create a placeholder PDFFile; callers can insert into model context as needed
-            let fileGroup = PDFFileGroup(name: "Imported")
-            let pdfFile = PDFFile(fileGroup: fileGroup, url: url, bookmarkData: payload.bookmarkData, pageCount: 0)
-            return PDFFileTransfer(pdfFile: pdfFile)
-        }
-    }
-}
-
-
 struct PDFFilesListRow: View {
     @Environment(FilesPersistenceController.self) private var persistence
-
+    
+        
+   
+    
     let document: MergedPDFDocument
     let pdfFile: PDFFile
-    var body: some View {
-     GroupBox {
-         HStack {
-             Text(pdfFile.fileName).lineLimit(1).font(.system(size: 12))
-             Spacer()
-     //        Text(String(pdfFile.pageCount)).lineLimit(1)
-             if pdfFile.bookmarkData.count > 0 {
-                 
-                 Button {
-                     let isOkay = testBookmark(for: pdfFile)
-                     print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
-                     if isOkay {
-                         document.addPagesFrom(pdfFile: pdfFile, to: nil)
-
-      //                   document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
-                     }
-                 } label: {
-                     HStack {
-                         Spacer(minLength: 0)
-                         Text("\(pdfFile.pageCount)")
-                         Image(systemName: "arrow.trianglehead.merge").rotationEffect(Angle(degrees: 90))
-                         Text("Merge").font(.system(size: 8))
-                     }
-                    
-                 }
-                 .frame(minWidth: 84, maxWidth: 84, maxHeight: .infinity)
-                 
-          /*       Button("\(pdfFile.pageCount) Pages", systemImage: "arrowshape.zigzag.forward", action: {
-                     let isOkay = testBookmark(for: pdfFile)
-                     print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
-                     if isOkay {
-                         document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
-                     }
-                 }).controlSize(ControlSize.mini) */
-             }
-             else {
-                 Label("Not Found", systemImage: "nosign")
-                 Button("Remove", systemImage: "trash", action: {
-                     print ("Merge \(pdfFile.fileName)")
-                     
-                     Task {
-                         do {
-                             try await persistence.deletePDFFiles([pdfFile.id])
-                         } catch {
-                             // Handle or present the error appropriately
-                             print("Failed to delete files: \(error)")
-                         }
-                     }
-                    
-                 })
-
-                 
-             }
-         }
-         
+    func backgroundColor() -> Color {
+        switch pdfFile.status {
+        case .bad: .red
+        case .stale: .orange
+        case .okay: .blue
         }
-     .padding(0)
-     
-     .draggable {
-         return PDFFileTransfer(pdfFile: pdfFile)
-     }
-     
+    }
+
+    var body: some View {
+        GroupBox {
+            HStack {
+                Text(pdfFile.fileName).lineLimit(1).font(.system(size: 12))
+                Spacer()
+                Text("\(pdfFile.pageCount)")
+            }
+        }
+        .background(backgroundColor())
+        .padding(0)
+        .draggable {
+            return PDFFileTransfer(pdfFile: pdfFile)
+        }
     }
 }
 
@@ -132,8 +66,8 @@ struct SourceFilesView: View {
         print ("\nJulie d'Prax")
         
         for pdfFile in pdfFiles {
-            let isOkay = testBookmark(for: pdfFile)
-            print (pdfFile.fileName, "  isOkay: ", isOkay)
+ //           let isOkay = testBookmark(for: pdfFile)
+            print (pdfFile.fileName, "  status: ", pdfFile.status)
         }
         print ("\nJuliette M. Belanger")
         for pdfFileGroup in pdfFileGroups {
@@ -312,8 +246,9 @@ struct SourceFilesView: View {
             print("View modelContext:", ObjectIdentifier(modelContext))
             
             for pdfFile in pdfFiles {
-                let isOkay = testBookmark(for: pdfFile)
-                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+                pdfFile.testBookmark()
+//                let isOkay = testBookmark(for: pdfFile)
+//                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
             }
             
         }
