@@ -87,6 +87,36 @@ final class PDFFile {
     
     static let defaultFieldNames = ["Date", "PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
     
+    static func dataFieldsFromPDFDocument(_ pdfDocument: PDFDocument) -> [String: FieldValue] {
+        var dataFields: [String: FieldValue] = [:]
+        let fieldNames = PDFFile.defaultFieldNames
+        
+        func value(from annot: PDFAnnotation) -> String? {
+            if let v = annot.widgetStringValue, !v.isEmpty { return v }
+            if let v = annot.contents, !v.isEmpty { return v }
+            return nil
+        }
+        
+        for pageIndex in 0..<pdfDocument.pageCount {
+            guard let page = pdfDocument.page(at: pageIndex) else { continue }
+            print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
+            for annot in page.annotations {
+                let key = annot.fieldName ?? ""
+                if key.isEmpty { continue }
+                let widgetType = String(describing: annot.widgetFieldType)
+                let extracted = value(from: annot) ?? "(nil)"
+                print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
+                
+                if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                    if fieldNames.contains(key) {
+                        dataFields[key] = .string(v)
+                    }
+                }
+            }
+        }
+        return dataFields
+    }
+    
     var id: UUID
     var url: URL
     var bookmarkData: Data
@@ -95,7 +125,7 @@ final class PDFFile {
     var fileGroup: PDFFileGroup
     // Persisted as Data
     var dataFieldsData: Data?
-    var status = PDFFileStatus.bad
+    var status = PDFFileStatus.okay
     
     init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: [String: FieldValue]? = nil) {
         self.id = UUID()

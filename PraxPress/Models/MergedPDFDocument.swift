@@ -53,7 +53,7 @@ import OSLog
      //   print("refreshMergedDocument")
         refreshingMergedDocument = true
         
-        let jean = Task {
+        Task {
             
             try? await Task.sleep(for:.milliseconds(100))
 
@@ -130,63 +130,22 @@ import OSLog
     //  var exportFolderURLBookmark: Data?
     var exportFileURLBookmark: Data?
     var exportFilenamePrefix: String = ""
-    
-    var exportFilename: String {
-        exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix
-    }
-    
+    var exportFilenameBody: String = ""
     var exportFilenameSuffix: String = ""
     var exportFilenameExtension: String = "pdf"
+    var exportFilename: String { exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix }
     
-    
-    func setExportURL(from pageItem: PageItem) {
-        var isStale = false
-        if let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
-            exportFileURLBookmark = pageItem.sourceBookmark
-            sourceFolderURL = url.deletingLastPathComponent()
-            exportFilenameBody = url.deletingPathExtension().lastPathComponent
-            if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
-            
-        }
-        
-    }
-    
-    
- /*   var firstSelectedFileURL: URL?  {
-        didSet {
-            if firstSelectedFileURL != nil {
-                sourceFolderURL = firstSelectedFileURL!.deletingLastPathComponent()
-                exportFilenameBody = firstSelectedFileURL!.deletingPathExtension().lastPathComponent
-                if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
-            }
-            else {
-                exportFilenameBody = ""
-            }
-        }
-    }
-  */
-    var exportFilenameBody: String = "PraxPress"
- 
     var exportFileURL: URL? {
         if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
         guard let folder = exportFolderURL else { return nil }
-        return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension)
-    }
+        return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension) }
     
-    
-    func handleMergePagesOverwrite() {
-        
-        
-        fatalError("Julie d'Prax: This function is not currently implemented")
-        //guard let id = selectedFiles.first, let entry = listOfFiles.first(where: { $0.id == id }) else { return }
-        //mergeDocumentPages()
-        // Recompute metrics based on the new single-page doc
-        //computePageMetrics(for: entry.url)
-        
-    }
-    
-   
-    
+    func setExportURL(from pageItem: PageItem) {
+        if let url = URL(string: pageItem.sourceURLString) {
+            sourceFolderURL = url.deletingLastPathComponent()
+            exportFilenameBody = url.deletingPathExtension().lastPathComponent
+            if exportFolderURL == nil { exportFolderURL = sourceFolderURL } }
+    }   
 }
 
 

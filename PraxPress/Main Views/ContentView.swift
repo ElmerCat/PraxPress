@@ -105,9 +105,10 @@ struct ContentDetailView: View {
             }
          
             else {
-                Text("Drag files into PraxPress")
+                Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .font(Font.custom("BrushScriptMT", size: 30))
+                    .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
             }
             
             DocumentEditingFooter()

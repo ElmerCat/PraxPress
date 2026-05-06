@@ -41,9 +41,9 @@ extension MergedPDFDocument {
         let mergedPage = mergedPagefrom(url, at: indexPath)
         let location = (indexPath?.item ?? 0) + 1
         
-        if let doc = PDFDocument(url: url) {
+        if let pdfDocument = PDFDocument(url: url) {
             var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
-            for index in 0..<doc.pageCount {
+            for index in 0..<pdfDocument.pageCount {
                 let displayName = nameForPage(url: url, index: index)
                 let item = PageItem(
                         mergedPage: mergedPage,
@@ -51,8 +51,8 @@ extension MergedPDFDocument {
                         sourceBookmark: Data(),
                         sourceURL: url,
                         sourcePageIndex: index,
-                        pdfPage: doc.page(at: index)!,
-                        dataFields: [:]
+                        pdfPage: pdfDocument.page(at: index)!,
+                        dataFields: PDFFile.dataFieldsFromPDFDocument(pdfDocument)
                     )
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
                 pageInsertIndex += 1

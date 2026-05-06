@@ -32,7 +32,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
 
     func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
 
-   //     print ("splitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
+        print ("splitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
 
         var newPosition = proposedPosition
         switch(dividerIndex) {
@@ -70,7 +70,7 @@ final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
 
     
     func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
-  //      print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
+        print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
         
         return false
     }

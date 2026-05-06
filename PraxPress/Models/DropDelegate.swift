@@ -50,56 +50,29 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     func performDrop(info: DropInfo) -> Bool { //  print("DropTargetControl - performDrop")
-        
-        
-        print("PraxDropDelegate performDrop(info: DropInfo)  ", info)
-        
-        var providers: [NSItemProvider] = []
-        
-        providers.append(contentsOf: info.itemProviders(for: [UTType.pdfFileType]))
-        
-
-        
-        if !providers.isEmpty {
-            for provider in providers {
-                provider.loadDataRepresentation(forTypeIdentifier: UTType.pdfFileType.identifier) { [self] (data, error) in
-                    if let data = data {
-                        Task {
-                            struct Payload: Codable {
-                                let fileURL: URL
-                                let bookmarkData: Data
-                            }
-                            do {
-                                let payload = try JSONDecoder().decode(Payload.self, from: data)
-                                await prax.receiveDroppedURL(payload.fileURL, bookmarkData: payload.bookmarkData)
-                            }
-                            catch {
-                                print("failed to decode Payload ")
-                            }
-                        }
-                        
-                    }
-                }
-            }
-        }
-        else {
-            providers.append(contentsOf: info.itemProviders(for: [UTType.fileURL]))
-            if !providers.isEmpty {
-                for provider in providers {
-                    provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { [self] (data, error) in
-                        if let data = data,
-                           let path = String(data: data, encoding: .utf8),
-                           let url = URL(string: path) {
-                            
-                            print("Julie Belanger path = ", path, "  URL: ", url)
-                            
-                            prax.receiveDroppedURL(url)
-                            
-                        } } }
-            }
-        }
-        
         prax.dropTargeted = false
+
+        if info.hasItemsConforming(to: [.pdfFileType]) {
+           for provider in info.itemProviders(for: [UTType.pdfFileType]) {
+                provider.loadDataRepresentation(forTypeIdentifier: UTType.pdfFileType.identifier) { [self] (data, error) in
+                    if let data = data {  Task {  struct Payload: Codable {
+                        let fileURL: URL
+                        let bookmarkData: Data }; do {
+                        let payload = try JSONDecoder().decode(Payload.self, from: data)
+                        await prax.receiveDroppedURL(payload.fileURL, bookmarkData: payload.bookmarkData) }
+                        catch { print("failed to decode Payload ") } }}
+                    else { print("no data for forTypeIdentifier: UTType.pdfFileType.identifier")}}}}
+        
+        else if info.hasItemsConforming(to: [.fileURL]) {
+            for provider in info.itemProviders(for: [UTType.fileURL]) {
+                provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { [self] (data, error) in
+                    if let data = data,
+                       let path = String(data: data, encoding: .utf8),
+                       let url = URL(string: path) {
+                       print("Julie Belanger path = ", path, "  URL: ", url)
+                       prax.receiveDroppedURL(url) }}}}
+
+        else { return false }
         return true
     }
     

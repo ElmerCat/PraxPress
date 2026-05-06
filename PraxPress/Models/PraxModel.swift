@@ -106,26 +106,6 @@ final class PraxModel {
             print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
         }
     }
-   
-    private var _selectedPageItem: PageItem?
-    var aselectedPageItem: PageItem? {
-        get { _selectedPageItem }
-        set { if _selectedPageItem != newValue { _selectedPageItem = newValue
-            print ("set selectedPageItem  ", aselectedPageItem?.name ?? " *** nil ***")
-            
-            /*           if selectedPageItem != nil {
-             if currentEditingMergedPage == nil {
-             currentEditingMergedPage = selectedPageItem!.mergedPage
-             }
-             else if currentEditingMergedPage != nil, currentEditingMergedPage! != selectedPageItem!.mergedPage {
-             print ("set selectedPageItem - setting currentEditingMergedPage = selectedPageItem.mergedPage")
-             currentEditingMergedPage = selectedPageItem!.mergedPage }
-             }
-             else { print ("set selectedPageItem to **** nil **** ") }
-             */
-        }
-        }
-    }
     
     var selectedSections: Set<Int> = [] { didSet {
         print("PraxModel - selectedSections didSet:  ", selectedSections)
@@ -133,24 +113,27 @@ final class PraxModel {
     //        print("\($0)") }
     }}
     
-    var selectedPageItems: Set<IndexPath> = [] { didSet {
-        print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
-  //      if let indexPath = selectedPageItems.first {
-  //          if let pageItem = document.pageItem(indexPath: indexPath) {
-  //              if !pageItem.skipped {
-  //                  selectedPageItem = pageItem
-  //              }
-  //          }
-        }
-    }
     
-    var selectedPageItem: PageItem? {
-        if !selectedPageItems.isEmpty, let indexPath = selectedPageItems.first,
-           let pageItem = document.pageItem(indexPath: indexPath) {
-            return pageItem
+    private var _selectedPageItems: Set<IndexPath> = []
+    
+    var selectedPageItems: Set<IndexPath> {
+        get { _selectedPageItems }
+        set {
+            if _selectedPageItems != newValue { _selectedPageItems = newValue
+                if let indexPath = selectedPageItems.first {
+                    if let pageItem = document.pageItem(indexPath: indexPath) {
+                        if !pageItem.skipped {
+                            _selectedPageItem = pageItem
+                            document.setExportURL(from: pageItem)
+                            return } } }
+            }
+            _selectedPageItem = nil
         }
-        else { return nil }
     }
+
+    
+    private var _selectedPageItem: PageItem?
+    var selectedPageItem: PageItem? { _selectedPageItem }
     
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
@@ -289,3 +272,30 @@ extension PraxModel {
         
     }
 }
+
+
+
+
+/*
+    private var _selectedPageItem: PageItem?
+    var aselectedPageItem: PageItem? {
+        get { _selectedPageItem }
+        set { if _selectedPageItem != newValue { _selectedPageItem = newValue
+            print ("set selectedPageItem  ", aselectedPageItem?.name ?? " *** nil ***")
+            
+            
+            /*           if selectedPageItem != nil {
+             if currentEditingMergedPage == nil {
+             currentEditingMergedPage = selectedPageItem!.mergedPage
+             }
+             else if currentEditingMergedPage != nil, currentEditingMergedPage! != selectedPageItem!.mergedPage {
+             print ("set selectedPageItem - setting currentEditingMergedPage = selectedPageItem.mergedPage")
+             currentEditingMergedPage = selectedPageItem!.mergedPage }
+             }
+             else { print ("set selectedPageItem to **** nil **** ") }
+             */
+        }
+        }
+    }
+    
+*/
