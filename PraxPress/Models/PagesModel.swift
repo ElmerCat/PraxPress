@@ -492,7 +492,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
             
             prax.undoManager.setActionName("Set Trims for Page \(name)")
             print("PageItem trims didSet")
-            mergedPage.refreshEditingDocument()
+            mergedPage.refreshMergedPage()
         }
     }
     

@@ -84,7 +84,7 @@ struct ContentDetailView: View {
         
         VStack(spacing: 0) {
             DocumentEditingToolbar()
-
+            
             if document.pageSections.count > 0 {
                 if prax.praxPressMode == .prax {
                     Text("Julie d'Prax")
@@ -93,17 +93,24 @@ struct ContentDetailView: View {
                         }
                 }
                 else {
-                    DocumentEditingView()
-                        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
-                            PDFPageItemInspector()
-                        }
-                        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
-                            VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
-           //                 Example()
-                        }
+                    HSplitView {
+                      //  AnyOldView()
+                        
+                        
+                        DocumentEditingView()
+                            .frame(minWidth: 100, idealWidth: 150, maxWidth: 200)
+                        
+                        EditingPDFDocumentView()
+                            .frame(minWidth: 250, idealWidth: 400, maxWidth: 1000)
+                        
+                        MergedPDFDocumentView()
+                            .frame(minWidth: 150, idealWidth: 300, maxWidth: 1000)
+
+                        //   AnyOldView()
+                        
+                    }
                 }
             }
-         
             else {
                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -113,6 +120,16 @@ struct ContentDetailView: View {
             
             DocumentEditingFooter()
         }
+        
+        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                PDFPageItemInspector()
+        }
+        
+        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
+            VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+            //                 Example()
+        }
+        
         .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
             switch result {
             case .success(let url):

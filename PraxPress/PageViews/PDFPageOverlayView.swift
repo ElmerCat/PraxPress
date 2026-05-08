@@ -75,6 +75,8 @@ final class PDFPageOverlayView: NSView {
     // Optional vertical guideline x-positions in overlay coordinates
     var guideXLeft: CGFloat?
     var guideXRight: CGFloat?
+    var guideXWidthFromLeft: CGFloat?
+    var guideXWidthFromRight: CGFloat?
     private let snapThreshold: CGFloat = 16.0
     
     private let handleSize: CGFloat = 8
@@ -110,6 +112,7 @@ final class PDFPageOverlayView: NSView {
         let path = NSBezierPath(rect: r)
         path.lineWidth = 2
         path.stroke()
+        
         NSColor.white.setFill()
         NSColor.systemBlue.setStroke()
         for handleRect in handleRects(for: r).values {
@@ -124,75 +127,144 @@ final class PDFPageOverlayView: NSView {
         computeGuidelines()
         // Draw guidelines if provided
         if let gxL = guideXLeft {
-            NSColor.systemRed.withAlphaComponent(0.6).setStroke()
+            NSColor.systemRed.withAlphaComponent(0.9).setStroke()
             let path = NSBezierPath()
             path.move(to: CGPoint(x: gxL, y: bounds.minY))
             path.line(to: CGPoint(x: gxL, y: bounds.maxY))
-            path.lineWidth = 2
+            path.lineWidth = 4
             path.stroke()
         }
         if let gxR = guideXRight {
-            NSColor.systemRed.withAlphaComponent(0.6).setStroke()
+            NSColor.systemRed.withAlphaComponent(0.9).setStroke()
             let path = NSBezierPath()
             path.move(to: CGPoint(x: gxR, y: bounds.minY))
             path.line(to: CGPoint(x: gxR, y: bounds.maxY))
-            path.lineWidth = 2
+            path.lineWidth = 4
             path.stroke()
+        }
+        if let gx = guideXWidthFromLeft {
+            NSColor.systemPurple.withAlphaComponent(0.9).setStroke()
+            let p = NSBezierPath()
+          //  p.setLineDash([6, 4], count: 2, phase: 0)
+            p.move(to: CGPoint(x: gx, y: bounds.minY))
+            p.line(to: CGPoint(x: gx, y: bounds.maxY))
+            p.lineWidth = 4
+            p.stroke()
+        }
+
+        if let gx = guideXWidthFromRight {
+            NSColor.systemBlue.withAlphaComponent(0.9).setStroke()
+            let p = NSBezierPath()
+      //      p.setLineDash([2, 4], count: 2, phase: 0)
+            p.move(to: CGPoint(x: gx, y: bounds.minY))
+            p.line(to: CGPoint(x: gx, y: bounds.maxY))
+            p.lineWidth = 4
+            p.stroke()
         }
     }
     
+    private func clampedGuideX(_ x: CGFloat?) -> CGFloat? {
+        guard let x, x.isFinite else { return nil }
+        guard x >= bounds.minX - 2000, x <= bounds.maxX + 2000 else { return nil }
+        return max(bounds.minX, min(bounds.maxX, x))
+    }
+    
     private func computeGuidelines() {
-        
-        if let pdfView,
-           let guideLeftX = document!.widthGuideLeftX,
-           let guideRightX = document!.widthGuideRightX,
-           let widthGuidePage = document!.widthGuidePage()  {
-            
-            // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
-            
-            let guideCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
-            let currentCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
-            guard guideCrop.width > 0, currentCrop.width > 0 else {
-                guideXLeft = nil
-                guideXRight = nil
-                return
-            }
-            let leftNorm = (guideLeftX - guideCrop.minX) / guideCrop.width
-            let rightNorm = (guideRightX - guideCrop.minX) / guideCrop.width
-            let currentLeftX = currentCrop.minX + leftNorm * currentCrop.width
-            let currentRightX = currentCrop.minX + rightNorm * currentCrop.width
-            // Build tall thin rects at mapped x positions in current page space
-            let leftRectInPage = CGRect(x: currentLeftX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
-            let rightRectInPage = CGRect(x: currentRightX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
-            // Convert to view space and then overlay space
-            let leftInView = (pdfView.convert(leftRectInPage, from: widthGuidePage.pdfPage))
-            let rightInView = (pdfView.convert(rightRectInPage, from: widthGuidePage.pdfPage))
-            let leftInOverlay = self.convert(leftInView, from: pdfView)
-            let rightInOverlay = self.convert(rightInView, from: pdfView)
-            guideXLeft = leftInOverlay.midX
-            guideXRight = rightInOverlay.midX
-            
-            // Skip drawing if lines would be far outside clamp; otherwise clamp to bounds
-            if let gxL = guideXLeft {
-                if gxL.isNaN || gxL.isInfinite { guideXLeft = nil }
-                else if gxL < self.bounds.minX - 2000 || gxL > self.bounds.maxX + 2000 { guideXLeft = nil }
-                else { guideXLeft = max(self.bounds.minX, min(self.bounds.maxX, gxL)) }
-            }
-            if let gxR = guideXRight {
-                if gxR.isNaN || gxR.isInfinite { guideXRight = nil }
-                else if gxR < self.bounds.minX - 2000 || gxR > self.bounds.maxX + 2000 { guideXRight = nil }
-                else { guideXRight = max(self.bounds.minX, min(self.bounds.maxX, gxR)) }
-            }
-            
-            
-            
-        } else {
-     //       print("PDFPageOverlayView - computeGuidelines - No pdfView ")
+        guard
+            let document,
+            let pdfView,
+            let guideLeftX = document.widthGuideLeftX,
+            let guideRightX = document.widthGuideRightX,
+            let widthGuidePage = document.widthGuidePage()
+        else {
             guideXLeft = nil
             guideXRight = nil
+            guideXWidthFromLeft = nil
+            guideXWidthFromRight = nil
+            return
         }
-        
+
+        func sanitize(_ x: CGFloat?) -> CGFloat? {
+            guard let x, x.isFinite else { return nil }
+            guard x >= bounds.minX - 2000, x <= bounds.maxX + 2000 else { return nil }
+            return max(bounds.minX, min(bounds.maxX, x))
+        }
+
+        func overlayX(pageX: CGFloat, page: PDFPage, crop: CGRect) -> CGFloat {
+            let line = CGRect(x: pageX, y: crop.minY, width: 0.5, height: crop.height)
+            let inView = pdfView.convert(line, from: page)
+            let inOverlay = self.convert(inView, from: pdfView)
+            return inOverlay.midX
+        }
+
+        // Keep your existing left/right behavior
+        let guideCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
+        let currentCrop = widthGuidePage.pdfPage.bounds(for: .cropBox)
+
+        guard guideCrop.width > 0, currentCrop.width > 0 else {
+            guideXLeft = nil
+            guideXRight = nil
+            guideXWidthFromLeft = nil
+            guideXWidthFromRight = nil
+
+            return
+        }
+
+        let leftNorm = (guideLeftX - guideCrop.minX) / guideCrop.width
+        let rightNorm = (guideRightX - guideCrop.minX) / guideCrop.width
+        let currentLeftX = currentCrop.minX + leftNorm * currentCrop.width
+        let currentRightX = currentCrop.minX + rightNorm * currentCrop.width
+
+        guideXLeft = sanitize(overlayX(pageX: currentLeftX, page: widthGuidePage.pdfPage, crop: currentCrop))
+        guideXRight = sanitize(overlayX(pageX: currentRightX, page: widthGuidePage.pdfPage, crop: currentCrop))
+
+        // ---- 3rd line: guide page width + pageItem current trims ----
+        // Reset width candidates each pass
+        guideXWidthFromLeft = nil
+        guideXWidthFromRight = nil
+
+        // --- width from guide page (in overlay coords) ---
+        let gMin = min(guideLeftX, guideRightX)
+        let gMax = max(guideLeftX, guideRightX)
+
+        let gMinRect = CGRect(x: gMin, y: guideCrop.minY, width: 0.5, height: guideCrop.height)
+        let gMaxRect = CGRect(x: gMax, y: guideCrop.minY, width: 0.5, height: guideCrop.height)
+
+        let gMinOverlayX = self.convert(pdfView.convert(gMinRect, from: widthGuidePage.pdfPage), from: pdfView).midX
+        let gMaxOverlayX = self.convert(pdfView.convert(gMaxRect, from: widthGuidePage.pdfPage), from: pdfView).midX
+
+        // signed width is safer if rotation flips x direction
+        let guideWidthSigned = gMaxOverlayX - gMinOverlayX
+        guard guideWidthSigned.isFinite, guideWidthSigned != 0 else { return }
+
+        // --- current pageItem trimmed edges (in overlay coords) ---
+        let itemCrop = pageItem.pdfPage.bounds(for: .cropBox)
+        guard itemCrop.width > 0 else { return }
+
+        let itemLeftPageX = itemCrop.minX + pageItem.trims.left
+        let itemRightPageX = itemCrop.maxX - pageItem.trims.right
+
+        let itemLeftRect = CGRect(x: itemLeftPageX, y: itemCrop.minY, width: 0.5, height: itemCrop.height)
+        let itemRightRect = CGRect(x: itemRightPageX, y: itemCrop.minY, width: 0.5, height: itemCrop.height)
+
+        let itemLeftOverlayX = self.convert(pdfView.convert(itemLeftRect, from: pageItem.pdfPage), from: pdfView).midX
+        let itemRightOverlayX = self.convert(pdfView.convert(itemRightRect, from: pageItem.pdfPage), from: pdfView).midX
+
+        // candidate A: move right edge only
+        let cA = itemLeftOverlayX + guideWidthSigned
+        // candidate B: move left edge only
+        let cB = itemRightOverlayX - guideWidthSigned
+
+        func clampGuide(_ x: CGFloat) -> CGFloat? {
+            if !x.isFinite { return nil }
+            if x < self.bounds.minX - 2000 || x > self.bounds.maxX + 2000 { return nil }
+            return max(self.bounds.minX, min(self.bounds.maxX, x))
+        }
+
+        guideXWidthFromLeft = clampGuide(cA)
+        guideXWidthFromRight = clampGuide(cB)
     }
+    
     
     private func rectAdjusted(byClick point: CGPoint, from rect: CGRect) -> CGRect {
         let pageRect = clampRect ?? bounds
@@ -382,8 +454,7 @@ final class PDFPageOverlayView: NSView {
     
     
     override func mouseDown(with event: NSEvent) {
-        guard let document else {return}
-
+ 
 /*
         if document.prax.selectedPageItem != pageItem {
             print("Changing selectedPageItem to :", pageItem.name)

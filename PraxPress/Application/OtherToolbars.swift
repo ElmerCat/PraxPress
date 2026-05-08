@@ -350,26 +350,11 @@ struct EditingDocumentToolbar: View {
                                                 Button {undoManager.redo() }
                                                 label: { if undoManager.redoCount > 0 {
                                                     Image(systemName: "arrow.uturn.forward.circle.fill") } else {
-                                                        Image(systemName: "circle") }
+                                                        Image(systemName: "arrow.uturn.forward.circle") }
                                                     Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
                                                 .disabled(undoManager.redoCount < 1)
                                                 .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
                                                 .onHover { hovering in hoveredButton = hovering ? 276 : nil }
-                                               
-                                                
-                                                
-                                                Spacer()
-                                                
-                                                Text("\(pageItem.name)  Skip This Page").font(.system(size: 8))
-                                                Button { document.clickedSkipPageButton(pageItem) }
-                                                label: { if pageItem.skipped {
-                                                    Image(systemName: "text.page.slash") } else {
-                                                        Image(systemName: "text.page") }
-                                                    
-                                                }
-                                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 236))
-                                                .onHover { hovering in hoveredButton = hovering ? 236 : nil }
-                                                .help("Skip This Page")
                                                 
                                                 Spacer()
                                                 

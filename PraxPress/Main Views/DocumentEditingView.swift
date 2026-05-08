@@ -11,6 +11,8 @@ import AppKit
 import UniformTypeIdentifiers
 
 
+
+
 struct DocumentEditingView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
@@ -21,20 +23,21 @@ struct DocumentEditingView: NSViewRepresentable {
         return DocumentEditingViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
     }
 
-    func makeNSView(context: Context) -> NSSplitView {
+//    func makeNSView(context: Context) -> NSSplitView {
+    func makeNSView(context: Context) -> NSScrollView {
         
-        let splitView = NSSplitView()
-        splitView.isVertical = true
-        splitView.dividerStyle = .paneSplitter
-        splitView.autosaveName = NSSplitView.AutosaveName("DocumentEditingSplitView")
-        splitView.delegate = context.coordinator.splitViewDelegate
-        context.coordinator.splitViewDelegate.splitView = splitView
+ //       let splitView = NSSplitView()
+//        splitView.isVertical = true
+//        splitView.dividerStyle = .paneSplitter
+//        splitView.autosaveName = NSSplitView.AutosaveName("DocumentEditingSplitView")
+//        splitView.delegate = context.coordinator.splitViewDelegate
+//        context.coordinator.splitViewDelegate.splitView = splitView
         let scrollView = NSScrollView()
     //    pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
 
-   //     prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
         prax.pageItemCollectionView.backgroundColors = [.clear]
         prax.pageItemCollectionView.isSelectable = true
         prax.pageItemCollectionView.allowsEmptySelection = true
@@ -42,13 +45,13 @@ struct DocumentEditingView: NSViewRepresentable {
         prax.pageItemCollectionView.delegate = context.coordinator
         scrollView.documentView = prax.pageItemCollectionView
         
-        let mergedDoumentView = MergedPDFDocumentNSView(prax: prax)
-        let editingDoumentView = EditingPDFDocumentNSView(prax: prax)
-        
-        splitView.arrangesAllSubviews = true
-        splitView.addArrangedSubview(scrollView)
-        splitView.addArrangedSubview(editingDoumentView)
-        splitView.addArrangedSubview(mergedDoumentView)
+ //       let mergedDoumentView = MergedPDFDocumentNSView(prax: prax)
+//        let editingDoumentView = EditingPDFDocumentNSView(prax: prax)
+ //
+ //       splitView.arrangesAllSubviews = true
+ //       splitView.addArrangedSubview(scrollView)
+ //       splitView.addArrangedSubview(editingDoumentView)
+ //       splitView.addArrangedSubview(mergedDoumentView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
@@ -78,12 +81,12 @@ struct DocumentEditingView: NSViewRepresentable {
         }
 */
         
-        return splitView
+        return scrollView
     }
 
-    func updateNSView(_ splitView: NSSplitView, context: Context) {
-        splitView.setPosition(200, ofDividerAt: 0)
-        splitView.setPosition(600, ofDividerAt: 1)
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+   //     splitView.setPosition(200, ofDividerAt: 0)
+    //    splitView.setPosition(600, ofDividerAt: 1)
         print("DocumentEditingView - updateNSView - ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
     }

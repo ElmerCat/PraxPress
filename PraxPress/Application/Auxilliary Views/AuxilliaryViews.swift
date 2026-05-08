@@ -428,6 +428,29 @@ struct ReusableSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: 
     }
 }
 
+struct AnyOldView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        Group {
+            HStack {
+                Text("Any Old View")
+                    .font(.headline)
+                    .padding(.vertical, 10)
+                    .foregroundStyle(.white)
+                    .contentShape(.rect)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                    .foregroundStyle(Color.prax)
+            }
+        }
+    }
+}
+
 struct OptionKeyPressedToolbarItem: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
@@ -452,6 +475,7 @@ struct OptionKeyPressedToolbarItem: View {
         }
     }
 }
+
 
 
 
