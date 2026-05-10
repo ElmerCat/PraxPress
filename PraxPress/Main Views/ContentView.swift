@@ -85,7 +85,7 @@ struct ContentDetailView: View {
         VStack(spacing: 0) {
             DocumentEditingToolbar()
             
-            if document.pageSections.count > 0 {
+            if document.mergedPages.count > 0 {
                 if prax.praxPressMode == .prax {
                     Text("Julie d'Prax")
                         .inspector(isPresented: $prax.showingPDFPageItemInspector) {

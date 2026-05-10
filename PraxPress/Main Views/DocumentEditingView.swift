@@ -177,7 +177,7 @@ struct DocumentEditingView: NSViewRepresentable {
 
             dataSource.supplementaryViewProvider = { [weak self] cv, kindString, indexPath in
                 guard let self = self else { return nil }
-                let sections = self.document.pageSections
+                let sections = self.document.mergedPages
                 guard indexPath.section >= 0, indexPath.section < sections.count else { return nil }
 
                 
@@ -361,7 +361,7 @@ struct DocumentEditingView: NSViewRepresentable {
         func applySnapshot(animated: Bool) {
             var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
  //           var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            for mergedPage in document.pageSections {
+            for mergedPage in document.mergedPages {
                 
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)

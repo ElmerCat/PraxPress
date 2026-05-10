@@ -10,6 +10,62 @@ import TipKit
 import UniformTypeIdentifiers
 import PDFKit
 
+struct PageItemTrimsView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    var body: some View {
+        @Bindable var prax = praxModel
+        if let pageItem = prax.selectedPageItem {
+            Group {
+                HStack {
+                    Text("\(pageItem.trims.left) —")
+                    VStack{
+                        Text("\(pageItem.trims.top)")
+                        Text("X")
+                        Text("\(pageItem.trims.bottom)")
+                    }
+                    Text("- \(pageItem.trims.right)")
+                }
+                .font(.headline)
+                .padding(.vertical, 10)
+                .foregroundStyle(.white)
+                .contentShape(.rect)
+
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background {
+                    RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                        .foregroundStyle(Color.prax)
+                }
+            }
+
+        }
+        else { EmptyView() }
+    }
+}
+
+struct AnyOldView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        Group {
+            HStack {
+                Text("Any Old View")
+                    .font(.headline)
+                    .padding(.vertical, 10)
+                    .foregroundStyle(.white)
+                    .contentShape(.rect)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                    .foregroundStyle(Color.prax)
+            }
+        }
+    }
+}
+
 struct Example: View {
     @State var dict: [String: String] = ["A": "Alpha", "B": "Beta"]
 
@@ -428,28 +484,7 @@ struct ReusableSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: 
     }
 }
 
-struct AnyOldView: View {
-    @Environment(MergedPDFDocument.self) var document
-    @Environment(PraxModel.self) private var praxModel
-    var body: some View {
-        @Bindable var prax = praxModel
-        
-        Group {
-            HStack {
-                Text("Any Old View")
-                    .font(.headline)
-                    .padding(.vertical, 10)
-                    .foregroundStyle(.white)
-                    .contentShape(.rect)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background {
-                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                    .foregroundStyle(Color.prax)
-            }
-        }
-    }
-}
+
 
 struct OptionKeyPressedToolbarItem: View {
     @Environment(MergedPDFDocument.self) var document

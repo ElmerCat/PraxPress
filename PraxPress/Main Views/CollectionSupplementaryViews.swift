@@ -85,8 +85,8 @@ struct EditPageSectionBackgroundView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if document.pageSections.count > indexPath.section {
-            let mergedPage = document.pageSections[indexPath.section]
+        if document.mergedPages.count > indexPath.section {
+            let mergedPage = document.mergedPages[indexPath.section]
  //           let imageSize = CGSize(width: 1200, height: 1600)
  //           let sectionHeaderHeight = CGFloat(40)
             

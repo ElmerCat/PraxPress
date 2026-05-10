@@ -16,13 +16,13 @@ extension MergedPDFDocument {
     
     func mergedPagefrom(_ url: URL, at indexPath: IndexPath? = nil, title: String? = nil) -> MergedPage  {
         if indexPath == nil || indexPath?.section ?? -1 < 0 {
-            let mergedPage = MergedPage(document: self, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
-            pageSections.append(mergedPage)
+            let mergedPage = MergedPage(prax: prax, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
+            mergedPages.append(mergedPage)
             return mergedPage
         }
         else {
-            let index = max(indexPath!.section, pageSections.count - 1)
-            return pageSections[index]
+            let index = max(indexPath!.section, mergedPages.count - 1)
+            return mergedPages[index]
         }
     }
     
@@ -46,6 +46,7 @@ extension MergedPDFDocument {
             for index in 0..<pdfDocument.pageCount {
                 let displayName = nameForPage(url: url, index: index)
                 let item = PageItem(
+                        prax: prax,
                         mergedPage: mergedPage,
                         name: displayName,
                         sourceBookmark: Data(),
@@ -91,7 +92,7 @@ extension MergedPDFDocument {
         print (image.size)
 
         guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-        let pageItem = PageItem(mergedPage: mergedPage,
+        let pageItem = PageItem(prax: prax, mergedPage: mergedPage,
                                 name: url.deletingPathExtension().lastPathComponent,
                                 sourceURL: url, pdfPage: pdfPage, dataFields: [:])
             
@@ -110,7 +111,7 @@ extension MergedPDFDocument {
  //       guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
-        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
+        let sectionIndex = normalizedInsertionIndex(count: mergedPages.count, location: location)
         
         // Determine target section
         let mergedPage: MergedPage = {
@@ -121,7 +122,7 @@ extension MergedPDFDocument {
 
                 let newMergedPage = MergedPage(document: self, title: (title ?? (pdfFile.url.deletingPathExtension().lastPathComponent)))
   
-                pageSections.insert(newMergedPage, at: sectionIndex)
+                mergedPages.insert(newMergedPage, at: sectionIndex)
                 return newMergedPage
             }
         }()
@@ -228,26 +229,26 @@ extension MergedPDFDocument {
     }
     
     private func ensureSectionInOrder(_ section: MergedPage, at index: Int) {
-        if let currentIndex = pageSections.firstIndex(where: { $0 === section }) {
+        if let currentIndex = mergedPages.firstIndex(where: { $0 === section }) {
             if currentIndex != index {
-                pageSections.remove(at: currentIndex)
-                if index > pageSections.count {
-                    pageSections.append(section)
+                mergedPages.remove(at: currentIndex)
+                if index > mergedPages.count {
+                    mergedPages.append(section)
                 } else {
-                    pageSections.insert(section, at: index)
+                    mergedPages.insert(section, at: index)
                 }
             }
         } else {
-            if index > pageSections.count {
-                pageSections.append(section)
+            if index > mergedPages.count {
+                mergedPages.append(section)
             } else {
-                pageSections.insert(section, at: index)
+                mergedPages.insert(section, at: index)
             }
         }
     }
     
     func indexOfSection(_ section: MergedPage) -> Int? {
-        pageSections.firstIndex { $0 === section }
+        mergedPages.firstIndex { $0 === section }
     }
     
     func indexOfPageItem(_ item: PageItem, in section: MergedPage) -> Int? {
@@ -273,7 +274,7 @@ extension MergedPDFDocument {
              name: "Image - \(sourceFileName)",
              pdfPage: docPage
          )
-         pageSections.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
+         mergedPages.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
      }
      
  }

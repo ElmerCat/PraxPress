@@ -25,11 +25,11 @@ import OSLog
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-    var pageSections: [MergedPage] = [] {
+    var mergedPages: [MergedPage] = [] {
         didSet {
-            print("MergedPDFDocument - pageSections: didSet ")
+            print("MergedPDFDocument - mergedPages: didSet ")
             
-            if pageSections.isEmpty {
+            if mergedPages.isEmpty {
   //              prax.selectedEditPages = []
                 prax.selectedPageItems = []
        //         prax.selectedPageItem = nil
@@ -38,7 +38,7 @@ import OSLog
   //          refreshMergedDocument()
             
           /*  else if prax.selectedPageItem == nil {
-                if let mergedPage = pageSections.first {
+                if let mergedPage = mergedPages.first {
                     if mergedPage.mergeModePages > 0 {
                         prax.currentEditingMergedPage = mergedPage } }
             }
@@ -62,7 +62,7 @@ import OSLog
             var insertIndex = 0
             let pdfDocument = PDFDocument()
             
-            pageSections.forEach {
+            mergedPages.forEach {
                 section in
                 if let pdfPage = section.pdfPage {
                     

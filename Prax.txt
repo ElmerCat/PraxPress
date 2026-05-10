@@ -772,7 +772,7 @@ Can you propose changes to addPagesFromURLBookmark to incorporate the location p
 ************************************************************************************************************************
 
 
-The  pageSections: [PDFPageSectionModel] need to be kept in a specific order, and the pageItems[PDFPageItemModel] within each section also need to be kept in a specific order within their section. It is useful for each section to know their own place in the order, and likewise for each page to know their place in their section.
+The  mergedPages: [PDFPageSectionModel] need to be kept in a specific order, and the pageItems[PDFPageItemModel] within each section also need to be kept in a specific order within their section. It is useful for each section to know their own place in the order, and likewise for each page to know their place in their section.
 
 Can you changes to   @``file:PraxPress/Models/PagesModel.swift``   to achieve this, and also to  @``file:PraxPress/Main Views/PraxEditingView.swift``  so the items can be dragged to rearrange them?
 
@@ -900,12 +900,12 @@ Instead, only apply snapshots when the underlying data actually changes, or thro
 Pseudocode for guarding:
 
 func applySnapshotToBoth(animated: Bool) {
-    let newSignature = document.pageSectionsSignature() // e.g., combine ids/indexes
+    let newSignature = document.mergedPagesSignature() // e.g., combine ids/indexes
     guard newSignature != lastSignature else { return }
     lastSignature = newSignature
 
     var snapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-    document.pageSections.forEach {
+    document.mergedPages.forEach {
         snapshot.appendSections([$0])
         snapshot.appendItems($0.pageItems)
     }

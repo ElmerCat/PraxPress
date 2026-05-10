@@ -537,7 +537,7 @@ struct PageEditView: View {
             
             context.coordinator.pdfView = PDFView()
             context.coordinator.overlayView = PDFPageOverlayView(pageItem: pageItem)
-            context.coordinator.overlayView!.document = document
+         //   context.coordinator.overlayView!.document = document
             context.coordinator.overlayView!.pdfView = context.coordinator.pdfView
             
  /*           context.coordinator.overlayView!.onFinish = { [self] rectInOverlay in
@@ -568,7 +568,7 @@ struct PageEditView: View {
                 // var pageItem = prax.pageItem(for: page)!
                 let indexPath = self.document.pdfPageIndexPath(for: page)
                 guard let indexPath = indexPath else { return }
-                self.document.pageSections[indexPath.section].pageItems[indexPath.item].trims = trims
+                self.document.mergedPages[indexPath.section].pageItems[indexPath.item].trims = trims
 */
             }
    */

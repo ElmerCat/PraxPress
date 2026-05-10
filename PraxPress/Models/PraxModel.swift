@@ -133,7 +133,20 @@ final class PraxModel {
 
     
     private var _selectedPageItem: PageItem?
-    var selectedPageItem: PageItem? { _selectedPageItem }
+    var selectedPageItem: PageItem? {
+        get { _selectedPageItem }
+        set {
+            if newValue != _selectedPageItem, let newValue {
+                _selectedPageItem = newValue
+                if let indexPath = document.indexPath(for: newValue) {
+                    pageItemCollectionView.selectionIndexPaths = [indexPath]
+                    
+                }
+                
+                
+            }
+        }
+    }
     
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
@@ -230,6 +243,7 @@ extension NSImage {
 extension Notification.Name {
     static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
     static let praxSelectedPageItemsChanged = Notification.Name("PraxSelectedPageItemsChanged")
+    static let praxPageItemTrimsChanged = Notification.Name("PraxPageItemTrimsChanged")
     //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 

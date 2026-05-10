@@ -195,7 +195,7 @@ struct DeletePopover: View {
 
                         
                         Button {
-                            document.pageSections.removeAll()
+                            document.mergedPages.removeAll()
                             dismiss()
                             }
                         label: {
@@ -400,8 +400,8 @@ struct SectionHeaderPopover: View {
                             }
                         }
 
-                    if document.pageSections.count > 1 {
-                        Text("\(document.pageSections.count) Merged Pages from \(document.totalPageItems) Page Items")
+                    if document.mergedPages.count > 1 {
+                        Text("\(document.mergedPages.count) Merged Pages from \(document.totalPageItems) Page Items")
                     }
                     else {
                         Text("Merged Page")
@@ -489,7 +489,7 @@ struct SectionHeaderPopover: View {
                         Text("Delete This Merged Page")
                     }
                     Button {
-                        document.pageSections.removeAll(where: { mergedPage in
+                        document.mergedPages.removeAll(where: { mergedPage in
                             mergedPage == self.mergedPage
                         })
                       
@@ -514,16 +514,16 @@ struct SectionHeaderPopover: View {
                         .stroke(.blue, lineWidth: 3) )
             
             
-            if document.pageSections.count > 1 {
+            if document.mergedPages.count > 1 {
                 Divider()
                 
                 GroupBox {
                 
-                    if document.pageSections.count == 2 {
+                    if document.mergedPages.count == 2 {
                         Text("Other Merged Page")
                     }
                     else {
-                        Text("\(document.pageSections.count - 1 ) other Merged Pages")
+                        Text("\(document.mergedPages.count - 1 ) other Merged Pages")
                     }
                     
                     Grid(alignment: .trailing) {
@@ -578,14 +578,14 @@ struct SectionHeaderPopover: View {
                         .opacity(mergedPage.pageItems.count <= mergedPage.skippedPages ? 0.25 : 1)
                         
                     GridRow {
-                        if document.pageSections.count == 2 {
+                        if document.mergedPages.count == 2 {
                             Text("Delete Both Merged Pages")
                         }
                         else {
                             Text("Delete All \(document.totalPageItems) Merged Pages")
                         }
                         Button {
-                            document.pageSections.removeAll()
+                            document.mergedPages.removeAll()
                             document.refreshMergedDocument()
                             dismiss() }
                         label: { Image(systemName: "trash")   }

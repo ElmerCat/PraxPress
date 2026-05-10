@@ -54,11 +54,11 @@ struct DocumentEditingToolbar: View {
                     Button {
                         showDelete = !showDelete
                     }label: {
-                        Image(systemName: document.pageSections.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
+                        Image(systemName: document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
                     }
-                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: document.pageSections.isEmpty))
+                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: document.mergedPages.isEmpty))
                     .onHover { hovering in hoveredButton = hovering ? 40 : nil }
-                    .disabled(document.pageSections.isEmpty)
+                    .disabled(document.mergedPages.isEmpty)
                     .popover(isPresented: $showDelete, arrowEdge: .leading) {
                         DeletePopover() }
   
@@ -260,158 +260,157 @@ struct EditingDocumentToolbar: View {
 //    @State private var guideXLeft = 0.0
 //    @State private var guideXRight = 0.0
     
-    var body: some View {
+    var body: some View { GeometryReader { proxy in
         @Bindable var prax = praxModel
-        let undoManager = prax.undoManager
-        let _ = Self._printChanges()
         
-        
-
+        if let pageItem = prax.selectedPageItem {
             
-        let pageCount = prax.selectedPageItem != nil ? prax.selectedPageItem!.mergedPage.mergeModePages : 0
-     //       let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)
+            let undoManager = prax.undoManager
+            let _ = Self._printChanges()
             
-                GeometryReader { proxy in
-                    
-                    
-                    GroupBox {
-                        if let pageItem = prax.selectedPageItem {
-                            let thePoint = computeGuidelines()
-                            VStack {
+            
+ //           let pageCount = prax.selectedPageItem != nil ? prax.selectedPageItem!.mergedPage.mergeModePages : 0
+            //       let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)
+            
+            
+            
+            
+            GroupBox {
+                
+                    let thePoint = computeGuidelines()
+                    VStack {
+                        HStack {
+                            
+                            
+                            GroupBox {
                                 HStack {
                                     
-                                   
-                                        GroupBox {
-                                            HStack {
-                                                if pageCount > 1 {
-                                                    GroupBox() {
-                                                        VStack {
-                                                            Text("\(pageCount) Pages").font(.system(size: 8))
-        /*
-                                                            HStack {
-                                                                Text(String(curentPageIndex + 1)).monospaced()
-                                                                VStack(spacing: 0) {
-                                                                    Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
-                                                                    label: { Image(systemName: "arrowtriangle.up")  }
-                                                                    .disabled(curentPageIndex < 1)
-                                                                       
-        //                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                                                    .buttonStyle(StackedButtonStyle(theme: praxTheme,
-                                                                                                    isDisabled: curentPageIndex < 1,
-                                                                                                    isHovering: hoveredButton == 11, isFocused: false))
-                                                                    .onHover { hovering in hoveredButton = hovering ? 11 : nil }
-                                                                  
-                                                                    Button { prax.editingDocumentPDFView.goToNextPage(self) }
-                                                                    label: {  Image(systemName: "arrowtriangle.down")}
-                                                                        .disabled(pageCount - 1 < curentPageIndex )
-                                                                    .buttonStyle(StackedButtonStyle(theme: praxTheme,
-                                                                                                    isDisabled: pageCount - 1 < curentPageIndex,
-                                                                                                    isHovering: hoveredButton == 12, isFocused: false))
-                                                                    .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
-                                                                }
-                                                            }
-                                                      */
-                                                            
-                                                        }
-                                                        
-                                                       
-                                                        
-                                                    }
-                                                    .background(Color.clear, in: .containerRelative)
-                                                    .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
-                                                    
-                                                    .padding(2)
-                                                    
-                                                }
-
+                                        GroupBox() {
+                                            VStack {
+                                                Text("\(pageItem.mergedPage.mergeModePages) Pages").font(.system(size: 8))
+                                                /*
+                                                 HStack {
+                                                 Text(String(curentPageIndex + 1)).monospaced()
+                                                 VStack(spacing: 0) {
+                                                 Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+                                                 label: { Image(systemName: "arrowtriangle.up")  }
+                                                 .disabled(curentPageIndex < 1)
+                                                 
+                                                 //                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                                                 .buttonStyle(StackedButtonStyle(theme: praxTheme,
+                                                 isDisabled: curentPageIndex < 1,
+                                                 isHovering: hoveredButton == 11, isFocused: false))
+                                                 .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                                                 
+                                                 Button { prax.editingDocumentPDFView.goToNextPage(self) }
+                                                 label: {  Image(systemName: "arrowtriangle.down")}
+                                                 .disabled(pageCount - 1 < curentPageIndex )
+                                                 .buttonStyle(StackedButtonStyle(theme: praxTheme,
+                                                 isDisabled: pageCount - 1 < curentPageIndex,
+                                                 isHovering: hoveredButton == 12, isFocused: false))
+                                                 .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+                                                 }
+                                                 }
+                                                 */
                                                 
-                                                
-                                                Divider().foregroundStyle(.white).background(.white)
-                                                
-                                        //        Text("\(pageItem.name)  Undo").font(.system(size: 8))
-                                          
-                                                Button {undoManager.undo() }
-                                                label: {
-                                                    GroupBox {
-                                                        HStack() {
-                                                            Text(String("- \(undoManager.undoCount) -")) // .font(.system(size: 8))
-                                                            Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )
-                                                        }
-                                                        
-                                                    }
-                                                }
-                                                .disabled(undoManager.undoCount < 1)
-                                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
-                                                .onHover { hovering in hoveredButton = hovering ? 274 : nil }
-
-                                       //         Text(String("\(undoManager.undoCount)"))
-                                                
-                                 //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
-                                                Button {undoManager.redo() }
-                                                label: { if undoManager.redoCount > 0 {
-                                                    Image(systemName: "arrow.uturn.forward.circle.fill") } else {
-                                                        Image(systemName: "arrow.uturn.forward.circle") }
-                                                    Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
-                                                .disabled(undoManager.redoCount < 1)
-                                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
-                                                .onHover { hovering in hoveredButton = hovering ? 276 : nil }
-                                                
-                                                Spacer()
-                                                
-                                                Text("Set Width Guide").font(.system(size: 8))
-                                                Button { document.clickedGuidePageButton(pageItem) }
-                                                label: { if pageItem.skipped {
-                                                        Image(systemName: "ruler.fill")  }  else {
-                                                        Image(systemName: "ruler") }
-                                                }
-                                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 235))
-                                                .onHover { hovering in hoveredButton = hovering ? 235 : nil }
-                                                .help("Set Width Guide")
-                                                
-                                                Spacer()
-                                                Text("\(prax.selectedPageItem?.mergedPage.title ?? "No Page Item")")
-
                                             }
+                                            
+                                            
+                                            
                                         }
+                                        .background(Color.clear, in: .containerRelative)
+                                        .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
+                                        
+                                        .padding(2)
+                                        
                                     
                                     
                                     
+                                    
+                                    Divider().foregroundStyle(.white).background(.white)
+                                    
+                                    //        Text("\(pageItem.name)  Undo").font(.system(size: 8))
+                                    
+                                    Button {undoManager.undo() }
+                                    label: {
+                                        GroupBox {
+                                            HStack() {
+                                                Text(String("- \(undoManager.undoCount) -")) // .font(.system(size: 8))
+                                                Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )
+                                            }
+                                            
+                                        }
+                                    }
+                                    .disabled(undoManager.undoCount < 1)
+                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
+                                    .onHover { hovering in hoveredButton = hovering ? 274 : nil }
+                                    
+                                    //         Text(String("\(undoManager.undoCount)"))
+                                    
+                                    //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
+                                    Button {undoManager.redo() }
+                                    label: { if undoManager.redoCount > 0 {
+                                        Image(systemName: "arrow.uturn.forward.circle.fill") } else {
+                                            Image(systemName: "arrow.uturn.forward.circle") }
+                                        Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
+                                    .disabled(undoManager.redoCount < 1)
+                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
+                                    .onHover { hovering in hoveredButton = hovering ? 276 : nil }
+                                    
+                                    Spacer()
+                                    
+                                    Divider().foregroundStyle(.white).background(.white)
+                                    
+                                    PageItemTrimsView()
+                                    
+                                    Text("Set Width Guide").font(.system(size: 8))
+                                    Button { document.clickedGuidePageButton(pageItem) }
+                                    label: { if pageItem.skipped {
+                                        Image(systemName: "ruler.fill")  }  else {
+                                            Image(systemName: "ruler") }
+                                    }
+                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 235))
+                                    .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                                    .help("Set Width Guide")
+                                    
+                                    Spacer()
+                                    Text("\(pageItem.name)")
                                     
                                 }
-                            //    Text("\(thePoint.x) x \(thePoint.y)")
-
-                                HStack(spacing: 0) {
-                                    Rectangle()
-                                        .foregroundStyle(.green)
-                                        .frame(width: thePoint.x, height: 10)
-                                    Rectangle()
-                                        .foregroundStyle(PraxGradient())
-                                        .frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
-                                    Rectangle()
-                                        .foregroundStyle(.yellow)
-                                        .frame(width: thePoint.y, height: 10)
-                                }
-
-                            }.padding(0)
-
+                            }
+                            
+                            
+                            
+                            
+                        }
+                        Text("\(thePoint.x) x \(thePoint.y)")
+                        
+                        HStack(spacing: 0) {
+                            Rectangle()
+                                .foregroundStyle(.green)
+                                .frame(width: thePoint.x, height: 10)
+                            Rectangle()
+                                .foregroundStyle(PraxGradient())
+                                .frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
+                            Rectangle()
+                                .foregroundStyle(.yellow)
+                                .frame(width: thePoint.y, height: 10)
                         }
                         
-                       
-                    }
-                    .frame(maxWidth: .infinity)
-                      
-                    .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
-                  //  .background(.yellow)
-
-                }
+                    }.padding(0)
+                    
+                
+                
+                
+            }
+            .frame(maxWidth: .infinity)
             
-        
-        
-        
-  
-        
-      
-    }
+            .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
+            //  .background(.yellow)
+            
+        }
+        else { EmptyView() }
+    } }
     
     
     private func computeGuidelines() -> CGPoint {
