@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		46E6EE662FB0FBCD00869A0F /* AI Handoff.md in Resources */ = {isa = PBXBuildFile; fileRef = 46E6EE652FB0FBCD00869A0F /* AI Handoff.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		46E6EE652FB0FBCD00869A0F /* AI Handoff.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = "AI Handoff.md"; sourceTree = "<group>"; };
 		DA35D3222F228EA500A76867 /* Prax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prax.swift; sourceTree = "<group>"; };
 		DA3968332F030930000A7354 /* Prax.txt */ = {isa = PBXFileReference; explicitFileType = text; path = Prax.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
 		DACA214D2EF8DB9400E38A38 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +57,7 @@
 		DACA21442EF8DB9400E38A38 = {
 			isa = PBXGroup;
 			children = (
+				46E6EE652FB0FBCD00869A0F /* AI Handoff.md */,
 				DA35D3222F228EA500A76867 /* Prax.swift */,
 				DA3968332F030930000A7354 /* Prax.txt */,
 				46658F4C2F5366E70087BB87 /* Resources */,
@@ -133,6 +139,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46E6EE662FB0FBCD00869A0F /* AI Handoff.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,6 +5,39 @@
 //  Created by Elmer Cat on 12/29/25.
 //
 
+
+Great — here’s a clean checkpoint you can paste into AI-Handoff.md:
+  ...
+  
+If you want, I can also generate a short “next-session prompt” you can paste to instantly resume work in a new thread.
+Use this next time:
+
+Resume PraxPress macOS/Xcode work from prior session.
+
+Context:
+- We updated PDFPageOverlayView, PageItem, and MergedPage.
+- Overlay now dims outside currentRect.
+- Width guide candidates are drawn (from-left / from-right) and drag-snapping includes them.
+- Rule-based click snapping implemented with tie rules (left over right, top over bottom).
+- Rule #6: when all 4 trims are non-zero, click should not guide-snap; drag-snapping still active.
+- Non-selected overlays do not draw guides/handles and use stronger outside mask.
+- Undo/redo trims now updates overlay via NotificationCenter + cached overlay view per PageItem.
+- Document collection renamed pageSections -> mergedPages.
+- MergedPage/PageItem now initialized with PraxModel directly.
+
+
+Please:
+1) Ask me what exact behavior I want before writing new code.
+2) Keep patches minimal and targeted.
+3) If proposing architectural changes (unowned/weak/coalescing), explain tradeoffs first.
+4) I’ll paste current files/snippets as needed.
+
+
+And if you want a super-short version:
+Resume PraxPress overlay/snapping work. Ask behavior questions first; then give minimal targeted patches only.
+
+
+
 Hello - This is a Swift 6 / macOS 26 only app.
 
 Please search for the Prax code to see all 10 .swift source files in the project:  "Prax=0104-1"
