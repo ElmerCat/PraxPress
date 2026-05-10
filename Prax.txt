@@ -772,7 +772,7 @@ Can you propose changes to addPagesFromURLBookmark to incorporate the location p
 ************************************************************************************************************************
 
 
-The  pageSections: [PDFPageSectionModel] need to be kept in a specific order, and the pageItems[PDFPageItemModel] within each section also need to be kept in a specific order within their section. It is useful for each section to know their own place in the order, and likewise for each page to know their place in their section.
+The  mergedPages: [PDFPageSectionModel] need to be kept in a specific order, and the pageItems[PDFPageItemModel] within each section also need to be kept in a specific order within their section. It is useful for each section to know their own place in the order, and likewise for each page to know their place in their section.
 
 Can you changes to   @``file:PraxPress/Models/PagesModel.swift``   to achieve this, and also to  @``file:PraxPress/Main Views/PraxEditingView.swift``  so the items can be dragged to rearrange them?
 
@@ -900,12 +900,12 @@ Instead, only apply snapshots when the underlying data actually changes, or thro
 Pseudocode for guarding:
 
 func applySnapshotToBoth(animated: Bool) {
-    let newSignature = document.pageSectionsSignature() // e.g., combine ids/indexes
+    let newSignature = document.mergedPagesSignature() // e.g., combine ids/indexes
     guard newSignature != lastSignature else { return }
     lastSignature = newSignature
 
     var snapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-    document.pageSections.forEach {
+    document.mergedPages.forEach {
         snapshot.appendSections([$0])
         snapshot.appendItems($0.pageItems)
     }
@@ -975,3 +975,63 @@ My SwiftData class PDFFile has an optional property dataFields which it can't en
 4/5/2026
 
 My collection view has items which contain PDFViews.  PDFViewRepresentable makes and updates the PDFView in coordination with the PageEditViewCoordinator. Everything works fine until the collection view items are recycled and reused. When the PDFView calls pdfView(_ pdfView: PDFView, overlayViewFor page: PDFPage), the PDFPage is not the same as was assigned in updateNSView(_ pdfView: PDFView, context: Context).  What could be causing this?
+
+
+
+ @State private var hoverLocation: CGPoint = .zero
+ @State private var isHovering = false
+ var body: some View {
+     VStack {
+         Color.red
+             .frame(width: 400, height: 400)
+             .onContinuousHover { phase in
+                 switch phase {
+                 case .active(let location):
+                     hoverLocation = location
+                     isHovering = true
+                 case .ended:
+                     isHovering = false
+                 }
+             }
+             .overlay {
+                 Rectangle()
+                     .frame(width: 50, height: 50)
+                     .foregroundColor(isHovering ? .green : .blue)
+                     .offset(x: hoverLocation.x, y: hoverLocation.y)
+             }
+     }
+ }
+
+
+************************************************************************************************************************
+************************************************************************************************************************
+
+5/5/2026
+
+PDFFile items can be dragged via a TransferRepresentation into my NSCollectionView where they are validated and accepted with no problem.
+
+PageItem items can be dragged within the collection view just fine, and they also can be dragged into my DropTargetControl where they are handled by the PraxDropDelegate.
+
+However, the DropTargetControl does not recognize PDFFiles dropped in. Its PraxDropDelgate doesn't even get called for dropEntered. What's missing from my PDFFileTransfer TransferRepresentation?
+
+
+[0]    __NSCFString    "com.praxpress.pdf-file-item"    0x00000007fb988e10
+
+[0]    __NSCFConstantString    "com.apple.NSFilePromiseItemMetaData"    0x00000001f72f9b90
+[1]    __NSCFConstantString    "com.apple.pasteboard.promised-file-name"    0x00000001f72f9bd0
+[2]    __NSCFConstantString    "com.apple.pasteboard.promised-suggested-file-name"    0x00000001f72f9bf0
+[3]    __NSCFConstantString    "com.apple.pasteboard.promised-file-content-type"    0x00000001f72d3350
+[4]    __NSCFString    "dyn.ah62d4rv4gu8yc6durvwwa3xmrvw1gkdusm1044pxqyuha2pxsvw0e55bsmwca7d3sbwu"    0x00000007fb929920
+[5]    __NSCFString    "Apple files promise pasteboard type"    0x00000007fb0cea40
+[6]    __NSCFConstantString    "com.apple.pasteboard.NSFilePromiseID"    0x00000001f72f9c10
+[7]    NSIndirectTaggedPointerString    "com.praxpress.pdf-page-item"    0xb07c634ffe9737e4
+[8]    NSIndirectTaggedPointerString    "com.praxpress.pdf-page-section"    0xb068634ffe9738e4
+[9]    __NSCFConstantString    "public.file-url"    0x00000001f72d2810
+[10]    __NSCFString    "CorePasteboardFlavorType 0x6675726C"    0x00000007fb0cea80
+[11]    __NSCFConstantString    "dyn.ah62d4rv4gu8y6y4grf0gn5xbrzw1gydcr7u1e3cytf2gn"    0x00000001f6f2ce28
+[12]    __NSCFConstantString    "NSFilenamesPboardType"    0x00000001f6e94568
+[13]    __NSCFString    "dyn.ah62d4rv4gu8yc6durvwwaznwmuuha2pxsvw0e55bsmwca7d3sbwu"    0x00000007f9814d70
+[14]    __NSCFString    "Apple URL pasteboard type"    0x00000007fcdbd530
+[15]    __NSCFString    "dyn.ah62d4rv4gu8y6y4usm1044pxqzb085xyqz1hk64uqm10c6xenv61a3k"    0x00000007f69006e0
+[16]    __NSCFString    "NSPromiseContentsPboardType"    0x00000007fcdbc780
+[17]    __NSCFConstantString    "com.apple.pasteboard.promised-file-url"    0x00000001f72afef0

@@ -10,6 +10,134 @@ import TipKit
 import UniformTypeIdentifiers
 import PDFKit
 
+struct PageItemTrimsView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    var body: some View {
+        @Bindable var prax = praxModel
+        if let pageItem = prax.selectedPageItem {
+            Group {
+                HStack {
+                    Text("\(pageItem.trims.left) —")
+                    VStack{
+                        Text("\(pageItem.trims.top)")
+                        Text("X")
+                        Text("\(pageItem.trims.bottom)")
+                    }
+                    Text("- \(pageItem.trims.right)")
+                }
+                .font(.headline)
+                .padding(.vertical, 10)
+                .foregroundStyle(.white)
+                .contentShape(.rect)
+
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background {
+                    RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                        .foregroundStyle(Color.prax)
+                }
+            }
+
+        }
+        else { EmptyView() }
+    }
+}
+
+struct AnyOldView: View {
+    @Environment(MergedPDFDocument.self) var document
+    @Environment(PraxModel.self) private var praxModel
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        Group {
+            HStack {
+                Text("Any Old View")
+                    .font(.headline)
+                    .padding(.vertical, 10)
+                    .foregroundStyle(.white)
+                    .contentShape(.rect)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                    .foregroundStyle(Color.prax)
+            }
+        }
+    }
+}
+
+struct Example: View {
+    @State var dict: [String: String] = ["A": "Alpha", "B": "Beta"]
+
+    var body: some View {
+        List {
+            ForEach(Array(dict.keys), id: \.self) { key in
+                HStack {
+                    Text(key)
+                    TextField("Value", text: Binding(
+                        get: { dict[key] ?? "" },
+                        set: { dict[key] = $0 }
+                    ))
+                }
+            }
+        }
+    }
+}
+
+struct FlagControlView: View {
+    // Available flag colors like Mail
+    let flagColors: [(name: String, color: Color)] = [
+        ("Red", .red),
+        ("Orange", .orange),
+        ("Yellow", .yellow),
+        ("Green", .green),
+        ("Blue", .blue),
+        ("Purple", .purple),
+        ("Gray", .gray)
+    ]
+    
+    @State private var selectedFlagColor: Color = .gray // Default
+    @State private var isFlagged: Bool = false
+    
+    var body: some View {
+        VStack {
+            Text(isFlagged ? "Item Flagged" : "No Flag")
+                .foregroundColor(isFlagged ? selectedFlagColor : .primary)
+                .font(.headline)
+            
+            // The Flag Control Button (Mac Mail Style)
+            Menu {
+                Button(action: { isFlagged = false }) {
+                    Label("No Flag", systemImage: "flag.slash")
+                }
+                
+                Divider()
+                
+                ForEach(flagColors, id: \.name) { item in
+                    Button(action: {
+                        selectedFlagColor = item.color
+                        isFlagged = true
+                    }) {
+                        Label(item.name, systemImage: "flag").background(selectedFlagColor)
+                    }
+                }
+            } label: {
+                Image(systemName: "flag.fill")
+                    .symbolEffect(.rotate.byLayer, options: .repeat(.continuous))
+                    .foregroundStyle(selectedFlagColor, .yellow, .green)
+                
+//                Label("Flag", systemImage: isFlagged ? "flag.fill" : "flag")
+//                    .foregroundColor(isFlagged ? selectedFlagColor : .secondary)
+            }
+            .foregroundStyle(selectedFlagColor)
+        }
+        .padding()
+    }
+}
+
+
+
+
 
 struct EditSettingsPanel: View {
     @Environment(\.dismiss) private var dismiss
@@ -62,8 +190,8 @@ struct EditSettingsPanel: View {
                 //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
                 
                 Text("Image Import Size")
-                    .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
-                    .background(Color("PraxColor"))
+                    .frame(minWidth: 100, maxWidth: 200, maxHeight: 50)
+                    .background(Color("AccentColor"))
             }
             .padding(20)
             
@@ -80,11 +208,12 @@ struct ImportOptionsInspector: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("import-width") var importWidth: Int = 0
     @AppStorage("import-height") var importHeight: Int = 0
+    @Environment(PraxModel.self) private var prax
     @FocusState var widthFocused: Bool
     var theTip = ImportOptionsTip()
     
     var body: some View {
-        
+        @Bindable var prax = prax
         VStack {
             GroupBox {
                 Button {
@@ -97,7 +226,7 @@ struct ImportOptionsInspector: View {
                 
                 Grid {
                     GridRow {
-                        Text("Import Width:")
+                        Text("Maximum Width:")
                         TextField("",
                                   value: $importWidth,
                                   format: .number
@@ -110,7 +239,7 @@ struct ImportOptionsInspector: View {
                     }
                     
                     GridRow {
-                        Text("Import Height:")
+                        Text("Maximum Height:")
                         TextField("",
                                   value: $importHeight,
                                   format: .number
@@ -125,7 +254,10 @@ struct ImportOptionsInspector: View {
                 
                 Text("\(importWidth)")
                 //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
-                
+
+                Toggle(isOn: $prax.inspectNextImageDrop, label: {
+                        Text("Test on Next Drop")
+                })
                 Text("Image Import Size")
                     .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
                     .background(Color("PraxColor"))
@@ -140,17 +272,15 @@ struct ImportOptionsInspector: View {
 
 
 
+
+
 struct ImportOptionsTip: Tip {
     var title: Text {
         Text("Image Import Options")
     }
-    
-    
     var message: Text? {
         Text("Imported images are resampled to reduce the size of the resulting PDF file. Use these options to control the quality of the output.")
     }
-    
-    
     var image: Image? {
         Image(systemName: "photo.badge.arrow.down")
     }
@@ -354,145 +484,7 @@ struct ReusableSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: 
     }
 }
 
-struct DragOutControl: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
-    @FocusState private var isFocused: Bool
-    // 2. Track the text selection
-    @State private var selection: TextSelection?
-    
-    var body: some View {
-        @Bindable var prax = praxModel
-        
-        Group {
-            HStack {
-                Spacer(minLength: 25)
-                Text("Drag out PDF as...   ")
-                    .font(.headline)
-                    .padding(.vertical, 10)
-                
-                    .foregroundStyle(.white)
-                
-                    .contentShape(.rect)
-                
-                Button {
-                    prax.showingFileExportOptions.toggle()
-                } label: {
-                    Label("Import Options", systemImage: (prax.showingMergedDocumentInspector ? "gearshape.fill" : "gearshape"))
-                }
-                .sheet(isPresented: $prax.showingFileExportOptions) {
-                    ImportOptionsInspector()
-                    
-                        .presentationDetents(
-                            [.height(120), .medium, .large])
-                        .presentationBackgroundInteraction(
-                            .enabled(upThrough: .height(120)))
-                        .presentationSizing(.form)
-                    
-                }
-                
-                Spacer(minLength: 5)
-                Text(document.exportFilenamePrefix)
-                TextField("Filename", text: Binding<String>(
-                    get: { document.exportFilenameBody },
-                    set: { newValue in
-                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if let dotRange = newName.range(of: ".") {
-                            newName = String(newName[..<dotRange.lowerBound])
-                        }
-                        document.exportFilenameBody = newName
-                    }),selection: $selection).focused($isFocused)
-                .onChange(of: isFocused) {
-                    if isFocused {
-                        // Select the entire string range
-                        selection = .init(range: document.exportFilenameBody.startIndex..<document.exportFilenameBody.endIndex)
-                    }
-                }
-                .font(.headline)
-           //     .padding(.vertical, 10)
-                
-                .foregroundStyle(.white)
-                
-                .frame(minWidth: 50, idealWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                .textFieldStyle(.automatic)
-                    .padding(.horizontal, 20)
-                //    .disabled(prax.exportFolderURL == nil)
-//                .foregroundStyle(.cyan)
- //               .backgroundStyle(.yellow)
-                
-                Text(document.exportFilenameSuffix)
-                Spacer(minLength: 5)
-                Image(systemName: "arrow.right.doc.on.clipboard")
-                Spacer(minLength: 5)
-                Text(".\(document.exportFilenameExtension)          ")
 
-                Spacer(minLength: 25)
-            }
-            .draggable {
-                if let data = document.mergedPDFDocument.dataRepresentation() {
-                    return MergedPDFTransfer(data: data, filename: (document.exportFilename))
-                } else { return nil }
-            }
-            .background {
-                Capsule()
-                    .foregroundStyle(Color.blue.gradient)
-            }
-        }
-        
-        .onAppear {
-           
-            isFocused = true
-        }
-
-    }
-}
-
-struct DropTargetControl: View {
-    @Environment(MergedPDFDocument.self) var document
-    @Environment(PraxModel.self) private var praxModel
-    
-    var body: some View {
-        @Bindable var prax = praxModel
-        
-        Group {
-            HStack {
-                Spacer(minLength: 25)
-                Text("   Drop Files Here   ")
-                    .font(.headline)
-                    .padding(.vertical, 10)
-                
-                    .foregroundStyle(.white)
-                
-                    .contentShape(.rect)
-                
-                Button {
-                    prax.showingFileImportOptions.toggle()
-                } label: {
-                    Label("Import Options", systemImage: (prax.showingMergedDocumentInspector ? "gearshape.fill" : "gearshape"))
-                }
-                .sheet(isPresented: $prax.showingFileImportOptions) {
-                    ImportOptionsInspector()
-                    
-                        .presentationDetents(
-                            [.height(120), .medium, .large])
-                        .presentationBackgroundInteraction(
-                            .enabled(upThrough: .height(120)))
-                        .presentationSizing(.form)
-                    
-                    
-                }
-                Spacer(minLength: 25)
-            }.background {
-                Capsule()
-                    .foregroundStyle(prax.dropTargeted ? Color.green.gradient : Color.blue.gradient )
-            }
-        }
-        
-        .onDrop(of: [.fileURL, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
-        
-        
-    }
-}
 
 struct OptionKeyPressedToolbarItem: View {
     @Environment(MergedPDFDocument.self) var document
@@ -518,6 +510,7 @@ struct OptionKeyPressedToolbarItem: View {
         }
     }
 }
+
 
 
 

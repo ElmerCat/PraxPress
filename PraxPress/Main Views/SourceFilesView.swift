@@ -6,87 +6,42 @@
 //
 import SwiftUI
 import SwiftData
+
 import PDFKit
 import UniformTypeIdentifiers
 //import Combine
 
 private let DEBUG_LOGS = true
 
-struct PDFFileTransfer: Transferable, Identifiable, @unchecked Sendable {
-    let id = UUID()
-    let pdfFile: PDFFile
-
-    struct Payload: Codable {
-        let fileName: String
-        let bookmarkData: Data
-    }
-
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(contentType: .pdfFileType) { item in
-            // Encode a small payload containing the file's name and bookmark data
-            let payload = Payload(fileName: item.pdfFile.fileName, bookmarkData: item.pdfFile.bookmarkData)
-            return try JSONEncoder().encode(payload)
-        } importing: { data in
-            // Decode the payload and reconstruct a minimal PDFFile via its bookmark
-            let payload = try JSONDecoder().decode(Payload.self, from: data)
-            // Resolve the URL from the bookmark to rebuild a PDFFile
-            var isStale = false
-            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-            // Create a placeholder PDFFile; callers can insert into model context as needed
-            let fileGroup = PDFFileGroup(name: "Imported")
-            let pdfFile = PDFFile(fileGroup: fileGroup, url: url, bookmarkData: payload.bookmarkData, pageCount: 0)
-            return PDFFileTransfer(pdfFile: pdfFile)
-        }
-    }
-}
-
-
 struct PDFFilesListRow: View {
     @Environment(FilesPersistenceController.self) private var persistence
-
+    
+        
+   
+    
     let document: MergedPDFDocument
     let pdfFile: PDFFile
-    var body: some View {
-     GroupBox {
-         HStack {
-             Text(pdfFile.fileName).lineLimit(1)
-             Spacer()
-             Text(String(pdfFile.pageCount)).lineLimit(1)
-             if pdfFile.bookmarkData.count > 0 {
-                 Button("\(pdfFile.pageCount) Pages", systemImage: "arrowshape.zigzag.forward", action: {
-                     let isOkay = testBookmark(for: pdfFile)
-                     print ("Merge - testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
-                     if isOkay {
-                         document.addPagesFromURLBookmark(url: pdfFile.url, bookmarkData: pdfFile.bookmarkData, to: nil)
-                     }
-                 }).controlSize(ControlSize.mini)
-             }
-             else {
-                 Label("Not Found", systemImage: "nosign")
-                 Button("Remove", systemImage: "trash", action: {
-                     print ("Merge \(pdfFile.fileName)")
-                     
-                     Task {
-                         do {
-                             try await persistence.deletePDFFiles([pdfFile.id])
-                         } catch {
-                             // Handle or present the error appropriately
-                             print("Failed to delete files: \(error)")
-                         }
-                     }
-                    
-                 })
-
-                 
-             }
-         }
-         
+    func backgroundColor() -> Color {
+        switch pdfFile.status {
+        case .bad: .red
+        case .stale: .orange
+        case .okay: .blue
         }
-     
-     .draggable {
-         return PDFFileTransfer(pdfFile: pdfFile)
-     }
-     
+    }
+
+    var body: some View {
+        GroupBox {
+            HStack {
+                Text(pdfFile.fileName).lineLimit(1).font(.system(size: 12))
+                Spacer()
+                Text("\(pdfFile.pageCount)")
+            }
+        }
+        .background(backgroundColor())
+        .padding(0)
+        .draggable {
+            return PDFFileTransfer(pdfFile: pdfFile)
+        }
     }
 }
 
@@ -111,8 +66,8 @@ struct SourceFilesView: View {
         print ("\nJulie d'Prax")
         
         for pdfFile in pdfFiles {
-            let isOkay = testBookmark(for: pdfFile)
-            print (pdfFile.fileName, "  isOkay: ", isOkay)
+ //           let isOkay = testBookmark(for: pdfFile)
+            print (pdfFile.fileName, "  status: ", pdfFile.status)
         }
         print ("\nJuliette M. Belanger")
         for pdfFileGroup in pdfFileGroups {
@@ -134,7 +89,8 @@ struct SourceFilesView: View {
                             } label: {
                                 Label("Add Files", systemImage: "folder.badge.plus")
                             }
-                            
+
+
                             if !prax.selectedFiles.isEmpty {
                                 Button {
                                     deleteSelectedFilesFromDatabase()
@@ -181,11 +137,13 @@ struct SourceFilesView: View {
                 }
                 
             }
-            .background(Color.sourceFilesViewBackground.opacity(0.5))
+        //    .background(Color.sourceFilesViewBackground.opacity(0.5))
             
         }
-        .toolbar(removing: .sidebarToggle)
         
+        
+        .toolbar(removing: .sidebarToggle)
+    
         .toolbar {
             
             ToolbarItemGroup(placement: .secondaryAction) {
@@ -213,12 +171,22 @@ struct SourceFilesView: View {
                     Button {
                         withAnimation {
                             prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                        }
+                    } label: {
+                        Label("Hide Library", systemImage: "building.columns")
+                    }
+                    
+               /*
+                    Button {
+                        withAnimation {
+                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
                                         }
                      //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
                         
                     } label: {
                         Label("Sidebar", systemImage: "sidebar.left")
                     }
+                  */
                 }
             }
             
@@ -238,6 +206,8 @@ struct SourceFilesView: View {
         }
      //   .toolbarBackground(.blue).opacity(0.2)
       //  .toolbarColorScheme(.light)
+        
+        
         
         .fileImporter(
             isPresented: $prax.showingImporter,
@@ -260,7 +230,10 @@ struct SourceFilesView: View {
             }
            
         }
-        
+        .fileDialogDefaultDirectory(document.sourceFolderURL)
+        .fileDialogMessage("Add Files to the PraxPress Library")
+        .fileDialogConfirmationLabel(Text("Add to Library"))
+        .fileDialogCustomizationID("AddToLibraryFileDialog")
         .task {
             DispatchQueue.main.async {
                 print ("Fortunareed")
@@ -273,8 +246,9 @@ struct SourceFilesView: View {
             print("View modelContext:", ObjectIdentifier(modelContext))
             
             for pdfFile in pdfFiles {
-                let isOkay = testBookmark(for: pdfFile)
-                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+                pdfFile.testBookmark()
+//                let isOkay = testBookmark(for: pdfFile)
+//                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
             }
             
         }
@@ -391,6 +365,8 @@ struct PDFFilesList: View {
                                     Text(displayValue(for: fieldName, in: entry))
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .id("\(entry.id.uuidString)|\(fieldName)")
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
                                 }
                             }
                         }

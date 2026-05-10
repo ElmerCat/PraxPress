@@ -19,14 +19,32 @@ import PDFKit
 
 
 class EditingPDFDocumentNSView: NSView {
+    let prax: PraxModel
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(prax: PraxModel) {
+        self.prax = prax
+        super.init(frame: .zero)
         configure()
     }
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        configure()
+//    }
+  
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
+    
+    override func mouseEntered(with event: NSEvent) {
+  //      print("EditingPDFDocumentNSView - mouseEntered")
+        prax.hoverSection.insert(.editingDocument)
+
+    }
+    override func mouseExited(with event: NSEvent) {
+//        print("EditingPDFDocumentNSView - mouseExited")
+        prax.hoverSection.remove(.editingDocument)
+    }
+
     
     private var hostingView: NSHostingView<EditingPDFDocumentView>?
     
@@ -65,66 +83,60 @@ struct EditingPDFDocumentView: View {
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
+    
+    let imageSize = CGSize(width: 1200, height: 1600)
+    
     var body: some View {
         @Bindable var prax = praxModel
+        @Bindable var document = self.document
         
-        let _ = Self._printChanges()
+    //    let _ = Self._printChanges()
+        let hovering = prax.hoverSection.contains(.editingDocument)
+        
+   //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
         
         GroupBox {
             GeometryReader { proxy in
                 VStack {
-                    
-                    /*
-                     HStack {
-                     
-                     Text("PraxPress - ")
-                     .font(Font.custom("BrushScriptMT", size: 30))
-                     .foregroundColor(.white)
-                     .frame(maxWidth: .infinity, alignment: .center)
-                     Text("\(document.documentVersion)")
-                     .font(Font.custom("BrushScriptMT", size: 12))
-                     .foregroundColor(.white)
-                     .frame(maxWidth: .infinity, alignment: .center)
-                     
-                     
-                     }
-                     */
+                    let toolbarHeight = prax.selectedPageItem != nil ? 100 : 20.0
                     EditingDocumentToolbar()
-                    
+                        .frame(maxWidth: .infinity, minHeight: toolbarHeight, maxHeight: toolbarHeight, alignment: .center)
+                        .animation(.snappy(duration: 0.25), value: toolbarHeight)
+                        .zIndex(258)
                     
                     GroupBox {
-                        EditingPDFViewRepresentable(
-                            document: document,
-                            onPDFViewReady: { pdfView in
-                                // Store a weak reference so buttons can use it
-                                pdfViewRef.view = pdfView
-                                
-                            }
-                        )
+                            EditingPDFViewRepresentable(
+                                document: document,
+                                onPDFViewReady: { pdfView in
+                                    // Store a weak reference so buttons can use it
+                                    pdfViewRef.view = pdfView
+                                }
+                            )
+                       }
                         .opacity(document.refreshingMergedDocument ? 0.75 : 1)
                         .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
                         .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-                    }
                     
                     EditingDocumentFooter()
                     
-                    
-                    
-                    
                 }
-                
-                //  .position(x: 0, y: 16)
             }
         }
         
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
-        .background(PraxGradient())
-        .overlay(
-            
-            RoundedRectangle(cornerRadius: 5)
-                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
-        )
+        .background(PraxGradient(hovering ? 0 : 1)).animation(.easeInOut(duration: 1.5), value: praxModel.hoverSection)
+        
+        
+        
+     //   .background(PraxGradient())
+      //  .overlay(
+      //      RoundedRectangle(cornerRadius: 5)
+      //          .stroke(Color.blue, lineWidth: 5).opacity(0.5)
+      //  )
+        
+        
+        
         //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
         //           PraxModel.shared.acceptDrop(providers)
         //       }
@@ -140,44 +152,40 @@ struct EditingPDFDocumentView: View {
     final class EditingPDFDocumentViewCoordinator: NSObject, PDFPageOverlayViewProvider {
         
         let document: MergedPDFDocument
-     //  let overlayView: PDFPageOverlayView
+        let prax: PraxModel
         init(_ document: MergedPDFDocument) {
             self.document = document
-            
-            document.prax.editingDocumentPDFView.document = document.editingPDFDocument
-            document.prax.editingDocumentPDFView.autoScales = true
-            document.prax.editingDocumentPDFView.displayDirection = .vertical
-            document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
-            document.prax.editingDocumentPDFView.backgroundColor = .yellow
-            
-       //    self.overlayView = PDFPageOverlayView()
-            
-            
-            
-            
+            self.prax = document.prax
+            document.prax.editingDocumentPDFView.document = PDFDocument()
         }
         
         var documentVersion = UUID()
-        var pdfPageItem: PageItem?
+      //  var pdfPageItem: PageItem?
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
             
-            if let pageItem = document.pdfPageItem(for: pdfPage) {
-                print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
-                let overlayView = PDFPageOverlayView()
+            if let pageItem = document.pageItem(for: pdfPage) {
+  //              print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
+                let overlayView = pageItem.overlayView
                 overlayView.pdfView = pdfView
-                overlayView.pageItem = pageItem
-                overlayView.document = document
+         //       overlayView.document = document
+            //    let overlayControlView = OverlayControlNSView(frame: CGRect(x: -50, y: 0, width: 100, height: 100))
                 
+                pdfView.wantsLayer = true
+                pdfView.layer?.masksToBounds = false
                 
+           //     overlayView.addSubview(overlayControlView)
+                
+                /*
                 // Seed current rect from trims
                             DispatchQueue.main.async { [weak overlayView, weak pdfPage, weak pdfView] in
                                 guard let view = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
                                 guard let pageItem = self.document.pdfPageItem(for: pdfPage) else { return }
+                                
                                 let crop = pdfPage.bounds(for: .cropBox)
                                 let cropInView = pdfView.convert(crop, from: pdfPage)
                                 let cropInOverlay = view.convert(cropInView, from: pdfView)
-                                view.clampRect = cropInOverlay
+                          //      view.clampRect = cropInOverlay
                                 // Recompute visible using current trims
                                 //                 fatalError()
                                 let trims = pageItem.trims
@@ -187,19 +195,20 @@ struct EditingPDFDocumentView: View {
                                     width: crop.width - trims.left - trims.right,
                                     height: crop.height - trims.top - trims.bottom
                                 )
+                                
                                 let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
                                 let visibleInOverlay = view.convert(visibleInView, from: pdfView)
+                                
                                 view.currentRect = visibleInOverlay
                                 
                                 view.needsDisplay = true
                             }
-                            
-                
+                  */
                 
                 return overlayView
             }
             else {
-                print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - NO PAGE ITEM")
+ //               print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - NO PAGE ITEM")
                 return nil
             }
             
@@ -227,20 +236,21 @@ struct EditingPDFDocumentView: View {
          }
         
         @objc func viewScaleChanged(_ note: Notification) {
-            print("EditingPDFDocumentViewCoordinator - viewScaleChanged: ")
+//            print("EditingPDFDocumentViewCoordinator - viewScaleChanged: ")
          }
         
-      @objc func pageChanged(_ note: Notification) {
-            guard let pdfView = note.object as? PDFView,
-                  let doc = pdfView.document,
-                  let page = pdfView.currentPage else { return }
-            document.prax.editingDocumentCurrentPage = doc.index(for: page)
-            print("EditingPDFDocumentViewCoordinator - changed to page:", document.prax.editingDocumentCurrentPage)
-            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+        @objc func pageChanged(_ note: Notification) {
+            print("EditingPDFDocumentViewCoordinator - pageChanged ")
+            guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
+            
+ /*           if let pdfPage = document.prax.currentEditingPDFPage {
+                if !pdfView.visiblePages.contains(pdfPage) {
+                    document.prax.currentEditingPDFPage = pdfView.currentPage
+                }
+            }
+ */
+            
         }
-        
- 
-        
     }
     
     struct EditingPDFViewRepresentable: NSViewRepresentable {
@@ -257,7 +267,16 @@ struct EditingPDFDocumentView: View {
         func makeNSView(context: Context) -> PDFView {
             print("EditingPDFViewRepresentable - makeNSView")
              
-            document.prax.editingDocumentPDFView.pageOverlayViewProvider = context.coordinator
+            
+          
+            document.prax.editingDocumentPDFView.autoScales = true
+            document.prax.editingDocumentPDFView.displayDirection = .vertical
+            document.prax.editingDocumentPDFView.displaysPageBreaks = true
+            document.prax.editingDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 10, bottom: 0, right: 10)
+            document.prax.editingDocumentPDFView.displayMode = .singlePageContinuous
+            document.prax.editingDocumentPDFView.backgroundColor = .clear
+                
+           document.prax.editingDocumentPDFView.pageOverlayViewProvider = context.coordinator
          //   context.coordinator.overlayView.onFinish = context.coordinator.overlayViewOnFinish
             
       //      context.coordinator.overlayView.document = document
@@ -309,45 +328,41 @@ struct EditingPDFDocumentView: View {
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
+            print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
             
-            if context.coordinator.documentVersion != document.editingDocumentVersion {
-                var pageIndex: Int = 0
-                if let pdfViewCurrentPage = pdfView.currentPage {
-                    pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
+            if let pageItem = document.prax.selectedPageItem {
+                if context.coordinator.documentVersion != pageItem.mergedPage.editingDocumentVersion {
+                    context.coordinator.documentVersion = pageItem.mergedPage.editingDocumentVersion
+                    pdfView.document = pageItem.mergedPage.editingPDFDocument
+                    scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
+                    if !pdfView.visiblePages.contains(pageItem.pdfPage) {
+                        pdfView.go(to: pageItem.pdfPage)
+                    }
+                }
+                else {
+                    print("EditingPDFViewRepresentable - updateNSView - No Change selectedPageItem: ", pageItem.name)
                 }
                 
-                print("EditingPDFViewRepresentable - updateNSView - ", context.coordinator.documentVersion, " - to ", document.editingDocumentVersion)
-                context.coordinator.documentVersion = document.editingDocumentVersion
-                pdfView.document = document.editingPDFDocument
-                if let pdfPage = pdfView.document?.page(at: pageIndex) {
-                    pdfView.go(to: pdfPage)
-                }
-                
-                scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
-                
+
             }
             else {
-       //         print("MergedPDFDocumentViewCoordinator - updateNSView - No Change ")
+                print("EditingPDFViewRepresentable - updateNSView - No selectedPageItem ")
             }
-        
-    //
-            
         }
-        
-
     }
     
+   
     static func scalePDFViewToFit(pdfView: PDFView) {
         if let pdfPage = pdfView.currentPage {
             let bounds = pdfPage.bounds(for: .mediaBox)
             let scaleFactor = pdfView.frame.height / bounds.height
             if pdfView.frame.width > bounds.width * scaleFactor {
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
                 pdfView.scaleFactor = scaleFactor
             }
             else {
                 pdfView.autoScales = true
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
             }
         }
     }

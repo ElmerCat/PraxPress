@@ -14,11 +14,104 @@ import UniformTypeIdentifiers
 
 extension MergedPDFDocument {
     
-    func addPagesFromURLBookmark(title: String? = nil, url: URL?, bookmarkData: Data?, to pageSection: MergedPage?, at location: Int? = 0) {
+    func mergedPagefrom(_ url: URL, at indexPath: IndexPath? = nil, title: String? = nil) -> MergedPage  {
+        if indexPath == nil || indexPath?.section ?? -1 < 0 {
+            let mergedPage = MergedPage(prax: prax, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
+            mergedPages.append(mergedPage)
+            return mergedPage
+        }
+        else {
+            let index = max(indexPath!.section, mergedPages.count - 1)
+            return mergedPages[index]
+        }
+    }
+    
+    
+    func addPagesFromPDFURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil, title: String? = nil) {
+        var url = url
+        if let bookmarkData {
+            var isStale = false
+            guard let fileURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            else {  print("addPagesFromPDFURL - Error resolvingBookmarkData for URL: ", url) ; return  }
+            url = fileURL
+        }
+        let needsStop = url.startAccessingSecurityScopedResource()
+        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+
+        let mergedPage = mergedPagefrom(url, at: indexPath)
+        let location = (indexPath?.item ?? 0) + 1
+        
+        if let pdfDocument = PDFDocument(url: url) {
+            var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
+            for index in 0..<pdfDocument.pageCount {
+                let displayName = nameForPage(url: url, index: index)
+                let item = PageItem(
+                        prax: prax,
+                        mergedPage: mergedPage,
+                        name: displayName,
+                        sourceBookmark: Data(),
+                        sourceURL: url,
+                        sourcePageIndex: index,
+                        pdfPage: pdfDocument.page(at: index)!,
+                        dataFields: PDFFile.dataFieldsFromPDFDocument(pdfDocument)
+                    )
+                mergedPage.pageItems.insert(item, at: pageInsertIndex)
+                pageInsertIndex += 1
+            }
+        }
+        else {  print("No PDFDocument from url: ", url)  }
+    }
+
+    
+    func addPageFromImageURL(_ url: URL,  at indexPath: IndexPath? = nil, title: String? = nil) {
+        @AppStorage("import-width") var importWidth: Int = 0
+        @AppStorage("import-height") var importHeight: Int = 0
+        
+        let mergedPage = mergedPagefrom(url, at: indexPath)
+        let pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: (indexPath?.item ?? 0) + 1)
+        
+        guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+        var imageSize = image.size
+        if image.size.height > CGFloat(importHeight) || image.size.width > CGFloat(importWidth){
+            let aspectRatio = imageSize.height / imageSize.width
+            if aspectRatio > 1 {
+                imageSize.height =  CGFloat(importHeight)
+                imageSize.width =  CGFloat(importHeight) / aspectRatio
+            }
+            else {
+                imageSize.height =  CGFloat(importWidth) * aspectRatio
+                imageSize.width =  CGFloat(importWidth) / aspectRatio
+
+            }
+        }
+        
+        print (image.size)
+        print (imageSize)
+        
+        image = image.resize(to: imageSize)!
+        print (image.size)
+
+        guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+        let pageItem = PageItem(prax: prax, mergedPage: mergedPage,
+                                name: url.deletingPathExtension().lastPathComponent,
+                                sourceURL: url, pdfPage: pdfPage, dataFields: [:])
+            
+        mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
+          
+      }
+
+  
+/*
+ //   func addPagesFrom(pdfFile: PDFFile, to pageSection: MergedPage?, at location: Int? = 0, title: String? = nil) {
+
+    func addPagesFromURLBookmark(url: URL?, bookmarkData: Data?, to pageSection: MergedPage? = nil, at location: Int? = 0, title: String? = nil) {
+        
+        
+        
  //       guard let ctx = windowModelContext else { return }
         
         // Determine normalized section insertion index
-        let sectionIndex = normalizedInsertionIndex(count: pageSections.count, location: location)
+        let sectionIndex = normalizedInsertionIndex(count: mergedPages.count, location: location)
         
         // Determine target section
         let mergedPage: MergedPage = {
@@ -27,24 +120,25 @@ extension MergedPDFDocument {
                 return givenSection
             } else {
 
-                let newMergedPage = MergedPage(document: self, title: (title ?? (url?.deletingPathExtension().lastPathComponent)) ?? "New Page Section")
+                let newMergedPage = MergedPage(document: self, title: (title ?? (pdfFile.url.deletingPathExtension().lastPathComponent)))
   
-                pageSections.insert(newMergedPage, at: sectionIndex)
+                mergedPages.insert(newMergedPage, at: sectionIndex)
                 return newMergedPage
             }
         }()
         
-        // If neither URL nor bookmark provided, just save new empty section
-        guard url != nil || bookmarkData != nil else {
+/*        // If neither URL nor bookmark provided, just save new empty section
+        guard url != nil || pdfFile.bookmarkData != nil else {
          //   do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
         //    refreshMergedDocument()
             return
         }
+*/
         
         // Resolve bookmark or direct url
-        let fileURL: URL
+/*        let fileURL: URL
         let baseBookmark: Data
-        if let data = bookmarkData {
+        if let data = pdfFile.bookmarkData {
             var isStale = false
             guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
                 print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", url ?? "No URL")
@@ -54,13 +148,23 @@ extension MergedPDFDocument {
             }
             fileURL = resolved
             baseBookmark = data
-        } else if let direct = url {
+        } else if let direct = pdfFile.url {
             fileURL = direct
             baseBookmark = (try? direct.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)) ?? Data()
         } else {
             print("addPagesFromURLBookmark - no valid bookmark or url")
       //      do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
       //      refreshMergedDocument()
+            return
+        }
+        
+*/
+        var isStale = false
+        guard let fileURL = try? URL(resolvingBookmarkData: pdfFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            else {
+            print("addPagesFromURLBookmark - Error resolvingBookmarkData for URL: ", pdfFile.url)
+    //        do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
+     //       refreshMergedDocument()
             return
         }
         
@@ -80,12 +184,13 @@ extension MergedPDFDocument {
                 let item = PageItem(
                         mergedPage: mergedPage,
                         name: displayName,
-                        sourceBookmark: baseBookmark,
+                        sourceBookmark: pdfFile.bookmarkData,
                         sourceURL: fileURL,
-                        pageIndex: index,
-                        pdfPage: doc.page(at: index)!
-
+                        sourcePageIndex: index,
+                        pdfPage: doc.page(at: index)!,
+                        dataFields: pdfFile.dataFields ?? [:]
                     )
+                
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
               //  windowModelContext.insert(item)
                 pageInsertIndex += 1
@@ -99,7 +204,7 @@ extension MergedPDFDocument {
     //    do { try windowModelContext.save() } catch { print("Save failed: \(error)") }
     //    refreshMergedDocument()
     }
-    
+*/
 
     
     private func nameForPage(url: URL, index: Int) -> String {
@@ -124,26 +229,26 @@ extension MergedPDFDocument {
     }
     
     private func ensureSectionInOrder(_ section: MergedPage, at index: Int) {
-        if let currentIndex = pageSections.firstIndex(where: { $0 === section }) {
+        if let currentIndex = mergedPages.firstIndex(where: { $0 === section }) {
             if currentIndex != index {
-                pageSections.remove(at: currentIndex)
-                if index > pageSections.count {
-                    pageSections.append(section)
+                mergedPages.remove(at: currentIndex)
+                if index > mergedPages.count {
+                    mergedPages.append(section)
                 } else {
-                    pageSections.insert(section, at: index)
+                    mergedPages.insert(section, at: index)
                 }
             }
         } else {
-            if index > pageSections.count {
-                pageSections.append(section)
+            if index > mergedPages.count {
+                mergedPages.append(section)
             } else {
-                pageSections.insert(section, at: index)
+                mergedPages.insert(section, at: index)
             }
         }
     }
     
     func indexOfSection(_ section: MergedPage) -> Int? {
-        pageSections.firstIndex { $0 === section }
+        mergedPages.firstIndex { $0 === section }
     }
     
     func indexOfPageItem(_ item: PageItem, in section: MergedPage) -> Int? {
@@ -153,6 +258,32 @@ extension MergedPDFDocument {
     
     
 /*
+ 
+ 
+ 
+ func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
+     
+     for url in urls {
+         guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+         image = image.resize(to: NSSize(width: 50, height: 70))!
+         
+         let sourceFileName = url.deletingPathExtension().lastPathComponent
+         guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+         let pageItem = PDFPageItem(
+             document: self,
+             name: "Image - \(sourceFileName)",
+             pdfPage: docPage
+         )
+         mergedPages.append(PDFPageSection(document: self, title: "Image - \(sourceFileName)", pageItems: [pageItem]))
+     }
+     
+ }
+
+
+ 
+ 
+ 
+ 
     // MARK: - Cross-section move/copy
 
         func performDropOrAction(for item: PageItem,

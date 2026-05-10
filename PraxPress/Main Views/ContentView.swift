@@ -16,81 +16,61 @@ struct ContentView: View {
  //   @Environment(\.perWindowModelContext) private var perWindowContext // The one-and-only editor context
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-   
+    @Environment(\.undoManager) var undoManager
+    
     var body: some View {
         @Bindable var prax = praxModel
 
-        let _ = Self._printChanges()
+  //      let _ = Self._printChanges()
 
         GeometryReader { proxy in
             HStack(spacing: 0) {
                 
                 if prax.praxPressMode == .data {
-                    // Left panel: global data (uses app-level container/context)
                     SourceFilesView()
                 }
                 else {
                     NavigationSplitView(columnVisibility: $prax.columnVisibility) {
-                        // Left panel: global data (uses app-level container/context)
                         SourceFilesView()
-                            .navigationSplitViewColumnWidth(min: 100, ideal: 500, max: .infinity)
-                        //    .navigationSplitViewColumnWidth(min: proxy.size.width * 0.15, ideal: 300, max: proxy.size.width * 0.25)
+                            .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: .infinity)
                     }
                     detail: {
-                        // Middle panel: editor list (use per-window context)
-                      //  if let perWindowContext {
-                      //      ContentDetailView()
-                     //           .modelContext(perWindowContext)
-                     //           .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-                     //   } else {
-                            ContentDetailView()
-                            .navigationSplitViewColumnWidth(min: 100, ideal: 500, max: .infinity)
-                   //     }
-                    }
-            /*        detail: {
-                        // Right panel: merged document UI (use per-window context)
-                        let detailStack = VStack {
-                            MergedDocumentToolbar()
-                            MergedDocumentView()
-                            MergedDocumentFooter()
+                        HStack(spacing: 0) {
+                            DocumentEditingLeadingEdge().frame(minWidth: 20, maxWidth: 30)
+                            ContentDetailView().frame(minWidth: 500, maxWidth: .infinity)
                         }
-                        .navigationSplitViewColumnWidth(min: proxy.size.width * 0.25, ideal: 300, max: proxy.size.width * 0.75)
-
-                       // if let perWindowContext {
-                       //     detailStack
-                       //         .modelContext(perWindowContext)
-                       // } else {
-                            detailStack
-                       // }
+                        
+                        .navigationSplitViewColumnWidth(min: 500, ideal: 1500, max: .infinity)
                     }
-                  */
                 }
             }
-            .background(Color.indigo.opacity(0.5))
+  //          .background(PraxGradient(2))
+//            .background(Color.indigo.opacity(0.5))
+            
         }
-        .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
+       // .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
         .onGeometryChange(for: CGSize.self) {  windowGeometry in
       //      print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width)
             return windowGeometry.size
         }
         action: {oldValue, newValue in
-            print ("windowGeometry.size.width:  old: ", oldValue.width, "  new: ", newValue.width )
-            print ("windowGeometry.size.height:  old: ", oldValue.height, "  new: ", newValue.height )
+   //         print ("windowGeometry.size.width:  old: ", oldValue.width, "  new: ", newValue.width )
+   //         print ("windowGeometry.size.height:  old: ", oldValue.height, "  new: ", newValue.height )
             prax.windowSize = newValue
 
         }
        // .toolbar(removing: .sidebarToggle)
         
        .toolbar {
-            MainToolbar()
+           MainToolbar()
         }
+        
+  //     .toolbarBackground(PraxGradient())
+        
         .onAppear {
             print("ContentView .onAppear")
-//            if let docCtx = document.windowModelContext, let perWindowContext {
-//                print("[Debug] editor context shared? \(docCtx === perWindowContext)")
-//            } else {
-//                print("[Debug] perWindowContext or document.windowModelContext is nil")
-//            }
+            prax.undoManager = undoManager!
+
         }
     }
 }
@@ -102,31 +82,54 @@ struct ContentDetailView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        GroupBox {
+        VStack(spacing: 0) {
             DocumentEditingToolbar()
-            if document.pageSections.count > 0 {
-                
+            
+            if document.mergedPages.count > 0 {
                 if prax.praxPressMode == .prax {
                     Text("Julie d'Prax")
-                  //  PraxEditingView()
                         .inspector(isPresented: $prax.showingPDFPageItemInspector) {
                             PDFPageItemInspector()
                         }
                 }
                 else {
-                    DocumentEditingView()
-                        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
-                            PDFPageItemInspector()
-                        }
+                    HSplitView {
+                      //  AnyOldView()
+                        
+                        
+                        DocumentEditingView()
+                            .frame(minWidth: 100, idealWidth: 150, maxWidth: 200)
+                        
+                        EditingPDFDocumentView()
+                            .frame(minWidth: 250, idealWidth: 400, maxWidth: 1000)
+                        
+                        MergedPDFDocumentView()
+                            .frame(minWidth: 150, idealWidth: 300, maxWidth: 1000)
+
+                        //   AnyOldView()
+                        
+                    }
                 }
             }
             else {
-                Text("Drag files into PraxPress")
+                Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .font(Font.custom("BrushScriptMT", size: 30))
+                    .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
             }
+            
             DocumentEditingFooter()
         }
+        
+        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                PDFPageItemInspector()
+        }
+        
+        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
+            VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+            //                 Example()
+        }
+        
         .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
             switch result {
             case .success(let url):
@@ -141,9 +144,10 @@ struct ContentDetailView: View {
         .fileDialogMessage("Save the PraxPress Merged PDF")
         .fileExporterFilenameLabel("Save Merged PDF as:")
         .fileDialogConfirmationLabel(Text("Save Merged PDF"))
-        .padding(20)
+        .padding(0)
     }
 }
+
 
 #Preview {
     ContentView()

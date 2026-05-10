@@ -11,124 +11,90 @@ import AppKit
 import UniformTypeIdentifiers
 
 
+
+
 struct DocumentEditingView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
+    @Environment(PraxModel.self) private var prax
     
     
     func makeCoordinator() -> DocumentEditingViewCoordinator {
-        let svd = SplitViewDelegate(prax: praxModel)
-        return DocumentEditingViewCoordinator(document: document, prax: praxModel, splitViewDelegate: svd)
+        let svd = SplitViewDelegate(prax: prax)
+        return DocumentEditingViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
     }
 
-    func makeNSView(context: Context) -> NSSplitView {
+//    func makeNSView(context: Context) -> NSSplitView {
+    func makeNSView(context: Context) -> NSScrollView {
         
-        // Split view
-        let splitView = NSSplitView()
-        praxModel.splitView = splitView
-        context.coordinator.splitViewDelegate.splitView = splitView
-        splitView.delegate = context.coordinator.splitViewDelegate
-        context.coordinator.splitView = splitView
-        splitView.isVertical = true
-        splitView.dividerStyle = .paneSplitter
-        splitView.translatesAutoresizingMaskIntoConstraints = false
+ //       let splitView = NSSplitView()
+//        splitView.isVertical = true
+//        splitView.dividerStyle = .paneSplitter
+//        splitView.autosaveName = NSSplitView.AutosaveName("DocumentEditingSplitView")
+//        splitView.delegate = context.coordinator.splitViewDelegate
+//        context.coordinator.splitViewDelegate.splitView = splitView
+        let scrollView = NSScrollView()
+    //    pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
 
-        // Left: Scroll + Collection
-        let pageItemScrollView = NSScrollView()
-        pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
-        pageItemScrollView.hasVerticalScroller = true
-        pageItemScrollView.hasHorizontalScroller = false
-
-        let pageItemCollectionView = NSCollectionView()
-        pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        pageItemCollectionView.backgroundColors = [.clear]
-        pageItemCollectionView.isSelectable = true
-        pageItemCollectionView.allowsEmptySelection = true
-        pageItemCollectionView.allowsMultipleSelection = true
-        pageItemCollectionView.delegate = context.coordinator
-        pageItemScrollView.documentView = pageItemCollectionView
+        prax.pageItemCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        prax.pageItemCollectionView.backgroundColors = [.clear]
+        prax.pageItemCollectionView.isSelectable = true
+        prax.pageItemCollectionView.allowsEmptySelection = true
+        prax.pageItemCollectionView.allowsMultipleSelection = true
+        prax.pageItemCollectionView.delegate = context.coordinator
+        scrollView.documentView = prax.pageItemCollectionView
         
-        // Left: Scroll + Collection
-        let pageEditScrollView = NSScrollView()
-        pageEditScrollView.translatesAutoresizingMaskIntoConstraints = false
-        pageEditScrollView.hasVerticalScroller = true
-        pageEditScrollView.hasHorizontalScroller = false
-
-        let pageEditCollectionView = NSCollectionView()
-        pageEditCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        pageEditCollectionView.backgroundColors = [.clear]
-        pageEditCollectionView.isSelectable = true
-        pageEditCollectionView.allowsEmptySelection = true
-        pageEditCollectionView.allowsMultipleSelection = true
-        pageEditCollectionView.delegate = context.coordinator
-        pageEditScrollView.documentView = pageEditCollectionView
-
-        // Right: Scroll + Collection
-        
-        let mergedPageScrollView = NSScrollView()
-        mergedPageScrollView.translatesAutoresizingMaskIntoConstraints = false
-        mergedPageScrollView.hasVerticalScroller = true
-        mergedPageScrollView.hasHorizontalScroller = false
-
-        let mergedPageCollectionView = NSCollectionView()
-        mergedPageCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        mergedPageCollectionView.backgroundColors = [.clear]
-        mergedPageCollectionView.isSelectable = true
-        mergedPageCollectionView.allowsEmptySelection = true
-        mergedPageCollectionView.allowsMultipleSelection = true
-        mergedPageCollectionView.delegate = context.coordinator
-        mergedPageScrollView.documentView = mergedPageCollectionView
-
-        // Attach both scroll views to split view
-        
-        let mergedDoumentView = MergedPDFDocumentNSView()
-        let editingDoumentView = EditingPDFDocumentNSView()
-        
-        splitView.arrangesAllSubviews = true
-        splitView.addArrangedSubview(pageItemScrollView)
-     //   splitView.addArrangedSubview(pageEditScrollView)
-     //   splitView.addArrangedSubview(mergedPageScrollView)
-        splitView.addArrangedSubview(editingDoumentView)
-        splitView.addArrangedSubview(mergedDoumentView)
+ //       let mergedDoumentView = MergedPDFDocumentNSView(prax: prax)
+//        let editingDoumentView = EditingPDFDocumentNSView(prax: prax)
+ //
+ //       splitView.arrangesAllSubviews = true
+ //       splitView.addArrangedSubview(scrollView)
+ //       splitView.addArrangedSubview(editingDoumentView)
+ //       splitView.addArrangedSubview(mergedDoumentView)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
   //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
   //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
         
-        // Store references on the coordinator
-        context.coordinator.pageItemCollectionView = pageItemCollectionView
-        context.coordinator.pageItemScrollView = pageItemScrollView
-        context.coordinator.pageEditCollectionView = pageEditCollectionView
-        context.coordinator.pageEditScrollView = pageEditScrollView
-        context.coordinator.mergedPageCollectionView = mergedPageCollectionView
-        context.coordinator.mergedPageScrollView = mergedPageScrollView
-
         // Configure collection views: layout, registration, data sources
-        context.coordinator.configure(collectionView: pageItemCollectionView, kind: .pageItem)
-        context.coordinator.configure(collectionView: pageEditCollectionView, kind: .pageEdit)
-        context.coordinator.configure(collectionView: mergedPageCollectionView, kind: .mergedPage)
-
+        context.coordinator.configure(collectionView: prax.pageItemCollectionView, kind: .pageItem)
+ 
         // Apply initial snapshot to both
         context.coordinator.applySnapshot(animated: false)
 
         // Initial divider position
-        DispatchQueue.main.async {
+/*        DispatchQueue.main.async {
             
-            let splidth = splitView.frame.width
-            let position = ((splidth - 120) * 0.75) + 120
+//            let pageItemWidth = 120.0
+ //           let pageEditWidth = 100.0
             
-            print("DocumentEditingView - plitView.setPosition(\(position), ofDividerAt: 1)")
-            splitView.setPosition(120, ofDividerAt: 0)
-            splitView.setPosition(position, ofDividerAt: 1)
-        }
+//            let positionOne = pageEditWidth + pageItemWidth
+//            var remainingWidth = splitView.frame.width - positionOne
+//            remainingWidth = remainingWidth * 0.25
+            
+//            let positionTwo = splitView.frame.width - remainingWidth
 
-        return splitView
+ //           print("DocumentEditingView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
+            splitView.setPosition(200, ofDividerAt: 0)
+            splitView.setPosition(600, ofDividerAt: 1)
+   //         splitView.setPosition(positionTwo, ofDividerAt: 2)
+        }
+*/
+        
+        return scrollView
     }
 
-    func updateNSView(_ splitView: NSSplitView, context: Context) {
-        print("DocumentEditingView - updateNSView - context.coordinator.applySnapshot(animated: true)")
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+   //     splitView.setPosition(200, ofDividerAt: 0)
+    //    splitView.setPosition(600, ofDividerAt: 1)
+        print("DocumentEditingView - updateNSView - ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
     }
 
+    
+    
+    
+    
     final class DocumentEditingViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
         // Shared model
         private let document: MergedPDFDocument
@@ -136,18 +102,11 @@ struct DocumentEditingView: NSViewRepresentable {
         let splitViewDelegate: SplitViewDelegate
         
         // Views
-        weak var splitView: NSSplitView?
-        weak var pageItemCollectionView: NSCollectionView?
-        weak var pageEditCollectionView: NSCollectionView?
-        weak var mergedPageCollectionView: NSCollectionView?
-        weak var pageItemScrollView: NSScrollView?
-        weak var pageEditScrollView: NSScrollView?
-        weak var mergedPageScrollView: NSScrollView?
+//        weak var splitView: NSSplitView?
+ //       weak var pageItemScrollView: NSScrollView?
 
         // Data sources
         private var leftDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
-        private var centerDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
-        private var rightDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
 
         init(document: MergedPDFDocument, prax: PraxModel, splitViewDelegate: SplitViewDelegate) {
             self.document = document
@@ -155,7 +114,15 @@ struct DocumentEditingView: NSViewRepresentable {
             self.splitViewDelegate = splitViewDelegate
         }
         
-        enum CollectionKind { case pageItem, pageEdit, mergedPage }
+
+        private func selectFirstPageItemIfNeeded() {
+            if prax.selectedPageItems.isEmpty {
+                prax.selectedPageItems = [IndexPath(item: 0, section: 0)]
+            }
+        }
+  
+        
+        enum CollectionKind { case pageItem, pageEdit} //, mergedPage }
 
         // Configure one collection view (layout, registration, data source)
         func configure(collectionView: NSCollectionView, kind: CollectionKind) {
@@ -167,33 +134,16 @@ struct DocumentEditingView: NSViewRepresentable {
                 CollectionViewItem.self,
                 forItemWithIdentifier: NSUserInterfaceItemIdentifier("Cell")
             )
-            if kind == .mergedPage {
-                collectionView.register(
-                    CollectionSupplementaryView.self,
-                    forSupplementaryViewOfKind: CollectionViewItem.mergedPageHeaderElementKind,
-                    withIdentifier: NSUserInterfaceItemIdentifier("Merged-Header")
-                )
-                collectionView.register(
-                    CollectionSupplementaryView.self,
-                    forSupplementaryViewOfKind: CollectionViewItem.mergedPageFooterElementKind,
-                    withIdentifier: NSUserInterfaceItemIdentifier("Merged-Footer")
-                )
-            }
-            else {
-                collectionView.register(
-                    CollectionSupplementaryView.self,
-                    forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind,
-                    withIdentifier: NSUserInterfaceItemIdentifier("Header")
-                )
-                collectionView.register(
-                    CollectionSupplementaryView.self,
-                    forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind,
-                    withIdentifier: NSUserInterfaceItemIdentifier("Footer")
-                )
-            }
-            
-
-
+            collectionView.register(
+                CollectionSupplementaryView.self,
+                forSupplementaryViewOfKind: CollectionViewItem.sectionHeaderElementKind,
+                withIdentifier: NSUserInterfaceItemIdentifier("Header")
+            )
+            collectionView.register(
+                CollectionSupplementaryView.self,
+                forSupplementaryViewOfKind: CollectionViewItem.sectionFooterElementKind,
+                withIdentifier: NSUserInterfaceItemIdentifier("Footer")
+            )
 
             // Optional background
             collectionView.backgroundView = CollectionViewBackground()
@@ -214,38 +164,24 @@ struct DocumentEditingView: NSViewRepresentable {
                     withIdentifier: NSUserInterfaceItemIdentifier("Cell"),
                     for: indexPath
                 ) as? CollectionViewItem else { return nil }
-
+                cell.representedObject = item
                 let isSelected = cv.selectionIndexPaths.contains(indexPath)
                 switch kind {
                 case .pageItem:
-                    cell.configure(kind: .thumbnail(item: item), isSelected: isSelected)
+                    cell.configure(kind: .pageItem(item: item), isSelected: isSelected)
                 case .pageEdit:
-                    cell.configure(kind: .page(item: item), isSelected: isSelected)
-                case .mergedPage:
-                    cell.configure(kind: .mergedPage(item: item), isSelected: isSelected)
+                    cell.configure(kind: .editPage(item: item), isSelected: isSelected)
                 }
                 return cell
             }
 
             dataSource.supplementaryViewProvider = { [weak self] cv, kindString, indexPath in
                 guard let self = self else { return nil }
-                let sections = self.document.pageSections
+                let sections = self.document.mergedPages
                 guard indexPath.section >= 0, indexPath.section < sections.count else { return nil }
 
                 
-                if kindString == CollectionViewItem.mergedPageHeaderElementKind {
-                    let v = cv.makeSupplementaryView(
-                        ofKind: kindString,
-                        withIdentifier: NSUserInterfaceItemIdentifier("Merged-Header"),
-                        for: indexPath
-                    ) as! CollectionSupplementaryView
-                    v.configure(
-                        kind: .mergedPageHeader(item: sections[indexPath.section]),
-                        isSelected: self.prax.selectedSections.contains(indexPath.section)
-                    )
-                    return v
-                }
-                else if kindString == CollectionViewItem.sectionHeaderElementKind {
+                if kindString == CollectionViewItem.sectionHeaderElementKind {
                     let v = cv.makeSupplementaryView(
                         ofKind: kindString,
                         withIdentifier: NSUserInterfaceItemIdentifier("Header"),
@@ -253,18 +189,6 @@ struct DocumentEditingView: NSViewRepresentable {
                     ) as! CollectionSupplementaryView
                     v.configure(
                         kind: .header(item: sections[indexPath.section]),
-                        isSelected: self.prax.selectedSections.contains(indexPath.section)
-                    )
-                    return v
-                }
-                else if kindString == CollectionViewItem.mergedPageFooterElementKind {
-                    let v = cv.makeSupplementaryView(
-                        ofKind: kindString,
-                        withIdentifier: NSUserInterfaceItemIdentifier("Merged-Footer"),
-                        for: indexPath
-                    ) as! CollectionSupplementaryView
-                    v.configure(
-                        kind: .mergedPageFooter(item: sections[indexPath.section]),
                         isSelected: self.prax.selectedSections.contains(indexPath.section)
                     )
                     return v
@@ -288,9 +212,8 @@ struct DocumentEditingView: NSViewRepresentable {
             case .pageItem:
                 self.leftDataSource = dataSource
             case .pageEdit:
-                self.centerDataSource = dataSource
-            case .mergedPage:
-                self.rightDataSource = dataSource
+                break
+              //  self.centerDataSource = dataSource
             }
         }
         
@@ -303,8 +226,8 @@ struct DocumentEditingView: NSViewRepresentable {
             var groupHeight: NSCollectionLayoutDimension = .fractionalWidth(1.0)
             var groupSpacing: NSCollectionLayoutEdgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: nil, trailing: .fixed(0), bottom: .fixed(0))
             var groupInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-            var sectionInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
-            var sectionSpacing: CGFloat = 20
+            var sectionInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            var sectionSpacing: CGFloat = 0
             var headerKind: String?
             var footerKind: String?
             var backgroundKind: String?
@@ -312,7 +235,7 @@ struct DocumentEditingView: NSViewRepresentable {
             var headerHeight: NSCollectionLayoutDimension = .absolute(20)
             var headerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             var footerWidth: NSCollectionLayoutDimension = .fractionalWidth(1.0)
-            var footerHeight: NSCollectionLayoutDimension = .absolute(20)
+            var footerHeight: NSCollectionLayoutDimension = .absolute(30)
             var footerInsets: NSDirectionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             
             
@@ -322,34 +245,44 @@ struct DocumentEditingView: NSViewRepresentable {
             var layoutSettings = LayoutSettings()
             switch kind {
             case .pageItem:
-                layoutSettings.itemHeight = .fractionalWidth(1.0)
-                layoutSettings.groupHeight = .fractionalWidth(1.0)
-                layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
-                layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
-                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
-                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.itemHeight = .fractionalWidth(0.5)
+                layoutSettings.itemWidth = .fractionalWidth(0.75)
+                layoutSettings.groupHeight = .fractionalWidth(0.5)
+             
+      //          layoutSettings.itemSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
                 layoutSettings.groupSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
+                layoutSettings.sectionSpacing = 5
+                
+                //   layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 100, leading: 30, bottom: 100, trailing: 30)
+                layoutSettings.itemInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 layoutSettings.groupInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
-                layoutSettings.sectionSpacing = 0
+                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 35, leading: 5, bottom: 10, trailing: 5)
+                
+                layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
+         //       layoutSettings.headerHeight = .absolute(20)
+         //       layoutSettings.footerHeight = .absolute(30)
+                
+                layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
+                layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -25, leading: 0, bottom: 0, trailing: 0)
+                
              
                 
             case .pageEdit:
-                layoutSettings.itemHeight = .fractionalWidth(1.0)
-                layoutSettings.groupHeight = .fractionalWidth(1.0)
+                layoutSettings.itemHeight = .fractionalWidth(2.0)
+                
+                layoutSettings.groupHeight = .fractionalWidth(2.0)
+                
+                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 60, leading: 5, bottom: 50, trailing: 5)
+                layoutSettings.sectionSpacing = 15
                 layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
                 layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
-                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
-                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 40, trailing: 10)
+                layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
+                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
+                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -50, leading: 0, bottom: 0, trailing: 0)
                 
-            case .mergedPage:
-                layoutSettings.itemHeight = .estimated(200)
-                layoutSettings.groupHeight = .estimated(200)
-                layoutSettings.headerKind = CollectionViewItem.mergedPageHeaderElementKind
-                layoutSettings.footerKind = CollectionViewItem.mergedPageFooterElementKind
-                layoutSettings.backgroundKind = CollectionViewItem.sectionBackgroundElementKind
+
             }
             return createLayout(layoutSettings)
         }
@@ -373,7 +306,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 
                 section.interGroupSpacing = layoutSettings.sectionSpacing
                 section.contentInsets = layoutSettings.sectionInsets
-                section.supplementariesFollowContentInsets = true
+           //     section.supplementariesFollowContentInsets = true
                 
                 
                 var boundarySupplementaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
@@ -384,8 +317,8 @@ struct DocumentEditingView: NSViewRepresentable {
                         elementKind: layoutSettings.headerKind!,
                         alignment: .top,)
                     sectionHeader.contentInsets = layoutSettings.headerInsets
-                    sectionHeader.extendsBoundary = false
-                    sectionHeader.pinToVisibleBounds = false
+                    sectionHeader.extendsBoundary = true
+                    sectionHeader.pinToVisibleBounds = true
 //sectionHeader.zIndex = 2
                     boundarySupplementaryItems.append(sectionHeader)
                 }
@@ -396,8 +329,8 @@ struct DocumentEditingView: NSViewRepresentable {
                          elementKind: layoutSettings.footerKind!,
                          alignment: .bottom)
                     sectionFooter.contentInsets = layoutSettings.footerInsets
-                    sectionFooter.extendsBoundary = false
-                    sectionFooter.pinToVisibleBounds = false
+                //    sectionFooter.extendsBoundary = true
+                    sectionFooter.pinToVisibleBounds = true
                  //   sectionFooter.zIndex = 2
                     boundarySupplementaryItems.append(sectionFooter)
                 }
@@ -406,7 +339,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 }
                 
                 if layoutSettings.backgroundKind != nil {
-                    let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
+                    let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: layoutSettings.backgroundKind!)
                     section.decorationItems = [sectionBackground]
                 }
                 
@@ -418,272 +351,113 @@ struct DocumentEditingView: NSViewRepresentable {
                 return section
             }
             if layoutSettings.backgroundKind != nil {
-                layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
+                layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: layoutSettings.backgroundKind!)
             }
             return layout
         }
         
  
-/*
- 
- 
- 
- 
-        private func createPageItemLayout() -> NSCollectionViewLayout {
-            
-            let layout = NSCollectionViewCompositionalLayout {
-                (sectionIndex: Int,
-                 layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
-                
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                      heightDimension: .fractionalWidth(0.5))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-/*
-                item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
-                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
-                    leading: nil,
-                    top: nil,
-                    trailing: .fixed(0),
-                    bottom: nil
-                )
- */
-                let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(0.5))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-                
-//                group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
-                
-                let section = NSCollectionLayoutSection(group: group)
-/*
-                section.interGroupSpacing = 5
-                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
-                section.supplementariesFollowContentInsets = false
-*/
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-                let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: headerSize,
-                    elementKind: CollectionViewItem.sectionHeaderElementKind,
-                    alignment: .top,)
-               sectionHeader.extendsBoundary = true
-               let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: footerSize,
-                    elementKind: CollectionViewItem.sectionFooterElementKind,
-                    alignment: .bottom)
-               section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-               section.decorationItems = [sectionBackground]
-/*
-               section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
-                    // Perform animations on the visible items.
-                    print("section.visibleItemsInvalidationHandler")
-                }
-*/
-                sectionHeader.pinToVisibleBounds = true
-                sectionHeader.zIndex = 2
-                sectionFooter.pinToVisibleBounds = true
-                sectionFooter.zIndex = 2
-           
-                return section
-            }
-            layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
-            return layout
-        }
-        
-        private func createPageEditLayout() -> NSCollectionViewLayout {
-            
-            let layout = NSCollectionViewCompositionalLayout {
-                (sectionIndex: Int,
-                 layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
-                
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
-                item.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 2, bottom: 20, trailing: 2)
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
-                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
-/*
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
-                    leading: nil,
-                    top: nil,
-                    trailing: .fixed(0),
-                    bottom: nil
-                )
- */
-                let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-                
-//                group.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 30, bottom: 30, trailing: 30)
-                
-                let section = NSCollectionLayoutSection(group: group)
-/*
-                section.interGroupSpacing = 5
-                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
-                section.supplementariesFollowContentInsets = false
-*/
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-                let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: headerSize,
-                    elementKind: CollectionViewItem.sectionHeaderElementKind,
-                    alignment: .top,)
-               sectionHeader.extendsBoundary = true
-               let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: footerSize,
-                    elementKind: CollectionViewItem.sectionFooterElementKind,
-                    alignment: .bottom)
-                section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-                section.decorationItems = [sectionBackground]
-                
-         //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
-                    // Perform animations on the visible items.
-         //           print("section.visibleItemsInvalidationHandler")
-         //       }
-        
-                sectionHeader.pinToVisibleBounds = true
-                sectionHeader.zIndex = 2
-                sectionFooter.pinToVisibleBounds = true
-                sectionFooter.zIndex = 2
-           
-                return section
-            }
-            layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
-            return layout
-        }
 
-        private func createMergedPageLayout() -> NSCollectionViewLayout {
-            
-            let layout = NSCollectionViewCompositionalLayout {
-                (sectionIndex: Int,
-                 layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
-                
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-               let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
-                
-                                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(0))
-                                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                                item.edgeSpacing = NSCollectionLayoutEdgeSpacing(
-                                    leading: nil,
-                                    top: nil,
-                                    trailing: .fixed(0),
-                                    bottom: nil
-                                )
-                 
-                
-               let sectionBackground = NSCollectionLayoutDecorationItem.background(elementKind: CollectionViewItem.sectionBackgroundElementKind)
-                
-               let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-               let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-               let section = NSCollectionLayoutSection(group: group)
-                
-                /*
-                                section.interGroupSpacing = 5
-                                section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40)
-                                section.supplementariesFollowContentInsets = false
-                */
-                
-               let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(20))
-                let footerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(20))
-    
-                let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: headerSize,
-                    elementKind: CollectionViewItem.mergedPageHeaderElementKind,
-                    alignment: .top,)
-               sectionHeader.extendsBoundary = true
-                
-                let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(
-                     layoutSize: footerSize,
-                     elementKind: CollectionViewItem.mergedPageFooterElementKind,
-                     alignment: .bottom)
-                 section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-                 section.decorationItems = [sectionBackground]
-
-                
-                section.boundarySupplementaryItems = [sectionHeader, sectionFooter]
-                
-                section.decorationItems = [sectionBackground]
-                
-         //       section.visibleItemsInvalidationHandler = { visibleItems, scrollOffset, layoutEnvironment in
-                    // Perform animations on the visible items.
-         //           print("section.visibleItemsInvalidationHandler")
-         //       }
-        
-                sectionHeader.pinToVisibleBounds = true
-                sectionHeader.zIndex = 2
-                sectionFooter.pinToVisibleBounds = true
-                sectionFooter.zIndex = 2
-           
-                return section
-            }
-           
-            layout.register(CollectionSupplementaryView.self, forDecorationViewOfKind: CollectionViewItem.sectionBackgroundElementKind)
-            
-            return layout
-            
-        }
-*/
-        // Apply the same snapshot to both data sources
         func applySnapshot(animated: Bool) {
             var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            var mergedPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            for mergedPage in document.pageSections {
+ //           var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
+            for mergedPage in document.mergedPages {
                 
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
                 
-                editPageSnapshot.appendSections([mergedPage])
-                //editPageSnapshot.appendItems(mergedPage.pageItems)
-                for pageItem in mergedPage.pageItems {
-                    if pageItem.merge != .mergeSkip {
-                        editPageSnapshot.appendItems([pageItem])
-                    }
+      /*          if mergedPage.mergeModePages > 0 {
+                    editPageSnapshot.appendSections([mergedPage])
+                    
+                    editPageSnapshot.appendItems([mergedPage.mergedPageItem()])
+                    
+                   // for pageItem in mergedPage.pageItems {
+                   //     if !pageItem.skipped {
+                     //       editPageSnapshot.appendItems([pageItem])
+                   //     }
+                 //   }
+
                 }
-                
-                print (mergedPage.title, " - ", mergedPage.mergeModePages)
-                
-                if mergedPage.mergeModePages > 0 {
-                    mergedPageSnapshot.appendSections([mergedPage])
-                    mergedPageSnapshot.appendItems([mergedPage.mergedPageItem()])
-                }
+*/
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
-            centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
-            rightDataSource?.apply(mergedPageSnapshot, animatingDifferences: animated)
+     //       centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
+            
+     //      DispatchQueue.main.async {
+       //         self.selectFirstPageItemIfNeeded()
+     //       }
+            
+            
         }
 
-        // MARK: Selection mirroring
-
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-            prax.selectedPageItems = collectionView.selectionIndexPaths
-            mirrorSelection(from: collectionView)
+            if collectionView == prax.pageItemCollectionView {
+                print("pageItemCollectionView - didSelectItemsAt - ", indexPaths)
+
+                prax.selectedPageItems = collectionView.selectionIndexPaths
+                
+                var selectedSections: Set<Int> = []
+                for item in prax.selectedPageItems {
+                    let section = item.section
+                    selectedSections.insert(section)
+                }
+                prax.selectedSections = selectedSections
+ 
+            }
+ /*           else if collectionView == prax.pageEditCollectionView {
+                print("pageEditCollectionView - didSelectItemsAt - ", indexPaths)
+                
+                prax.selectedEditPages = collectionView.selectionIndexPaths
+                
+            }
+ */
+            else {
+                assertionFailure("Unexpected collection view")
+            }
+          //  mirrorSelection(from: collectionView)
         }
 
         func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
-            prax.selectedPageItems = collectionView.selectionIndexPaths
-            mirrorSelection(from: collectionView)
+            if collectionView == prax.pageItemCollectionView {
+                prax.selectedPageItems = collectionView.selectionIndexPaths
+                
+                var selectedSections: Set<Int> = []
+                for item in prax.selectedPageItems {
+                    let section = item.section
+                    selectedSections.insert(section)
+                }
+                prax.selectedSections = selectedSections
+                
+            }
+            
+/*            else if collectionView == prax.pageEditCollectionView {
+                print("pageEditCollectionView - did DE SelectItemsAt - ", indexPaths)
+                prax.selectedEditPages = collectionView.selectionIndexPaths
+            }
+*/
+            else {
+                assertionFailure("Unexpected collection view")
+            }
+        //    mirrorSelection(from: collectionView)
         }
 
-        private func mirrorSelection(from source: NSCollectionView) {
+      /*  private func mirrorSelection(from source: NSCollectionView) {
             guard let left = pageItemCollectionView, let right = pageEditCollectionView else { return }
             let target = (source === left) ? right : left
             target.selectionIndexPaths = prax.selectedPageItems
         }
+        */
         
         func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
         ) -> Bool {
-            print("ThumbnailViewController canDragItemsAt  ", indexPaths, " event ", event)
+            print("collectionView canDragItemsAt  ", indexPaths, " event ", event)
             return true
         }
         
         func collectionView(_ collectionView: NSCollectionView,
                             pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
             
-            print("ThumbnailViewController pasteboardWriterForItemAt  ", indexPath)
+            print("collectionView pasteboardWriterForItemAt  ", indexPath)
 
             
             //       guard let pageItem = dataSource.itemIdentifier(for: IndexPath(item: indexPath.item, section: 0)) else { return provider }
@@ -706,44 +480,64 @@ struct DocumentEditingView: NSViewRepresentable {
             return provider
         }
     
-        func collectionView(
-            _ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo, proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
-        ) -> NSDragOperation {
+        private var validatedDropOperation: NSDragOperation = []
+        
+        func collectionView(_ collectionView: NSCollectionView, validateDrop draggingInfo: any NSDraggingInfo,
+                            proposedIndexPath proposedDropIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>,
+                            dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation> ) -> NSDragOperation {
             
-                 let indexPath = proposedDropIndexPath.pointee
-             
-            if prax.optionKeyPressed {
-                print("ThumbnailViewController validateDrop [.copy]  ", indexPath)
-               return [.copy]
+            guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return [] }
+            let propsedIndexPath = proposedDropIndexPath.pointee
+            let dropOperation = proposedDropOperation.pointee
+            
+            if draggingTypes.contains(.pdfPageDragType) {
+ //               print("collectionView validateDrop .pdfPageDragType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
+            
+            else if draggingTypes.contains(.mergedPageType) {
+//                print("collectionView validateDrop .mergedPageType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
+            
+            else if draggingTypes.contains(.pdfFileType) {
+ //               print("collectionView validateDrop .pdfFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = [.copy]  }
 
-            }
+            else if draggingTypes.contains(.fileURL) {
+  //              print("collectionView validateDrop .fileURL - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = [.copy]  }
+
             else {
-                print("ThumbnailViewController validateDrop [.move]  ", indexPath)
-                return [.move]
+                print("collectionView validateDrop -- Some Other Type: ", draggingTypes, "\n - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+                validatedDropOperation = []  }
 
-            }
+            return validatedDropOperation
         }
                  
         func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
-            print("ThumbnailViewController acceptDrop  ", indexPath.item)
-            
+
             guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return false }
-            
+
             if draggingTypes.contains(.pdfPageDragType) {
-                dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
-            }
+                print("collectionView acceptDrop .pdfPageDragType")
+                dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: validatedDropOperation == [.copy])  }
+  
             else if draggingTypes.contains(.mergedPageType) {
+                print("collectionView acceptDrop .mergedPageType")
                 dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
             else if draggingTypes.contains(.pdfFileType) {
+                print("collectionView acceptDrop .pdfFileType")
                 dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
 
-            else {
-                // The drop source is from another app (Finder, Mail, Safari, etc.) and there may be more than one file.
-                // Drop each dragged image file to their new place.
+            else if draggingTypes.contains(.fileURL) {
+                print("collectionView acceptDrop .fileURL")
+                dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
                 dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
             }
+
+            else { print("collectionView acceptDrop -- Some Other Type \n ", draggingTypes);  return false }
+            
             return true
         }
         
@@ -827,82 +621,19 @@ struct DocumentEditingView: NSViewRepresentable {
             
             for url in droppedURLs {
                 print ("\n\(url)")
+                prax.receiveDroppedURL(url, at: indexPath)
             }
       
-            fatalError()
-    /*
-            // 3) Filter for PDFs (by path extension or UTI check)
-            let pdfURLs = droppedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
-            self.insertPDFPageItemsFromDocumentURLS(pdfURLs, at: indexPath)
-            
-            let imageFileExtensions = ["png", "jpeg", "jpg", "gif", "heic"]
-            let imageURLs = droppedURLs.filter { imageFileExtensions.contains( $0.pathExtension.lowercased()) }
-            if prax.optionKeyPressed {
-                self.insertPDFPageSectionsFromImageURLS(imageURLs, at: indexPath)
-
-            }
-            else {
-                self.insertPDFPageItemsFromImageURLS(imageURLs, at: indexPath)
-
+            Task {
+                do {
+                    try await document.persistence.processImportedURLs(droppedURLs)
+                }
+                catch {
+                    print("Failed to processImportedURLs(urls)", droppedURLs)
+                }
             }
             
-    */
-            
-            /*
-     
-            guard candidateURLs.isNotEmpty else {
-                Swift.debugPrint("No PDF URLs found in external drop.")
-                return
-            }
-            
-            // 4) Build PDFDocuments and insert pages at the drop position
-            var insertionIndex = indexPath.item
-            for url in candidateURLs {
-                guard let document = PDFDocument(url: url) else {
-                    Swift.debugPrint("Failed to open PDF at url: \(url)")
-                    continue
-                }
-                
-                // Insert each page from the external document into the model
-                let pageCount = document.pageCount
-                var pagesToInsert: [PDFPage] = []
-                pagesToInsert.reserveCapacity(pageCount)
-                
-                for i in 0..<pageCount {
-                    if let page = document.page(at: i) {
-                        pagesToInsert.append(page)
-                    }
-                }
-                
-                // If PraxModel has an API for inserting pages, call it here.
-                // Example approach A: If there’s a method to insert PDFPages directly:
-                // PraxModel.shared.insertPDFPages(pagesToInsert, at: insertionIndex)
-                
-                // Example approach B: If PraxModel works with a single PDFDocument, we can merge:
-                if let targetDoc = PraxModel.shared.editingPDFDocument {
-                    // Insert each page into the current working document
-                    for page in pagesToInsert {
-                        // PDFKit allows inserting a page into a document at an index
-                        targetDoc.insert(page, at: insertionIndex)
-                        insertionIndex += 1
-                    }
-                } else {
-                    // If no working document exists, you might set it to the first dropped doc
-                    PraxModel.shared.editingPDFDocument = PDFDocument()
-                    if let targetDoc = PraxModel.shared.editingPDFDocument {
-                        for page in pagesToInsert {
-                            targetDoc.insert(page, at: insertionIndex)
-                            insertionIndex += 1
-                        }
-                    }
-                }
-
-        */
-            
-            
-            
-            
-        }
+          }
         
         // MARK: - File promise handling
         
@@ -948,55 +679,10 @@ struct DocumentEditingView: NSViewRepresentable {
     //            self.updateUI()
             }
         }
-
-        // MARK: - Insert helper
-            
-        /*    func insertPDFPageSectionsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-                
-                for url in urls {
-                    guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-                    image = image.resize(to: NSSize(width: 50, height: 70))!
-                    
-                    let sourceFileName = url.deletingPathExtension().lastPathComponent
-                    guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-                    let pdfPageItem = PDFPageItem(
-                        document: document,
-                        name: "Image - \(sourceFileName)",
-                        pdfPage: docPage
-                    )
-                    document.sections.append(PDFPageSection(document: document, title: "Image - \(sourceFileName)", pdfPageItems: [pdfPageItem]))
-                }
-               
-            }
-            func insertPDFPageItemsFromImageURLS(_ urls: [URL], at indexPath: IndexPath) {
-                var pages: [PDFPageItem] = []
-                for url in urls {
-                    guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-                    image = image.resize(to: NSSize(width: 50, height: 70))!
-                    
-                    let sourceFileName = url.deletingPathExtension().lastPathComponent
-                    guard let docPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-                    pages.append(PDFPageItem(
-                        document: document,
-                        name: "Image - \(sourceFileName)",
-                        pdfPage: docPage
-                    ))
-                }
-                document.sections[indexPath.section].pdfPageItems.append(contentsOf: pages)
-            }
-        */
-            
-         
+        
         func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropPDFFiles to: ", indexPath)
-            
-            var urls: [URL] = []
-            
-            struct Payload: Codable {
-                let fileName: String
-                let bookmarkData: Data
-            }
-            
+            var pdfFilePayloads: [PDFFilePayload] = []
             draggingInfo.enumerateDraggingItems(
                 options: NSDraggingItemEnumerationOptions.concurrent,
                 for: collectionView,
@@ -1004,26 +690,15 @@ struct DocumentEditingView: NSViewRepresentable {
                 searchOptions: [:],
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
-                        do {
-                            if let data = pasteboardItem.data(forType: .pdfFileType) {
-                                
-                                let payload = try JSONDecoder().decode(Payload.self, from: data)
-                                // Resolve the URL from the bookmark to rebuild a PDFFile
-                                var isStale = false
-                                let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-                                
-                                urls.append(url)
-                                
-                                
-                            }
-                        } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
-                        
-                        print ("dropPDFFiles(urls: ", urls, " to indexPath: ", indexPath)
-    fatalError()
-                        //                    self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
-                 //       self.updateUI()
-                    }
-                })
+                        do { if let data = pasteboardItem.data(forType: .pdfFileType) {
+                            let pdfFilePayload = try JSONDecoder().decode(PDFFilePayload.self, from: data)
+                            pdfFilePayloads.append(pdfFilePayload)
+                            print ("dropPDFFile: ", pdfFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
+                        catch { print(" -- Failed to unarchive indexPath for dropped item.") }
+                    } else { print( " -- No NSPasteboardItem")} })
+            for pdfFilePayload in pdfFilePayloads {
+                document.addPagesFromPDFURL(pdfFilePayload.fileURL, bookmarkData: pdfFilePayload.bookmarkData, at: indexPath)
+            }
         }
             
 
@@ -1033,8 +708,8 @@ struct DocumentEditingView: NSViewRepresentable {
             
         }
             
-        func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-            print("dropInternalPages to: ", indexPath)
+        func dropInternalPages(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath, copy: Bool) {
+            print("dropInternalPages to: ", indexPath, " - copy: ", copy)
             
             var draggedItems: [IndexPath] = []
             
@@ -1055,8 +730,16 @@ struct DocumentEditingView: NSViewRepresentable {
                             }
                         } catch { Swift.debugPrint("failed to unarchive indexPath for dropped item.") }
                         
-                        print ("self.prax.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
-                        self.document.movePDFPageItems(draggedItems, to: indexPath)
+                        if copy {
+                            print ("document.copyPDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                            self.document.copyPDFPageItems(draggedItems, to: indexPath)
+
+                        }
+                        else {
+                            print ("document.movePDFPageItems(draggedItems: ", draggedItems, " to indexPath: ", indexPath)
+                            self.document.movePDFPageItems(draggedItems, to: indexPath)
+
+                        }
                        
                //         self.updateUI()
                     }
@@ -1064,296 +747,178 @@ struct DocumentEditingView: NSViewRepresentable {
         }
         
     }
-    
-    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
-        print ("splitView(_ splitView: NSSplitView, canCollapseSubview subview: ", subview )
-        
-        return false
-    }
 
-   
-    func splitView(_ splitView: NSSplitView, shouldCollapseSubview subview: NSView, forDoubleClickOnDividerAt dividerIndex: Int) -> Bool {
-        print ("plitView: NSSplitView, shouldCollapseSubview subview: ", subview, "  forDoubleClickOnDividerAt dividerIndex:  ", dividerIndex)
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: ", proposedMinimumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedMinimumPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: ", proposedMaximumPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedMaximumPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, constrainSplitPosition proposedPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
-        print ("splitView: NSSplitView, constrainSplitPosition proposedPosition: ", proposedPosition, "  ofSubviewAt dividerIndex:   ", dividerIndex)
-        
-        return proposedPosition
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
-        print ("splitView: NSSplitView, resizeSubviewsWithOldSize oldSize:  ", oldSize)
-
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview view: NSView) -> Bool {
-        print ("splitView: NSSplitView, shouldAdjustSizeOfSubview view: : ")
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
-        print ("splitView: NSSplitView, shouldHideDividerAt dividerIndex:   ", dividerIndex)
-        
-        return false
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
-        print ("ssplitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex:   ", dividerIndex)
-        
-        return proposedEffectiveRect
-    }
-
-    
-    func splitView(_ splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex: Int) -> NSRect {
-        print ("splitView: NSSplitView, additionalEffectiveRectOfDividerAt dividerIndex:   ", dividerIndex)
-        
-        return NSRect.zero
-    }
-
-    
-    func splitViewWillResizeSubviews(_ notification: Notification) {
-        print ("splitViewWillResizeSubviews(_ notification: Notification) ")
-        
-    }
-
-    
-    func splitViewDidResizeSubviews(_ notification: Notification) {
-        print ("splitViewDidResizeSubviews(_ notification: Notification) ")
-        
-    }
 }
 
 
 
-struct DocumentEditingToolbar: View {
+struct DocumentEditingLeadingEdge: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
+    let praxTheme = PraxTheme(.erika)
     
-    @State var showSettings = false
+    @State private var hoveredButton: Int? = nil
+    @State private var viewWidth: CGFloat = 20
+    @State private var auxilliaryOpacity: CGFloat = 0.0
     
-    private func title(for mode: PDFDisplayMode) -> String {
-        switch mode {
-        case .singlePage: return "Single"
-        case .singlePageContinuous: return "Continuous"
-        case .twoUp: return "Two Up"
-        case .twoUpContinuous: return "Two Up Cont."
-        @unknown default: return "Unknown"
-        }
-    }
+    @State private var hoverLocation: CGPoint = .zero
+    @State private var isHovering = false
+    @State private var paddingTop = 20.0
+    @State private var imageAngle = 0.0
     
-    let filenameStyle = URL.FormatStyle(scheme: .never,
-                                        user: .never,
-                                        password: .never,
-                                        host: .always,
-                                        port: .never,
-                                        path: .always,
-                                        query: .never,
-                                        fragment: .never)
- 
     var body: some View {
         @Bindable var prax = praxModel
-        @Bindable var document = document
-        GroupBox {
+        
+        GeometryReader { geometry in
+           
             
-            //    Text("Prax")
-            let pageCount = "  Pages: " + String(document.totalPDFPageItems())
-            
-            
-            HStack {
-            
-                Button("", systemImage: "gear", action: {
-                    showSettings = !showSettings
-                })
-                .sheet(isPresented: $showSettings) {
-                    EditSettingsPanel()
-                    
-                        .presentationDetents(
-                            [.height(120), .medium, .large])
-                        .presentationBackgroundInteraction(
-                            .enabled(upThrough: .height(120)))
-                        .presentationSizing(.form)
-                    
-                }
+            ZStack {
                 
-                Text(pageCount)
-                Button("Clear All", systemImage: "document.on.trash", action: {
-                    print (pageCount)
-                    
-                })
-                Button {
-                    prax.showingFileImporter = true }
-                label: {
-                    Text("Import Files") //.frame(minWidth: 100, maxWidth: 200, alignment: .center)
-                }
                 
-                //       .background(dropTargeted ? Color.green : Color.blue)
-                .fileImporter(
-                    isPresented: $prax.showingFileImporter,
-                    allowedContentTypes: [.pdf, .image, .text, .video],
-                    allowsMultipleSelection: true
-                ) { result in
-                    switch result {
-                    case .success(let urls):
-                        print (urls)
-                    case .failure(let error):
-                        print(error.localizedDescription)
+                VStack {
+                    
+                    
+                GroupBox {
+                    
+                    
+                    Image(systemName: prax.columnVisibility == .detailOnly ?  "building.columns" : "building.columns.fill")
+                    
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .padding(0)
+                        .padding(.top, 5)
+                        .padding(.leading, 5)
+                        .frame(width: viewWidth, height: viewWidth)
+                        .symbolEffect(.bounce.up.byLayer, options: .nonRepeating)
+                        .foregroundColor(prax.columnVisibility == .detailOnly ? .blue : .white)
+                    Spacer()
+                    
+                    Image("PraxPress").resizable().aspectRatio(contentMode: .fit)
+                        .rotationEffect(Angle(degrees: imageAngle))
+                        .padding(.leading, 5)
+                     //   .padding(.top, hoverOffset)
+                        //.zIndex(997)
+                        .frame(width: viewWidth, height: viewWidth)
                     }
-                }
-                Button("Export…", systemImage: "arrow.down.document") {
-                    prax.showSavePanel.toggle()
-                }
-                Spacer()
-                ZStack {
-                    TextField("Prefix", text: $document.exportFilenamePrefix)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     
-                        .overlay(alignment: .trailing) {
-                            if !document.exportFilenamePrefix.isEmpty {
-                                Button {
-                                    document.exportFilenamePrefix = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundStyle(.secondary)
-                                        .padding(.trailing, 6) // adjust for your field style
-                                }
-                                .buttonStyle(.plain)
-                                .help("Clear")
-                            }
+                    
+                    Spacer()
+                    
+                }
+                Rectangle().background(Color.blue).opacity(auxilliaryOpacity)
+                    .onTapGesture {
+                        withAnimation {
+                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
                         }
-                }
-                
-                TextField("Filename", text: Binding<String>(
-                    get: { document.exportFilenameBody },
-                    set: { newValue in
-                        var newName = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        // Ensure we don't accidentally include a dot/extension typed by the user
-                        if let dotRange = newName.range(of: ".") {
-                            newName = String(newName[..<dotRange.lowerBound])}
-                        document.exportFilenameBody = newName
-                    })
-                          
-                )
-                //   .frame(minWidth: 10, idealWidth: 20, alignment: .init(horizontal: .trailing, vertical: .center))
-                //.frame(maxWidth: 100, alignment: .init(horizontal: .trailing, vertical: .center))
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-               // .disabled(document.exportFolderURL == nil)
-                
-                
-                Text(".pdf")
-                Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
+                    }.zIndex(998)
+            }
+            .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity)
+            
+
+            .onHover { hovering in
+                 withAnimation {
+                     viewWidth = hovering ? 30 : 20
+                     
+                     imageAngle = hovering ? -3000 : 0
+                     paddingTop = hovering ? geometry.size.width / 2 : 20
+                     
+                     auxilliaryOpacity = hovering ? 0.01 : 0.0
+                     
+                 }
+             }
+     
+ /*           .onContinuousHover { phase in
+                switch phase {
+                case .active(let location):
+                    hoverLocation = location
                     
-                
+                    isHovering = true
+                case .ended:
+                    isHovering = false
                 }
-                .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
-                }()!, preview: {
-                    PraxDragPreview()
-                })
-                
-                Spacer(minLength: 15)
-
-
             }
-            .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-            .padding(8)
+            .overlay {
+                Rectangle()
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(isHovering ? .green : .blue)
+                    .offset(x: hoverLocation.x, y: hoverLocation.y)
+            }
+
+*/
             
         }
         
-        
-        .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
-        
-        .fileDialogDefaultDirectory(document.sourceFolderURL)
-        .fileDialogMessage("Add Files to PraxPress")
-        .fileDialogConfirmationLabel(Text("Add to PraxPress"))
-        
-        .background(prax.dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
-        .foregroundStyle(Color.white)
-        
-    }
-    
-    private var dragPreviewView: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.accentColor.opacity(0.15))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
-                .frame(width: 180, height: 80)
-            
-            VStack(spacing: 6) {
-                Image(systemName: "doc.text.fill")
-                    .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(.blue)
-                Text("\(document.exportFilename).pdf")
-                    .font(.footnote)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .padding(.horizontal, 8)
-            }
-        }
-        
-    }
-    
 
+
+        
+        
+    }
 }
 
-struct DocumentEditingFooter: View {
+/*struct DocumentEditingTrailingEdge: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
+    let praxTheme = PraxTheme(.erika)
     
-    let filenameStyle = URL.FormatStyle(scheme: .never,
-                                        user: .never,
-                                        password: .never,
-                                        host: .always,
-                                        port: .never,
-                                        path: .always,
-                                        query: .never,
-                                        fragment: .never)
+    @State private var hoveredButton: Int? = nil
+    @State private var viewWidth: CGFloat = 50
+    @State private var spacerWidth: CGFloat = 50
+    @State private var auxilliaryOpacity: CGFloat = 0
+    @State private var imageAlignment: Alignment = .center
+    
+    
+    @State private var hoverLocation: CGPoint = .zero
+    @State private var isHovering = false
+   
     var body: some View {
         @Bindable var prax = praxModel
-        HStack {
-            switch (prax.selectedFiles.count) {
-            case 0:
-                Text("No files selected")
-            case 1:
-                Text("Source file: \(document.firstSelectedFileURL?.formatted(filenameStyle) ?? "")")
-            default:
-                Text("\(prax.selectedFiles.count) Source files selected")
+        VStack {
+            Spacer(minLength: spacerWidth)
+            GroupBox {
+                Image(systemName: "building.columns").resizable().aspectRatio(contentMode: .fit)
             }
             Spacer()
-            Text(String(format: "Window size: \(prax.windowSize.width) x \(prax.windowSize.height) -- -- SplitView width: \(prax.splitViewFrameWidth) -  divZero@:  \(prax.dividerZeroPos) -  divOne@:   \(prax.dividerOnePos)"))
         }
-        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-        .padding(8)
+        
+        .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity, alignment: imageAlignment)
+        .background(PraxGradient()).opacity(auxilliaryOpacity)
+        .onTapGesture {
+            withAnimation {
+                prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+            }
+        }
+
+ /*
+        .onContinuousHover { phase in
+            switch phase {
+            case .active(let location):
+                hoverLocation = location
+                isHovering = true
+            case .ended:
+                isHovering = false
+            }
+        }
+        .overlay {
+            Rectangle()
+                .frame(width: 50, height: 50)
+                .foregroundColor(isHovering ? .green : .blue)
+                .offset(x: hoverLocation.x, y: hoverLocation.y)
+        }
+*/
+       .onHover { hovering in
+            withAnimation {
+                viewWidth = hovering ? 50 : 30
+                spacerWidth = hovering ? 100 : 50
+                auxilliaryOpacity = hovering ? 1 : 0.1
+                imageAlignment = hovering ? .top : .center
+            }
+        }
+
+        
+        
     }
 }
-
-
+*/
 
 #Preview {
     

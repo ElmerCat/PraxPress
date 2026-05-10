@@ -22,10 +22,10 @@
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>com.praxpress.pdf-file-item</string>
 			<key>UTTypeDescription</key>
 			<string>PraxPress PDFFile Item</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.pdf-file-item</string>
 		</dict>
 		<dict>
 			<key>UTTypeDescription</key>

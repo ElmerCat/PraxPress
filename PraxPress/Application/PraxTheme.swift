@@ -41,6 +41,8 @@ struct PraxTheme {
     
     var foregroundColor: Color
     var backgroundColor: Color
+    var foregroundColorDisabled: Color
+    var backgroundColorDisabled: Color
     var foregroundColorHover: Color
     var backgroundColorHover: Color
     var foregroundColorPressed: Color
@@ -56,6 +58,8 @@ struct PraxTheme {
             case .erika:
                 self.foregroundColor = Color.praxButtonForeground
                 self.backgroundColor = Color.praxButtonBackground
+                self.foregroundColorDisabled = Color.praxButtonForeground.opacity(0.5)
+                self.backgroundColorDisabled = Color.praxButtonBackground.opacity(0.5)
                 self.foregroundColorHover = Color.praxButtonForegroundHover
                 self.backgroundColorHover = Color.praxButtonBackgroundHover
                 self.foregroundColorPressed = Color.praxButtonForegroundPressed
@@ -66,6 +70,8 @@ struct PraxTheme {
             case .julie:
                 self.foregroundColor = Color.praxDeleteForeground
                 self.backgroundColor = Color.praxDeleteBackground
+                self.foregroundColorDisabled = Color.praxDeleteForeground.opacity(0.5)
+                self.backgroundColorDisabled = Color.praxDeleteBackground.opacity(0.5)
                 self.foregroundColorHover = Color.praxDeleteForegroundHover
                 self.backgroundColorHover = Color.praxDeleteBackgroundHover
                 self.foregroundColorPressed = Color.praxButtonForegroundPressed
@@ -80,8 +86,51 @@ struct PraxTheme {
 }
 
 
+struct PrefixButtonStyle: ButtonStyle {
+    @Environment(PraxModel.self) private var prax
+    var isHovering = false
+    var isDisabled = false
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        
+        if configuration.isPressed {
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
+        } else if isDisabled {
+            backgroundColor = prax.theme.backgroundColorDisabled
+            foregroundColor = prax.theme.foregroundColorDisabled }
+        else if isHovering {
+                backgroundColor = prax.theme.backgroundColorHover
+                foregroundColor = prax.theme.foregroundColorHover
+        } else {
+            backgroundColor = prax.theme.backgroundColor
+            foregroundColor = prax.theme.foregroundColor
+        }
+        
+        return configuration.label
+            .buttonStyle(.glassProminent)
+ //           .imageScale(.large)
+ //           .frame(width: 20, height: 25, alignment: .center )
+            .padding(3)
+            .padding(.trailing, 0)
+            .foregroundColor(foregroundColor)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 5, height: 8))
+                    .foregroundStyle(backgroundColor)
+            }
+         //   .cornerRadius(8)
+            .animation(.bouncy(duration: 0.5), value: isHovering)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
+}
+
+
+
 struct ItemButtonStyle: ButtonStyle {
-    var theme: PraxTheme
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(PraxModel.self) private var prax
+    
     var isHovering: Bool
     
     func makeBody(configuration: Self.Configuration) -> some View {
@@ -89,14 +138,17 @@ struct ItemButtonStyle: ButtonStyle {
         let foregroundColor: Color
         
         if configuration.isPressed {
-            backgroundColor = theme.backgroundColorPressed
-            foregroundColor = theme.foregroundColorPressed
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
+        } else if !isEnabled {
+            backgroundColor = .clear
+            foregroundColor = .gray
         } else if isHovering {
-            backgroundColor = theme.backgroundColorHover
-            foregroundColor = theme.foregroundColorHover
+            backgroundColor = prax.theme.backgroundColorHover
+            foregroundColor = prax.theme.foregroundColorHover
         } else {
-            backgroundColor = theme.backgroundColor
-            foregroundColor = theme.foregroundColor
+            backgroundColor = prax.theme.backgroundColor
+            foregroundColor = prax.theme.foregroundColor
         }
         
         return configuration.label
@@ -114,9 +166,94 @@ struct ItemButtonStyle: ButtonStyle {
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
 }
 
+struct StackedButtonStyle: ButtonStyle {
+    @Environment(PraxModel.self) private var prax
+    var isDisabled: Bool
+    var isHovering: Bool
+    var isFocused: Bool
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        
+        if configuration.isPressed {
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
+        } else if isDisabled {
+            backgroundColor = .clear
+            foregroundColor = .clear
+        } else if isHovering {
+            backgroundColor = prax.theme.backgroundColorHover
+            foregroundColor = prax.theme.foregroundColorHover
+        } else {
+            backgroundColor = prax.theme.backgroundColor
+            foregroundColor = prax.theme.foregroundColor
+        }
+        
+        
+        return configuration.label
+            .buttonStyle(.glass)
+            .imageScale( .medium)
+          //  .frame(width: 15, height: 15, alignment: .center )
+           // .padding(.leading, 8)
+            .foregroundColor(foregroundColor)
+            .background {
+                Rectangle()
+                    .foregroundStyle(backgroundColor)
+            }
+//            .cornerRadius(8)
+            .animation(.bouncy(duration: 0.2), value: isHovering)
+          //  .animation(.bouncy(duration: 0.5), value: isSelected)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed )    }
+}
+
+struct SwitchButtonStyle: ButtonStyle {
+    var isOn: Bool
+    var isHovering: Bool
+    
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(PraxModel.self) private var prax
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        
+        if configuration.isPressed {
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
+        } else if !isEnabled {
+            backgroundColor = .clear
+            foregroundColor = .gray
+        } else if isHovering {
+            backgroundColor = prax.theme.backgroundColorHover
+            foregroundColor = prax.theme.foregroundColorHover
+        } else if isOn {
+            backgroundColor = prax.theme.backgroundColorSelected
+            foregroundColor = prax.theme.foregroundColorSelected
+        } else {
+            backgroundColor = prax.theme.backgroundColor
+            foregroundColor = prax.theme.foregroundColor
+        }
+        
+        return configuration.label
+            .buttonStyle(.glass)
+            .imageScale(.large)
+           // .frame(width: 20, height: 20, alignment: .center )
+            .padding(.leading, 8)
+            .foregroundColor(foregroundColor)
+            .background {
+                Rectangle()
+                    .foregroundStyle(backgroundColor)
+            }
+            .cornerRadius(8)
+            .animation(.bouncy(duration: 0.2), value: isHovering)
+            .animation(.bouncy(duration: 0.5), value: isOn)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed )    }
+}
+
 
 struct SelectableButtonStyle: ButtonStyle {
-    var theme: PraxTheme
+    @Environment(PraxModel.self) private var prax
     var isSelected: Bool
     var isHovering: Bool
     var isFocused: Bool
@@ -126,17 +263,17 @@ struct SelectableButtonStyle: ButtonStyle {
         let foregroundColor: Color
         
         if configuration.isPressed {
-            backgroundColor = theme.backgroundColorPressed
-            foregroundColor = theme.foregroundColorPressed
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
         } else if isHovering {
-            backgroundColor = theme.backgroundColorHover
-            foregroundColor = theme.foregroundColorHover
+            backgroundColor = prax.theme.backgroundColorHover
+            foregroundColor = prax.theme.foregroundColorHover
         } else if isSelected {
-            backgroundColor = theme.backgroundColorSelected
-            foregroundColor = theme.foregroundColorSelected
+            backgroundColor = prax.theme.backgroundColorSelected
+            foregroundColor = prax.theme.foregroundColorSelected
         } else {
-            backgroundColor = theme.backgroundColor
-            foregroundColor = theme.foregroundColor
+            backgroundColor = prax.theme.backgroundColor
+            foregroundColor = prax.theme.foregroundColor
         }
         
         return configuration.label
@@ -188,6 +325,35 @@ func PraxGradient(_ style: Int? = nil) -> MeshGradient {
                 .clear, .green, .clear
             ]
         )
+    
+    case 3:
+        MeshGradient(
+            width: 2,
+            height: 2,
+            points: [
+                [0.0, 0.0], [1.0, 0.0],
+                [0.0, 1.0], [1.0, 1.0]
+                
+            ],
+            colors: [
+                Color("GradientDarkOne").opacity(0.75), Color("GradientLightOne").opacity(0.75),
+                Color("GradientLightOne").opacity(0.5), Color("GradientDarkOne").opacity(0.5)
+            ])
+        
+    case 4:
+        MeshGradient(
+            width: 2,
+            height: 2,
+            points: [
+                [0.0, 0.0], [1.0, 0.0],
+                [0.0, 1.0], [1.0, 1.0]
+                
+            ],
+            colors: [
+                Color("GradientDarkTwo").opacity(0.15), Color("GradientLightTwo").opacity(0.25),
+                Color("GradientLightTwo").opacity(0.25), Color("GradientDarkTwo").opacity(0.15)
+            ])
+        
     default:
         MeshGradient(
             width: 3,
@@ -216,7 +382,7 @@ struct PraxThemeView: View {
         // add more if needed
     }
     
-    @FocusState private var focusedField: PraxFocus?
+    @FocusState private var focusedField: Int?
     @State var prax = false
     @State var praxText = "Prax Text"
     @State private var hoveredButton: Int? = nil
@@ -226,30 +392,30 @@ struct PraxThemeView: View {
        
         HStack {
             Button("", systemImage: prax ?  "circle.inset.filled" : "inset.filled.center.rectangle.portrait", action: { prax = true })
-                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: prax, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
+                .buttonStyle(SelectableButtonStyle(isSelected: prax, isHovering: hoveredButton == 1, isFocused: focusedField == 1))
                 .onHover { hovering in
                     hoveredButton = hovering ? 1 : nil
                 }
-              //  .focusable(true)
-              //  .focused($focusedField, equals: .firstButton)
-              //  .keyboardShortcut(.space, modifiers: [])
+               .focusable(true)
+                .focused($focusedField, equals: 1)
+                .keyboardShortcut(.space, modifiers: [])
             
               
             Button("", systemImage: !prax ?  "rectangle.portrait.inset.filled" : "inset.filled.center.rectangle.portrait", action: { prax = false })
-                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: !prax, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
+                .buttonStyle(SelectableButtonStyle(isSelected: !prax, isHovering: hoveredButton == 2, isFocused: focusedField == 2))
                 .onHover { hovering in
                     hoveredButton = hovering ? 2 : nil
                 }
-             //   .focusable(true)
-             //   .focused($focusedField, equals: .secondButton)
-             //   .keyboardShortcut(.space, modifiers: [])
+                .focusable(true)
+                .focused($focusedField, equals: 2)
+                .keyboardShortcut(.space, modifiers: [])
             
             TextField("Prax", text: $praxText)
                 .frame(width: 150)
-                .focused($focusedField, equals: .textField)
+                .focused($focusedField, equals: 3)
                 .submitLabel(.next)
                 .onSubmit {
-                    focusedField = .secondButton
+                    focusedField = 2
                 }
                 .keyboardShortcut(.space, modifiers: [])
             

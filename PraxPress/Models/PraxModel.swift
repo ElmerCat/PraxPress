@@ -19,46 +19,45 @@ import SwiftData
 final class PraxModel {
     
     // Non-optional reference to the document; attached after both are created.
-    unowned private(set) var documment: MergedPDFDocument!
-
+    unowned private(set) var document: MergedPDFDocument!
+    
     init() {
         // Document will be attached immediately after both instances are created.
         // We keep it implicitly unwrapped to avoid unsafe placeholders while still
         // making it non-optional for consumers once attached.
     }
-
+    
     func attach(document: MergedPDFDocument) {
-        self.documment = document
+        self.document = document
     }
-
+    
+    var undoManager = UndoManager()
+    
+    let theme = PraxTheme(.erika)
+   
+    
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
         case merge = "Merge Mode"
         case prax = "Prax Mode"
         
-        var color: Color {
-            switch self {
+        var color: Color { switch self {
             case .merge:
                 return .pink
             case .data:
                 return .blue
             case .prax:
-                return .orange
-            }
-        }
+                return .orange } }
         
-        // And an icon, because why not?
-        var icon: String {
-            switch self {
+        var icon: String { switch self {
             case .merge:
                 return "apple.logo"
             case .data:
                 return "swift"
             case .prax:
-                return "gear"
-            }
-        }
+                return "gear" }}
     }
+
     var praxPressMode: PraxPressMode = .merge
     
     var dropTargeted = false
@@ -67,10 +66,14 @@ final class PraxModel {
     var windowSize: CGSize = CGSize(width: 0, height: 0)
     
     var saveError: String?
-
+    
     var isOn = false
     var isLarge: Bool = false
     var showFilesPanel = true
+    var showingImageDropInspector: Bool = false
+    var inspectNextImageDrop: Bool = false
+    var inspectingImage: NSImage?
+    
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
     var showingMergedDocumentInspector = false
@@ -82,79 +85,69 @@ final class PraxModel {
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    var editingDocumentPDFView: PDFView = PDFView()
-    var editingDocumentCurrentPage: Int = -1 {
-        didSet {
-            print("editingDocumentCurrentPage: Int = ", editingDocumentCurrentPage)
-        }
+    
+    let editingDocumentPDFView = PDFView()
+    let pageItemCollectionView = NSCollectionView()
+    let pageEditCollectionView = NSCollectionView()
+    let mergedDocumentPDFView = PDFView()
+    
+ 
+    enum HoverSection {
+        case editingDocument
+        case mergedDocument
     }
-    var editingDocumentCurrentPageItem: PageItem?
     
     
-    var mergedDocumentPDFView: PDFView?
-
-    var splitView: NSSplitView?
-    var dividerZeroMinPos: CGFloat = 100
-    var dividerZeroMaxPos: CGFloat = 400
-    var dividerOneMinPos: CGFloat = 400
-    var dividerOneMaxPos: CGFloat = 700
-    var dividerZeroPos: CGFloat = 100 {
-        didSet { updateDividerLimits() }
-    }
-    var dividerOnePos: CGFloat = 400 {
-        didSet { updateDividerLimits() }
-    }
-
-    var splitViewFrameWidth: CGFloat = 1000 {
-        didSet { updateDividerLimits() }
-    }
-    func updateDividerLimits() {
-     //   dividerZeroMinPos = min(100, splitViewFrameWidth / 10)
-        dividerZeroMaxPos = max(100, (splitView!.arrangedSubviews[1].frame.size.width) / 2)
-        dividerOneMaxPos = splitViewFrameWidth - 200
-        dividerOneMinPos = dividerZeroPos + 300        
-    //    print ("updateDividerLimits dividerZeroMinPos: ", dividerZeroMinPos, " dividerZeroMaxPos: ", dividerZeroMaxPos, "dividerOneMinPos: ", dividerOneMinPos, " dividerOneMaxPos: ", dividerOneMaxPos )
-    }
-
-   
-    
-    
+    var hoverSection: Set<HoverSection> = []
     
     
     var selectedFiles = Set<PDFFile.ID>() {
         didSet {
             print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
-            //         isLoadingPDF = true
-            //            selectedPageItems = []
-            //           clearWidthGuide()
-            
-            
-/*            DispatchQueue.main.async {
-                print ("Dispatch setEditingPDFDocumentFromSelectedFiles()")
-                       self.setPageSectionsFromSelectedFiles()
-                       self.refreshMergedDocument()
-            }
-    */    }
+        }
     }
-
+    
     var selectedSections: Set<Int> = [] { didSet {
-        print("PraxModel - electedSections didSet:  ", selectedSections)
+        print("PraxModel - selectedSections didSet:  ", selectedSections)
     //    selectedSections.forEach {
     //        print("\($0)") }
     }}
     
-    var selectedPageItems: Set<IndexPath> = [] { didSet {
-        print("PraxModel - selectedPageItems didSet:  ", selectedPageItems)
-    //    selectedPageItems.forEach {
-    //        print("\($0)") }
-    }}
     
-    var selectedPages: Set<IndexPath> = [] { didSet {
-        print("PraxModel - selectedPages didSet:  ", selectedPages)
-    //          selectedPages.forEach {
-    //              print("\($0)") }}
-    }}
+    private var _selectedPageItems: Set<IndexPath> = []
+    
+    var selectedPageItems: Set<IndexPath> {
+        get { _selectedPageItems }
+        set {
+            if _selectedPageItems != newValue { _selectedPageItems = newValue
+                if let indexPath = selectedPageItems.first {
+                    if let pageItem = document.pageItem(indexPath: indexPath) {
+                        if !pageItem.skipped {
+                            _selectedPageItem = pageItem
+                            document.setExportURL(from: pageItem)
+                            return } } }
+            }
+            _selectedPageItem = nil
+        }
+    }
 
+    
+    private var _selectedPageItem: PageItem?
+    var selectedPageItem: PageItem? {
+        get { _selectedPageItem }
+        set {
+            if newValue != _selectedPageItem, let newValue {
+                _selectedPageItem = newValue
+                if let indexPath = document.indexPath(for: newValue) {
+                    pageItemCollectionView.selectionIndexPaths = [indexPath]
+                    
+                }
+                
+                
+            }
+        }
+    }
+    
     func cleanupTemporaryArtifacts() {
         print("\n\ncleanupTemporaryArtifacts()\n\n")
         
@@ -173,9 +166,6 @@ final class PraxModel {
     let pdfViewRegistry = PDFViewRegistry()
     
 }
-
-
-
 
 
 
@@ -253,78 +243,73 @@ extension NSImage {
 extension Notification.Name {
     static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
     static let praxSelectedPageItemsChanged = Notification.Name("PraxSelectedPageItemsChanged")
+    static let praxPageItemTrimsChanged = Notification.Name("PraxPageItemTrimsChanged")
     //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 
 
-extension NSPasteboard.PasteboardType {
-    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
-    static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
-    static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
-}
+extension PraxModel {
+    
+    func receiveDroppedURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil) {
+        let needsStop = url.startAccessingSecurityScopedResource()
+        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+        
+        
+        let ext = url.pathExtension.lowercased()
+        switch (ext) {
 
-extension UTType {
-    static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
-    static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
-    static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
-}
-
-class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
-    
-    var pdfDocument: PDFDocument?
-    var fileName: String = "PraxPress-Prax.pdf"
-    
-    struct UserInfoKeys {
-        static let indexPathKey = "indexPath"
-        static let urlKey = "url"
-    }
-    
-    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
-        var types = super.writableTypes(for: pasteboard)
-        types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.mergedPageType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
-        return types
-    }
-    
-    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
-        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
-        switch type {
-        case .fileURL:
-            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
-            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
-                return url.pasteboardPropertyList(forType: type)
+        case "pdf":
+            DispatchQueue.main.async { [self] in
+                document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath) }
+            
+            Task { do { try await
+                document.persistence.processImportedURLs([url]) }
+                catch { fatalError("It didn't work") } }
+            
+        case "png", "jpeg", "jpg", "gif", "heic":
+            if inspectNextImageDrop {
+                if let image = NSImage(contentsOf: url) {
+                    inspectingImage = image
+                    showingImageDropInspector = true
+                }
+                else { print("Failed to open Image at \(url)") }
             }
-        case .mergedPageType:
-            print ("mergedPageType")
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-
-        case .pdfPageDragType:
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
+            else {
+                DispatchQueue.main.async { [self] in
+                    document.addPageFromImageURL(url, at: indexPath) }
+            }
+            
         default:
             break
+            
         }
-        return super.pasteboardPropertyList(forType: type)
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
-        
-        print("filePromiseProvider fileNameForType: ", fileType)
-        return fileName
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
-        
-        print("filePromiseProvider writePromiseTo url:  ", url)
-        pdfDocument?.write(to: url)
         
     }
-    
 }
 
+
+
+
+/*
+    private var _selectedPageItem: PageItem?
+    var aselectedPageItem: PageItem? {
+        get { _selectedPageItem }
+        set { if _selectedPageItem != newValue { _selectedPageItem = newValue
+            print ("set selectedPageItem  ", aselectedPageItem?.name ?? " *** nil ***")
+            
+            
+            /*           if selectedPageItem != nil {
+             if currentEditingMergedPage == nil {
+             currentEditingMergedPage = selectedPageItem!.mergedPage
+             }
+             else if currentEditingMergedPage != nil, currentEditingMergedPage! != selectedPageItem!.mergedPage {
+             print ("set selectedPageItem - setting currentEditingMergedPage = selectedPageItem.mergedPage")
+             currentEditingMergedPage = selectedPageItem!.mergedPage }
+             }
+             else { print ("set selectedPageItem to **** nil **** ") }
+             */
+        }
+        }
+    }
+    
+*/

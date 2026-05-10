@@ -17,7 +17,64 @@ import PDFKit
 import UniformTypeIdentifiers
 
 
-struct SectionBackgroundView: View {
+struct PageItemSectionBackgroundView: View {
+    let indexPath: IndexPath
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
+    
+    var body: some View {
+        @Bindable var prax = prax
+        let isSelected = prax.selectedSections.contains(indexPath.section)
+
+        
+            
+        VStack {
+            GroupBox {
+             /*   GeometryReader { proxy in
+                    VStack {
+                        Text("w: \(proxy.size.width)")
+                        Spacer()
+                        Text("h: \(proxy.size.height)")
+
+                        if let pdfPage = mergedPage.pdfPage {
+                            Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: proxy.size.width * 0.45) // 40% of GroupBox width
+                            //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
+                                .cornerRadius(6)
+                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
+                            
+                    }
+
+                        
+                    }
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    
+                    //  .position(x: 0, y: 16)
+                }
+           */
+                Text(isSelected ? "Julie d'Prax" : "Juliette M. Belanger")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(0)
+            .background(isSelected ? PraxGradient(2) : PraxGradient(0))
+            .opacity(0.5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.black, lineWidth: 1)
+            )
+        
+            Spacer(minLength: 15)
+        }
+        
+
+
+    }
+}
+
+struct EditPageSectionBackgroundView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
@@ -28,29 +85,33 @@ struct SectionBackgroundView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if document.pageSections.count > indexPath.section {
-            let mergedPage = document.pageSections[indexPath.section]
-            let imageSize = CGSize(width: 1200, height: 1600)
-            let sectionHeaderHeight = CGFloat(40)
+        if document.mergedPages.count > indexPath.section {
+            let mergedPage = document.mergedPages[indexPath.section]
+ //           let imageSize = CGSize(width: 1200, height: 1600)
+ //           let sectionHeaderHeight = CGFloat(40)
             
             GroupBox {
                 GeometryReader { proxy in
                     VStack {
-
-  //          Spacer()
-                       if let pdfPage = mergedPage.pdfPage {
+                        Text("\(mergedPage.title)")
+/*
+                        if let pdfPage = mergedPage.pdfPage {
                             Image(nsImage: pdfPage.thumbnail(of: imageSize, for: .cropBox))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: proxy.size.width * 0.45) // 40% of GroupBox width
+                                .frame(width: proxy.size.width * 0.45, alignment: .topLeading) // 40% of GroupBox width
                             //    .position(x: proxy.size.width * 0.15, y: proxy.size.height * 0.5)
-                                .cornerRadius(6)
-                                .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
+                            //    .cornerRadius(6)
+                           //     .padding(EdgeInsets(top: sectionHeaderHeight, leading: 0, bottom: 0, trailing: 0))
                             
                         }
-                    
+*/
+                        Spacer()
+                       
+
                         
                     }
+                //    .padding(.top, sectionHeaderHeight)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     
@@ -59,7 +120,7 @@ struct SectionBackgroundView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(0)
-            .background(Color.prax)
+            .background(PraxGradient(2))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.orange, lineWidth: 5)
@@ -69,9 +130,6 @@ struct SectionBackgroundView: View {
         else { EmptyView() }
     }
 }
-
-
-
 class CollectionViewBackground: NSView {
     
     override init(frame: CGRect) {
@@ -81,8 +139,7 @@ class CollectionViewBackground: NSView {
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
-    
-    private var hostingView: NSHostingView<CollectionViewBackgroundView>?
+        private var hostingView: NSHostingView<CollectionViewBackgroundView>?
     
     func configure() {
         
@@ -200,6 +257,12 @@ struct CollectionViewBackgroundView: View {
 struct SectionHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
+    
+    let praxTheme = PraxTheme(.erika)
+    
+    @State var showSettings = false
+    @State private var hoveredButton: Int? = nil
+    
     let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
@@ -208,103 +271,71 @@ struct SectionHeaderView: View {
         if mergedPage != nil {
             @Bindable var section = mergedPage!
             @Bindable var prax = praxModel
-        
-        
-       
-            
             let clickGesture = TapGesture()
                 .onEnded { value in
                     print("View tapped! - \(section.title) - PraxModel.shared.optionKeyPressed: \(prax.optionKeyPressed)")
                     clickedSectionHeader()
-                    
                 }
             
             GroupBox {
-                Group {
-                    TextField("Title", text: $section.title )
-                //    Text("Merged Page \(section.title)")
+                HStack {
+                    Button {
+                        showSettings = !showSettings
+                    }
+                    label: { Image(systemName: "gear")}
+                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 2))
+                    .onHover { hovering in
+                        hoveredButton = hovering ? 2 : nil
+                    }
+                    
+                    .popover(isPresented: $showSettings, arrowEdge: .leading) {
+                        SectionHeaderPopover(mergedPage: mergedPage!)
+                            .presentationDetents(
+                                [.height(120), .medium, .large])
+                            .presentationBackgroundInteraction(
+                                .enabled(upThrough: .height(120)))
+                            .presentationSizing(.form)
+                    }
+ 
+                    Spacer()
+                    Text("\(section.title)")
+                       // .font(.system(.subheadline))
+                        .font(.caption)
+                        .lineLimit(1)
+                        .padding(.horizontal, 5)
+                        .draggable({ () -> MergedPDFTransfer? in
+                            guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                            return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                        }()!, preview: {
+                            PraxDragPreview()
+                        })
+                    Spacer()
                 }
-                
-                .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
-                }()!, preview: {
-                    PraxDragPreview()
-                })
-                
-                
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .font(.caption)
-                .lineLimit(1)
-                .padding(8)
-                
-                .background(Color.black.opacity(0.7))
+                .background(Color.black.opacity(0.5))
                 .overlay(RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
                 .gesture(clickGesture)
                 
             }
-            .padding(20)
-            
-            
-            
-            
-            /*        .gesture(
-             TapGesture()
-             .modifiers([.option, .command, .control])
-             .onEnded {
-             clickedSectionHeader(modifiers)
-             }
-             )
-             .gesture(
-             TapGesture()
-             .modifiers(.command)
-             .onEnded {
-             clickedSectionHeader([.command])
-             }
-             )
-             .gesture(
-             TapGesture()
-             .modifiers(.shift)
-             .onEnded {
-             clickedSectionHeader([.shift])
-             }
-             )
-             //       .onTapGesture(perform: clickedSectionHeader())*/
+            .padding(0)
         }
-    //    else {
+        else {
             EmptyView()
-      //  }
-            
+        }
     }
     
     func clickedSectionHeader(_ modifiers: EventModifiers = [] ) {
         print ("Julie d'Prax - clickedSectionHeader")
-        
         if modifiers.contains(.shift) {
-            print("Shift + Click detected")
-        }
+            print("Shift + Click detected")  }
         else if modifiers.contains(.command) {
-            print("Command + Click detected")
-        }
+            print("Command + Click detected")  }
         else if modifiers.contains(.control) {
-            print("Control + Click detected")
-        }
+            print("Control + Click detected")  }
         else {
             print("Plain Click detected")
- //      fatalError()
-            //     document.mergedPDFView.go(to: mergedPage.pdfPage!)
+    //        praxModel.currentEditingMergedPage = mergedPage
         }
-        
-   //     if PraxModel.shared.selectedSections.contains(indexPath.section) {
-  //          PraxModel.shared.selectedSections.remove(indexPath.section)
-  //      } else {
-  //          PraxModel.shared.selectedSections.insert(indexPath.section)
-  //      }
-        // self.isSelected = PraxModel.shared.selectedSections.contains(indexPath.section)
-        // Refresh just this section’s header to reflect the new state.
-        //       self.collectionView.reloadSections(IndexSet(integer: indexPath.section))
-        
     }
 }
 
@@ -323,7 +354,7 @@ struct SectionFooterView: View {
             let h = mergedPage!.mergedHeightPts
             let wIn = w / 72.0
             let hIn = h / 72.0
-            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
+            return String(format: "%.1f\" × %.1f\"", wIn, hIn)
         }
         else {
             return "No Page Section"
@@ -333,25 +364,20 @@ struct SectionFooterView: View {
         @Bindable var prax = praxModel
             VStack(spacing: 8) {
                 HStack {
-                    Text("Footer \(mergedPage?.title ?? "No Section")")
-                        .font(.caption)
-                        .lineLimit(1)
                     Text(mergedSizeText())
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
             }
             .padding(8)
-            .background(PraxGradient())
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
-            )
+       //     .background(Color.black.opacity(0.5))
+           // .overlay(RoundedRectangle(cornerRadius: 8)
+         //   .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
+        
             .inspector(isPresented: $prax.isLarge) {
                 VStack {
                     GroupBox {
-                        
                         Text("Inspector 1")
                             .frame(minWidth: 100, maxWidth: 1000, maxHeight: 100)
                             .background(.pink)
@@ -429,15 +455,15 @@ struct MergedPageFooterView: View {
             Button("", systemImage: "plus.circle", action: {
                 pdfViewMode(.zoomIn)
             })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
             
             Button("", systemImage: "minus.circle", action: {
                 pdfViewMode(.zoomOut)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
             
             Button("", systemImage: "equal.circle", action: {
                 pdfViewMode(.zoomFit)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
             
             Spacer()
 

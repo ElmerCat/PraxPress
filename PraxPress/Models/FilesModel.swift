@@ -27,10 +27,95 @@ struct PDFDataFields: Codable {
     var justification: String?
 }
 
+struct PDFFilePayload: Codable {
+    let fileURL: URL
+    let bookmarkData: Data
+}
+
+enum PDFFileStatus: String, Codable {
+    case okay
+    case stale
+    case bad
+}
+
+
+struct PDFFileTransfer: Transferable, Identifiable, @unchecked Sendable {
+    let id = UUID()
+    let pdfFile: PDFFile
+
+    struct Payload: Codable {
+        let fileURL: URL
+        let bookmarkData: Data
+    }
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .pdfFileType) { item in
+            // Encode a small payload containing the file's name and bookmark data
+            let payload = Payload(fileURL: item.pdfFile.url, bookmarkData: item.pdfFile.bookmarkData)
+            return try JSONEncoder().encode(payload)
+        } importing: { data in
+            // Decode the payload and reconstruct a minimal PDFFile via its bookmark
+            let payload = try JSONDecoder().decode(Payload.self, from: data)
+            // Resolve the URL from the bookmark to rebuild a PDFFile
+            var isStale = false
+            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            // Create a placeholder PDFFile; callers can insert into model context as needed
+            let fileGroup = PDFFileGroup(name: "Imported")
+            let pdfFile = PDFFile(fileGroup: fileGroup, url: url, bookmarkData: payload.bookmarkData, pageCount: 0)
+            return PDFFileTransfer(pdfFile: pdfFile)
+        }
+        
+        // Add a standard file URL representation for maximum compatibility
+        DataRepresentation(contentType: .fileURL) { item in
+            item.pdfFile.url.absoluteString.data(using: .utf8)!
+        } importing: { data in
+            guard let urlString = String(data: data, encoding: .utf8),
+                  let url = URL(string: urlString) else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+            // You may need to resolve the URL with a default bookmark data here, if desired.
+            let fileGroup = PDFFileGroup(name: "Imported")
+            let pdfFile = PDFFile(fileGroup: fileGroup, url: url, bookmarkData: Data(), pageCount: 0)
+            return PDFFileTransfer(pdfFile: pdfFile)
+        }
+    }
+}
+
+
 @Model
 final class PDFFile {
     
-    static let defaultFieldNames = ["PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
+    static let defaultFieldNames = ["Date", "PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
+    
+    static func dataFieldsFromPDFDocument(_ pdfDocument: PDFDocument) -> [String: FieldValue] {
+        var dataFields: [String: FieldValue] = [:]
+        let fieldNames = PDFFile.defaultFieldNames
+        
+        func value(from annot: PDFAnnotation) -> String? {
+            if let v = annot.widgetStringValue, !v.isEmpty { return v }
+            if let v = annot.contents, !v.isEmpty { return v }
+            return nil
+        }
+        
+        for pageIndex in 0..<pdfDocument.pageCount {
+            guard let page = pdfDocument.page(at: pageIndex) else { continue }
+            print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
+            for annot in page.annotations {
+                let key = annot.fieldName ?? ""
+                if key.isEmpty { continue }
+                let widgetType = String(describing: annot.widgetFieldType)
+                let extracted = value(from: annot) ?? "(nil)"
+                print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
+                
+                if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                    if fieldNames.contains(key) {
+                        dataFields[key] = .string(v)
+                    }
+                }
+            }
+        }
+        return dataFields
+    }
     
     var id: UUID
     var url: URL
@@ -40,6 +125,7 @@ final class PDFFile {
     var fileGroup: PDFFileGroup
     // Persisted as Data
     var dataFieldsData: Data?
+    var status = PDFFileStatus.okay
     
     init(fileGroup: PDFFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: [String: FieldValue]? = nil) {
         self.id = UUID()
@@ -53,7 +139,7 @@ final class PDFFile {
         } else {
             self.dataFieldsData = nil
         }
-
+        
     }
     
     // A convenient computed property that callers can work with
@@ -70,53 +156,48 @@ final class PDFFile {
             }
         }
     }
+    
+    func testBookmark() {
+        var isStale = false
+        
+        if let testURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+            if testURL.absoluteString.contains("/.Trash/") || testURL.absoluteString.contains("/.Trashes/") {
+                print(testURL, " - BookmarkData for URL: ", url, " - File is in Trash ***")
+                status = .bad
+            }
+            else if isStale {
+                print("BookmarkData for URL: ", url, " - File is Stale ***")
+                
+      //          refreshBookmark()
+                status = .stale
+            }
+            else {
+                print("Resolved BookmarkData for URL: ", url)
+                status = .okay
+            }
+        }
+  
+        else {
+            print("Unable to resolve bookmarkData for URL: ", url, " isStale: ", isStale)
+            status = .bad
 
-/*    // MARK: - Encode/Decode helpers (JSON with ISO8601 dates)
-    nonisolated private static func encoder() -> JSONEncoder {
-        let enc = JSONEncoder()
-        enc.outputFormatting = []
-        // FieldValue already encodes Date as ISO8601 string; no need to set dateEncodingStrategy here.
-        return enc
+        }
+        
     }
-
-    nonisolated private static func decoder() -> JSONDecoder {
-        let dec = JSONDecoder()
-        // FieldValue decodes Date from ISO8601 string; no need to set dateDecodingStrategy here.
-        return dec
-    }
-
-    nonisolated private static func encode<T: Encodable>(_ value: T) -> Data? {
-        do {
-            return try encoder().encode(value)
-        } catch {
-            print("Failed to encode value: \(error)")
-            return nil
+    
+    func refreshBookmark() {
+        let needsStop = url.startAccessingSecurityScopedResource()
+        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+        if let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+            bookmarkData = data
+            status = .okay
+        }
+        else {
+            status = .bad
         }
     }
-
-    nonisolated private static func decode<T: Decodable>(_ type: T.Type, from data: Data) -> T? {
-        do {
-            return try decoder().decode(T.self, from: data)
-        } catch {
-            print("Failed to decode value: \(error)")
-            return nil
-        }
-    }
-*/
 }
 
-func testBookmark(for pdfFile:PDFFile) -> Bool {
-    var isStale = false
-    if (try? URL(resolvingBookmarkData: pdfFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)) != nil {
-        if !isStale {
-            print("Resolved BookmarkData for URL: ", pdfFile.url)
-            return true
-        }
-    }
-    pdfFile.bookmarkData = Data(count: 0)
-    print("Unable to resolve bookmarkData for URL: ", pdfFile.url, " isStale: ", isStale)
-    return false
-}
 
 
 @Model
@@ -192,6 +273,8 @@ actor FilesPersistenceController: Observable {
         
         do {
             for urlBookmark in uniquePairs {
+                
+                
                 guard let pdfFile = try await newPDFFileFromURLBookmark(url: urlBookmark.url, bookmarkData: urlBookmark.bookmark) else {
                     print("Failed newPDFFileFromURLBookmark(url: ", urlBookmark.url)
                     continue

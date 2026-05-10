@@ -11,15 +11,34 @@ import PDFKit
 
 
 class MergedPDFDocumentNSView: NSView {
+    let prax: PraxModel
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(prax: PraxModel) {
+        self.prax = prax
+        super.init(frame: .zero)
         configure()
     }
+    
+//    override init(frame: CGRect) {
+//       super.init(frame: frame)
+//        configure()
+//    }
+ 
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
     
+    
+    override func mouseEntered(with event: NSEvent) {
+ //       print("MergedPDFDocumentNSView - mouseEntered")
+        prax.hoverSection.insert(.mergedDocument)
+
+    }
+    override func mouseExited(with event: NSEvent) {
+ //       print("MergedPDFDocumentNSView - mouseExited")
+        prax.hoverSection.remove(.mergedDocument)
+    }
+
     private var hostingView: NSHostingView<MergedPDFDocumentView>?
     
     func configure() {
@@ -60,7 +79,7 @@ struct MergedPDFDocumentView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        let _ = Self._printChanges()
+   //     let _ = Self._printChanges()
         
         GroupBox {
             GeometryReader { proxy in
@@ -106,7 +125,7 @@ struct MergedPDFDocumentView: View {
                                 
                             }
                         })
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
+                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
                         .onHover { hovering in
                             hoveredButton = hovering ? 0 : nil
                         }
@@ -115,7 +134,7 @@ struct MergedPDFDocumentView: View {
                         Button("", systemImage: "plus.circle", action: {
                             pdfViewRef.view?.zoomIn(self)
                         })
-                        .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
                         .onHover { hovering in
                             hoveredButton = hovering ? 1 : nil
                         }
@@ -124,14 +143,14 @@ struct MergedPDFDocumentView: View {
 
                         Button("", systemImage: "minus.circle", action: {
                             pdfViewRef.view?.zoomOut(self)
-                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 2 : nil
                             }
 
                         Button("", systemImage: "arrow.left.and.right.circle", action: {
                             pdfViewRef.view?.autoScales = true
-                        })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 3 : nil
                             }
@@ -148,12 +167,13 @@ struct MergedPDFDocumentView: View {
         
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
-        .background(PraxGradient())
-        .overlay(
-        
-            RoundedRectangle(cornerRadius: 5)
-                .stroke(Color.blue, lineWidth: 5).opacity(0.5)
-        )
+        .background(PraxGradient(prax.hoverSection.contains(.mergedDocument) ? 0 : 1))
+
+ //       .overlay(
+ //
+ //           RoundedRectangle(cornerRadius: 5)
+ //               .stroke(Color.blue, lineWidth: 5).opacity(0.5)
+ //       )
  //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
  //           PraxModel.shared.acceptDrop(providers)
  //       }
@@ -207,15 +227,16 @@ struct MergedPDFDocumentView: View {
         
         func makeNSView(context: Context) -> PDFView {
       //      print("MergedPDFDocumentView - PDFViewRepresentable - makeNSView")
-            let pdfView = PDFView()
-            document.prax.mergedDocumentPDFView = pdfView
-            pdfView.document = document.mergedPDFDocument
-            pdfView.autoScales = true
-            pdfView.displayDirection = .vertical
-            pdfView.backgroundColor = .green
-            context.coordinator.pdfView = pdfView
-            onPDFViewReady(pdfView)
-            return pdfView
+            document.prax.mergedDocumentPDFView.document = document.mergedPDFDocument
+            document.prax.mergedDocumentPDFView.autoScales = true
+            document.prax.mergedDocumentPDFView.displaysPageBreaks = true
+            document.prax.mergedDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+            
+            document.prax.mergedDocumentPDFView.displayDirection = .vertical
+            document.prax.mergedDocumentPDFView.backgroundColor = .green
+            context.coordinator.pdfView = document.prax.mergedDocumentPDFView
+            onPDFViewReady(document.prax.mergedDocumentPDFView)
+            return document.prax.mergedDocumentPDFView
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
@@ -226,7 +247,7 @@ struct MergedPDFDocumentView: View {
                     pageIndex = pdfView.document!.index(for: pdfViewCurrentPage)
                 }
                 
-                print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.mergedDocumentVersion)
+               // print("MergedPDFDocumentViewCoordinator - updateNSView - ", document.mergedDocumentVersion)
                 context.coordinator.documentVersion = document.mergedDocumentVersion
                 pdfView.document = document.mergedPDFDocument
                 if let pdfPage = pdfView.document?.page(at: pageIndex) {
@@ -252,12 +273,12 @@ struct MergedPDFDocumentView: View {
             let bounds = pdfPage.bounds(for: .mediaBox)
             let scaleFactor = pdfView.frame.height / bounds.height
             if pdfView.frame.width > bounds.width * scaleFactor {
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
+   //             print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: ", scaleFactor)
                 pdfView.scaleFactor = scaleFactor
             }
             else {
                 pdfView.autoScales = true
-                print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
+ //               print ("Bounds: ", bounds.width, " wide x ", bounds.height, " high - frame w: ", pdfView.frame.width, " - h:", pdfView.frame.height, " scale: ", pdfView.scaleFactor, " to: autoScales = true")
             }
         }
     }
@@ -397,7 +418,7 @@ struct MergedDocumentFooter: View {
                 document.autoScales = false
                 document.mergedPDFView.zoomIn(self)
             })
-            .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
+            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
             .onHover { hovering in
                 hoveredButton = hovering ? 1 : nil
             }
@@ -408,7 +429,7 @@ struct MergedDocumentFooter: View {
             Button("", systemImage: "minus.circle", action: {
                 document.autoScales = false
                 document.mergedPDFView.zoomOut(self)
-            })                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
+            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
                 .onHover { hovering in
                     hoveredButton = hovering ? 2 : nil
                 }
@@ -417,7 +438,7 @@ struct MergedDocumentFooter: View {
        //         .keyboardShortcut(.space, modifiers: [])
             
             Toggle("", systemImage: document.autoScales ? "circle.inset.filled" : "equal.circle", isOn: $document.autoScales).toggleStyle(.button)
-                .buttonStyle(SelectableButtonStyle(theme: praxTheme, isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
+                .buttonStyle(SelectableButtonStyle(isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
                 .onHover { hovering in
                     hoveredButton = hovering ? 3 : nil
                 }
@@ -431,7 +452,7 @@ struct MergedDocumentFooter: View {
                          Image(systemName: "inset.filled.center.rectangle.portrait").tag(PDFDisplayMode.singlePage)
                          Image(systemName: "rectangle.portrait.tophalf.inset.filled").tag(PDFDisplayMode.singlePageContinuous)
                        
-                         if document.pageSections.count > 1 {
+                         if document.mergedPages.count > 1 {
                          
                              Image(systemName: "rectangle.portrait.split.2x1").tag(PDFDisplayMode.twoUp)
                              
@@ -448,7 +469,7 @@ struct MergedDocumentFooter: View {
              
                  Spacer()
                  
-                 Text(String("Page \(prax.selectedSections.first) of \(document.pageSections.count)"))
+                 Text(String("Page \(prax.selectedSections.first) of \(document.mergedPages.count)"))
                      .font(.subheadline)
             Spacer(minLength: 10)
             
@@ -546,7 +567,7 @@ struct MergedDocumentToolbar: View {
            */
                     Spacer()
                     
-                    Text(String("\(document.pageSections.count) Pages"))
+                    Text(String("\(document.mergedPages.count) Pages"))
                         .font(.subheadline)
            /*         if document.mergedWidthPts > 0, document.mergedHeightPts > 0 {
                         let wIn = document.mergedWidthPts / 72.0
