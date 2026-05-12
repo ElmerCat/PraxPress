@@ -13,30 +13,46 @@ import PDFKit
 struct PageItemTrimsView: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
+    @State private var hoveredButton: Int? = nil
     var body: some View {
         @Bindable var prax = praxModel
         if let pageItem = prax.selectedPageItem {
-            Group {
+            @Bindable var pageItem = pageItem
+            GroupBox {
                 HStack {
-                    Text("\(pageItem.trims.left) —")
-                    VStack{
-                        Text("\(pageItem.trims.top)")
-                        Text("X")
-                        Text("\(pageItem.trims.bottom)")
+                    VStack {
+                        Text("Top: \(pageItem.trims.top, specifier: "%.0f")")
+                        Text("Left: \(pageItem.trims.left, specifier: "%.0f")")
+                        Text("Right: \(pageItem.trims.right, specifier: "%.0f")")
+                        Text("Bottom: \(pageItem.trims.bottom, specifier: "%.0f")")
+                    }.font(.system(size: 8, weight: .ultraLight))
+                    VStack {
+                        Text("Set Width Guide").font(.system(size: 12, weight: .black))
+                        Button { document.clickedGuidePageButton(pageItem) }
+                        label: { if pageItem.skipped {
+                            Image(systemName: "ruler.fill")  }  else {
+                                Image(systemName: "ruler") }
+                        }
+                        .buttonStyle(SelectableButtonStyle(isSelected: document.widthGuidePageID != nil, isHovering: hoveredButton == 235))
+                        .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                        .help("Set Width Guide")
                     }
-                    Text("- \(pageItem.trims.right)")
                 }
-                .font(.headline)
+                
                 .padding(.vertical, 10)
                 .foregroundStyle(.white)
                 .contentShape(.rect)
-
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background {
                     RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
                         .foregroundStyle(Color.prax)
                 }
-            }
+                
+
+                }
+
+                
+            
+            
 
         }
         else { EmptyView() }
@@ -443,6 +459,47 @@ public struct SlideableDivider: View {
             .onEnded { val in
                 dimensionStart = nil
             }
+    }
+}
+
+struct PraxSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: View where T.RawValue == String {
+    
+    // The selection is now a @Binding so it can be changed from the parent view
+    @Binding var selection: T
+    private let items: [T] = T.allCases as! [T]
+    @Namespace private var animation
+    
+    // We add a function to get the color for a specific item
+    let colorProvider: (T) -> Color
+    let iconProvider: (T) -> String
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(items, id: \.self) { item in
+                Label(item.rawValue, systemImage: iconProvider(item))
+             //   Image(iconProvider(item))
+             //   Text(item.rawValue)
+                    .font(.caption)
+                    .padding(10)
+                    .foregroundStyle(selection == item ? .white : .primary.opacity(0.7))
+                    .background {
+                        if selection == item {
+                            
+                            Capsule()
+                                .foregroundStyle(colorProvider(item).gradient)
+                                .matchedGeometryEffect(id: "reusable_tab", in: animation)
+                        }
+                    }
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        withAnimation(.bouncy) {
+                            selection = item
+                        }
+                    }
+            }
+        }
+        .background(.primary.opacity(0.08), in: .capsule)
+        //    .padding(.horizontal, 10)
     }
 }
 

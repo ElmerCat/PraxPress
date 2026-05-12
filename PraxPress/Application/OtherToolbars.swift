@@ -68,7 +68,7 @@ struct DocumentEditingToolbar: View {
                     
                    
                     if let pageItem = prax.selectedPageItem {
-                        Text(pageItem.name)
+                     //   Text(pageItem.name)
                         Group {
                             Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
                             label: {
@@ -104,13 +104,14 @@ struct DocumentEditingToolbar: View {
                            // .disabled(document.exportFolderURL == nil)
                             
                             
+                            
                             Text(".pdf")
                             Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
                                 
                             
                             }
                             .draggable({ () -> MergedPDFTransfer? in
-                                guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
+                                guard let data = document.mergedPDFDocument.dataRepresentation(options: [PDFDocumentWriteOption.burnInAnnotationsOption: (prax.annotationSaveMode == .burnIn)]) else { return nil }
                                 return MergedPDFTransfer(data: data, filename: document.exportFilename)
                             }()!, preview: {
                                 PraxDragPreview()
@@ -132,8 +133,10 @@ struct DocumentEditingToolbar: View {
                                 .buttonStyle(SwitchButtonStyle(isOn: showDataFields, isHovering: hoveredButton == 417))
                                 .controlSize(.extraLarge)
                                 .onHover { hovering in hoveredButton = hovering ? 417 : nil }
-                                .inspectorPanel(isPresented: $showDataFields) { DataFieldsEditor(prax: prax) }
+                                .inspectorPanel(isPresented: $showDataFields) { DataFieldsEditor().environment(prax) }
              
+                                PraxSegmentedControl(selection: $prax.annotationSaveMode, colorProvider: { $0.color }, iconProvider: { $0.icon })
+                                
                                 Spacer()
                                 
                             }
@@ -146,8 +149,8 @@ struct DocumentEditingToolbar: View {
                                     let needsStop = url.startAccessingSecurityScopedResource()
                                     defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
                                 
-                                    document.mergedPDFDocument.write(to: url)
-                              //      document.mergedPDFDocument.write(to: url, withOptions: [.burnInAnnotationsOption: true])
+                                //    document.mergedPDFDocument.write(to: url)
+                                    document.mergedPDFDocument.write(to: url, withOptions: [PDFDocumentWriteOption.burnInAnnotationsOption: (prax.annotationSaveMode == .burnIn)])
                            
                                 }
                                 else {
@@ -252,66 +255,65 @@ struct DocumentEditingFooter: View {
 
 struct EditingDocumentToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
+    @Environment(PraxModel.self) private var prax
     
-    
+    @FocusState private var focusedField: String?
+    @FocusState private var amountFocused: Bool
     @State private var hoveredButton: Int? = nil
     @State private var showFilenamePrefixPopover = false
 //    @State private var guideXLeft = 0.0
 //    @State private var guideXRight = 0.0
     
+    func currentPageIndex() -> Int {
+        if let pdfDocument = prax.editingDocumentPDFView.document {
+            if let pdfPage = prax.editingDocumentPDFView.currentPage {
+                return pdfDocument.index(for: pdfPage)
+            }
+        }
+        return 0
+    }
+    
     var body: some View { GeometryReader { proxy in
-        @Bindable var prax = praxModel
+        @Bindable var prax = prax
         
         if let pageItem = prax.selectedPageItem {
             
             let undoManager = prax.undoManager
             let _ = Self._printChanges()
-            
-            
- //           let pageCount = prax.selectedPageItem != nil ? prax.selectedPageItem!.mergedPage.mergeModePages : 0
-            //       let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)
-            
-            
-            
+
+            let decimals = Set("0123456789.-+")
             
             GroupBox {
                 
-                    let thePoint = computeGuidelines()
+                    
                     VStack {
                         HStack {
                             
                             
                             GroupBox {
                                 HStack {
-                                    
                                         GroupBox() {
                                             VStack {
-                                                Text("\(pageItem.mergedPage.mergeModePages) Pages").font(.system(size: 8))
-                                                /*
-                                                 HStack {
-                                                 Text(String(curentPageIndex + 1)).monospaced()
-                                                 VStack(spacing: 0) {
-                                                 Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
-                                                 label: { Image(systemName: "arrowtriangle.up")  }
-                                                 .disabled(curentPageIndex < 1)
+                                                Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
+                                                
+                                                HStack {
+                                                    Text(String("\(currentPageIndex() + 1)")).monospaced()
+                                                    VStack(spacing: 0) {
+                                                        Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+                                                        label: { Image(systemName: "arrowtriangle.up")  }
+                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                                                            .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
+                                                            .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                                                        
+                                                        Button { prax.editingDocumentPDFView.goToNextPage(self) }
+                                                        label: {  Image(systemName: "arrowtriangle.down")}
+                                                            .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                                                            .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
+                                                            .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+                                                    }
+                                                    
+                                                }
                                                  
-                                                 //                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                                 .buttonStyle(StackedButtonStyle(theme: praxTheme,
-                                                 isDisabled: curentPageIndex < 1,
-                                                 isHovering: hoveredButton == 11, isFocused: false))
-                                                 .onHover { hovering in hoveredButton = hovering ? 11 : nil }
-                                                 
-                                                 Button { prax.editingDocumentPDFView.goToNextPage(self) }
-                                                 label: {  Image(systemName: "arrowtriangle.down")}
-                                                 .disabled(pageCount - 1 < curentPageIndex )
-                                                 .buttonStyle(StackedButtonStyle(theme: praxTheme,
-                                                 isDisabled: pageCount - 1 < curentPageIndex,
-                                                 isHovering: hoveredButton == 12, isFocused: false))
-                                                 .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
-                                                 }
-                                                 }
-                                                 */
                                                 
                                             }
                                             
@@ -320,27 +322,13 @@ struct EditingDocumentToolbar: View {
                                         }
                                         .background(Color.clear, in: .containerRelative)
                                         .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
-                                        
                                         .padding(2)
-                                        
-                                    
-                                    
-                                    
-                                    
                                     Divider().foregroundStyle(.white).background(.white)
-                                    
-                                    //        Text("\(pageItem.name)  Undo").font(.system(size: 8))
-                                    
+ 
                                     Button {undoManager.undo() }
                                     label: {
-                                        GroupBox {
-                                            HStack() {
-                                                Text(String("- \(undoManager.undoCount) -")) // .font(.system(size: 8))
-                                                Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )
-                                            }
-                                            
-                                        }
-                                    }
+                                        Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
+                                        Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
                                     .disabled(undoManager.undoCount < 1)
                                     .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
                                     .onHover { hovering in hoveredButton = hovering ? 274 : nil }
@@ -363,18 +351,7 @@ struct EditingDocumentToolbar: View {
                                     
                                     PageItemTrimsView()
                                     
-                                    Text("Set Width Guide").font(.system(size: 8))
-                                    Button { document.clickedGuidePageButton(pageItem) }
-                                    label: { if pageItem.skipped {
-                                        Image(systemName: "ruler.fill")  }  else {
-                                            Image(systemName: "ruler") }
-                                    }
-                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 235))
-                                    .onHover { hovering in hoveredButton = hovering ? 235 : nil }
-                                    .help("Set Width Guide")
-                                    
-                                    Spacer()
-                                    Text("\(pageItem.name)")
+
                                     
                                 }
                             }
@@ -383,92 +360,70 @@ struct EditingDocumentToolbar: View {
                             
                             
                         }
-                        Text("\(thePoint.x) x \(thePoint.y)")
-                        
-                        HStack(spacing: 0) {
-                            Rectangle()
-                                .foregroundStyle(.green)
-                                .frame(width: thePoint.x, height: 10)
-                            Rectangle()
-                                .foregroundStyle(PraxGradient())
-                                .frame(maxWidth: .infinity, minHeight: 10, maxHeight: 10)
-                            Rectangle()
-                                .foregroundStyle(.yellow)
-                                .frame(width: thePoint.y, height: 10)
+                        if pageItem.mergedPage.hasDataFields {
+ 
+                            HStack {
+                               
+                                Text("Document")
+                                PasteButton(payloadType: String.self) { strings in
+                                      if let firstString = strings.first {
+                                          pageItem.dataFields["DocumentNumber"] = .string(firstString.filter(\.isNumber))
+                                      }
+                                  }
+                                  .buttonBorderShape(.capsule)
+                                TextField("Document", text: Binding<String>(
+                                    get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
+                                    set: { newValue in
+                                        pageItem.dataFields["DocumentNumber"] = .string(newValue.filter(\.isNumber))
+                                    }
+                                ) )
+                                .focused($focusedField, equals: "DocumentNumber")
+                                .frame(minWidth: 50, maxWidth: 100)
+                                .multilineTextAlignment(.trailing)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                Text("Amount")
+                                TextField("Amount", text: Binding<String>(
+                                    get: { pageItem.dataFields["Amount"]?.stringValue ?? "" },
+                                    set: { newValue in
+                                        pageItem.dataFields["Amount"] = .string(newValue.filter{decimals.contains($0)} )
+                                        if "Amount" == "Amount" {
+                                            prax.document.exportFilenameBody = newValue.filter(\.isNumber)
+                                        }
+                                    }
+                                ) )
+                            //    .focused($focusedField, equals: "Amount")
+                                .focused($amountFocused)
+                                            .onChange(of: amountFocused) { oldValue, newValue in
+                                                if newValue {
+                                                    // Set selection to the entire range of the text
+                                            //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
+                                                }
+                                            }
+                                .frame(minWidth: 50, maxWidth: 100)
+                                .multilineTextAlignment(.trailing)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                }
+
+                            }
+ 
                         }
+
                         
                     }.padding(0)
                     
                 
                 
                 
-            }
+           
             .frame(maxWidth: .infinity)
-            
             .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
-            //  .background(.yellow)
-            
         }
         else { EmptyView() }
     } }
     
     
-    private func computeGuidelines() -> CGPoint {
-        
-        if let pageItem = praxModel.selectedPageItem {
-            
-      //     let widthGuidePage = document!.widthGuidePage()
-       
-            
-            // Normalize guide x's by the guide page's crop box, then map to the current page's crop box
-            var guideXLeft = pageItem.trims.left
-            var guideXRight = pageItem.trims.right
-            let guideLeftX = pageItem.trims.left
-            let guideRightX = pageItem.trims.right
-            
-            let guideCrop = pageItem.pdfPage.bounds(for: .cropBox)
-            let currentCrop = pageItem.pdfPage.bounds(for: .cropBox)
-            guard guideCrop.width > 0, currentCrop.width > 0 else {
-                return .zero
-            }
-            let leftNorm = (guideLeftX - guideCrop.minX) / guideCrop.width
-            let rightNorm = (guideRightX - guideCrop.minX) / guideCrop.width
-            let currentLeftX = currentCrop.minX + leftNorm * currentCrop.width
-            let currentRightX = currentCrop.minX + rightNorm * currentCrop.width
-            // Build tall thin rects at mapped x positions in current page space
-            let leftRectInPage = CGRect(x: currentLeftX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
-            let rightRectInPage = CGRect(x: currentRightX, y: currentCrop.minY, width: 0.5, height: currentCrop.height)
-            // Convert to view space and then overlay space
-            let leftInView = (praxModel.editingDocumentPDFView.convert(leftRectInPage, from: pageItem.pdfPage))
-            let rightInView = (praxModel.editingDocumentPDFView.convert(rightRectInPage, from: pageItem.pdfPage))
-            let leftInOverlay = pageItem.overlayView.convert(leftInView, from: praxModel.editingDocumentPDFView)
-            let rightInOverlay = pageItem.overlayView.convert(rightInView, from: praxModel.editingDocumentPDFView)
-            guideXLeft = leftInOverlay.midX
-            guideXRight = rightInOverlay.midX
-            
-            // Skip drawing if lines would be far outside clamp; otherwise clamp to bounds
-  /*        let gxL = guideXLeft
-                if gxL.isNaN || gxL.isInfinite { guideXLeft = 0 }
-                else if gxL < pageItem.overlayView.bounds.minX - 2000 || gxL > pageItem.overlayView.bounds.maxX + 2000 { guideXLeft = 0 }
-                else { guideXLeft = max(pageItem.overlayView.bounds.minX, min(pageItem.overlayView.bounds.maxX, gxL)) }
-   
-         let gxR = guideXRight
-                if gxR.isNaN || gxR.isInfinite { guideXRight = 0 }
-                else if gxR < pageItem.overlayView.bounds.minX - 2000 || gxR > pageItem.overlayView.bounds.maxX + 2000 { guideXRight = 0 }
-                else { guideXRight = max(pageItem.overlayView.bounds.minX, min(pageItem.overlayView.bounds.maxX, gxR)) }
-   */
-            
-            let thePoint = CGPoint(x: guideXLeft, y: guideXRight)
-            return thePoint
-
-            
-        } else {
-            
-            return .zero
-            
-        }
-        
-    }
  
 }
 
@@ -572,3 +527,4 @@ struct EditingDocumentFooter: View {
 //    MergedDocumentFooter()
    
 }
+

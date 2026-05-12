@@ -15,7 +15,7 @@ struct MainSceneRoot: View {
     @Environment(FilesPersistenceController.self) private var persistence
 
     // We’ll build praxModel and document after we have a window-scoped context.
-    @State private var praxModel: PraxModel? = nil
+    @State private var prax: PraxModel? = nil
     @State private var document: MergedPDFDocument? = nil
 
 //    @State private var windowStore: WindowEditingStore? = nil
@@ -23,10 +23,10 @@ struct MainSceneRoot: View {
 
     var body: some View {
         Group {
-            if let prax = praxModel, let doc = document { //, let winContext = windowContext {
+            if let prax = prax, let document = document { //, let winContext = windowContext {
                 ContentView()
                     .environment(prax)
-                    .environment(doc)
+                    .environment(document)
 //                    .environment(\.perWindowModelContext, winContext)
             } else {
                 ProgressView("Preparing window…")
@@ -35,7 +35,7 @@ struct MainSceneRoot: View {
         }
         
         .onModifierKeysChanged(mask: .option) { old, new in
-            guard let prax = praxModel else { return }
+            guard let prax = prax else { return }
             if new.isEmpty {
                 prax.optionKeyPressed = false
                 print("Option key released")
@@ -46,33 +46,24 @@ struct MainSceneRoot: View {
             }
         }
         .task {
-            
-/*            if windowContext == nil {
-                if let windowStore = try? WindowEditingStore(inMemory: true) {
-                    let container = windowStore.container
-                    windowContext = ModelContext(container)
-                }
-            }
-           
-            guard let windowContext else { return }
-*/
+
             // Construct PraxModel first (only once)
-            if praxModel == nil {
-                praxModel = PraxModel()
+            if prax == nil {
+                prax = PraxModel()
             }
-            guard let prax = praxModel else { return }
+            guard let prax = prax else { return }
 
             // Construct the document with non-optional dependencies (only once)
             if document == nil {
-                let doc = MergedPDFDocument(
+                let document = MergedPDFDocument(
             //        windowModelContext: windowContext,
                     prax: prax,
                     persistence: persistence
                 )
                 // Attach the document back to PraxModel to complete the cycle
-                prax.attach(document: doc)
+                prax.attach(document: document)
                 // Publish into @State so it propagates into the environment
-                document = doc
+                self.document = document
             }
         }
     }

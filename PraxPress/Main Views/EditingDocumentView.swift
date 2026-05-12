@@ -241,7 +241,7 @@ struct EditingPDFDocumentView: View {
         
         @objc func pageChanged(_ note: Notification) {
             print("EditingPDFDocumentViewCoordinator - pageChanged ")
-            guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
+       //     guard let pdfView = note.object as? PDFView  else { fatalError("No PDFView") }
             
  /*           if let pdfPage = document.prax.currentEditingPDFPage {
                 if !pdfView.visiblePages.contains(pdfPage) {

@@ -36,6 +36,35 @@ final class PraxModel {
     let theme = PraxTheme(.erika)
    
     
+    enum AnnotationSaveMode: String, CaseIterable {
+        case editable = "Editable"
+        case locked = "Locked"
+        case burnIn = "Burn In"
+        
+        var color: Color { switch self {
+            case .editable:
+                return .blue
+            case .locked:
+                return .red
+            case .burnIn:
+                return .orange } }
+        
+        var icon: String { switch self {
+            case .editable:
+                return "lock.open"
+        case .locked:
+                return "lock"
+            case .burnIn:
+                return "burn" }}
+    }
+    
+    var annotationSaveMode: AnnotationSaveMode = .editable {
+        didSet {
+            print("Prax - AnnotationSaveMode = ", annotationSaveMode)
+            selectedPageItem?.mergedPage.refreshMergedPage()
+        }
+    }
+
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
         case merge = "Merge Mode"

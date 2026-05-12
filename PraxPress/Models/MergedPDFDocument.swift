@@ -28,26 +28,16 @@ import OSLog
     var mergedPages: [MergedPage] = [] {
         didSet {
             print("MergedPDFDocument - mergedPages: didSet ")
-            
             if mergedPages.isEmpty {
-  //              prax.selectedEditPages = []
                 prax.selectedPageItems = []
-       //         prax.selectedPageItem = nil
             }
-       
-  //          refreshMergedDocument()
-            
-          /*  else if prax.selectedPageItem == nil {
-                if let mergedPage = mergedPages.first {
-                    if mergedPage.mergeModePages > 0 {
-                        prax.currentEditingMergedPage = mergedPage } }
-            }
-        */
     } }
 
+
     var mergedDocumentVersion = UUID()
-    var mergedDocumentSize = 0.0
+    var mergedDocumentSizeKB = 0
     
+    var refreshingMergedDocument: Bool = false
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
      //   print("refreshMergedDocument")
@@ -57,31 +47,30 @@ import OSLog
             
             try? await Task.sleep(for:.milliseconds(100))
 
-    //        print("refreshMergedDocument — started")
-
             var insertIndex = 0
             let pdfDocument = PDFDocument()
             
-            mergedPages.forEach {
-                section in
-                if let pdfPage = section.pdfPage {
+            for mergedPage in mergedPages {
+                if let pdfPage = mergedPage.pdfPage {
                     
                     pdfDocument.insert(pdfPage, at: insertIndex)
                     insertIndex += 1
                 }
+
             }
+            
+
             mergedPDFDocument = pdfDocument
             mergedDocumentVersion = UUID()
             
             if let pdfData = pdfDocument.dataRepresentation() {
                 let sizeInBytes = pdfData.count
-                mergedDocumentSize = Double(sizeInBytes) / (1024)
-                print("mergedDocumentSize: \(mergedDocumentSize) KB")
+                mergedDocumentSizeKB = sizeInBytes / (1000)
+                print("mergedDocumentSizeKB: \(mergedDocumentSizeKB) KB")
             }
             self.refreshingMergedDocument = false
             print("refreshMergedDocument — done")
         }
- //       print("refreshMergedDocument — Task starting")
   
     }
 
@@ -91,39 +80,10 @@ import OSLog
     
     var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet {
-//            print ("mergedPDFDocument didSet ")
            prax.mergedDocumentPDFView.document = mergedPDFDocument
         }
     }
-    var aeditingPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
-        didSet {
-//            print ("editingPDFDocument didSet ")
- //           editingPDFView.document = editingPDFDocument
-        }
-    }
 
-    var refreshingEditingDocument: Bool = false  {
-       didSet {
-           if refreshingEditingDocument {
-  //             print ("Refreshing Editing Document")
-           }
-           else {
- //              print ("Editing Document Refreshed")
-           }
-       }
-   }
-   
-    var refreshingMergedDocument: Bool = false  {
-       didSet {
-           if refreshingMergedDocument {
- //              print ("Refreshing Merged Document")
-           }
-           else {
-  //             print ("Merged Document Refreshed")
-           }
-       }
-   }
-   
 
     var sourceFolderURL: URL?
     var exportFolderURL: URL?

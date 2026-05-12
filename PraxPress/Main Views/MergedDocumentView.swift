@@ -76,6 +76,7 @@ struct MergedPDFDocumentView: View {
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
+    
     var body: some View {
         @Bindable var prax = praxModel
         
@@ -154,8 +155,10 @@ struct MergedPDFDocumentView: View {
                             .onHover { hovering in
                                 hoveredButton = hovering ? 3 : nil
                             }
-                        
-
+                        Spacer()
+                        Text(String(format: "Merged size:  %u KB", document.mergedDocumentSizeKB))
+                        Spacer()
+                    
                     }
                     
                     
@@ -256,6 +259,17 @@ struct MergedPDFDocumentView: View {
                 
                 scalePDFViewToFit(pdfView: context.coordinator.pdfView!)
                 
+                if document.prax.selectedPageItem == nil {
+                    if let mergedPage = document.mergedPages.first {
+                        if let pageItem = mergedPage.pageItems.first(where: {!$0.skipped}) {
+                            DispatchQueue.main.async {
+                                print("document.prax.selectedPageItem = pageItem")
+                                document.prax.selectedPageItem = pageItem
+                            }
+                            
+                        }
+                   }
+                }
             }
             else {
        //         print("MergedPDFDocumentViewCoordinator - updateNSView - No Change ")

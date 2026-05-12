@@ -137,12 +137,13 @@ struct ItemButtonStyle: ButtonStyle {
         let backgroundColor: Color
         let foregroundColor: Color
         
-        if configuration.isPressed {
-            backgroundColor = prax.theme.backgroundColorPressed
-            foregroundColor = prax.theme.foregroundColorPressed
-        } else if !isEnabled {
+        if !isEnabled {
             backgroundColor = .clear
             foregroundColor = .gray
+        }
+        else if configuration.isPressed {
+            backgroundColor = prax.theme.backgroundColorPressed
+            foregroundColor = prax.theme.foregroundColorPressed
         } else if isHovering {
             backgroundColor = prax.theme.backgroundColorHover
             foregroundColor = prax.theme.foregroundColorHover
@@ -168,7 +169,7 @@ struct ItemButtonStyle: ButtonStyle {
 
 struct StackedButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
-    var isDisabled: Bool
+    @Environment(\.isEnabled) private var isEnabled
     var isHovering: Bool
     var isFocused: Bool
     
@@ -179,7 +180,7 @@ struct StackedButtonStyle: ButtonStyle {
         if configuration.isPressed {
             backgroundColor = prax.theme.backgroundColorPressed
             foregroundColor = prax.theme.foregroundColorPressed
-        } else if isDisabled {
+        } else if !isEnabled {
             backgroundColor = .clear
             foregroundColor = .clear
         } else if isHovering {
@@ -256,7 +257,7 @@ struct SelectableButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
     var isSelected: Bool
     var isHovering: Bool
-    var isFocused: Bool
+    var isFocused: Bool = false
     
     func makeBody(configuration: Self.Configuration) -> some View {
         let backgroundColor: Color

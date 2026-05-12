@@ -39,11 +39,7 @@ struct MainToolbar: ToolbarContent {
             }
         }
         
-
-   
-        
-        
-        
+       
         ToolbarItemGroup(placement: .status) {
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
         }

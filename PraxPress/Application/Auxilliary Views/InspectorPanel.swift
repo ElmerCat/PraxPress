@@ -126,9 +126,9 @@ fileprivate struct InspectorPanelModifier<PanelContent: View>: ViewModifier {
                 /// When the view disappears, close and kill the panel
                 panel?.close()
                 panel = nil
-            }.onChange(of: isPresented) { value in
-                /// On change of the presentation state, make the panel react accordingly
-                if value {
+            }
+            .onChange(of: isPresented) {
+                if isPresented {
                     present()
                 } else {
                     panel?.close()

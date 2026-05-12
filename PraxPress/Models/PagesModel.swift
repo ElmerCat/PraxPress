@@ -219,22 +219,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             minWidthPts = minVisibleWidth
             mergedWidthPts = maxVisibleWidth
             mergedHeightPts = totalVisibleHeight
-           
-            for pageItem in pageItems {
-                
-                if !pageItem.skipped {
-                    let vis = PDFGeometry.visibleRect(media: pageItem.media, trims: pageItem.trims, seamTop: 0, seamBottom: 0)
-                    maxVisibleWidth = max(maxVisibleWidth, vis.width)
-                    minVisibleWidth = min(minVisibleWidth, vis.width)
-                    
-                    totalVisibleHeight += vis.height
-                }
-            }
-            minWidthPts = minVisibleWidth
-
-            mergedWidthPts = maxVisibleWidth
-            mergedHeightPts = totalVisibleHeight
-
+ 
             var mediaBox = CGRect(x: 0, y: 0, width: mergedWidthPts, height: mergedHeightPts)
             
             let tmpOut = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
@@ -306,7 +291,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     if let key = annotation.fieldName {
                         if keys.contains(key) {
                             if let value = annotation.widgetStringValue {
-                                print("key: ", key, " - widgetStringValue: ", value, " - pageItemValue: ", pageItem.dataFields[key]!.stringValue!)
+                           //     print("key: ", key, " - widgetStringValue: ", value, " - pageItemValue: ", pageItem.dataFields[key]!.stringValue!)
                                 if value != pageItem.dataFields[key]!.stringValue! {
                                     annotation.widgetStringValue = pageItem.dataFields[key]!.stringValue!
                                 }
@@ -327,7 +312,16 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     // Translate annotation bounds from source page space into merged page space
                     let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
                     copiedAnnotation.bounds = translatedBounds
-                    copiedAnnotation.isReadOnly = true
+                    
+                    
+                    switch prax.annotationSaveMode {
+                    case .locked:
+                        copiedAnnotation.isReadOnly = true
+                    default:
+                        copiedAnnotation.isReadOnly = false
+                    }
+                    
+                    
                     mergedPDFPage.addAnnotation(copiedAnnotation)
                     
                     // Preserve text values for text widgets

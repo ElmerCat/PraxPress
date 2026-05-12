@@ -416,7 +416,7 @@ struct MergedPageFooterView: View {
             let h = mergedPage!.mergedHeightPts
             let wIn = w / 72.0
             let hIn = h / 72.0
-            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in)", w, h, wIn, hIn)
+            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in) %.0f KB", w, h, wIn, hIn, document.mergedDocumentSizeKB)
         }
         else {
             return "No Merged Page"

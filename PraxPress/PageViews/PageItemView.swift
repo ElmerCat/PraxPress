@@ -159,7 +159,7 @@ struct PageEditView: View {
     var body: some View {
         
         
-        let backgroundColor: Color = {
+ /*       let backgroundColor: Color = {
             switch highlightState {
             case .forSelection:
                 Color.orange
@@ -176,7 +176,7 @@ struct PageEditView: View {
                 }
             }
         }()
-        
+*/
         let foregroundColor: Color = {
             switch highlightState {
             case .forSelection:

@@ -9,18 +9,15 @@ import SwiftUI
 
 
 struct DataFieldsEditor: View {
-    @Bindable var prax: PraxModel
+    @Environment(PraxModel.self) private var prax
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: String?
     @State private var hoveredButton: String?
+    @State private var setTitleKey = ""
     
-//    let praxTheme = PraxTheme(.erika)
-   
     var body: some View {
-        
-        if !prax.selectedPageItems.isEmpty,
-           let indexPath = prax.selectedPageItems.first,
-           let pageItem = prax.document.pageItem(indexPath: indexPath) {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
             
             VStack {
                 GroupBox {
@@ -31,45 +28,32 @@ struct DataFieldsEditor: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                         
                         Spacer()
-                        Button {
-                            dismiss()
-                        }
-                        label: {
-                                Text("Close")
-                        }
-                       
+                        Button { dismiss() } label: { Text("Close") }
                     }
                 }
                 GroupBox {
                    
                     Grid(alignment: .trailing) {
                         ForEach(pageItem.dataFields.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                            
                             GridRow {
                                 Text(key)
                                 Spacer()
                                 
-                                
-                                
                                 TextField(key, text: Binding<String>(
                                     get: { value.stringValue ?? "" },
                                     set: { newValue in
-                                        pageItem.dataFields[key] = .string(newValue) }
+                                        pageItem.dataFields[key] = .string(newValue)
+                                        if setTitleKey == key {
+                                            prax.document.exportFilenameBody = newValue
+                                        }
+                                    }
                                 ) )
-
-                             //   .focusable(interactions: .automatic)
                                 .focused($focusedField, equals: key)
-                         //       .onSubmit {
-                                    
-                        //            print("Julie d'Prax stringValue: ", value.stringValue)
-                     //               if index < keys.count - 1 { focusedField = keys[index + 1]}
-                     //               else { focusedField = keys[0] }
-                           //     }
-                                
                                 .frame(minWidth: 50, maxWidth: 600)
                                 .multilineTextAlignment(.trailing)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                                
                                 Spacer()
                                 
                                 Button("Copy") {
@@ -77,13 +61,23 @@ struct DataFieldsEditor: View {
                                         pasteboard.clearContents()
                                         pasteboard.setString(value.stringValue ?? "", forType: .string)
                                 }
-                               // .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == index, isFocused: false))
+                                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == key, isFocused: false))
                                 .onHover { hovering in
                                     hoveredButton = hovering ? key : nil
                                 }
+                                .frame(minWidth: 40)
+                                
+                                Button("Set Title") {
+                                    if setTitleKey == key { setTitleKey = "" }
+                                    else { setTitleKey = key }
+                                }
+                                .buttonStyle(SelectableButtonStyle(isSelected: setTitleKey == key, isHovering: hoveredButton == key, isFocused: false))
+                                .onHover { hovering in
+                                    hoveredButton = hovering ? key : nil
+                                }
+                                .frame(minWidth: 40)
                                 
                             }
-                            
                         }
                     }
                     .focusable()
@@ -98,14 +92,13 @@ struct DataFieldsEditor: View {
                             .font(Font.custom("BrushScriptMT", size: 20))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .center)
-                        
                        
                     }
                 }
-                
             }
-            
-
+        }
+        else {
+            EmptyView()
         }
      }
 }

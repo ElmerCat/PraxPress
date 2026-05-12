@@ -282,6 +282,7 @@ struct DragOutControl: View {
 
 
 struct PraxDragPreview: View {
+    @Environment(PraxModel.self) var prax: PraxModel
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @State private var rotate = false
     
@@ -289,11 +290,13 @@ struct PraxDragPreview: View {
     
     var body: some View {
         
+
+        
         if document.mergedPDFDocument.pageCount > 0 {
             GroupBox {
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color("PraxColor").opacity(0.75))
+                        .fill(prax.annotationSaveMode.color.opacity(0.75))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.yellow, lineWidth: 2)
@@ -317,7 +320,7 @@ struct PraxDragPreview: View {
                                 .frame(width: frameSize.width - 60, height: frameSize.height - 80, alignment: .leading)
                                 .rotationEffect(.degrees(180))
         //                        .font(.system(size: 28, weight: .medium))
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(prax.annotationSaveMode.color)
                         //        .animation(.easeInOut(duration: 1), value: rotate)
                         //        .onAppear {
                         //            rotate = true
