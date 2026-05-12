@@ -145,13 +145,303 @@ struct ImageInspectingPopover: View {
     }
 }
 
+struct Stub_PageItemPopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    var body: some View {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
+            Text(pageItem.name)
+        }
+        else {
+            EmptyView()
+        }
+    }
+}
+
+struct DatePopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @FocusState private var isFocused: Bool
+    
+    @State private var selectedDate = Date()
+//    @State private var dateString = ""
+ 
+    func dateFromPageItemDataField(_ pageItem: PageItem) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M/d/yy" // Match your input string format
+        return formatter.date(from:  ((pageItem.dataFields.contains(where: { $0.key == "Date" }) ? pageItem.dataFields["Date"]!.stringValue : "1/1/2026")!))
+    }
+    
+//    dateFormatter.dateFormat = "d.M.yy"
+   
+    var body: some View {
+        @Bindable var prax = prax
+        
+        
+        if let pageItem = prax.selectedPageItem {
+            GroupBox {
+                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                .onChange(of: selectedDate) {
+                    // Format to a string on every change
+                    pageItem.dataFields["Date"] = .string(selectedDate.formatted(
+                        .verbatim("\(month: .defaultDigits)/\(day: .defaultDigits)/\(year: .twoDigits)",
+                        timeZone: .current,
+                        calendar: .current)
+                    ))
+                }
+                .datePickerStyle(.graphical)
+            }
+            
+
+            .onHover { hovering in if !hovering { dismiss() } }
+            .padding(20)
+            
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.blue, lineWidth: 10) )
+            .foregroundColor(Color("PraxColor"))
+            .background(PraxGradient(1).ignoresSafeArea())
+            
+            
+            .onAppear(perform: {
+                if let pageItem = prax.selectedPageItem {
+                    selectedDate = dateFromPageItemDataField(pageItem) ?? Date()
+                }
+            })
+            
+        }
+        
+        else { EmptyView() }
+    }
+}
+
+struct VendorAccountsPopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @FocusState private var focusedField: String?
+   
+    var body: some View {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
+
+            GroupBox {
+                
+                Grid {
+                    GridRow {
+                        HStack {
+                            Text("Vendor:")
+                            TextField("Vendor", text: Binding<String>(
+                                get: { pageItem.dataFields["Vendor"]?.stringValue ?? "" },
+                                set: { newValue in
+                                    pageItem.dataFields["Vendor"] = .string(newValue)
+                                }
+                            ) )
+                            //    .focused($focusedField, equals: "Amount")
+                            .focused($focusedField, equals: "Vendor")
+                            
+                        }
+                    }
+                    GridRow {
+                        HStack {
+                            Text("G/L Account:")
+                            TextField("GLAccount", text: Binding<String>(
+                                get: { pageItem.dataFields["GLAccount"]?.stringValue ?? "" },
+                                set: { newValue in
+                                    pageItem.dataFields["GLAccount"] = .string(newValue.filter(\.isNumber))
+                                }
+                            ) )
+                            //    .focused($focusedField, equals: "Amount")
+                            .focused($focusedField, equals: "GLAccount")
+                        }
+                    }
+                    GridRow {
+                        HStack {
+                            Text("Cost Object:")
+                            TextField("CostObject", text: Binding<String>(
+                                get: { pageItem.dataFields["CostObject"]?.stringValue ?? "" },
+                                set: { newValue in
+                                    pageItem.dataFields["CostObject"] = .string(newValue.filter(\.isNumber))
+                                }
+                            ) )
+                            //    .focused($focusedField, equals: "Amount")
+                            .focused($focusedField, equals: "CostObject")
+                        }
+                    }
+                }
+                
+
+            }
+            .padding(20)
+            .onHover { hovering in if !hovering { dismiss() } }
+            .frame(minWidth: 350, maxWidth: 350)
+            .multilineTextAlignment(.trailing)
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .onSubmit { dismiss() }
+            .onKeyPress(.tab, action: {
+                switch(focusedField) {
+                case "Vendor":
+                    focusedField = "GLAccount"
+                case "GLAccount":
+                    focusedField = "CostObject"
+                default:
+                    dismiss()
+                }
+                
+                return .handled
+            })
+                
+            }
+        else {
+            EmptyView()
+        }
+    }
+}
+
+struct DescriptionPopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @FocusState private var isFocused: Bool
+   
+    var body: some View {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
+
+            GroupBox {
+                TextEditor(text: Binding<String>(
+                    get: { pageItem.dataFields["Description"]?.stringValue ?? "" },
+                    set: { newValue in
+                        pageItem.dataFields["Description"] = .string(newValue)
+                    }
+                ) )
+                //    .focused($focusedField, equals: "Amount")
+                .focused($isFocused)
+                .onChange(of: isFocused) { oldValue, newValue in
+                    if newValue {
+                        // Set selection to the entire range of the text
+                        //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
+                    }
+                }
+            }
+                .onHover { hovering in if !hovering { dismiss() } }
+                .frame(width: 400, height: 200)
+                .multilineTextAlignment(.leading)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit { dismiss() }
+                .onKeyPress(.tab, action: {
+                    dismiss()
+                    return .handled
+                })
+                .padding(20)
+            }
+        else {
+            EmptyView()
+        }
+    }
+}
+
+struct DocumentNumberPopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @FocusState private var isFocused: Bool
+   
+    var body: some View {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
+
+            GroupBox {
+                TextField("DocumentNumber", text: Binding<String>(
+                    get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
+                    set: { newValue in
+                        pageItem.dataFields["DocumentNumber"] = .string(newValue.filter{Prax.decimals.contains($0)} )
+                    }
+                ) )
+                //    .focused($focusedField, equals: "Amount")
+                .focused($isFocused)
+                .onChange(of: isFocused) { oldValue, newValue in
+                    if newValue {
+                        // Set selection to the entire range of the text
+                        //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
+                    }
+                }
+            }
+                .onHover { hovering in if !hovering { dismiss() } }
+                .frame(minWidth: 150, maxWidth: 150)
+                .multilineTextAlignment(.trailing)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit { dismiss() }
+                .onKeyPress(.tab, action: {
+                    dismiss()
+                    return .handled
+                })
+            }
+        else {
+            EmptyView()
+        }
+    }
+}
+
+struct AmountPopover: View {
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @FocusState private var isFocused: Bool
+   
+    var body: some View {
+        @Bindable var prax = prax
+        if let pageItem = prax.selectedPageItem {
+
+            GroupBox {
+                TextField("Amount", text: Binding<String>(
+                    get: { pageItem.dataFields["Amount"]?.stringValue ?? "" },
+                    set: { newValue in
+                        pageItem.dataFields["Amount"] = .string(newValue.filter{Prax.decimals.contains($0)} )
+                        if "Amount" == "Amount" {
+                            prax.document.exportFilenameBody = newValue.filter(\.isNumber)
+                        }
+                    }
+                ) )
+                //    .focused($focusedField, equals: "Amount")
+                .focused($isFocused)
+                .onChange(of: isFocused) { oldValue, newValue in
+                    if newValue {
+                        // Set selection to the entire range of the text
+                //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
+                    }
+                }
+                .onHover { hovering in if !hovering { dismiss() } }
+                .frame(minWidth: 100, maxWidth: 100)
+                .multilineTextAlignment(.trailing)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit { dismiss() }
+                .onKeyPress(.tab, action: {
+                    dismiss()
+                    return .handled
+                })
+            }
+            
+            
+        }
+        else {
+            EmptyView()
+        }
+    }
+}
+
+
+
+
+
+
 struct DeletePopover: View {
 //    let mergedPage: MergedPage
     @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
     
     @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
@@ -160,7 +450,7 @@ struct DeletePopover: View {
 
    
     var body: some View {
-        @Bindable var document = document
+        @Bindable var prax = prax
         
         VStack {
             GroupBox {
@@ -195,7 +485,7 @@ struct DeletePopover: View {
 
                         
                         Button {
-                            document.mergedPages.removeAll()
+                            prax.document.mergedPages.removeAll()
                             dismiss()
                             }
                         label: {
@@ -227,7 +517,6 @@ struct DeletePopover: View {
 struct FilenamePrefixPopover: View {
 //    let mergedPage: MergedPage
     @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     let praxTheme = PraxTheme(.erika)
     let deleteTheme = PraxTheme(.julie)
@@ -241,7 +530,8 @@ struct FilenamePrefixPopover: View {
     var savedPrefixes = ["Amazon-", "Costco-", "ezCater-", "airfare-", "conference-", "meal-", "taxi-" ]
     
     var body: some View {
-        @Bindable var document = document
+        @Bindable var prax = prax
+        @Bindable var document = prax.document
         
         
         

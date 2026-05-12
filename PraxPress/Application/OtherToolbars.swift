@@ -261,6 +261,12 @@ struct EditingDocumentToolbar: View {
     @FocusState private var amountFocused: Bool
     @State private var hoveredButton: Int? = nil
     @State private var showFilenamePrefixPopover = false
+    @State private var showDatePopover = false
+    @State private var showDocumentNumberPopover = false
+    @State private var showAmountPopover = false
+    @State private var showDescriptionPopover = false
+    @State private var showVendorAccountsPopover = false
+    
 //    @State private var guideXLeft = 0.0
 //    @State private var guideXRight = 0.0
     
@@ -281,142 +287,218 @@ struct EditingDocumentToolbar: View {
             let undoManager = prax.undoManager
             let _ = Self._printChanges()
 
-            let decimals = Set("0123456789.-+")
+            
             
             GroupBox {
                 
                     
-                    VStack {
-                        HStack {
+                VStack {
+                    HStack {
+                        
+                        
+                        GroupBox {
+                            HStack {
+                                GroupBox() {
+                                    VStack {
+                                        Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
+                                        
+                                        HStack {
+                                            Text(String("\(currentPageIndex() + 1)")).monospaced()
+                                            VStack(spacing: 0) {
+                                                Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+                                                label: { Image(systemName: "arrowtriangle.up")  }
+                                                    .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                                                    .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
+                                                    .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                                                
+                                                Button { prax.editingDocumentPDFView.goToNextPage(self) }
+                                                label: {  Image(systemName: "arrowtriangle.down")}
+                                                    .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                                                    .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
+                                                    .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+                                            }
+                                            
+                                        }
+                                        
+                                        
+                                    }
+                                    
+                                    
+                                    
+                                }
+                                .background(Color.clear, in: .containerRelative)
+                                .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
+                                .padding(2)
+                                Divider().foregroundStyle(.white).background(.white)
+                                
+                                Button {undoManager.undo() }
+                                label: {
+                                    Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
+                                    Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
+                                .disabled(undoManager.undoCount < 1)
+                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
+                                .onHover { hovering in hoveredButton = hovering ? 274 : nil }
+                                
+                                //         Text(String("\(undoManager.undoCount)"))
+                                
+                                //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
+                                Button {undoManager.redo() }
+                                label: { if undoManager.redoCount > 0 {
+                                    Image(systemName: "arrow.uturn.forward.circle.fill") } else {
+                                        Image(systemName: "arrow.uturn.forward.circle") }
+                                    Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
+                                .disabled(undoManager.redoCount < 1)
+                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
+                                .onHover { hovering in hoveredButton = hovering ? 276 : nil }
+                                
+                                Spacer()
+                                
+                                Divider().foregroundStyle(.white).background(.white)
+                                
+                                PageItemTrimsView()
+                                
+                                
+                                
+                            }
+                        }
+                        
+                        
+                        
+                        
+                    }
+                    if pageItem.mergedPage.hasDataFields {
+                        
+                        HStack (spacing: 0) {
+                            
+                            GroupBox {
+                                Button { showDatePopover = true}
+                                label: { Text("\(pageItem.dataFields["Date"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)
+                                }
+                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 410, isDisabled: document.mergedPages.isEmpty))
+                                    .onHover { hovering in hoveredButton = hovering ? 410 : nil }
+                                    .disabled(showDatePopover == true)
+                                    .popover(isPresented: $showDatePopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                        DatePopover() }
+                            }
+                            .padding(0)
+                            .background(PraxGradient(2))
+                            .border(.blue, width: 1)
+                            
+                            GroupBox {
+                                HStack(spacing: 0) {
+                                    Button { if let string = NSPasteboard.general.string(forType: .string){
+                                            pageItem.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
+                                     label: {
+                                         Image(systemName: "arrow.right.page.on.clipboard").padding(0)
+                                    }
+                                     .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 422))
+                                     .onHover { hovering in hoveredButton = hovering ? 422: nil }
+
+                               //     .controlSize(.mini)
+                                    .padding(0)
+
+                                    Button { showDocumentNumberPopover = true }
+                                    label: { Text("Doc# \(pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
+                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 421, isDisabled: document.mergedPages.isEmpty))
+                                        .onHover { hovering in hoveredButton = hovering ? 421 : nil }
+                                        .disabled (showDocumentNumberPopover == true )
+                                        .popover(isPresented: $showDocumentNumberPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                            DocumentNumberPopover() }
+                                        .padding(.trailing, 5)
+                                  //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
+                                        
+                                    
+
+                                }
+                          //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
+                                .padding(0)
+                                .background(PraxGradient(2))
+                                .border(.blue, width: 1)
+
+                                
+                            }
+               
+                            
+                            GroupBox {
+                                Button { showVendorAccountsPopover = true}
+                                label: { Text("Vendor/Accounts").font(.system(size: 10)).padding(0)
+                                }
+                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 460, isDisabled: document.mergedPages.isEmpty))
+                                    .onHover { hovering in hoveredButton = hovering ? 460 : nil }
+                                    .disabled(showDatePopover == true)
+                                    .popover(isPresented: $showVendorAccountsPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                        VendorAccountsPopover() }
+                            }
+                            .padding(0)
+                            .background(PraxGradient(2))
+                            .border(.blue, width: 1)
+                            
                             
                             
                             GroupBox {
-                                HStack {
-                                        GroupBox() {
-                                            VStack {
-                                                Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
-                                                
-                                                HStack {
-                                                    Text(String("\(currentPageIndex() + 1)")).monospaced()
-                                                    VStack(spacing: 0) {
-                                                        Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
-                                                        label: { Image(systemName: "arrowtriangle.up")  }
-                                                            .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                                            .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
-                                                            .onHover { hovering in hoveredButton = hovering ? 11 : nil }
-                                                        
-                                                        Button { prax.editingDocumentPDFView.goToNextPage(self) }
-                                                        label: {  Image(systemName: "arrowtriangle.down")}
-                                                            .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                                                            .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
-                                                            .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
-                                                    }
-                                                    
-                                                }
-                                                 
-                                                
-                                            }
-                                            
-                                            
-                                            
-                                        }
-                                        .background(Color.clear, in: .containerRelative)
-                                        .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
-                                        .padding(2)
-                                    Divider().foregroundStyle(.white).background(.white)
- 
-                                    Button {undoManager.undo() }
+                                HStack(spacing: 0) {
+
+
+                                    Button { showDescriptionPopover = true }
                                     label: {
-                                        Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
-                                        Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
-                                    .disabled(undoManager.undoCount < 1)
-                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
-                                    .onHover { hovering in hoveredButton = hovering ? 274 : nil }
+                                        Image(systemName: "pencil.and.list.clipboard").padding(0)
+                                        Text("Description").font(.system(size: 8, weight: .ultraLight))
+                                    }
+                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 451, isDisabled: document.mergedPages.isEmpty))
+                                        .onHover { hovering in hoveredButton = hovering ? 451 : nil }
+                                        .disabled (showDescriptionPopover == true )
+                                        .popover(isPresented: $showDescriptionPopover, attachmentAnchor: .point(.bottomLeading), arrowEdge: .bottom) {
+                                            DescriptionPopover() }
+                                        .padding(0)
+
+                                    Button {
+                                        let pasteboard = NSPasteboard.general
+                                            pasteboard.clearContents()
+                                            pasteboard.setString(pageItem.dataFields["Description"]?.stringValue ?? "" , forType: .string)
+                                    }
+                                     label: {
+                                         Image(systemName: "arrow.up.page.on.clipboard").padding(0)
+                                    }
+                                     .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 452))
+                                     .onHover { hovering in hoveredButton = hovering ? 452: nil }
+
+                               //     .controlSize(.mini)
+                                    .padding(0)
                                     
-                                    //         Text(String("\(undoManager.undoCount)"))
-                                    
-                                    //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
-                                    Button {undoManager.redo() }
-                                    label: { if undoManager.redoCount > 0 {
-                                        Image(systemName: "arrow.uturn.forward.circle.fill") } else {
-                                            Image(systemName: "arrow.uturn.forward.circle") }
-                                        Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
-                                    .disabled(undoManager.redoCount < 1)
-                                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
-                                    .onHover { hovering in hoveredButton = hovering ? 276 : nil }
-                                    
-                                    Spacer()
-                                    
-                                    Divider().foregroundStyle(.white).background(.white)
-                                    
-                                    PageItemTrimsView()
                                     
 
-                                    
                                 }
+                                .background(PraxGradient(2))
+                                .border(.blue, width: 1)
+
+                                
                             }
                             
                             
-                            
-                            
-                        }
-                        if pageItem.mergedPage.hasDataFields {
- 
-                            HStack {
-                               
-                                Text("Document")
-                                PasteButton(payloadType: String.self) { strings in
-                                      if let firstString = strings.first {
-                                          pageItem.dataFields["DocumentNumber"] = .string(firstString.filter(\.isNumber))
-                                      }
-                                  }
-                                  .buttonBorderShape(.capsule)
-                                TextField("Document", text: Binding<String>(
-                                    get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
-                                    set: { newValue in
-                                        pageItem.dataFields["DocumentNumber"] = .string(newValue.filter(\.isNumber))
-                                    }
-                                ) )
-                                .focused($focusedField, equals: "DocumentNumber")
-                                .frame(minWidth: 50, maxWidth: 100)
-                                .multilineTextAlignment(.trailing)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                
-                                Text("Amount")
-                                TextField("Amount", text: Binding<String>(
-                                    get: { pageItem.dataFields["Amount"]?.stringValue ?? "" },
-                                    set: { newValue in
-                                        pageItem.dataFields["Amount"] = .string(newValue.filter{decimals.contains($0)} )
-                                        if "Amount" == "Amount" {
-                                            prax.document.exportFilenameBody = newValue.filter(\.isNumber)
-                                        }
-                                    }
-                                ) )
-                            //    .focused($focusedField, equals: "Amount")
-                                .focused($amountFocused)
-                                            .onChange(of: amountFocused) { oldValue, newValue in
-                                                if newValue {
-                                                    // Set selection to the entire range of the text
-                                            //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
-                                                }
-                                            }
-                                .frame(minWidth: 50, maxWidth: 100)
-                                .multilineTextAlignment(.trailing)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                
-                                }
-
+                            GroupBox {
+                                Button { showAmountPopover = true }
+                                label: { Text("Amount: $\(pageItem.dataFields["Amount"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)}
+                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 420, isDisabled: document.mergedPages.isEmpty))
+                                    .onHover { hovering in hoveredButton = hovering ? 420 : nil }
+                                    .disabled (showAmountPopover == true )
+                                    .popover(isPresented: $showAmountPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                        AmountPopover() }
                             }
- 
+                            .padding(0)
+                            .background(PraxGradient(2))
+                            .border(.blue, width: 1)
+                            
+                            
                         }
-
+                        .padding(0)
                         
-                    }.padding(0)
-                    
-                
-                
-                
-           
+                        
+                        
+                        
+                    }
+                }
+            }
+            .padding(0)
             .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
         }

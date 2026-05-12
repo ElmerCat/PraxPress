@@ -153,7 +153,8 @@ final class PraxModel {
                     if let pageItem = document.pageItem(indexPath: indexPath) {
                         if !pageItem.skipped {
                             _selectedPageItem = pageItem
-                            document.setExportURL(from: pageItem)
+                            if document.exportFilenameBody == "" {
+                                document.setExportURL(from: pageItem) }
                             return } } }
             }
             _selectedPageItem = nil
