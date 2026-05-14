@@ -101,7 +101,7 @@ final class PraxModel {
     var showFilesPanel = true
     var showingImageDropInspector: Bool = false
     var inspectNextImageDrop: Bool = false
-    var inspectingImage: NSImage?
+    var inspectingImageURL: URL?
     
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
@@ -298,15 +298,12 @@ extension PraxModel {
             
         case "png", "jpeg", "jpg", "gif", "heic":
             if inspectNextImageDrop {
-                if let image = NSImage(contentsOf: url) {
-                    inspectingImage = image
-                    showingImageDropInspector = true
-                }
-                else { print("Failed to open Image at \(url)") }
+                inspectingImageURL = url
+                showingImageDropInspector = true
             }
             else {
                 DispatchQueue.main.async { [self] in
-                    document.addPageFromImageURL(url, at: indexPath) }
+                    addPageFromImageURL(url, at: indexPath) }
             }
             
         default:
@@ -315,6 +312,44 @@ extension PraxModel {
         }
         
     }
+    
+    func addPageFromImageURL(_ url: URL,  at indexPath: IndexPath? = nil, title: String? = nil) {
+        @AppStorage("import-width") var importWidth: Int = 0
+        @AppStorage("import-height") var importHeight: Int = 0
+        
+        let mergedPage = document.mergedPagefrom(url, at: indexPath)
+        let pageInsertIndex = document.normalizedInsertionIndex(count: mergedPage.pageItems.count, location: (indexPath?.item ?? 0) + 1)
+        
+        guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
+        var imageSize = image.size
+        if image.size.height > CGFloat(importHeight) || image.size.width > CGFloat(importWidth){
+            let aspectRatio = imageSize.height / imageSize.width
+            if aspectRatio > 1 {
+                imageSize.height =  CGFloat(importHeight)
+                imageSize.width =  CGFloat(importHeight) / aspectRatio
+            }
+            else {
+                imageSize.height =  CGFloat(importWidth) * aspectRatio
+                imageSize.width =  CGFloat(importWidth) / aspectRatio
+
+            }
+        }
+        
+        print (image.size)
+        print (imageSize)
+        
+        image = image.resize(to: imageSize)!
+        print (image.size)
+
+        guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
+        let pageItem = PageItem(prax: self, mergedPage: mergedPage,
+                                name: url.deletingPathExtension().lastPathComponent,
+                                sourceURL: url, pdfPage: pdfPage, dataFields: [:])
+            
+        mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
+          
+      }
+    
 }
 
 
