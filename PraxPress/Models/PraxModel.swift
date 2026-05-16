@@ -6,15 +6,12 @@
 
 import Foundation
 import CoreGraphics
+import CoreImage
 import PDFKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
-//import Combine
-
-import SwiftData
-//@Model
 @Observable
 final class PraxModel {
     
@@ -102,6 +99,7 @@ final class PraxModel {
     var showingImageDropInspector: Bool = false
     var inspectNextImageDrop: Bool = false
     var inspectingImageURL: URL?
+    var inspectingImageDropIndexPath: IndexPath?
     
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
@@ -113,6 +111,8 @@ final class PraxModel {
     var isShowingInspector: Bool = false
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
+    
+    var importImageOptions = ImageImportOptions()
     
     
     let editingDocumentPDFView = PDFView()
@@ -277,104 +277,377 @@ extension Notification.Name {
     //  static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 
+private extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        min(max(self, limits.lowerBound), limits.upperBound)
+    }
+}
 
 extension PraxModel {
+
+    enum ImportSizingMode: String, CaseIterable, Identifiable {
+        case fileSizeLimit
+        case targetInches
+        var id: String { rawValue }
+    }
+
+    struct ImageImportOptions: Equatable {
+        var cropLeft: Double = 0
+        var cropRight: Double = 0
+        var cropTop: Double = 0
+        var cropBottom: Double = 0
+
+        var scaleDown: Double = 1.0
+
+        var brightness: Double = 0.0
+        var contrast: Double = 1.0
+        var exposure: Double = 0.0
+        var sharpness: Double = 0.0
+
+        // nil means "resolve from saved defaults"
+        var sizingMode: ImportSizingMode = .fileSizeLimit
+
+        // used in .fileSizeLimit mode
+        var sizeLimitKB: Int = 1024
+
+        // used in .targetInches mode
+        var targetWidthInches: Double = 8.5
+        var targetHeightInches: Double = 11.0
+
+        static let neutral = ImageImportOptions()
+    }
     
+    private static let imageCIContext = CIContext()
+    
+    func clearImageInspectorState() {
+        inspectingImageURL = nil
+        inspectingImageDropIndexPath = nil
+        showingImageDropInspector = false
+    }
+
+    // MARK: - Drop routing
+
     func receiveDroppedURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-        
-        
+
         let ext = url.pathExtension.lowercased()
-        switch (ext) {
+        switch ext {
 
         case "pdf":
             DispatchQueue.main.async { [self] in
-                document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath) }
-            
-            Task { do { try await
-                document.persistence.processImportedURLs([url]) }
-                catch { fatalError("It didn't work") } }
-            
+                document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath)
+            }
+
+            Task {
+                do { try await document.persistence.processImportedURLs([url]) }
+                catch { fatalError("It didn't work") }
+            }
+
         case "png", "jpeg", "jpg", "gif", "heic":
             if inspectNextImageDrop {
                 inspectingImageURL = url
+                inspectingImageDropIndexPath = indexPath
                 showingImageDropInspector = true
-            }
-            else {
+            } else {
+                // IMPORTANT: default size limit is applied inside addPageFromImageURL
                 DispatchQueue.main.async { [self] in
-                    addPageFromImageURL(url, at: indexPath) }
+                    addPageFromImageURL(url, at: indexPath, options: .neutral)
+                }
             }
-            
+
         default:
             break
-            
         }
-        
     }
-    
-    func addPageFromImageURL(_ url: URL,  at indexPath: IndexPath? = nil, title: String? = nil) {
-        @AppStorage("import-width") var importWidth: Int = 0
-        @AppStorage("import-height") var importHeight: Int = 0
-        
+
+    // MARK: - Public import
+
+    func addPageFromImageURL(
+        _ url: URL,
+        at indexPath: IndexPath? = nil,
+        title: String? = nil,
+        options: ImageImportOptions = .neutral
+    ) {
         let mergedPage = document.mergedPagefrom(url, at: indexPath)
-        let pageInsertIndex = document.normalizedInsertionIndex(count: mergedPage.pageItems.count, location: (indexPath?.item ?? 0) + 1)
-        
-        guard var image = NSImage(contentsOf: url) else { fatalError("Failed to open Image at \(url)") }
-        var imageSize = image.size
-        if image.size.height > CGFloat(importHeight) || image.size.width > CGFloat(importWidth){
-            let aspectRatio = imageSize.height / imageSize.width
-            if aspectRatio > 1 {
-                imageSize.height =  CGFloat(importHeight)
-                imageSize.width =  CGFloat(importHeight) / aspectRatio
-            }
-            else {
-                imageSize.height =  CGFloat(importWidth) * aspectRatio
-                imageSize.width =  CGFloat(importWidth) / aspectRatio
+        let pageInsertIndex = document.normalizedInsertionIndex(
+            count: mergedPage.pageItems.count,
+            location: (indexPath?.item ?? 0) + 1
+        )
 
-            }
+        let effectiveOptions = resolvedImportOptions(options)
+
+        guard let image = processedImageFromURL(url, options: effectiveOptions) else {
+            assertionFailure("Failed to process image at \(url)")
+            return
         }
-        
-        print (image.size)
-        print (imageSize)
-        
-        image = image.resize(to: imageSize)!
-        print (image.size)
 
-        guard let pdfPage = PDFPage(image: image) else { fatalError("Failed to create PDFPage from Image at \(url)")}
-        let pageItem = PageItem(prax: self, mergedPage: mergedPage,
-                                name: url.deletingPathExtension().lastPathComponent,
-                                sourceURL: url, pdfPage: pdfPage, dataFields: [:])
-            
+        guard let pdfPage = PDFPage(image: image) else {
+            assertionFailure("Failed to create PDFPage from processed image at \(url)")
+            return
+        }
+
+        let pageItem = PageItem(
+            prax: self,
+            mergedPage: mergedPage,
+            name: title ?? url.deletingPathExtension().lastPathComponent,
+            sourceURL: url,
+            pdfPage: pdfPage,
+            dataFields: [:]
+        )
+
         mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
-          
-      }
-    
-}
+    }
 
+    /// New signature (size-limit based).
+    func processedImageFromURL(_ url: URL, options: ImageImportOptions) -> NSImage? {
+        guard let sourceImage = NSImage(contentsOf: url) else { return nil }
+        return processedImage(sourceImage, options: resolvedImportOptions(options))
+    }
 
+    /// Compatibility overload (so existing UI code still compiles).
+    /// Width/height are intentionally ignored now.
+    func processedImageFromURL(
+        _ url: URL,
+        importWidth: Int,
+        importHeight: Int,
+        options: ImageImportOptions
+    ) -> NSImage? {
+        processedImageFromURL(url, options: options)
+    }
 
+    // MARK: - Core processing
 
-/*
-    private var _selectedPageItem: PageItem?
-    var aselectedPageItem: PageItem? {
-        get { _selectedPageItem }
-        set { if _selectedPageItem != newValue { _selectedPageItem = newValue
-            print ("set selectedPageItem  ", aselectedPageItem?.name ?? " *** nil ***")
-            
-            
-            /*           if selectedPageItem != nil {
-             if currentEditingMergedPage == nil {
-             currentEditingMergedPage = selectedPageItem!.mergedPage
-             }
-             else if currentEditingMergedPage != nil, currentEditingMergedPage! != selectedPageItem!.mergedPage {
-             print ("set selectedPageItem - setting currentEditingMergedPage = selectedPageItem.mergedPage")
-             currentEditingMergedPage = selectedPageItem!.mergedPage }
-             }
-             else { print ("set selectedPageItem to **** nil **** ") }
-             */
+    private func processedImage(_ sourceImage: NSImage, options: ImageImportOptions) -> NSImage? {
+        guard let tiff = sourceImage.tiffRepresentation,
+              var ciImage = CIImage(data: tiff) else { return nil }
+
+        // 1) Crop
+        let crop = cropRect(for: ciImage.extent.size, options: options)
+        ciImage = ciImage.cropped(to: crop)
+
+        // 2) Adjustments
+        ciImage = applyAdjustments(to: ciImage, options: options)
+
+        // 3) Render CI -> NSImage
+        let extent = ciImage.extent.integral
+        guard let cgImage = Self.imageCIContext.createCGImage(ciImage, from: extent) else { return nil }
+        var output = NSImage(cgImage: cgImage, size: NSSize(width: extent.width, height: extent.height))
+
+        // 4) Size strategy
+        switch importImageOptions.sizingMode {
+        case .fileSizeLimit:
+            // Keep current manual downscale behavior
+            let userScale = CGFloat(options.scaleDown).clamped(to: 0.05...1.0)
+            if userScale < 0.999 {
+                let px = pixelSize(of: output)
+                let scaled = NSSize(
+                    width: max(1, floor(px.width * userScale)),
+                    height: max(1, floor(px.height * userScale))
+                )
+                output = output.resize(to: scaled) ?? output
+            }
+
+            if importImageOptions.sizeLimitKB > 0 {
+                output = downscaleToMeetPDFSizeLimit(output, targetKB: importImageOptions.sizeLimitKB)
+            }
+
+        case .targetInches:
+            output = scaleImageToTargetInches(
+                output,
+                targetWidthInches: options.targetWidthInches,
+                targetHeightInches: options.targetHeightInches
+            )
         }
+
+        return output
+    }
+
+    private func scaleImageToTargetInches(
+        _ image: NSImage,
+        targetWidthInches: Double,
+        targetHeightInches: Double
+    ) -> NSImage {
+        let px = pixelSize(of: image)
+        let currentW = max(px.width, 1)
+        let currentH = max(px.height, 1)
+
+        // 0 or less means "not specified"
+        let targetW: CGFloat? = targetWidthInches > 0 ? CGFloat(targetWidthInches * 72.0) : nil
+        let targetH: CGFloat? = targetHeightInches > 0 ? CGFloat(targetHeightInches * 72.0) : nil
+
+        guard targetW != nil || targetH != nil else { return image }
+
+        let scale: CGFloat
+        switch (targetW, targetH) {
+        case let (.some(w), .some(h)):
+            // preserve aspect ratio, fit inside requested bounds
+            scale = min(w / currentW, h / currentH)
+        case let (.some(w), nil):
+            scale = w / currentW
+        case let (nil, .some(h)):
+            scale = h / currentH
+        default:
+            scale = 1.0
         }
+
+        guard scale.isFinite, scale > 0 else { return image }
+
+        let newSize = NSSize(
+            width: max(1, floor(currentW * scale)),
+            height: max(1, floor(currentH * scale))
+        )
+
+        return image.resize(to: newSize) ?? image
     }
     
-*/
+    private func cropRect(for size: CGSize, options: ImageImportOptions) -> CGRect {
+        let minRemainingFraction: CGFloat = 0.05
+
+        let w = max(size.width, 1)
+        let h = max(size.height, 1)
+
+        let left = CGFloat(options.cropLeft).clamped(to: 0...0.95)
+        let right = CGFloat(options.cropRight).clamped(to: 0...0.95)
+        let top = CGFloat(options.cropTop).clamped(to: 0...0.95)
+        let bottom = CGFloat(options.cropBottom).clamped(to: 0...0.95)
+
+        let horizontalTrim = min(left + right, 1 - minRemainingFraction)
+        let verticalTrim = min(top + bottom, 1 - minRemainingFraction)
+
+        let effectiveRight = min(right, horizontalTrim - left)
+        let effectiveTop = min(top, verticalTrim - bottom)
+
+        let x = w * left
+        let y = h * bottom
+        let cw = max(1, w - w * (left + effectiveRight))
+        let ch = max(1, h - h * (bottom + effectiveTop))
+
+        return CGRect(x: x, y: y, width: cw, height: ch).integral
+    }
+
+    private func applyAdjustments(to image: CIImage, options: ImageImportOptions) -> CIImage {
+        var output = image
+
+        if options.brightness != 0 || options.contrast != 1 {
+            let f = CIFilter(name: "CIColorControls")
+            f?.setValue(output, forKey: kCIInputImageKey)
+            f?.setValue(options.brightness, forKey: kCIInputBrightnessKey)
+            f?.setValue(options.contrast, forKey: kCIInputContrastKey)
+            f?.setValue(1.0, forKey: kCIInputSaturationKey)
+            if let o = f?.outputImage { output = o }
+        }
+
+        if options.exposure != 0 {
+            let f = CIFilter(name: "CIExposureAdjust")
+            f?.setValue(output, forKey: kCIInputImageKey)
+            f?.setValue(options.exposure, forKey: kCIInputEVKey)
+            if let o = f?.outputImage { output = o }
+        }
+
+        if options.sharpness > 0 {
+            let f = CIFilter(name: "CISharpenLuminance")
+            f?.setValue(output, forKey: kCIInputImageKey)
+            f?.setValue(options.sharpness, forKey: kCIInputSharpnessKey)
+            if let o = f?.outputImage { output = o }
+        }
+
+        return output
+    }
+
+    // MARK: - Size-limit logic
+
+    private func resolvedImportOptions(_ options: ImageImportOptions) -> ImageImportOptions {
+        // Convention:
+        // - .neutral means "use app-wide defaults from prax.importImageOptions"
+        // - otherwise use explicit passed options
+        if options == .neutral {
+            return importImageOptions
+        }
+        return options
+    }
+    
+    private func storedImportSizingMode() -> ImportSizingMode {
+        let defaults = UserDefaults.standard
+        guard let raw = defaults.string(forKey: "import-sizing-mode"),
+              let mode = ImportSizingMode(rawValue: raw) else {
+            return .fileSizeLimit
+        }
+        return mode
+    }
+
+    private func storedImportTargetWidthInches() -> Double? {
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: "import-target-width-inches") != nil else { return nil }
+        let v = defaults.double(forKey: "import-target-width-inches")
+        return v > 0 ? v : nil
+    }
+
+    private func storedImportTargetHeightInches() -> Double? {
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: "import-target-height-inches") != nil else { return nil }
+        let v = defaults.double(forKey: "import-target-height-inches")
+        return v > 0 ? v : nil
+    }
+    
+    private func storedImportSizeLimitKB() -> Int? {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: "import-size-limit") == nil {
+            return 1024 // default 1 MB
+        }
+        let value = defaults.integer(forKey: "import-size-limit")
+        return value > 0 ? value : nil
+    }
+
+    private func pixelSize(of image: NSImage) -> CGSize {
+        if let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first {
+            return CGSize(width: rep.pixelsWide, height: rep.pixelsHigh)
+        }
+        if let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+            return CGSize(width: cg.width, height: cg.height)
+        }
+        return image.size
+    }
+
+    private func estimatePDFSizeKB(for image: NSImage) -> Int? {
+        guard let page = PDFPage(image: image) else { return nil }
+        let doc = PDFDocument()
+        doc.insert(page, at: 0)
+        guard let data = doc.dataRepresentation() else { return nil }
+        return Int(ceil(Double(data.count) / 1024.0))
+    }
+
+    private func downscaleToMeetPDFSizeLimit(_ image: NSImage, targetKB: Int) -> NSImage {
+        guard targetKB > 0 else { return image }
+        guard let startKB = estimatePDFSizeKB(for: image), startKB > targetKB else { return image }
+
+        let px = pixelSize(of: image)
+        let minScale: CGFloat = 0.05
+        var lo = minScale
+        var hi: CGFloat = 1.0
+        var best: NSImage?
+
+        for _ in 0..<10 { // binary search
+            let mid = (lo + hi) / 2
+            let candidateSize = NSSize(
+                width: max(1, floor(px.width * mid)),
+                height: max(1, floor(px.height * mid))
+            )
+
+            guard let candidate = image.resize(to: candidateSize),
+                  let kb = estimatePDFSizeKB(for: candidate) else {
+                hi = mid
+                continue
+            }
+
+            if kb > targetKB {
+                hi = mid
+            } else {
+                best = candidate
+                lo = mid
+            }
+        }
+
+        return best ?? image
+    }
+}

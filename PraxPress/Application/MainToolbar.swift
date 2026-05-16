@@ -15,6 +15,9 @@ struct MainToolbar: ToolbarContent {
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
     @Environment(FilesPersistenceController.self) private var persistence
     
+    @State var showDelete = false
+    @State private var hoveredButton: Int? = nil
+    
     var body: some ToolbarContent {
         @Bindable var prax = praxModel
         
@@ -45,6 +48,20 @@ struct MainToolbar: ToolbarContent {
         }
         
         ToolbarItemGroup(placement: .secondaryAction) {
+            Spacer()
+            
+            Button {
+                showDelete = !showDelete
+            }label: {
+                Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
+            }
+            .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: prax.document.mergedPages.isEmpty))
+            .onHover { hovering in hoveredButton = hovering ? 40 : nil }
+            .disabled(prax.document.mergedPages.isEmpty)
+            .popover(isPresented: $showDelete, arrowEdge: .leading) {
+                DeletePopover() }
+            
+            Spacer()
             
             
             Button {
