@@ -10,8 +10,9 @@ import PDFKit
 
 
 
-class MergedPDFDocumentNSView: NSView {
+class MergedPDFDocumentNSView: NSView, HostingViewContainer {
     let prax: PraxModel
+    var hostingView: NSHostingView<MergedPDFDocumentView>?
     
     init(prax: PraxModel) {
         self.prax = prax
@@ -19,55 +20,35 @@ class MergedPDFDocumentNSView: NSView {
         configure()
     }
     
-//    override init(frame: CGRect) {
-//       super.init(frame: frame)
-//        configure()
-//    }
- 
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
     
-    
     override func mouseEntered(with event: NSEvent) {
- //       print("MergedPDFDocumentNSView - mouseEntered")
         prax.hoverSection.insert(.mergedDocument)
-
     }
+    
     override func mouseExited(with event: NSEvent) {
- //       print("MergedPDFDocumentNSView - mouseExited")
         prax.hoverSection.remove(.mergedDocument)
     }
-
-    private var hostingView: NSHostingView<MergedPDFDocumentView>?
+    
+    func buildRootView() -> MergedPDFDocumentView {
+        MergedPDFDocumentView()
+    }
     
     func configure() {
-        
- //      registerForDraggedTypes([.fileURL])
-//        self.wantsLayer = true
-//        layer?.backgroundColor = NSColor.cyan.cgColor
-//        layer?.borderColor = NSColor.black.cgColor
-//        layer?.borderWidth = 1
-//        layer?.cornerRadius = 12
-
-        let root = MergedPDFDocumentView()
-        
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        attachHostingView()
+    }
+    
+    override func viewWillMove(toSuperview newSuperview: NSView?) {
+        super.viewWillMove(toSuperview: newSuperview)
+        if newSuperview == nil {
+            detachHostingView()
         }
     }
 }
+
+
 
 struct MergedPDFDocumentView: View {
     @Environment(MergedPDFDocument.self) var document

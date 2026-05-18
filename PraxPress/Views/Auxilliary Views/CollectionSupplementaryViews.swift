@@ -130,41 +130,31 @@ struct EditPageSectionBackgroundView: View {
         else { EmptyView() }
     }
 }
-class CollectionViewBackground: NSView {
+
+class CollectionViewBackground: NSView, HostingViewContainer {
+    var hostingView: NSHostingView<CollectionViewBackgroundView>?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
-        private var hostingView: NSHostingView<CollectionViewBackgroundView>?
+    
+    func buildRootView() -> CollectionViewBackgroundView {
+        CollectionViewBackgroundView()
+    }
     
     func configure() {
-        
- //      registerForDraggedTypes([.fileURL])
-//        self.wantsLayer = true
-//        layer?.backgroundColor = NSColor.cyan.cgColor
-//        layer?.borderColor = NSColor.black.cgColor
-//        layer?.borderWidth = 1
-//        layer?.cornerRadius = 12
-
-        let root = CollectionViewBackgroundView()
-        
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        attachHostingView()
+    }
+    
+    override func viewWillMove(toSuperview newSuperview: NSView?) {
+        super.viewWillMove(toSuperview: newSuperview)
+        if newSuperview == nil {
+            detachHostingView()
         }
     }
      

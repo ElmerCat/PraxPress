@@ -533,7 +533,7 @@ struct DocumentEditingView: NSViewRepresentable {
             else if draggingTypes.contains(.fileURL) {
                 print("collectionView acceptDrop .fileURL")
                 dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
-                dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
+                return dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
             }
 
             else { print("collectionView acceptDrop -- Some Other Type \n ", draggingTypes);  return false }
@@ -541,12 +541,16 @@ struct DocumentEditingView: NSViewRepresentable {
             return true
         }
         
-        func dropExternalPages(draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+        func dropExternalPages(draggingInfo: NSDraggingInfo, indexPath: IndexPath) -> Bool {
             let pasteboard = draggingInfo.draggingPasteboard
             let receivers = pasteboard.readObjects(forClasses: [NSFilePromiseReceiver.self], options: nil) as? [NSFilePromiseReceiver] ?? []
             if !receivers.isEmpty {
-                receivePromisedPDFs(from: receivers, at: indexPath)
-                return
+                let praxError = PraxError.generic(
+                    title: "Drag Source Not Supported",
+                    message: "PraxPress works best with files already on your Mac. Please download or copy the PDF to your Documents folder, then drag it in."
+                )
+                prax.presentError(praxError)
+                return false
             }
 
             var droppedURLs: [URL] = []
@@ -627,58 +631,17 @@ struct DocumentEditingView: NSViewRepresentable {
             Task {
                 do {
                     try await document.persistence.processImportedURLs(droppedURLs)
-                }
-                catch {
-                    print("Failed to processImportedURLs(urls)", droppedURLs)
+                } catch {
+                    let praxError = PraxError.persistenceFailed(
+                        operation: "Import dropped PDFs",
+                        underlyingError: error
+                    )
+                    self.prax.presentError(praxError)
                 }
             }
             
+            return true
           }
-        
-        // MARK: - File promise handling
-        
-        private func receivePromisedPDFs(from receivers: [NSFilePromiseReceiver], at indexPath: IndexPath) {
-            // Create a temp directory for the incoming promised files
-            let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("PraxDrop-\(UUID().uuidString)")
-            do {
-                try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                Swift.debugPrint("Failed to create temp directory for promised files: \(error)")
-                return
-            }
-            
-            var receivedURLs: [URL] = []
-            let group = DispatchGroup()
-            
-            for receiver in receivers {
-                group.enter()
-                // You can use the promised file type to pick an extension; Acrobat advertises com.adobe.pdf
-                receiver.receivePromisedFiles(atDestination: tempDir, options: [:], operationQueue: .main) { fileURL, error in
-                    if let error {
-                        Swift.debugPrint("Failed to receive promised file: \(error)")
-                    } else {
-                        print("Received promised file: \(fileURL)")
-                        receivedURLs.append(fileURL)
-                    }
-                    group.leave()
-                }
-            }
-            
-            group.notify(queue: .main) {
-                let urls = receivedURLs.filter { $0.pathExtension.lowercased() == "pdf" }
-                guard !urls.isEmpty else {
-                    Swift.debugPrint("No promised PDF files received.")
-                    return
-                }
-                
-                print (urls)
-      fatalError()
-    //           self.insertPDFPageItemsFromDocumentURLS(urls, at: indexPath)
-                
-      //          self.insertPDFs(at: pdfs, dropIndex: indexPath.item)
-    //            self.updateUI()
-            }
-        }
         
         func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropPDFFiles to: ", indexPath)

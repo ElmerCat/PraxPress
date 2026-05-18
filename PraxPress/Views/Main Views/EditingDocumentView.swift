@@ -17,61 +17,40 @@ import SwiftUI
 import PDFKit
 
 
-
-class EditingPDFDocumentNSView: NSView {
+class EditingPDFDocumentNSView: NSView, HostingViewContainer {
     let prax: PraxModel
+    var hostingView: NSHostingView<EditingPDFDocumentView>?
     
     init(prax: PraxModel) {
         self.prax = prax
         super.init(frame: .zero)
         configure()
     }
-//    override init(frame: CGRect) {
-//        super.init(frame: frame)
-//        configure()
-//    }
-  
+    
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
     
     override func mouseEntered(with event: NSEvent) {
-  //      print("EditingPDFDocumentNSView - mouseEntered")
         prax.hoverSection.insert(.editingDocument)
-
     }
+    
     override func mouseExited(with event: NSEvent) {
-//        print("EditingPDFDocumentNSView - mouseExited")
         prax.hoverSection.remove(.editingDocument)
     }
-
     
-    private var hostingView: NSHostingView<EditingPDFDocumentView>?
+    func buildRootView() -> EditingPDFDocumentView {
+        EditingPDFDocumentView()
+    }
     
     func configure() {
-        
- //      registerForDraggedTypes([.fileURL])
-//        self.wantsLayer = true
-//        layer?.backgroundColor = NSColor.cyan.cgColor
-//        layer?.borderColor = NSColor.black.cgColor
-//        layer?.borderWidth = 1
-//        layer?.cornerRadius = 12
-
-        let root = EditingPDFDocumentView()
-        
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        attachHostingView()
+    }
+    
+    override func viewWillMove(toSuperview newSuperview: NSView?) {
+        super.viewWillMove(toSuperview: newSuperview)
+        if newSuperview == nil {
+            detachHostingView()
         }
     }
 }

@@ -60,20 +60,63 @@ struct SourceFilesView: View {
     @State private var importError: String?
     
 
-    
     func praxTest() {
-
-        print ("\nJulie d'Prax")
+        print("\nJulie d'Prax")
         
         for pdfFile in pdfFiles {
- //           let isOkay = testBookmark(for: pdfFile)
-            print (pdfFile.fileName, "  status: ", pdfFile.status)
+            print(pdfFile.fileName, "  status: ", pdfFile.status)
         }
-        print ("\nJuliette M. Belanger")
+        
+        print("\nJuliette M. Belanger")
         for pdfFileGroup in pdfFileGroups {
-            print (pdfFileGroup.name)
+            print(pdfFileGroup.name)
         }
+        
+        // MARK: - Test Error Alert (Add this section)
+        
+        // Test 1: PDF Import Error
+        PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
+        let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
+            NSLocalizedDescriptionKey: "File not found or corrupted"
+        ])
+        let praxError1 = PraxError.pdfImportFailed(
+            fileName: "test-document.pdf",
+            underlyingError: testError1
+        )
+        document.prax.presentError(praxError1)
+        
+        // Uncomment below to test other error types:
+        
+        /*
+        // Test 2: Image Processing Error
+        let praxError2 = PraxError.imageProcessingFailed(
+            fileName: "test-image.png",
+            reason: "Image format not supported or file corrupted"
+        )
+        document.prax.presentError(praxError2)
+        
+        // Test 3: File Access Error
+        let praxError3 = PraxError.fileAccessDenied(
+            filePath: "/Volumes/NetworkDrive/restricted-folder/file.pdf"
+        )
+        document.prax.presentError(praxError3)
+        
+        // Test 4: Bookmark Error
+        let testError4 = NSError(domain: "BookmarkDomain", code: -2, userInfo: [
+            NSLocalizedDescriptionKey: "Bookmark data is invalid or stale"
+        ])
+        let praxError4 = PraxError.bookmarkResolutionFailed(underlyingError: testError4)
+        document.prax.presentError(praxError4)
+        
+        // Test 5: Generic Error
+        let praxError5 = PraxError.generic(
+            title: "Operation Failed",
+            message: "Something unexpected happened. Please try again."
+        )
+        document.prax.presentError(praxError5)
+        */
     }
+    
     
     var body: some View {
         

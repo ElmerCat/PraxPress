@@ -44,6 +44,11 @@ struct MainToolbar: ToolbarContent {
         
        
         ToolbarItemGroup(placement: .status) {
+            
+            Button("🧪 Test Error") {
+                prax.praxTest()
+            }
+            
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
         }
         

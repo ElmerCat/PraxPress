@@ -60,21 +60,9 @@ protocol CollectionElementHosting: AnyObject {
     func updateRootView()
 }
 
+// MARK: - CollectionElementHosting Extension
+
 extension CollectionElementHosting {
-    func attachIfNeeded() {
-        guard hostingView == nil else { return }
-        let hosting = NSHostingView(rootView: buildRootView())
-        hosting.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(hosting)
-        NSLayoutConstraint.activate([
-            hosting.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            hosting.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            hosting.topAnchor.constraint(equalTo: containerView.topAnchor),
-            hosting.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-        ])
-        hostingView = hosting
-    }
-    
     func buildRootView() -> CollectionElementHostView {
         CollectionElementHostView(
             kind: kind ?? .none,
@@ -84,8 +72,21 @@ extension CollectionElementHosting {
     }
 
     func updateRootView() {
-        attachIfNeeded()
-        hostingView?.rootView = buildRootView()
+        // Lazy attach if needed
+        if hostingView == nil {
+            let hosting = NSHostingView(rootView: buildRootView())
+            hosting.translatesAutoresizingMaskIntoConstraints = false
+            containerView.addSubview(hosting)
+            NSLayoutConstraint.activate([
+                hosting.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                hosting.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                hosting.topAnchor.constraint(equalTo: containerView.topAnchor),
+                hosting.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            ])
+            hostingView = hosting
+        } else {
+            hostingView?.rootView = buildRootView()
+        }
     }
 }
 
@@ -123,24 +124,37 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
         self.isSelected = isSelected
         updateRootView() }
     
+ /*
     override func loadView() {
         super.loadView()
         attachIfNeeded() }
+  */
+    
+    func buildRootView() -> CollectionElementHostView {
+        CollectionElementHostView(
+            kind: kind ?? .none,
+            isSelected: isSelected,
+            highlightState: highlightState
+        )
+    }
     
     override func prepareForReuse() {
         print(Date().formatted(preferredFormat), "CollectionViewItem - prepareForReuse - \(String(describing: kind))")
+        
+        // Clean up hosting view when cell is reused
+        hostingView?.removeFromSuperview()
+        hostingView = nil
         
         switch kind {
         case let .pageItem(item):
             print("Reusing pageItem(item) - was: \(item.name)")
         case let .editPage(item):
             print("Reusing page(item) - was: \(item.name)")
-            
         default:
             break
-            
         }
     }
+    
     
     
     
@@ -155,7 +169,7 @@ final class CollectionViewItem: NSCollectionViewItem, CollectionElementHosting {
  //       case let .editPage(item):
  //           let width = layoutAttributes.size.width
  //           let height = ceil(width / item.aspectRatio)
- //           attrs.size = CGSize(width: width, height: height)
+ //           attrs.size = CGSize3(width: width, height: height)
  //           return attrs
 
         case let .mergedPage(item):
@@ -191,20 +205,28 @@ final class CollectionSupplementaryView: NSView, NSCollectionViewElement, Collec
     
     func configure(kind: CollectionElementKind, isSelected: Bool) {
         print("CollectionSupplementaryView - configure")
-       self.kind = kind
+        self.kind = kind
         self.isSelected = isSelected
-        updateRootView() }
+        updateRootView()
+    }
     
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        attachIfNeeded() }
+        updateRootView()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        hostingView?.removeFromSuperview()
+        hostingView = nil
+    }
     
     var isSelected: Bool = false {
-        didSet { updateRootView() } }
+        didSet { updateRootView() }
+    }
+    
     var highlightState: NSCollectionViewItem.HighlightState = .none {
-        didSet { updateRootView() }  }
-    var onToggleSelection: (() -> Void) = {
-            print("onToggleSelection")
+        didSet { updateRootView() }
     }
     
     func apply(_ layoutAttributes: NSCollectionViewLayoutAttributes) {

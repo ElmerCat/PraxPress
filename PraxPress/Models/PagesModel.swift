@@ -16,6 +16,7 @@ import SwiftUI
 import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
+import OSLog
 
 
 @Observable @MainActor
@@ -175,15 +176,34 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         var pageIndex = 0
         for pageItem in pageItems {
             if !pageItem.skipped {
-                guard let pdfPage = editingPDFDocument.page(at: pageIndex)
-                else { fatalError("pageItem.pdfPage editingPDFDocument.page(at:) failed") }
-                guard pdfPage == pageItem.pdfPage
-                else { fatalError("pageItem.pdfPage == pdfPage *** NOT ***") }
+                guard let pdfPage = editingPDFDocument.page(at: pageIndex) else {
+                    PraxLogger.shared.logWarning(
+                        "Failed to retrieve PDF page at index \(pageIndex) for \(self.title)",
+                        category: .pdf
+                    )
+                    refreshingMergedPage = false
+                    return
+                }
+
+                guard pdfPage == pageItem.pdfPage else {
+                    PraxLogger.shared.logWarning(
+                        "PDF page mismatch at index \(pageIndex); pages may have been reordered",
+                        category: .pdf
+                    )
+                    refreshingMergedPage = false
+                    return
+                }
                 pageIndex += 1
             }
         }
-        guard mergeModePages == pageIndex
-        else { fatalError("mergeModePages == pageIndex *** NOT ***") }
+        guard mergeModePages == pageIndex else {
+            PraxLogger.shared.logError(
+                "Page count mismatch: expected \(mergeModePages), got \(pageIndex)",
+                category: .pdf
+            )
+            refreshingMergedPage = false
+            return
+        }
 
         if mergeModePages < 1 {
             pdfPage = nil

@@ -59,6 +59,66 @@ struct ContentView: View {
             prax.windowSize = newValue
 
         }
+        
+        
+        // MARK: - Error Presentation (NEW)
+               .alert(
+                   prax.presentedError?.title ?? "Error",
+                   isPresented: Binding(
+                       get: { prax.presentedError != nil },
+                       set: { if !$0 { prax.dismissError() } }
+                   ),
+                   presenting: prax.presentedError
+               ) { error in
+                   Button("OK") {
+                       prax.dismissError()
+                   }
+               } message: { error in
+                   VStack(alignment: .leading, spacing: 12) {
+                       // Main error message
+                       Text(error.userMessage)
+                           .font(.body)
+                       
+                       // Recovery suggestions (if any)
+                       if !error.recoverySuggestions.isEmpty {
+                           Divider()
+                           
+                           VStack(alignment: .leading, spacing: 6) {
+                               Text("Try:")
+                                   .font(.caption)
+                                   .fontWeight(.bold)
+                               
+                               ForEach(error.recoverySuggestions, id: \.self) { suggestion in
+                                   HStack(alignment: .top, spacing: 6) {
+                                       Text("•")
+                                           .font(.caption)
+                                       Text(suggestion)
+                                           .font(.caption)
+                                   }
+                               }
+                           }
+                           .padding(.top, 8)
+                       }
+                   }
+               }
+               
+        
+               .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
+                   switch result {
+                   case .success(let url):
+                       print ("Writing mergedPDFView to: ", url)
+                       document.mergedPDFDocument.write(to: url)
+                   case .failure(let error):
+                       print (error.localizedDescription)
+                       prax.saveError = error.localizedDescription
+                   }
+               }
+               .fileDialogDefaultDirectory(document.exportFolderURL)
+               .fileDialogMessage("Save the PraxPress Merged PDF")
+               .fileExporterFilenameLabel("Save Merged PDF as:")
+               .fileDialogConfirmationLabel(Text("Save Merged PDF"))
+        
+        
        // .toolbar(removing: .sidebarToggle)
         
        .toolbar {
@@ -130,20 +190,7 @@ struct ContentDetailView: View {
             //                 Example()
         }
         
-        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
-            switch result {
-            case .success(let url):
-                print ("Writing mergedPDFView to: ", url)
-                document.mergedPDFDocument.write(to: url)
-            case .failure(let error):
-                print (error.localizedDescription)
-                prax.saveError = error.localizedDescription
-            }
-        }
-        .fileDialogDefaultDirectory(document.exportFolderURL)
-        .fileDialogMessage("Save the PraxPress Merged PDF")
-        .fileExporterFilenameLabel("Save Merged PDF as:")
-        .fileDialogConfirmationLabel(Text("Save Merged PDF"))
+
         .padding(0)
     }
 }

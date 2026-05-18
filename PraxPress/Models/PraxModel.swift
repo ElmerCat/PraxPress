@@ -11,6 +11,7 @@ import PDFKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import OSLog
 
 @Observable
 final class PraxModel {
@@ -61,6 +62,31 @@ final class PraxModel {
             selectedPageItem?.mergedPage.refreshMergedPage()
         }
     }
+    
+    // MARK: - Error Handling (ADD THIS SECTION)
+
+    /// Current error to display in UI alert
+    var presentedError: PraxError? = nil
+
+    /// Present an error to the user with title, message, and recovery suggestions
+    func presentError(_ error: PraxError) {
+        DispatchQueue.main.async { [self] in
+            self.presentedError = error
+            
+            // Also log for debugging in Console.app
+            PraxLogger.shared.logError(
+                error.userMessage,
+                error: error.underlyingError,
+                category: .general
+            )
+        }
+    }
+
+    /// Dismiss the currently presented error
+    func dismissError() {
+        presentedError = nil
+    }
+    
 
     enum PraxPressMode: String, CaseIterable {
         case data = "Data Mode"
@@ -284,6 +310,55 @@ private extension Comparable {
 }
 
 extension PraxModel {
+    
+    
+    func praxTest() {
+        print("\nJulie d'Prax")
+        
+        // MARK: - Test Error Alert (Add this section)
+        
+        // Test 1: PDF Import Error
+        PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
+        let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
+            NSLocalizedDescriptionKey: "File not found or corrupted"
+        ])
+        let praxError1 = PraxError.pdfImportFailed(
+            fileName: "test-document.pdf",
+            underlyingError: testError1
+        )
+        document.prax.presentError(praxError1)
+        
+        // Uncomment below to test other error types:
+        
+        /*
+        // Test 2: Image Processing Error
+        let praxError2 = PraxError.imageProcessingFailed(
+            fileName: "test-image.png",
+            reason: "Image format not supported or file corrupted"
+        )
+        document.prax.presentError(praxError2)
+        
+        // Test 3: File Access Error
+        let praxError3 = PraxError.fileAccessDenied(
+            filePath: "/Volumes/NetworkDrive/restricted-folder/file.pdf"
+        )
+        document.prax.presentError(praxError3)
+        
+        // Test 4: Bookmark Error
+        let testError4 = NSError(domain: "BookmarkDomain", code: -2, userInfo: [
+            NSLocalizedDescriptionKey: "Bookmark data is invalid or stale"
+        ])
+        let praxError4 = PraxError.bookmarkResolutionFailed(underlyingError: testError4)
+        document.prax.presentError(praxError4)
+        
+        // Test 5: Generic Error
+        let praxError5 = PraxError.generic(
+            title: "Operation Failed",
+            message: "Something unexpected happened. Please try again."
+        )
+        document.prax.presentError(praxError5)
+        */
+    }
 
     enum ImportSizingMode: String, CaseIterable, Identifiable {
         case fileSizeLimit
@@ -335,13 +410,34 @@ extension PraxModel {
         switch ext {
 
         case "pdf":
+            PraxLogger.shared.logInfo(
+                "Received PDF drop: \(url.lastPathComponent)",
+                category: .import
+            )
+            
             DispatchQueue.main.async { [self] in
                 document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath)
             }
 
             Task {
-                do { try await document.persistence.processImportedURLs([url]) }
-                catch { fatalError("It didn't work") }
+                do {
+                    PraxLogger.shared.logInfo(
+                        "Starting PDF persistence: \(url.lastPathComponent)",
+                        category: .import
+                    )
+                    try await document.persistence.processImportedURLs([url])
+                    PraxLogger.shared.logInfo(
+                        "PDF persistence completed: \(url.lastPathComponent)",
+                        category: .import
+                    )
+                } catch {
+                    // Create user-facing error with recovery suggestions
+                    let praxError = PraxError.pdfImportFailed(
+                        fileName: url.lastPathComponent,
+                        underlyingError: error
+                    )
+                    self.presentError(praxError)
+                }
             }
 
         case "png", "jpeg", "jpg", "gif", "heic":

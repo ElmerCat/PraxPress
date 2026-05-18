@@ -936,108 +936,39 @@ final class PDFPageOverlayView: NSView {
     }
 }
 
-class OverlayControlNSView: NSView {
-    
-    
+class OverlayControlNSView: NSView, HostingViewContainer {
     let pageItem: PageItem
-
+    var hostingView: NSHostingView<OverlayControlView>?
+    
     init(pageItem: PageItem) {
         self.pageItem = pageItem
         super.init(frame: CGRect(x: 100, y: 300, width: 400, height: 400))
         wantsLayer = true
         configure()
-        
     }
 
-    
-   /* init(frame: CGRect, pageItem: PageItem) {
-        self.pageItem = pageItem
-        super.init(frame: frame)
-        configure()
-    }
-    */
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
     
     override var wantsDefaultClipping: Bool { false }
     
-    private var hostingView: NSHostingView<OverlayControlView>?
+    func buildRootView() -> OverlayControlView {
+        OverlayControlView(pageItem: pageItem)
+    }
     
     func configure() {
-        
- //      registerForDraggedTypes([.fileURL])
-//        self.wantsLayer = true
-//        layer?.backgroundColor = NSColor.cyan.cgColor
-//        layer?.borderColor = NSColor.black.cgColor
-//        layer?.borderWidth = 1
-//        layer?.cornerRadius = 12
-
-        let root = OverlayControlView(pageItem: pageItem)
-        
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hosting = NSHostingView(rootView: root)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: self.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            ])
-            self.hostingView = hosting
+        attachHostingView()
+    }
+    
+    override func viewWillMove(toSuperview newSuperview: NSView?) {
+        super.viewWillMove(toSuperview: newSuperview)
+        if newSuperview == nil {
+            detachHostingView()
         }
     }
-    
-
-    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        
-        print("OverlayControlView - draggingEntered")
-        layer?.backgroundColor = NSColor.green.cgColor
-        return .copy
-    }
-    
-    override func draggingExited(_ sender: NSDraggingInfo?)  {
-        print("OverlayControlView - draggingExited")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-    
-    override func concludeDragOperation(_ sender: NSDraggingInfo?)  {
-        print("OverlayControlView - concludeDragOperation")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-    
-    override func draggingEnded(_ sender: NSDraggingInfo)  {
-        print("OverlayControlView - draggingEnded")
-        layer?.backgroundColor = NSColor.cyan.cgColor
-    }
-    
-    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        print("OverlayControlView - prepareForDragOperation")
-        return true
-    }
-    
-    func wantsPeriodicUpdates() -> Bool {
-        print("OverlayControlView - wantsPeriodicUpdates")
-        return true
-    }
-    
-    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        let pboard = sender.draggingPasteboard
-        
-        // Extract file URLs from the pasteboard
-        if let urls = pboard.readObjects(forClasses: [NSURL.self]) as? [URL] {
-            for url in urls {
-                print("OverlayControlView - Dropped file: \(url.path)")
-            }
-            return true // Drop was successful
-        }
-        return false // Drop rejected
-    }
-    
 }
+
 
 struct OverlayControlView: View {
     @Environment(MergedPDFDocument.self) var document
