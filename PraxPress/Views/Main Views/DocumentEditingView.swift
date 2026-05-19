@@ -122,7 +122,7 @@ struct DocumentEditingView: NSViewRepresentable {
         }
   
         
-        enum CollectionKind { case pageItem, pageEdit} //, mergedPage }
+        enum CollectionKind { case pageItem } //, mergedPage }
 
         // Configure one collection view (layout, registration, data source)
         func configure(collectionView: NSCollectionView, kind: CollectionKind) {
@@ -169,8 +169,6 @@ struct DocumentEditingView: NSViewRepresentable {
                 switch kind {
                 case .pageItem:
                     cell.configure(kind: .pageItem(item: item), isSelected: isSelected)
-                case .pageEdit:
-                    cell.configure(kind: .editPage(item: item), isSelected: isSelected)
                 }
                 return cell
             }
@@ -211,9 +209,7 @@ struct DocumentEditingView: NSViewRepresentable {
             switch kind {
             case .pageItem:
                 self.leftDataSource = dataSource
-            case .pageEdit:
-                break
-              //  self.centerDataSource = dataSource
+             //  self.centerDataSource = dataSource
             }
         }
         
@@ -268,7 +264,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -25, leading: 0, bottom: 0, trailing: 0)
                 
              
-                
+/*
             case .pageEdit:
                 layoutSettings.itemHeight = .fractionalWidth(2.0)
                 
@@ -281,7 +277,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
                 layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
                 layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -50, leading: 0, bottom: 0, trailing: 0)
-                
+ */
 
             }
             return createLayout(layoutSettings)

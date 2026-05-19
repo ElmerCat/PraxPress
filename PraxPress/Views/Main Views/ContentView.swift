@@ -60,64 +60,78 @@ struct ContentView: View {
 
         }
         
+        .alert(
+            prax.presentedError?.title ?? "Error",
+            isPresented: Binding(
+                get: { prax.presentedError != nil },
+                set: { if !$0 { prax.dismissError() } }
+            ),
+            presenting: prax.presentedError
+        ) { error in
+            Button("OK") {
+                prax.dismissError()
+            }
+        } message: { error in
+            VStack(alignment: .leading, spacing: 12) {
+                // Main error message
+                Text(error.userMessage)
+                    .font(.body)
+                
+                // Recovery suggestions (if any)
+                if !error.recoverySuggestions.isEmpty {
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Try:")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                        
+                        ForEach(error.recoverySuggestions, id: \.self) { suggestion in
+                            HStack(alignment: .top, spacing: 6) {
+                                Text("•")
+                                    .font(.caption)
+                                Text(suggestion)
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                    .padding(.top, 8)
+                }
+            }
+        }
         
-        // MARK: - Error Presentation (NEW)
-               .alert(
-                   prax.presentedError?.title ?? "Error",
-                   isPresented: Binding(
-                       get: { prax.presentedError != nil },
-                       set: { if !$0 { prax.dismissError() } }
-                   ),
-                   presenting: prax.presentedError
-               ) { error in
-                   Button("OK") {
-                       prax.dismissError()
-                   }
-               } message: { error in
-                   VStack(alignment: .leading, spacing: 12) {
-                       // Main error message
-                       Text(error.userMessage)
-                           .font(.body)
-                       
-                       // Recovery suggestions (if any)
-                       if !error.recoverySuggestions.isEmpty {
-                           Divider()
-                           
-                           VStack(alignment: .leading, spacing: 6) {
-                               Text("Try:")
-                                   .font(.caption)
-                                   .fontWeight(.bold)
-                               
-                               ForEach(error.recoverySuggestions, id: \.self) { suggestion in
-                                   HStack(alignment: .top, spacing: 6) {
-                                       Text("•")
-                                           .font(.caption)
-                                       Text(suggestion)
-                                           .font(.caption)
-                                   }
-                               }
-                           }
-                           .padding(.top, 8)
-                       }
-                   }
-               }
+ 
+        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
+            switch result {
+            case .success(let url):
+                print ("Writing mergedPDFView to: ", url)
+                document.mergedPDFDocument.write(to: url)
+            case .failure(let error):
+                print (error.localizedDescription)
+                prax.saveError = error.localizedDescription
+            }
+        }
+        .fileDialogDefaultDirectory(document.exportFolderURL)
+        .fileDialogMessage("Save the PraxPress Merged PDF")
+        .fileExporterFilenameLabel("Save Merged PDF as:")
+        .fileDialogConfirmationLabel(Text("Save Merged PDF"))
                
         
-               .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
-                   switch result {
-                   case .success(let url):
-                       print ("Writing mergedPDFView to: ", url)
-                       document.mergedPDFDocument.write(to: url)
-                   case .failure(let error):
-                       print (error.localizedDescription)
-                       prax.saveError = error.localizedDescription
-                   }
-               }
-               .fileDialogDefaultDirectory(document.exportFolderURL)
-               .fileDialogMessage("Save the PraxPress Merged PDF")
-               .fileExporterFilenameLabel("Save Merged PDF as:")
-               .fileDialogConfirmationLabel(Text("Save Merged PDF"))
+        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
+                PDFPageItemInspector()
+        }
         
+        
+        .inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
+        
+        
+        .inspectorPanel(prax, isPresented: $prax.showingPDFPageItemInspector) {
+            VStack {
+                Text("Julie D'Prax")
+                VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+                }
+            //                 Example()
+        }
         
        // .toolbar(removing: .sidebarToggle)
         
@@ -132,6 +146,8 @@ struct ContentView: View {
             prax.undoManager = undoManager!
 
         }
+        
+        
     }
 }
 
@@ -145,7 +161,7 @@ struct ContentDetailView: View {
         VStack(spacing: 0) {
             DocumentEditingToolbar()
             
-            if document.mergedPages.count > 0 {
+            if document.mergedPages.count >= 0 {
                 if prax.praxPressMode == .prax {
                     Text("Julie d'Prax")
                         .inspector(isPresented: $prax.showingPDFPageItemInspector) {
@@ -169,6 +185,7 @@ struct ContentDetailView: View {
                         //   AnyOldView()
                         
                     }
+                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
                 }
             }
             else {
@@ -181,15 +198,17 @@ struct ContentDetailView: View {
             DocumentEditingFooter()
         }
         
-        .inspector(isPresented: $prax.showingPDFPageItemInspector) {
-                PDFPageItemInspector()
-        }
         
-        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
-            VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+        
+/*        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
+            VStack {
+                Text("Julie D'Prax")
+                VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
+                }
             //                 Example()
         }
-        
+*/
+//        .inspectorPanel(isPresented: $prax.showDataFields) { DataFieldsEditor().environment(prax) }
 
         .padding(0)
     }

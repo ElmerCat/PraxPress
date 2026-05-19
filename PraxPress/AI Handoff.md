@@ -348,3 +348,157 @@ Check that Memory usage doesn't increase over time with repeated cell reuse
 - ❌ Never assume "I'll fix it when the user reports the error"
 
 ---
+# AI HANDOFF ADDENDUM - SESSION 2026-05-19
+
+## SESSION SUMMARY
+
+### InspectorPanel Architecture Fix ✅ RESOLVED
+
+**Problem:** `DataFieldsEditor` accessed via `.inspectorPanel()` required manual environment passing:
+```swift
+.inspectorPanel(isPresented: $showDataFields) { 
+    DataFieldsEditor().environment(prax)  // Manual workaround
+}
+Root Cause: NSPanel creates a separate Cocoa window outside the SwiftUI view tree, so environment values don't propagate automatically across window boundaries.
+
+Solution: Made prax a required positional parameter to the .inspectorPanel() modifier, passed through to the NSHostingView's environment.
+
+Final API:
+
+swift
+Copy code
+func inspectorPanel<Content: View>(
+    _ prax: PraxModel,
+    isPresented: Binding<Bool>,
+    contentRect: CGRect = CGRect(x: 0, y: 0, width: 624, height: 512),
+    @ViewBuilder content: @escaping () -> Content
+) -> some View
+Usage:
+
+swift
+Copy code
+.inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
+Why This Approach:
+
+Explicit dependency injection (not environment magic across window boundaries)
+Consistent with app architecture: PraxModel as canonical bindable source
+Type-safe: compiler ensures prax is passed
+Clear at call site what dependencies exist
+Files Modified: InspectorPanel.swift
+
+CONTEXT: The Prax Legacy
+PraxPress is named in tribute to Juliette M. Belanger, known as "the Prax lady." Her profession was inspection work. The entire app's architecture and naming conventions reflect this heritage. This context informed the design decision to keep PraxModel as a first-class dependency passed explicitly throughout the system.
+
+FUTURE WORK: FilesModel & Merging-Editing System Overhaul
+Phase 1: Foundation (Current Planning)
+Objective: Establish consistent, undo-aware state management when MergedPDFDocument's mergedPages is cleared.
+
+Scope:
+
+Define reset semantics for Merging-Editing systems
+Hook state transitions to undo manager
+Ensure consistent behavior across all paths that empty mergedPages
+Success Criteria:
+
+Undo/redo properly restores document state after clear operations
+No orphaned state in EditingView, MergedView, or related UI
+Clear operation is atomic with respect to undo manager
+Phase 2: File Handling Robustness
+Objective: Improve resilience when file bookmarks become stale or files are unavailable.
+
+Scope:
+
+Stale Bookmark Detection
+
+Detect when security-scoped URL bookmarks no longer point to valid files
+Handle cases: file moved, deleted, in trash, permissions changed
+Display clear status indicators in SourceFilesView
+Change Tracking
+
+Track when PraxPress modifies imported PDFs (annotations, merges, etc.)
+Distinguish between:
+Original imported file (unchanged)
+Current working version (modified)
+Last saved version
+Store modification metadata in document model
+Smart Re-Save
+
+When file has been modified and original security-scoped URL is valid: offer direct re-save
+Fallback to .fileExporter only when original URL unavailable
+Update bookmark after successful save
+Files to Review/Modify:
+
+FilesModel.swift — bookmark creation, validation, access
+PraxDropDelegate.swift — URL handling during import
+MergedPDFDocument.swift — change tracking hooks
+SourceFilesView.swift — status display, re-save UI
+OtherToolbars.swift — save toolbar integration
+Phase 3: Multi-Group PDF Organization
+Objective: Replace single "Main File Group" with configurable group system.
+
+Scope:
+
+Data Model
+
+Define PDFGroup struct with properties:
+id: UUID
+name: String
+displayMode: PDFDisplayMode (inherited by files in group)
+annotationSaveMode: AnnotationSaveMode (inherited by files)
+sortOrder: [UUID] (file ordering within group)
+color: Color (visual identification)
+Update FilesModel to store groups: [PDFGroup]
+Update PDFFile to track groupID
+SettingsView Integration
+
+New settings panel for group management
+Add group, rename group, delete group
+Configure default properties per group
+Visual group editor with drag-to-reorder
+SourceFilesView Updates
+
+Display files organized by group
+Section headers with group name/color
+Drag-drop between groups
+Merge Logic
+
+When merging: respect group properties as defaults
+Allow per-file overrides of group properties
+Files to Create/Modify:
+
+PDFGroup.swift (new model)
+FilesModel.swift — multi-group support
+SettingsView.swift — group management UI
+SourceFilesView.swift — group display/organization
+MergedDocumentView.swift — respect group properties
+IMPLEMENTATION ORDER
+Phase 1 First — Foundation must be solid before adding file handling complexity
+Phase 2 — Improves reliability of existing single-group system
+Phase 3 — Additive feature that builds on stable Phase 1+2
+KNOWN CONSTRAINTS & ASSUMPTIONS
+Security-scoped bookmark access requires explicit access scope calls per file access
+Undo/redo must be atomic per document operation (already managed by PraxModel)
+Group properties act as defaults; file-level overrides take precedence
+Multi-group won't retroactively reorganize existing "Main File Group" — data migration deferred to post-launch
+TESTING PRIORITIES
+When Phase 1 launches:
+
+Verify undo stack properly captures/restores mergedPages state
+Test empty mergedPages → undo → pages restored
+Verify UI state consistent with document state
+When Phase 2 launches:
+
+Test stale bookmark detection with moved/deleted files
+Test change tracking across import → edit → save cycle
+Test re-save to original security-scoped URL
+When Phase 3 launches:
+
+Test drag-drop between groups
+Test group property inheritance
+Test file/group deletion cascades correctly
+ARCHITECTURE NOTES
+Continue treating PraxModel as canonical state source
+FilesModel manages PDF file collection; MergedPDFDocument manages merge state
+Keep UI views stateless where possible; derive from PraxModel/FilesModel
+Security-scoped URL access is FilesModel's responsibility, not view responsibility
+Undo integration: each "save document" action registers with undo manager

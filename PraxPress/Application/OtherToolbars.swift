@@ -16,7 +16,7 @@ struct DocumentEditingToolbar: View {
     
     let praxTheme = PraxTheme(.erika)
     
-    @State var showDataFields = false
+    
     @State var showSettings = false
     @State var showDelete = false
     @State private var hoveredButton: Int? = nil
@@ -121,19 +121,20 @@ struct DocumentEditingToolbar: View {
                                 
                                 Spacer()
                                 
-                                Button { showDataFields = !showDataFields }label: {
+                                Button { prax.showDataFields = !prax.showDataFields }label: {
                                     GroupBox {
                                         HStack {
-                                            Image(systemName: showDataFields ? "list.bullet.rectangle.fill": "list.bullet.rectangle")
+                                            Image(systemName: prax.showDataFields ? "list.bullet.rectangle.fill": "list.bullet.rectangle")
                                             Text("Data Fields")
                                         }
                                     }
                                 }
                                 
-                                .buttonStyle(SwitchButtonStyle(isOn: showDataFields, isHovering: hoveredButton == 417))
+                                
+                                .buttonStyle(SwitchButtonStyle(isOn: prax.showDataFields, isHovering: hoveredButton == 417))
                                 .controlSize(.extraLarge)
                                 .onHover { hovering in hoveredButton = hovering ? 417 : nil }
-                                .inspectorPanel(isPresented: $showDataFields) { DataFieldsEditor().environment(prax) }
+                                
              
                                 PraxSegmentedControl(selection: $prax.annotationSaveMode, colorProvider: { $0.color }, iconProvider: { $0.icon })
                                 
@@ -523,7 +524,7 @@ struct EditingDocumentFooter: View {
         
         if let pageItem = prax.selectedPageItem {
             let pageCount = pageItem.mergedPage.pageItems.count
-            let curentPageIndex = 764 //pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
+            let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
 
             
             let mergedSizeText = {

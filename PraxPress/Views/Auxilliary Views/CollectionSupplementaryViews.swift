@@ -139,6 +139,7 @@ class CollectionViewBackground: NSView, HostingViewContainer {
         configure()
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("not implemented")
     }
@@ -149,6 +150,14 @@ class CollectionViewBackground: NSView, HostingViewContainer {
     
     func configure() {
         attachHostingView()
+      
+   /*     self.registerForDraggedTypes([
+            .fileURL,
+            .pdfPageDragType,
+            .mergedPageType,
+            .pdfFileType
+        ])
+   */
     }
     
     override func viewWillMove(toSuperview newSuperview: NSView?) {
@@ -206,7 +215,7 @@ class CollectionViewBackground: NSView, HostingViewContainer {
 }
 
 struct CollectionViewBackgroundView: View {
-    @Environment(MergedPDFDocument.self) var document
+//    @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     var body: some View {
         @Bindable var prax = praxModel
@@ -220,6 +229,7 @@ struct CollectionViewBackgroundView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
+                    DropTargetControl()
                 }
                 
                 //  .position(x: 0, y: 16)
@@ -233,12 +243,17 @@ struct CollectionViewBackgroundView: View {
             RoundedRectangle(cornerRadius: 5)
                 .stroke(Color.blue, lineWidth: 5).opacity(0.5)
         )
- //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
- //           PraxModel.shared.acceptDrop(providers)
- //       }
- //       .onDropSessionUpdated({ dropSession in
- //           print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
-//        })
+        
+//        .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
+        
+        
+  /*      .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
+              prax.acceptDrop(providers)
+        }
+*/
+        .onDropSessionUpdated({ dropSession in
+            print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
+        })
         
 
     }

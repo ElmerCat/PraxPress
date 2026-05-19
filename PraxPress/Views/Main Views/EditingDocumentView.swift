@@ -16,6 +16,7 @@
 import SwiftUI
 import PDFKit
 
+/*
 
 class EditingPDFDocumentNSView: NSView, HostingViewContainer {
     let prax: PraxModel
@@ -54,6 +55,7 @@ class EditingPDFDocumentNSView: NSView, HostingViewContainer {
         }
     }
 }
+*/
 
 struct EditingPDFDocumentView: View {
     @Environment(MergedPDFDocument.self) var document

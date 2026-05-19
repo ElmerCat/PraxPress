@@ -126,7 +126,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         print("refreshEditingDocument - starting")
 
         Task {
-            try? await Task.sleep(for: .milliseconds(100))
+        //    try? await Task.sleep(for: .milliseconds(100))
 
             hasDataFields = false
             dataFields = [:]
@@ -223,7 +223,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         }
 
         Task {
-            try? await Task.sleep(for: .milliseconds(100))
+          //  try? await Task.sleep(for: .milliseconds(100))
 
             var maxVisibleWidth: CGFloat = 0
             var minVisibleWidth: CGFloat = .greatestFiniteMagnitude

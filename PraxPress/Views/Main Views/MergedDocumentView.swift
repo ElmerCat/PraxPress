@@ -9,7 +9,7 @@ import SwiftUI
 import PDFKit
 
 
-
+/*
 class MergedPDFDocumentNSView: NSView, HostingViewContainer {
     let prax: PraxModel
     var hostingView: NSHostingView<MergedPDFDocumentView>?
@@ -47,7 +47,7 @@ class MergedPDFDocumentNSView: NSView, HostingViewContainer {
         }
     }
 }
-
+*/
 
 
 struct MergedPDFDocumentView: View {
@@ -238,7 +238,7 @@ struct MergedPDFDocumentView: View {
                     pdfView.go(to: pdfPage)
                 }
                 
-                scalePDFViewToFit(pdfView: context.coordinator.pdfView!)
+                scalePDFViewToFit(pdfView: pdfView)
                 
                 if document.prax.selectedPageItem == nil {
                     if let mergedPage = document.mergedPages.first {

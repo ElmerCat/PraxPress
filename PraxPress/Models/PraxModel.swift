@@ -127,6 +127,8 @@ final class PraxModel {
     var inspectingImageURL: URL?
     var inspectingImageDropIndexPath: IndexPath?
     
+    
+    var showDataFields = false
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
     var showingMergedDocumentInspector = false
@@ -663,6 +665,7 @@ extension PraxModel {
         return options
     }
     
+/*
     private func storedImportSizingMode() -> ImportSizingMode {
         let defaults = UserDefaults.standard
         guard let raw = defaults.string(forKey: "import-sizing-mode"),
@@ -694,7 +697,8 @@ extension PraxModel {
         let value = defaults.integer(forKey: "import-size-limit")
         return value > 0 ? value : nil
     }
-
+*/
+    
     private func pixelSize(of image: NSImage) -> CGSize {
         if let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first {
             return CGSize(width: rep.pixelsWide, height: rep.pixelsHigh)
