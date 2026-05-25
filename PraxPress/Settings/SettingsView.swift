@@ -45,7 +45,7 @@ struct SettingsView: View {
  
         TabView(selection: $selectedSettingsTab) {
             
-            Tab("General", systemImage: "gearshape", value: .general)
+            Tab(SettingsTab.general.name, systemImage: SettingsTab.general.icon, value: .general)
            {
                Text("pdfFileGroups: \(pdfFileGroups.count)")
                 Text("pdfFiles: \(pdfFiles.count)")
@@ -53,10 +53,15 @@ struct SettingsView: View {
                Button("PraxTest", action: praxTest)
       }
             
-            Tab("Advanced", systemImage: "gearshape.fill", value: .advanced){
-                
+            Tab(SettingsTab.advanced.name, systemImage: SettingsTab.advanced.icon, value: .advanced) {
+     
                 Text("Prax Settings")
                 Text("Other...")
+            }
+            
+            Tab(SettingsTab.dataImportTypes.name, systemImage: SettingsTab.dataImportTypes.icon, value: .dataImportTypes) {
+                DataImportEditor()
+                
             }
             
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -92,15 +97,18 @@ struct SettingsView: View {
     }
 }
 
-struct AdvancedSettingsButton: View {
-    @AppStorage("selectedSettingsTab")
-    private var selectedSettingsTab = SettingsTab.general
-    
+struct ShowSettingsButton: View {
     @Environment(\.openSettings) private var openSettings
+    @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
+
+    let settingsTab: SettingsTab
+    init(_ settingsTab: SettingsTab = SettingsTab.general) {
+        self.settingsTab = settingsTab
+    }
     
     var body: some View {
-        Button("Open Advanced Settings…") {
-            selectedSettingsTab = .advanced
+        Button(settingsTab.name) {
+            selectedSettingsTab = settingsTab
             openSettings()
         }
     }
@@ -109,6 +117,23 @@ struct AdvancedSettingsButton: View {
 enum SettingsTab: Int {
     case general
     case advanced
+    case dataImportTypes
+
+    
+    var name: String { switch self {
+    case .advanced: return "Advanced Settings"
+    case .dataImportTypes: return "Data Import Types"
+    default: return "General Settings" } }
+    
+    var icon: String { switch self {
+    case .advanced: return "gearshape.2"
+    case .dataImportTypes: return "slider.horizontal.2.square.badge.arrow.down"
+    default: return "gearshape" } }
+    
+    
+    
+    
+    
 }
 #Preview {
         SettingsView()

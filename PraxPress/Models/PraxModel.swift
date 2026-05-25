@@ -19,18 +19,19 @@ final class PraxModel {
     // Non-optional reference to the document; attached after both are created.
     unowned private(set) var document: MergedPDFDocument!
     
+    
     init() {
         // Document will be attached immediately after both instances are created.
         // We keep it implicitly unwrapped to avoid unsafe placeholders while still
         // making it non-optional for consumers once attached.
     }
     
-    func attach(document: MergedPDFDocument) {
+    func attach(document: MergedPDFDocument,) {
         self.document = document
+        
     }
     
-    var undoManager = UndoManager()
-    
+    let undoManager = UndoManager()
     let theme = PraxTheme(.erika)
    
     
@@ -129,6 +130,7 @@ final class PraxModel {
     
     
     var showDataFields = false
+    var showingImportEditor = false
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
     var showingMergedDocumentInspector = false

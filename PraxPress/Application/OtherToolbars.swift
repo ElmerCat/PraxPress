@@ -256,7 +256,7 @@ struct DocumentEditingFooter: View {
 
 struct EditingDocumentToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var prax
+    @Environment(PraxModel.self) var prax
     
     @FocusState private var focusedField: String?
     @FocusState private var amountFocused: Bool
@@ -285,8 +285,7 @@ struct EditingDocumentToolbar: View {
         
         if let pageItem = prax.selectedPageItem {
             
-            let undoManager = prax.undoManager
-            let _ = Self._printChanges()
+             let _ = Self._printChanges()
 
             
             
@@ -332,23 +331,23 @@ struct EditingDocumentToolbar: View {
                                 .padding(2)
                                 Divider().foregroundStyle(.white).background(.white)
                                 
-                                Button {undoManager.undo() }
+                                Button {prax.undoManager.undo() }
                                 label: {
-                                    Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
-                                    Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
-                                .disabled(undoManager.undoCount < 1)
+                                    Text(String("\(prax.undoManager.undoCount)")) // .font(.system(size: 8))
+                                    Image(systemName: prax.undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
+                                .disabled(prax.undoManager.undoCount < 1)
                                 .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
                                 .onHover { hovering in hoveredButton = hovering ? 274 : nil }
                                 
-                                //         Text(String("\(undoManager.undoCount)"))
+                                //         Text(String("\(prax.undoManager.undoCount)"))
                                 
                                 //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
-                                Button {undoManager.redo() }
-                                label: { if undoManager.redoCount > 0 {
+                                Button {prax.undoManager.redo() }
+                                label: { if prax.undoManager.redoCount > 0 {
                                     Image(systemName: "arrow.uturn.forward.circle.fill") } else {
                                         Image(systemName: "arrow.uturn.forward.circle") }
-                                    Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
-                                .disabled(undoManager.redoCount < 1)
+                                    Text(String("\(prax.undoManager.redoCount)")).font(.system(size: 8)) }
+                                .disabled(prax.undoManager.redoCount < 1)
                                 .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
                                 .onHover { hovering in hoveredButton = hovering ? 276 : nil }
                                 

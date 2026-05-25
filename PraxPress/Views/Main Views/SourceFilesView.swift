@@ -50,6 +50,7 @@ struct SourceFilesView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     //   @State private var prax = PraxModel.shared
     @Environment(FilesPersistenceController.self) private var persistence

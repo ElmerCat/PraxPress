@@ -16,6 +16,11 @@ import OSLog
 struct PraxPressApp: App {
     
     private let persistence: FilesPersistenceController
+    private var settingsModel: SettingsModel {
+        let model = SettingsModel()
+   //     model.attach(undoManager: appDelegate.undoManager)
+        return model
+    }
 
     init() {
         self.persistence = FilesPersistenceController(modelContainer: modelContainer)
@@ -43,6 +48,7 @@ struct PraxPressApp: App {
             MainSceneRoot()
                 .environment(\.modelContext, modelContainer.mainContext)
                 .environment(persistence)
+                .environment(appDelegate)
                 .background(
                     WindowReader { window in
                         window.styleMask.insert(.fullSizeContentView)
@@ -55,6 +61,7 @@ struct PraxPressApp: App {
        }
         .commands {
             MainCommands()
+            
             InspectorCommands()
         }
         .windowStyle(.hiddenTitleBar)
@@ -86,13 +93,16 @@ struct PraxPressApp: App {
             SettingsView()
                 .environment(\.modelContext, modelContainer.mainContext)
                 .environment(persistence)
+                .environment(settingsModel)
+                .environment(appDelegate)
         }
     }
 }
 
-
-
+@Observable
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    
+ //   var undoManager = UndoManager()
     
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         print("applicationSupportsSecureRestorableState")

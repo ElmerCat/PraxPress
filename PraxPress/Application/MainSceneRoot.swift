@@ -52,7 +52,8 @@ struct MainSceneRoot: View {
                 prax = PraxModel()
             }
             guard let prax = prax else { return }
-
+            
+            
             // Construct the document with non-optional dependencies (only once)
             if document == nil {
                 let document = MergedPDFDocument(
@@ -71,21 +72,20 @@ struct MainSceneRoot: View {
 
 struct MainCommands: Commands {
     @Environment(\.openWindow) private var openWindow
-//    @Environment(\.undoManager) var undoManager
             
         
     
     var body: some Commands {
         
-  /*      CommandGroup(replacing: .undoRedo) {
-            Button("Undo") { undoManager?.undo() }
+/*        CommandGroup(replacing: .undoRedo) {
+            Button("Undo") { appDelegate.undoManager.undo() }
                 .keyboardShortcut("z")
-                .disabled(!(undoManager?.canUndo ?? false))
-            Button("Redo") { undoManager?.redo() }
+                .disabled(!appDelegate.undoManager.canUndo)
+            Button("Redo") { appDelegate.undoManager.redo() }
                 .keyboardShortcut("Z", modifiers: [.command, .shift])
-                .disabled(!(undoManager?.canRedo ?? false))
-        } */
-        
+                .disabled(!appDelegate.undoManager.canRedo)
+        }
+*/
         CommandGroup(after: .textEditing) {
             Button("Select All Prax") {
                 NSApp.keyWindow?.makeFirstResponder(nil)

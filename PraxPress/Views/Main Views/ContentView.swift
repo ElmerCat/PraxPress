@@ -18,6 +18,7 @@ struct ContentView: View {
     @Environment(PraxModel.self) private var praxModel
     @Environment(\.undoManager) var undoManager
     
+     
     var body: some View {
         @Bindable var prax = praxModel
 
@@ -124,7 +125,9 @@ struct ContentView: View {
         
         .inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
         
+       
         
+
         .inspectorPanel(prax, isPresented: $prax.showingPDFPageItemInspector) {
             VStack {
                 Text("Julie D'Prax")
@@ -143,8 +146,7 @@ struct ContentView: View {
         
         .onAppear {
             print("ContentView .onAppear")
-            prax.undoManager = undoManager!
-
+  
         }
         
         

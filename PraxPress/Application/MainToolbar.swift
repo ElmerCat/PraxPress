@@ -45,6 +45,12 @@ struct MainToolbar: ToolbarContent {
        
         ToolbarItemGroup(placement: .status) {
             
+            ShowSettingsButton(.advanced)
+    
+            ShowSettingsButton(.dataImportTypes)
+    
+          
+              
             Button("🧪 Test Error") {
                 prax.praxTest()
             }
