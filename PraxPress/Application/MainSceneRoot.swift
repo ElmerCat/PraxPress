@@ -12,7 +12,7 @@ import Foundation
 
 struct MainSceneRoot: View {
 
-    @Environment(FilesPersistenceController.self) private var persistence
+    @Environment(PersistenceController.self) private var persistence
 
     // We’ll build praxModel and document after we have a window-scoped context.
     @State private var prax: PraxModel? = nil

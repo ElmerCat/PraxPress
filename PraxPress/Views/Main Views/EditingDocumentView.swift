@@ -309,6 +309,8 @@ struct EditingPDFDocumentView: View {
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
+            pdfView.isHidden = document.mergedPages.isEmpty
+            
             print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
             
             if let pageItem = document.prax.selectedPageItem {
@@ -329,6 +331,7 @@ struct EditingPDFDocumentView: View {
             else {
                 print("EditingPDFViewRepresentable - updateNSView - No selectedPageItem ")
             }
+            
         }
     }
     

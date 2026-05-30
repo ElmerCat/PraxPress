@@ -229,7 +229,7 @@ struct CollectionViewBackgroundView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    DropTargetControl()
+                  
                 }
                 
                 //  .position(x: 0, y: 16)
@@ -367,14 +367,17 @@ struct SectionFooterView: View {
     }
     var body: some View {
         @Bindable var prax = praxModel
-            VStack(spacing: 8) {
-                HStack {
-                    Text(mergedSizeText())
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
+        VStack(spacing: 8) {
+            HStack {
+                Text(mergedSizeText())
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
+            if mergedPage == document.mergedPages.last {
+          //      DropTargetControl()
+            }
+        }
             .padding(8)
        //     .background(Color.black.opacity(0.5))
            // .overlay(RoundedRectangle(cornerRadius: 8)

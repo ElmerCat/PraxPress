@@ -388,7 +388,7 @@ struct ImageInspectingPopover: View {
                 }
                 Button("Import Image") {
                     guard !importInProgress else { return }
-                    guard let url = prax.inspectingImageURL else {
+                    guard let url = prax.importSourceURL else {
                         closeInspector()
                         return
                     }
@@ -398,7 +398,7 @@ struct ImageInspectingPopover: View {
 
                     prax.addPageFromImageURL(
                         url,
-                        at: prax.inspectingImageDropIndexPath,
+                        at: prax.importDropIndexPath,
                         options: prax.importImageOptions)
                     closeInspector()
                 }
@@ -449,7 +449,7 @@ struct ImageInspectingPopover: View {
     }
 
     private func refreshPreview() {
-        guard let url = prax.inspectingImageURL else {
+        guard let url = prax.importSourceURL else {
             previewImage = nil
             sourcePixelSize = .zero
             outputPixelSize = .zero

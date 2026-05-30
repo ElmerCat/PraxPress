@@ -38,6 +38,7 @@ struct ContentView: View {
                         HStack(spacing: 0) {
                             DocumentEditingLeadingEdge().frame(minWidth: 20, maxWidth: 30)
                             ContentDetailView().frame(minWidth: 500, maxWidth: .infinity)
+                   
                         }
                         
                         .navigationSplitViewColumnWidth(min: 500, ideal: 1500, max: .infinity)
@@ -124,6 +125,8 @@ struct ContentView: View {
         
         .inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
         
+        .inspectorPanel(prax, isPresented: $prax.showingImportImageEditor, contentRect: CGRect(x: 0, y: 0, width: 650, height: 1000)) { ImageImportEditor() }
+        
         
         .inspectorPanel(prax, isPresented: $prax.showingPDFPageItemInspector) {
             VStack {
@@ -132,20 +135,20 @@ struct ContentView: View {
                 }
             //                 Example()
         }
+        .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+        .toolbar(removing: .sidebarToggle)
+   //     .offset(x: 0, y: -20)
         
-       // .toolbar(removing: .sidebarToggle)
-        
-       .toolbar {
-           MainToolbar()
-        }
+       .toolbar { MainToolbar()  }
         
   //     .toolbarBackground(PraxGradient())
-        
+       .ignoresSafeArea(.container, edges: .top)
         .onAppear {
             print("ContentView .onAppear")
             prax.undoManager = undoManager!
 
         }
+        .background(PraxGradient())
         
         
     }
@@ -186,7 +189,22 @@ struct ContentDetailView: View {
                         
                     }
                     .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
+                    .overlay(content: {
+                       
+                        if document.mergedPages.isEmpty {
+                            GroupBox {
+                                Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(PraxGradient())
+                            
+                        }
+                    })
                 }
+                
             }
             else {
                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")

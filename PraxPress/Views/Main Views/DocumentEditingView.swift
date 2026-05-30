@@ -85,10 +85,14 @@ struct DocumentEditingView: NSViewRepresentable {
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-   //     splitView.setPosition(200, ofDividerAt: 0)
+        scrollView.isHidden = document.mergedPages.isEmpty
+        //     splitView.setPosition(200, ofDividerAt: 0)
     //    splitView.setPosition(600, ofDividerAt: 1)
-        print("DocumentEditingView - updateNSView - ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
+        print("DocumentEditingView - uupdateNSView(_ scrollView: NSScrollView, context: Context)- ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
+        
+                
+            
     }
 
     
@@ -415,6 +419,8 @@ struct DocumentEditingView: NSViewRepresentable {
 
         func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
             if collectionView == prax.pageItemCollectionView {
+                
+                print("pageItemCollectionView - didDeSelectItemsAt - ", indexPaths, " - ", collectionView.selectionIndexPaths)
                 prax.selectedPageItems = collectionView.selectionIndexPaths
                 
                 var selectedSections: Set<Int> = []

@@ -15,9 +15,9 @@ import OSLog
 
 @Observable @MainActor class MergedPDFDocument {
     unowned let prax: PraxModel
-    unowned let persistence: FilesPersistenceController
+    unowned let persistence: PersistenceController
     
-    init(prax: PraxModel, persistence: FilesPersistenceController) {
+    init(prax: PraxModel, persistence: PersistenceController) {
         self.prax = prax
         self.persistence = persistence
     }
@@ -25,13 +25,26 @@ import OSLog
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
     
-    var mergedPages: [MergedPage] = [] {
-        didSet {
+
+    private var _mergedPages: [MergedPage] = []
+    var mergedPages: [MergedPage] {
+        get { _mergedPages }
+        set {
+            guard newValue != _mergedPages else { return }
             print("MergedPDFDocument - mergedPages: didSet ")
-            if mergedPages.isEmpty {
-                prax.selectedPageItems = []
+            
+            let oldValue = _mergedPages
+            prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.mergedPages = oldValue
+            })
+            prax.undoManager.setActionName(oldValue.count < newValue.count ? "Add Merged Pages" : "Delete Merged Pages")
+            if newValue.isEmpty {
+
+                clearMergedDocument()
             }
-    } }
+            _mergedPages = newValue
+         }
+    }
 
 
     var mergedDocumentVersion = UUID()
@@ -209,8 +222,7 @@ import OSLog
         get {
             var total = 0
             for section in mergedPages {
-                total += section.pageItems.count
-            }
+                total += section.pageItems.count }
             return total
         }
     }
@@ -220,10 +232,8 @@ import OSLog
             let section = mergedPages[piSection]
             for piItem in section.pageItems.indices {
                 let item = section.pageItems[piItem]
-                if item.id == id {
-                    return item
-                }
-            }
+                if item.id == id {  // match found - return
+                    return item } }
         }
         return nil
     }
@@ -235,12 +245,9 @@ import OSLog
             let section = mergedPages[piSection]
             for piItem in section.pageItems.indices {
                 let item = section.pageItems[piItem]
-                if item.pdfPage.hashValue == pdfPage.hashValue {
-                    return item
-                }
-            }
+                if item.pdfPage.hashValue == pdfPage.hashValue {  // match found - return
+                    return item } }
         }
-      //  fatalError("No Such Number")
         return nil
     }
     
@@ -249,33 +256,23 @@ import OSLog
         for aSection in self.mergedPages {
             var item = 0
             for anItem in aSection.pageItems {
-                if anItem == pageItem {
-                    return IndexPath(item: item, section: section)
-                }
-                item += 1
-            }
+                if anItem == pageItem {  // match found - return
+                    return IndexPath(item: item, section: section) }
+                item += 1 }
             section += 1
         }
         return nil
     }
     
     func pageItem(indexPath: IndexPath) -> PageItem? {
-        let piSection = indexPath.section
-        let piItem = indexPath.item
-        if mergedPages.count > piSection {
-            let section = mergedPages[piSection]
-            if section.pageItems.count > piItem {
-                return section.pageItems[piItem]
-            }
+        if mergedPages.count > indexPath.section {
+            let mergedPage = mergedPages[indexPath.section]
+            if mergedPage.pageItems.count > indexPath.item {  // match found - return
+                return mergedPage.pageItems[indexPath.item] }
         }
         return nil
     }
-    
-    func pages(in section: MergedPage) -> [PageItem] {
-        return section.pageItems
-    }
-    
-    
+
     func copyPDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
         guard !items.isEmpty else { return }
         // Ensure destination section exists
@@ -368,17 +365,30 @@ import OSLog
         prax.selectedPageItems = newSelection
     }
     
+    func beginMergedDocument() {
+        print("Clear Merged Document")
+
+    }
     
-    
+    func clearMergedDocument() {
+        if !mergedPages.isEmpty {
+            
+            print("Clear Merged Document")
+            
+            prax.selectedPageItems.removeAll()
+
+        }
+        
+    }
     
     func clickedDeletePageButton(_ pageItem: PageItem) {
         
         print("PageItem - clickedDeletePageButton pageItem: \(pageItem.name)")
-        for section in mergedPages {
-            if section.pageItems.contains(pageItem) {
-                section.pageItems.removeAll(where: {$0 == pageItem})
-                if section.pageItems.isEmpty {
-                    mergedPages.removeAll(where: {$0 == section})
+        for mergedPage in mergedPages {
+            if mergedPage.pageItems.contains(pageItem) {
+                mergedPage.pageItems.removeAll(where: {$0 == pageItem})
+                if mergedPage.pageItems.isEmpty {
+                    mergedPages.removeAll(where: {$0 == mergedPage})
                 }
             }
         }
@@ -403,57 +413,39 @@ import OSLog
     }
 
     func skipAllPages() {
-        for pageSection in self.mergedPages {
-            for pageItem in pageSection.pageItems {
+        for mergedPage in self.mergedPages {
+            for pageItem in mergedPage.pageItems {
                     if !pageItem.skipped {
-                        pageItem.skipped = true
-                    }
-            }
-        }
+                        pageItem.skipped = true } } }
     }
     
     func includeAllPages() {
-        for pageSection in self.mergedPages {
-            for pageItem in pageSection.pageItems {
+        for mergedPage in self.mergedPages {
+            for pageItem in mergedPage.pageItems {
                     if pageItem.skipped {
-                        pageItem.skipped = false
-                    }
-            }
-        }
+                        pageItem.skipped = false } } }
     }
     
     func includeAllExcept(exceptPageItem: PageItem) {
-        for pageSection in self.mergedPages {
-            for pageItem in pageSection.pageItems {
+        for mergedPage in self.mergedPages {
+            for pageItem in mergedPage.pageItems {
                 if pageItem == exceptPageItem {
                     if !pageItem.skipped {
-                        pageItem.skipped = true
-                    }
-                }
+                        pageItem.skipped = true } }
                 else {
                     if pageItem.skipped {
-                        pageItem.skipped = false
-                    }
-                }
-            }
-        }
+                        pageItem.skipped = false} } } }
     }
     
     func skipAllExcept(exceptPageItem: PageItem) {
-        for pageSection in self.mergedPages {
-            for pageItem in pageSection.pageItems {
+        for mergedPage in self.mergedPages {
+            for pageItem in mergedPage.pageItems {
                 if pageItem == exceptPageItem {
                     if pageItem.skipped {
-                        pageItem.skipped = false
-                    }
-                }
+                        pageItem.skipped = false } }
                 else {
                     if pageItem.skipped != true {
-                        pageItem.skipped = true
-                    }
-                }
-            }
-        }
+                        pageItem.skipped = true } } } }
     }
     
     func clickedMergeModeButton(_ pageItem: PageItem) {
@@ -511,8 +503,8 @@ import OSLog
     }
 
     func mergeAllExcept(exceptPageItem: PageItem, mergeAllMode: MergeMode, mergeExceptMode: MergeMode) {
-        for pageSection in self.mergedPages {
-            for pageItem in pageSection.pageItems {
+        for mergedPage in self.mergedPages {
+            for pageItem in mergedPage.pageItems {
                 if pageItem == exceptPageItem {
                     if pageItem.merge != mergeExceptMode {
                         pageItem.merge = mergeExceptMode

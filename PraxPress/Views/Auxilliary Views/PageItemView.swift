@@ -68,35 +68,41 @@ struct PageItemView: View {
             }
         }()
         
-        if pageItem != nil {
+        if let pageItem {
             GeometryReader { proxy in
                 ZStack {
                     GroupBox {
-                        Image(nsImage: pageItem!.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                        Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                           //  .cornerRadius(6)
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                             .padding(3)
-                            .opacity(pageItem!.skipped ? 0.25 : 1.0)
+                            .opacity(pageItem.skipped ? 0.25 : 1.0)
                     }
                                             
                     GroupBox {
-                        Button {
-                            document.clickedSkipPageButton(pageItem!)
-                            }
-                        label: {
-                            if pageItem!.skipped {
-                                Image(systemName: "text.page.slash")
-                            }
-                            else {
-                                Image(systemName: "text.page")
-                            }
+                        VStack {
+
+                            
+                            Button { document.clickedSkipPageButton(pageItem) }
+                            label: { Image(systemName: pageItem.skipped ? "text.page.slash" : "text.page") }
+                                .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
+                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
+                                .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                                .position(x: proxy.size.width - 30, y: 20)
+                            
+                            
+                            Divider()
+                            
+                            Button { document.clickedDeletePageButton(pageItem) }
+                            label: { Image(systemName: "trash") }
+                                .help("Discard This Page")
+                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
+                                .onHover { hovering in hoveredButton = hovering ? 150 : nil }
+                                .position(x: proxy.size.width - 30, y: 10)
                             
                         }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
-                        .onHover { hovering in hoveredButton = hovering ? 126 : nil }
-                        .position(x: proxy.size.width - 30, y: 20)
                         
                     }
                     

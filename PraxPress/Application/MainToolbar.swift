@@ -13,7 +13,7 @@ struct MainToolbar: ToolbarContent {
     
     @Environment(PraxModel.self) private var praxModel
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
-    @Environment(FilesPersistenceController.self) private var persistence
+    @Environment(PersistenceController.self) private var persistence
     
     @State var showDelete = false
     @State private var hoveredButton: Int? = nil

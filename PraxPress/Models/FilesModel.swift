@@ -7,7 +7,7 @@
 
 // Model objects: PDFFile & PDFFileGroup
 //   and
-// FilesPersistenceController
+// PersistenceController
 
 
 import Foundation
@@ -213,10 +213,12 @@ final class PDFFileGroup {
 
 
 @ModelActor
-actor FilesPersistenceController: Observable {
+actor PersistenceController: Observable {
     private let DEBUG_LOGS = true
     
-    func pdfFiles() -> [PDFFile] {
+    
+    
+    func nopdfFiles() -> [PDFFile] {
         do {
             return try modelContext.fetch(FetchDescriptor<PDFFile>())
         } catch {

@@ -16,6 +16,8 @@ struct Stub_PageItemPopover: View {
     @Environment(PraxModel.self) private var prax
     var body: some View {
         @Bindable var prax = prax
+        
+ //       if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
         if let pageItem = prax.selectedPageItem {
             Text(pageItem.name)
         }
@@ -46,7 +48,7 @@ struct DatePopover: View {
         @Bindable var prax = prax
         
         
-        if let pageItem = prax.selectedPageItem {
+        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
             GroupBox {
                 DatePicker("", selection: $selectedDate, displayedComponents: .date)
                 .onChange(of: selectedDate) {
@@ -72,7 +74,7 @@ struct DatePopover: View {
             
             
             .onAppear(perform: {
-                if let pageItem = prax.selectedPageItem {
+                if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
                     selectedDate = dateFromPageItemDataField(pageItem) ?? Date()
                 }
             })
@@ -91,7 +93,7 @@ struct VendorAccountsPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem {
+        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
 
             GroupBox {
                 
@@ -174,7 +176,7 @@ struct DescriptionPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem {
+        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
 
             GroupBox {
                 TextEditor(text: Binding<String>(
@@ -192,7 +194,7 @@ struct DescriptionPopover: View {
                     }
                 }
             }
-                .onHover { hovering in if !hovering { dismiss() } }
+                
                 .frame(width: 400, height: 200)
                 .multilineTextAlignment(.leading)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -202,7 +204,9 @@ struct DescriptionPopover: View {
                     return .handled
                 })
                 .padding(20)
-            }
+                .onHover { hovering in if !hovering { dismiss() } }
+        }
+        
         else {
             EmptyView()
         }
@@ -214,12 +218,20 @@ struct DocumentNumberPopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
     @FocusState private var isFocused: Bool
+    @State private var hoveredButton: Int?
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem {
+        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
 
-            GroupBox {
+            HStack {
+                Button { if let string = NSPasteboard.general.string(forType: .string){
+                    pageItem.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
+                 label: {
+                     Image(systemName: "arrow.right.page.on.clipboard").padding(0)
+                }
+                 .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 422))
+                 .onHover { hovering in hoveredButton = hovering ? 422: nil }
                 TextField("DocumentNumber", text: Binding<String>(
                     get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
                     set: { newValue in
@@ -235,7 +247,7 @@ struct DocumentNumberPopover: View {
                     }
                 }
             }
-                .onHover { hovering in if !hovering { dismiss() } }
+                
                 .frame(minWidth: 150, maxWidth: 150)
                 .multilineTextAlignment(.trailing)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -244,6 +256,7 @@ struct DocumentNumberPopover: View {
                     dismiss()
                     return .handled
                 })
+                .onHover { hovering in if !hovering { dismiss() } }
             }
         else {
             EmptyView()
@@ -259,37 +272,51 @@ struct AmountPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem {
-
-            GroupBox {
-                TextField("Amount", text: Binding<String>(
-                    get: { pageItem.dataFields["Amount"]?.stringValue ?? "" },
-                    set: { newValue in
-                        pageItem.dataFields["Amount"] = .string(newValue.filter{Prax.decimals.contains($0)} )
-                        if "Amount" == "Amount" {
-                            prax.document.exportFilenameBody = newValue.filter(\.isNumber)
+        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+            
+            VStack {
+                GroupBox {
+                    TextField("Amount", text: Binding<String>(
+                        get: { pageItem.dataFields["Amount"]?.stringValue ?? "" },
+                        set: { newValue in
+                            pageItem.dataFields["Amount"] = .string(newValue.filter{Prax.decimals.contains($0)} )
+                            if prax.useAmountForFilename {
+                                prax.document.exportFilenameBody = newValue.filter(\.isNumber)
+                            }
+                        }
+                    ) )
+                    //    .focused($focusedField, equals: "Amount")
+                    .focused($isFocused)
+                    .onChange(of: isFocused) { oldValue, newValue in
+                        if newValue {
+                            // Set selection to the entire range of the text
+                    //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
                         }
                     }
-                ) )
-                //    .focused($focusedField, equals: "Amount")
-                .focused($isFocused)
-                .onChange(of: isFocused) { oldValue, newValue in
-                    if newValue {
-                        // Set selection to the entire range of the text
-                //        .selection = .init(pageItem.dataFields["Amount"] .startIndex..<pageItem.dataFields["Amount"] .endIndex)
-                    }
+                    
+                    .frame(minWidth: 100, maxWidth: 100)
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onSubmit { dismiss() }
+                    .onKeyPress(.tab, action: {
+                        dismiss()
+                        return .handled
+                    })
                 }
-                .onHover { hovering in if !hovering { dismiss() } }
-                .frame(minWidth: 100, maxWidth: 100)
-                .multilineTextAlignment(.trailing)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onSubmit { dismiss() }
-                .onKeyPress(.tab, action: {
-                    dismiss()
-                    return .handled
-                })
+                .padding()
+                Toggle(isOn: $prax.useAmountForFilename) {
+                    Text( "Use Amount for Filename")
+                        .font(.system(size: 8))
+                }
+                    .toggleStyle(.switch)
+                    .padding()
+                    .controlSize(ControlSize.mini)
+                    .onTapGesture { prax.useAmountForFilename.toggle() }
+                
+                
             }
-            
+            .onHover { hovering in if !hovering { dismiss() } }
+            .padding()
             
         }
         else {

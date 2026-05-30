@@ -31,60 +31,66 @@ struct DataFieldsEditor: View {
                         Button { dismiss() } label: { Text("Close") }
                     }
                 }
-                GroupBox {
-                   
-                    Grid(alignment: .trailing) {
-                        ForEach(pageItem.dataFields.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                            
-                            GridRow {
-                                Text(key)
-                                Spacer()
+                
+                if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
+                    
+                    GroupBox {
+                       
+                        Grid(alignment: .trailing) {
+                            ForEach(dataFieldPage.dataFields.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
                                 
-                                TextField(key, text: Binding<String>(
-                                    get: { value.stringValue ?? "" },
-                                    set: { newValue in
-                                        pageItem.dataFields[key] = .string(newValue)
-                                        if setTitleKey == key {
-                                            prax.document.exportFilenameBody = newValue
+                                GridRow {
+                                    Text(key)
+                                    Spacer()
+                                    
+                                    TextField(key, text: Binding<String>(
+                                        get: { value.stringValue ?? "" },
+                                        set: { newValue in
+                                            dataFieldPage.dataFields[key] = .string(newValue)
+                                            if setTitleKey == key {
+                                                prax.document.exportFilenameBody = newValue
+                                            }
                                         }
-                                    }
-                                ) )
-                                .focused($focusedField, equals: key)
-                                .frame(minWidth: 50, maxWidth: 600)
-                                .multilineTextAlignment(.trailing)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    ) )
+                                    .focused($focusedField, equals: key)
+                                    .frame(minWidth: 50, maxWidth: 600)
+                                    .multilineTextAlignment(.trailing)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                                Spacer()
-                                
-                                Button("Copy") {
-                                    let pasteboard = NSPasteboard.general
-                                        pasteboard.clearContents()
-                                        pasteboard.setString(value.stringValue ?? "", forType: .string)
+                                    Spacer()
+                                    
+                                    Button("Copy") {
+                                        let pasteboard = NSPasteboard.general
+                                            pasteboard.clearContents()
+                                            pasteboard.setString(value.stringValue ?? "", forType: .string)
+                                    }
+                                    .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == key, isFocused: false))
+                                    .onHover { hovering in
+                                        hoveredButton = hovering ? key : nil
+                                    }
+                                    .frame(minWidth: 40)
+                                    
+                                    Button("Set Title") {
+                                        if setTitleKey == key { setTitleKey = "" }
+                                        else { setTitleKey = key }
+                                    }
+                                    .buttonStyle(SelectableButtonStyle(isSelected: setTitleKey == key, isHovering: hoveredButton == key, isFocused: false))
+                                    .onHover { hovering in
+                                        hoveredButton = hovering ? key : nil
+                                    }
+                                    .frame(minWidth: 40)
+                                    
                                 }
-                                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == key, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? key : nil
-                                }
-                                .frame(minWidth: 40)
-                                
-                                Button("Set Title") {
-                                    if setTitleKey == key { setTitleKey = "" }
-                                    else { setTitleKey = key }
-                                }
-                                .buttonStyle(SelectableButtonStyle(isSelected: setTitleKey == key, isHovering: hoveredButton == key, isFocused: false))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? key : nil
-                                }
-                                .frame(minWidth: 40)
-                                
                             }
                         }
+                        .focusable()
                     }
-                    .focusable()
+                    .focusSection()
+                    .defaultFocus($focusedField, dataFieldPage.dataFields.first?.key)
+                    .padding(20)
                 }
-                .focusSection()
-                .defaultFocus($focusedField, pageItem.dataFields.first?.key)
-                .padding(20)
+                
+
                 
                 GroupBox {
                     HStack {

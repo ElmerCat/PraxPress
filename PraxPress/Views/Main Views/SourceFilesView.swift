@@ -14,7 +14,7 @@ import UniformTypeIdentifiers
 private let DEBUG_LOGS = true
 
 struct PDFFilesListRow: View {
-    @Environment(FilesPersistenceController.self) private var persistence
+    @Environment(PersistenceController.self) private var persistence
     
         
    
@@ -42,6 +42,8 @@ struct PDFFilesListRow: View {
         .draggable {
             return PDFFileTransfer(pdfFile: pdfFile)
         }
+        
+
     }
 }
 
@@ -52,7 +54,7 @@ struct SourceFilesView: View {
     
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     //   @State private var prax = PraxModel.shared
-    @Environment(FilesPersistenceController.self) private var persistence
+    @Environment(PersistenceController.self) private var persistence
     @Environment(PraxModel.self) private var praxModel
     @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
     @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
@@ -184,7 +186,7 @@ struct SourceFilesView: View {
             
         }
         
-        
+ 
         .toolbar(removing: .sidebarToggle)
     
         .toolbar {
@@ -250,7 +252,7 @@ struct SourceFilesView: View {
      //   .toolbarBackground(.blue).opacity(0.2)
       //  .toolbarColorScheme(.light)
         
-        
+ 
         
         .fileImporter(
             isPresented: $prax.showingImporter,
@@ -361,6 +363,17 @@ struct PDFFilesList: View {
                             .selectionDisabled(notFound)
                     }
                     .scrollContentBackground(.hidden)
+                }
+                .onChange(of: prax.selectedFiles) {
+                    if document.mergedPages.isEmpty, !prax.selectedFiles.isEmpty {
+                        for selectedFile in prax.selectedFiles {
+                            let pdfFile = pdfFiles.first(where: { $0.id == selectedFile })!
+        
+                            document.addPagesFromPDFURL(pdfFile.url, bookmarkData: pdfFile.bookmarkData)
+                        }
+                    }
+
+                    
                 }
             } else {
                 ZStack {

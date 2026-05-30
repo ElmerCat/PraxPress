@@ -50,6 +50,9 @@ struct PraxTheme {
     var foregroundColorSelected: Color
     var backgroundColorSelected: Color
     
+    let fontFeature = Font.custom("BrushScriptMT", size: 20)
+
+    
     var themeVariant: PraxThemeVariant
 
     init(_ themeVariant: PraxThemeVariant) {
@@ -125,6 +128,54 @@ struct PrefixButtonStyle: ButtonStyle {
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
 }
 
+
+
+struct DragButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(PraxModel.self) private var prax
+    
+    var isHovering: Bool
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        let backgroundColor: Color
+        let foregroundColor: Color
+        let frameWidth: CGFloat
+        let frameHeight: CGFloat
+        
+        
+        if !isEnabled {
+            backgroundColor = .clear
+            foregroundColor = .gray
+        } else if isHovering {
+            backgroundColor = prax.annotationSaveMode.color
+            foregroundColor = prax.theme.foregroundColorHover
+        } else {
+            backgroundColor = prax.annotationSaveMode.color
+            foregroundColor = prax.theme.foregroundColor
+        }
+        if isHovering {
+            frameWidth = 300
+            frameHeight = 30
+        }
+        else {
+            frameWidth = 30
+            frameHeight = 25
+    }
+
+        return configuration.label
+            .buttonStyle(.glassProminent)
+            .imageScale(.large)
+            .frame(width: frameWidth, height: frameHeight, alignment: .center )
+            .padding(.horizontal, 4)
+            .foregroundColor(foregroundColor)
+            .background {
+                Rectangle()
+                    .foregroundStyle(backgroundColor)
+            }
+            .cornerRadius(8)
+            .animation(.bouncy(duration: 0.5), value: isHovering)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
+}
 
 
 struct ItemButtonStyle: ButtonStyle {

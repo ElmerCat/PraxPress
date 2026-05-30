@@ -13,21 +13,46 @@ import SwiftData
 import UniformTypeIdentifiers
 import OSLog
 
+
+
+@Observable
+final class ViewAdjuster {
+
+    let prax: PraxModel
+    
+    init(prax: PraxModel) {
+        self.prax = prax
+    }
+    
+    var windowSize = CGSize(width: 1000, height: 1000) {
+        didSet {
+            print("Window size changed: \(windowSize)")
+        }
+    }
+    
+}
+
 @Observable
 final class PraxModel {
     
     // Non-optional reference to the document; attached after both are created.
     unowned private(set) var document: MergedPDFDocument!
     
+    private(set) var viewAdjuster: ViewAdjuster!
+    
     init() {
         // Document will be attached immediately after both instances are created.
         // We keep it implicitly unwrapped to avoid unsafe placeholders while still
         // making it non-optional for consumers once attached.
+        
+        
     }
     
     func attach(document: MergedPDFDocument) {
         self.document = document
+        self.viewAdjuster = ViewAdjuster(prax: self)
     }
+    
     
     var undoManager = UndoManager()
     
@@ -41,9 +66,9 @@ final class PraxModel {
         
         var color: Color { switch self {
             case .editable:
-                return .blue
+                return .green
             case .locked:
-                return .red
+                return .blue
             case .burnIn:
                 return .orange } }
         
@@ -123,11 +148,12 @@ final class PraxModel {
     var isLarge: Bool = false
     var showFilesPanel = true
     var showingImageDropInspector: Bool = false
+    var showingImportImageEditor: Bool = false
     var inspectNextImageDrop: Bool = false
-    var inspectingImageURL: URL?
-    var inspectingImageDropIndexPath: IndexPath?
+    var importSourceURL: URL?
+    var importDropIndexPath: IndexPath?
     
-    
+    var useAmountForFilename = false
     var showDataFields = false
     var showingFileImportOptions: Bool = false
     var showingFileExportOptions: Bool = false
@@ -155,55 +181,80 @@ final class PraxModel {
     }
     
     
-    var hoverSection: Set<HoverSection> = []
+    var hoverSection = Set<HoverSection>()
     
+    var selectedFiles = Set<PDFFile.ID>()
+    var selectedSections = Set<Int>()
     
-    var selectedFiles = Set<PDFFile.ID>() {
-        didSet {
-            print ("PraxModel - MergedPDFDocument selectedFiles didSet: ", selectedFiles.count) //, selectedFiles.description)
-        }
-    }
-    
-    var selectedSections: Set<Int> = [] { didSet {
-        print("PraxModel - selectedSections didSet:  ", selectedSections)
-    //    selectedSections.forEach {
-    //        print("\($0)") }
-    }}
-    
-    
-    private var _selectedPageItems: Set<IndexPath> = []
-    
+    private var _selectedPageItems = Set<IndexPath>()
     var selectedPageItems: Set<IndexPath> {
         get { _selectedPageItems }
         set {
-            if _selectedPageItems != newValue { _selectedPageItems = newValue
-                if let indexPath = selectedPageItems.first {
-                    if let pageItem = document.pageItem(indexPath: indexPath) {
-                        if !pageItem.skipped {
-                            _selectedPageItem = pageItem
-                            if document.exportFilenameBody == "" {
-                                document.setExportURL(from: pageItem) }
-                            return } } }
+            guard newValue != _selectedPageItems else { return }
+            _selectedPageItems = newValue
+            
+            if pageItemCollectionView.selectionIndexPaths != selectedPageItems {
+                pageItemCollectionView.selectionIndexPaths = selectedPageItems
             }
-            _selectedPageItem = nil
+            if newValue.isEmpty { endSelectedPage() }
+            else if selectedPageItem == nil { beginSelectedPage() }
+            else { updateSelectedPage() }
         }
     }
 
     
-    private var _selectedPageItem: PageItem?
-    var selectedPageItem: PageItem? {
+  //  private var _selectedPageItem: PageItem?
+    var selectedPageItem: PageItem?
+    /*
+    {
         get { _selectedPageItem }
         set {
-            if newValue != _selectedPageItem, let newValue {
-                _selectedPageItem = newValue
-                if let indexPath = document.indexPath(for: newValue) {
-                    pageItemCollectionView.selectionIndexPaths = [indexPath]
-                    
-                }
+            
+            guard newValue != _selectedPageItem else { return }
+
+            let oldValue = _selectedPageItem
+            _selectedPageItem = newValue
+            
+            if newValue != nil, oldValue == nil {
+                beginSelectedPage()
+                
                 
                 
             }
+            else if oldValue != nil, newValue == nil {
+                endSelectedPage()
+            }
+ 
         }
+    }
+    
+    */
+    func beginSelectedPage() {
+        print("beginSelectedPage")
+        if selectedPageItem == nil {
+            if let indexPath = selectedPageItems.first {
+                if let pageItem = document.pageItem(indexPath: indexPath) {
+                    selectedPageItem = pageItem
+                    if document.exportFilenameBody == "" {
+                        document.setExportURL(from: pageItem) } } } }
+    }
+
+
+    func updateSelectedPage() {
+        print("updateSelectedPage")
+        if let selectedPageItem, let selectedIndexPath = document.indexPath(for: selectedPageItem) {
+            if !selectedPageItems.contains(selectedIndexPath) {
+                if let indexPath = selectedPageItems.first,
+                   let pageItem = document.pageItem(indexPath: indexPath) {
+                    self.selectedPageItem = pageItem
+                return } } }
+        self.selectedPageItem = nil
+    }
+    
+    func endSelectedPage() {
+        print("endSelectedPage")
+        selectedPageItem = nil
+        pageItemCollectionView.selectionIndexPaths.removeAll()
     }
     
     func cleanupTemporaryArtifacts() {
@@ -268,7 +319,7 @@ final class PDFViewRegistry {
 
 
 extension NSImage {
-    func resize(to newSize: NSSize) -> NSImage? {
+    func resize(to newSize: NSSize, interpolation: NSImageInterpolation = .high) -> NSImage? {
         guard let tiffData = self.tiffRepresentation,
               let bitmapImageRep = NSBitmapImageRep(data: tiffData) else { return nil }
         
@@ -292,6 +343,23 @@ extension NSImage {
         
         let resizedImage = NSImage(size: newSize)
         resizedImage.addRepresentation(newRep!)
+
+        resizedImage.lockFocus()
+        
+        // Apply resize quality
+        if let currentContext = NSGraphicsContext.current {
+            currentContext.imageInterpolation = interpolation
+        }
+        
+        // Draw the source image into the new rect
+        self.draw(in: NSRect(origin: .zero, size: newSize),
+                  from: NSRect(origin: .zero, size: self.size),
+                  operation: .copy,
+                  fraction: 1.0)
+        
+        resizedImage.unlockFocus()
+
+
         return resizedImage
     }
 }
@@ -313,7 +381,7 @@ private extension Comparable {
 
 extension PraxModel {
     
-    
+
     func praxTest() {
         print("\nJulie d'Prax")
         
@@ -361,6 +429,17 @@ extension PraxModel {
         document.prax.presentError(praxError5)
         */
     }
+    
+    func moreThanOneDataPageError() {
+        print("\nJulie d'Prax")
+        PraxLogger.shared.logWarning("More than one data page", category: .general)
+        
+        let praxError = PraxError.generic(
+            title: "More Than One Data Page",
+            message: "Only one Page Item should contain Data Fields.\n\nThe first Page Item will be used for the data source and it's fields will be filled on export.\n\nHowever, unless you use the Burn option, the form fields on other pages will blank and no longer editable.\n\nRemove the extra Data Page Item(s) if you don't wish for this behavior."
+        )
+        document.prax.presentError(praxError)
+    }
 
     enum ImportSizingMode: String, CaseIterable, Identifiable {
         case fileSizeLimit
@@ -394,11 +473,10 @@ extension PraxModel {
         static let neutral = ImageImportOptions()
     }
     
-    private static let imageCIContext = CIContext()
     
     func clearImageInspectorState() {
-        inspectingImageURL = nil
-        inspectingImageDropIndexPath = nil
+        importSourceURL = nil
+        importDropIndexPath = nil
         showingImageDropInspector = false
     }
 
@@ -443,15 +521,16 @@ extension PraxModel {
             }
 
         case "png", "jpeg", "jpg", "gif", "heic":
+            importSourceURL = url
+            importDropIndexPath = indexPath
             if inspectNextImageDrop {
-                inspectingImageURL = url
-                inspectingImageDropIndexPath = indexPath
                 showingImageDropInspector = true
             } else {
+                
+                showingImportImageEditor = true
+                
                 // IMPORTANT: default size limit is applied inside addPageFromImageURL
-                DispatchQueue.main.async { [self] in
-                    addPageFromImageURL(url, at: indexPath, options: .neutral)
-                }
+      //          DispatchQueue.main.async { [self] in addPageFromImageURL(url, at: indexPath, options: .neutral) }
             }
 
         default:
@@ -503,19 +582,10 @@ extension PraxModel {
         return processedImage(sourceImage, options: resolvedImportOptions(options))
     }
 
-    /// Compatibility overload (so existing UI code still compiles).
-    /// Width/height are intentionally ignored now.
-    func processedImageFromURL(
-        _ url: URL,
-        importWidth: Int,
-        importHeight: Int,
-        options: ImageImportOptions
-    ) -> NSImage? {
-        processedImageFromURL(url, options: options)
-    }
+
 
     // MARK: - Core processing
-
+    private static let imageCIContext = CIContext()
     private func processedImage(_ sourceImage: NSImage, options: ImageImportOptions) -> NSImage? {
         guard let tiff = sourceImage.tiffRepresentation,
               var ciImage = CIImage(data: tiff) else { return nil }

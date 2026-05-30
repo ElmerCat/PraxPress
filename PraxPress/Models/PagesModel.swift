@@ -54,6 +54,14 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         get { _pageItems }
         set {
             guard newValue != _pageItems else { return }
+            
+            let oldValue = pageItems
+            prax.undoManager.registerUndo(withTarget: self, handler: {
+                $0.pageItems = oldValue
+            })
+            prax.undoManager.setActionName(oldValue.count < newValue.count ? "Add Page Items to Merged Page \(title)" : "Remove Page Items from Merged Page \(title)")
+
+ 
             _pageItems = newValue
             refreshEditingDocument()
         }
@@ -106,9 +114,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
        
     }
     
-    var hasDataFields = false
-    var dataFields: [String: FieldValue] = [:]
-    
+    var dataFieldPage: PageItem?
 
     @ObservationIgnored private var pendingEditingRefresh = false
     @ObservationIgnored private var pendingMergedRefresh = false
@@ -128,8 +134,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
         Task {
         //    try? await Task.sleep(for: .milliseconds(100))
 
-            hasDataFields = false
-            dataFields = [:]
+            dataFieldPage = nil
 
             var insertIndex = 0
             let pdfDocument = PDFDocument()
@@ -138,8 +143,13 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 if !pageItem.skipped {
                     pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
                     if !pageItem.dataFields.isEmpty {
-                        dataFields = pageItem.dataFields
-                        hasDataFields = true
+                        if dataFieldPage == nil {
+                            dataFieldPage = pageItem
+                        }
+                        else {
+                            prax.moreThanOneDataPageError()
+                        }
+                        
                     }
                     insertIndex += 1
                 }

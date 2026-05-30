@@ -103,21 +103,43 @@ struct DocumentEditingToolbar: View {
                             
                            // .disabled(document.exportFolderURL == nil)
                             
-                            
-                            
                             Text(".pdf")
-                            Button("Drag", systemImage: "arrow.right.doc.on.clipboard") {
+                            
+                            Button { }
+                            label: {
+                                HStack{
+                                    GroupBox {
+                                        HStack {
+                                            Image(systemName: "arrow.right.doc.on.clipboard")
+                                            if hoveredButton == 150 {
+                                                
+                                                Text("Drag")
+                                                Text("\(document.exportFilename).pdf")
+                                                if prax.selectedPageItem?.mergedPage.dataFieldPage != nil {
+                                                    PraxSegmentedControl(selection: $prax.annotationSaveMode, colorProvider: { $0.color }, iconProvider: { $0.icon })
+                                                }
+                                            }
+                                            }
+                                        }
+                                    }
+                                    
+                                    
+                                }
                                 
+                                .buttonStyle(DragButtonStyle(isHovering: hoveredButton == 150))
+                                .onHover { hovering in hoveredButton = hovering ? 150 : nil }
+                                
+                                .draggable({ () -> MergedPDFTransfer? in
+                                    guard let data = document.mergedPDFDocument.dataRepresentation(options: [PDFDocumentWriteOption.burnInAnnotationsOption: (prax.annotationSaveMode == .burnIn)]) else { return nil }
+                                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                                }()!, preview: {
+                                    PraxDragPreview()
+                                })
                             
-                            }
-                            .draggable({ () -> MergedPDFTransfer? in
-                                guard let data = document.mergedPDFDocument.dataRepresentation(options: [PDFDocumentWriteOption.burnInAnnotationsOption: (prax.annotationSaveMode == .burnIn)]) else { return nil }
-                                return MergedPDFTransfer(data: data, filename: document.exportFilename)
-                            }()!, preview: {
-                                PraxDragPreview()
-                            })
+
+                        
                             
-                            if !pageItem.dataFields.isEmpty {
+                            if pageItem.mergedPage.dataFieldPage != nil {
                                 
                                 Spacer()
                                 
@@ -367,13 +389,13 @@ struct EditingDocumentToolbar: View {
                         
                         
                     }
-                    if pageItem.mergedPage.hasDataFields {
+                    if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
                         
                         HStack (spacing: 0) {
                             
                             GroupBox {
                                 Button { showDatePopover = true}
-                                label: { Text("\(pageItem.dataFields["Date"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)
+                                label: { Text("\(dataFieldPage.dataFields["Date"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)
                                 }
                                     .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 410, isDisabled: document.mergedPages.isEmpty))
                                     .onHover { hovering in hoveredButton = hovering ? 410 : nil }
@@ -388,7 +410,7 @@ struct EditingDocumentToolbar: View {
                             GroupBox {
                                 HStack(spacing: 0) {
                                     Button { if let string = NSPasteboard.general.string(forType: .string){
-                                            pageItem.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
+                                            dataFieldPage.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
                                      label: {
                                          Image(systemName: "arrow.right.page.on.clipboard").padding(0)
                                     }
@@ -396,10 +418,10 @@ struct EditingDocumentToolbar: View {
                                      .onHover { hovering in hoveredButton = hovering ? 422: nil }
 
                                //     .controlSize(.mini)
-                                    .padding(0)
+                                    Divider()
 
                                     Button { showDocumentNumberPopover = true }
-                                    label: { Text("Doc# \(pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
+                                    label: { Text("Doc# \(dataFieldPage.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
                                         .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 421, isDisabled: document.mergedPages.isEmpty))
                                         .onHover { hovering in hoveredButton = hovering ? 421 : nil }
                                         .disabled (showDocumentNumberPopover == true )
@@ -412,7 +434,7 @@ struct EditingDocumentToolbar: View {
 
                                 }
                           //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
-                                .padding(0)
+                                .padding(.horizontal, 4)
                                 .background(PraxGradient(2))
                                 .border(.blue, width: 1)
 
@@ -455,7 +477,7 @@ struct EditingDocumentToolbar: View {
                                     Button {
                                         let pasteboard = NSPasteboard.general
                                             pasteboard.clearContents()
-                                            pasteboard.setString(pageItem.dataFields["Description"]?.stringValue ?? "" , forType: .string)
+                                            pasteboard.setString(dataFieldPage.dataFields["Description"]?.stringValue ?? "" , forType: .string)
                                     }
                                      label: {
                                          Image(systemName: "arrow.up.page.on.clipboard").padding(0)
@@ -478,7 +500,7 @@ struct EditingDocumentToolbar: View {
                             
                             GroupBox {
                                 Button { showAmountPopover = true }
-                                label: { Text("Amount: $\(pageItem.dataFields["Amount"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)}
+                                label: { Text("Amount: $\(dataFieldPage.dataFields["Amount"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)}
                                     .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 420, isDisabled: document.mergedPages.isEmpty))
                                     .onHover { hovering in hoveredButton = hovering ? 420 : nil }
                                     .disabled (showAmountPopover == true )
@@ -524,7 +546,7 @@ struct EditingDocumentFooter: View {
         
         if let pageItem = prax.selectedPageItem {
             let pageCount = pageItem.mergedPage.pageItems.count
-            let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem)!
+            let curentPageIndex = pageItem.mergedPage.pageItems.firstIndex(of: pageItem) ?? -1
 
             
             let mergedSizeText = {

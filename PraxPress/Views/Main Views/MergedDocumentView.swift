@@ -224,6 +224,7 @@ struct MergedPDFDocumentView: View {
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
+            pdfView.isHidden = document.mergedPages.isEmpty
             
             if context.coordinator.documentVersion != document.mergedDocumentVersion {
                 var pageIndex: Int = 0

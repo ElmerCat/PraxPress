@@ -15,14 +15,15 @@ import OSLog
 @main
 struct PraxPressApp: App {
     
-    private let persistence: FilesPersistenceController
+    private let persistence: PersistenceController
+    private var settingsModel = SettingsModel()
 
     init() {
-        self.persistence = FilesPersistenceController(modelContainer: modelContainer)
+        self.persistence = PersistenceController(modelContainer: modelContainer)
         do {
             try Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
  //           try Tips.resetDatastore()
-            Tips.showAllTipsForTesting()
+           // Tips.showAllTipsForTesting()
             }
         catch {
             print("Error configuring Tips: \(error)")
@@ -41,13 +42,14 @@ struct PraxPressApp: App {
     var body: some Scene {
         WindowGroup(id: "main") {
             MainSceneRoot()
+                .ignoresSafeArea(.container, edges: .top)
                 .environment(\.modelContext, modelContainer.mainContext)
                 .environment(persistence)
                 .background(
                     WindowReader { window in
                         window.styleMask.insert(.fullSizeContentView)
-                      //  window.styleMask.insert(.unifiedTitleAndToolbar)
-                     //   window.styleMask.insert(.hiddenTitleBar)
+                    //    window.styleMask.insert(.unifiedTitleAndToolbar)
+                    //    window.styleMask.insert(.hiddenTitleBar)
                         
                         WindowCoordinator.shared.attachIfPending(newWindow: window)
                     }
@@ -58,7 +60,8 @@ struct PraxPressApp: App {
             InspectorCommands()
         }
         .windowStyle(.hiddenTitleBar)
-    //    .windowToolbarStyle(.unified)
+    //    .windowToolbarStyle(.)
+//        .windowToolbarStyle(.unified)
         .windowToolbarStyle(.unified(showsTitle: false))  //.expanded)  //
    //     .windowToolbarLabelStyle($toolbarLabelStyle)
         
@@ -86,7 +89,10 @@ struct PraxPressApp: App {
             SettingsView()
                 .environment(\.modelContext, modelContainer.mainContext)
                 .environment(persistence)
+                .environment(settingsModel)
+            
         }
+
     }
 }
 
