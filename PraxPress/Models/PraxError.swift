@@ -14,11 +14,11 @@ import Foundation
 ///
 /// Usage:
 /// ```
-/// let error = PraxError.pdfImportFailed(fileName: "doc.pdf", underlyingError: someError)
+/// let error = PraxError.fileImportFailed(fileName: "doc.pdf", underlyingError: someError)
 /// prax.presentError(error)
 /// ```
 enum PraxError: Error, Identifiable {
-    case pdfImportFailed(fileName: String, underlyingError: Error)
+    case fileImportFailed(fileName: String, underlyingError: Error)
     case imageProcessingFailed(fileName: String, reason: String)
     case persistenceFailed(operation: String, underlyingError: Error)
     case bookmarkResolutionFailed(underlyingError: Error)
@@ -30,7 +30,7 @@ enum PraxError: Error, Identifiable {
     
     var id: String {
         switch self {
-        case .pdfImportFailed: return "pdfImportFailed"
+        case .fileImportFailed: return "fileImportFailed"
         case .imageProcessingFailed: return "imageProcessingFailed"
         case .persistenceFailed: return "persistenceFailed"
         case .bookmarkResolutionFailed: return "bookmarkResolutionFailed"
@@ -44,8 +44,8 @@ enum PraxError: Error, Identifiable {
     
     var title: String {
         switch self {
-        case .pdfImportFailed:
-            return "PDF Import Failed"
+        case .fileImportFailed:
+            return "File Import Failed"
         case .imageProcessingFailed:
             return "Image Processing Failed"
         case .persistenceFailed:
@@ -65,24 +65,24 @@ enum PraxError: Error, Identifiable {
     
     var userMessage: String {
         switch self {
-        case .pdfImportFailed(let fileName, let error):
-            return "Could not import PDF '\(fileName)':\n\n\(error.localizedDescription)"
+        case .fileImportFailed(let fileName, let error):
+            return "\nCould not import\n\n  \(fileName)\n\n\n\(error.localizedDescription)"
         
         case .imageProcessingFailed(let fileName, let reason):
-            return "Could not process image '\(fileName)':\n\n\(reason)"
+            return "\nCould not process image\n\n \(fileName)\n\n\n\(reason)"
         
         case .persistenceFailed(let operation, let error):
-            return "Storage operation '\(operation)' failed:\n\n\(error.localizedDescription)"
+            return "\nStorage operation \n\n\(operation)\n\nfailed\n\n\n\(error.localizedDescription)"
         
         case .bookmarkResolutionFailed(let error):
-            return "Could not access file:\n\n\(error.localizedDescription)\n\nThe file may have been moved or deleted."
+            return "\nCould not access file\n\n\n\(error.localizedDescription)\n\n\nThe file may have been moved or deleted."
         
         case .fileAccessDenied(let filePath):
-            return "Access denied to file:\n\n\(filePath)\n\nCheck file permissions or try copying to Documents."
+            return "\nAccess denied to file\n\n\(filePath)\n\n\nCheck file permissions or try copying to Documents."
         
         case .saveFailed(let reason, let error):
             let errorDetails = error.map { "\n\n\(($0 as NSError).localizedDescription)" } ?? ""
-            return "Could not save PDF:\n\n\(reason)\(errorDetails)"
+            return "\nCould not save PDF:\n\n\(reason)\(errorDetails)"
         
         case .generic(_, let message):
             return message
@@ -93,7 +93,7 @@ enum PraxError: Error, Identifiable {
     
     var recoverySuggestions: [String] {
         switch self {
-        case .pdfImportFailed:
+        case .fileImportFailed:
             return [
                 "Ensure the file is a valid PDF",
                 "Try copying the file to a local folder first",
@@ -150,7 +150,7 @@ enum PraxError: Error, Identifiable {
     
     var underlyingError: Error? {
         switch self {
-        case .pdfImportFailed(_, let error): return error
+        case .fileImportFailed(_, let error): return error
         case .persistenceFailed(_, let error): return error
         case .bookmarkResolutionFailed(let error): return error
         case .saveFailed(_, let error): return error

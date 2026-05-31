@@ -81,7 +81,7 @@ struct SourceFilesView: View {
         let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
             NSLocalizedDescriptionKey: "File not found or corrupted"
         ])
-        let praxError1 = PraxError.pdfImportFailed(
+        let praxError1 = PraxError.fileImportFailed(
             fileName: "test-document.pdf",
             underlyingError: testError1
         )
@@ -263,7 +263,7 @@ struct SourceFilesView: View {
             case .success(let urls):
                 Task {
                     do {
-                        try await persistence.processImportedURLs(urls)
+                        try await prax.processImportedURLs(urls)
                     }
                     catch {
                         print("Failed to processImportedURLs(urls)", urls)
@@ -369,7 +369,7 @@ struct PDFFilesList: View {
                         for selectedFile in prax.selectedFiles {
                             let pdfFile = pdfFiles.first(where: { $0.id == selectedFile })!
         
-                            document.addPagesFromPDFURL(pdfFile.url, bookmarkData: pdfFile.bookmarkData)
+                            document.addPagesFromPDFURL(pdfFile.url, bookmark: pdfFile.bookmarkData)
                         }
                     }
 

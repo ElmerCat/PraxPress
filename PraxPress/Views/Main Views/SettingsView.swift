@@ -41,17 +41,47 @@ struct SettingsView: View {
 //    }
     
     var body: some View {
-  //      @Bindable var document = document
+        @Bindable var settingsModel = settingsModel
+        
         
  
         TabView(selection: $selectedSettingsTab) {
             
             Tab(SettingsTab.general.name, systemImage: SettingsTab.general.icon, value: .general)
            {
-               Text("pdfFileGroups: \(pdfFileGroups.count)")
-                Text("pdfFiles: \(pdfFiles.count)")
-               Button("Erase All Data", action: eraseData)
-               Button("PraxTest", action: praxTest)
+
+
+               VStack {
+                   HStack(spacing: 8) {
+                       Text("Import File Count Limit:")
+                       
+                       // Text field updates the same Int state bound to the stepper
+                       TextField("", value: $settingsModel.importFileCountLimit, format: .number)
+                          
+                           .textFieldStyle(.roundedBorder)
+                           .frame(width: 60)
+                           .multilineTextAlignment(.center)
+                       
+                       // Stepper changes the value and automatically triggers UI updates
+                       Stepper("", value: $settingsModel.importFileCountLimit, in: 0...100)
+                           .labelsHidden()
+                   }
+                   .onChange(of: settingsModel.importFileCountLimit) {
+                       print("importFileCountLimit: \(settingsModel.importFileCountLimit)")
+                       
+                   }
+                   .padding()
+
+                   Divider()
+
+                   Text("pdfFileGroups: \(pdfFileGroups.count)")
+                   Text("pdfFiles: \(pdfFiles.count)")
+                   Button("Erase All Data", action: eraseData)
+                   Button("PraxTest", action: praxTest)
+
+                   
+               }
+               
       }
             
             Tab(SettingsTab.advanced.name, systemImage: SettingsTab.advanced.icon, value: .advanced) {

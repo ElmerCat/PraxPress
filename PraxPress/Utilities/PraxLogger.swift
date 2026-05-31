@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+import AppKit
 
 /// Unified logger for PraxPress that writes to both Console.app and persistent .log files
 final class PraxLogger {
@@ -191,6 +192,14 @@ final class PraxLogger {
     
     func getLogFileURL() -> URL? {
         return logFileURL
+    }
+    
+    func openLogFile() {
+        guard let url = getLogFileURL(),
+              FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+        NSWorkspace.shared.open(url)
     }
     
     /// Get directory containing all log files

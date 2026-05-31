@@ -15,6 +15,21 @@ protocol ImportPatternTypeDelegate: AnyObject {
 @Observable
 final class SettingsModel: ImportPatternTypeDelegate {
     
+    init() {
+        _importFileCountLimit = Int(UserDefaults.standard.integer(forKey: "importFileCountLimit"))
+        _savedTemplatesData = UserDefaults.standard.data(forKey: "savedTemplates") ?? Data()
+    }
+    
+    private var _importFileCountLimit: Int
+    var importFileCountLimit: Int {
+        get { _importFileCountLimit }
+        set {
+            guard newValue != _importFileCountLimit else { return }
+            _importFileCountLimit = newValue
+            UserDefaults.standard.set(newValue, forKey: "importFileCountLimit") }
+    }
+    
+    private var _savedTemplatesData: Data
     private var savedTemplatesData: Data {
         get {
             UserDefaults.standard.data(forKey: "savedTemplates") ?? Data()
@@ -35,7 +50,8 @@ final class SettingsModel: ImportPatternTypeDelegate {
     var importPatternTypes:  [ImportPatternType] {
         get { _importPatternTypes }
         set {
-            if _importPatternTypes == newValue { return }
+            guard newValue != _importPatternTypes else { return }
+            
             
             if !loadingPatterns {
                 let oldValue = importPatternTypes

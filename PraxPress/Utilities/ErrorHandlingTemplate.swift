@@ -60,7 +60,7 @@ import OSLog
              
          } catch {
              // Create user-facing error
-             let praxError = PraxError.pdfImportFailed(
+             let praxError = PraxError.fileImportFailed(
                  fileName: "file",
                  underlyingError: error
              )

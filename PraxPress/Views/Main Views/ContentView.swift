@@ -125,7 +125,7 @@ struct ContentView: View {
         
         .inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
         
-        .inspectorPanel(prax, isPresented: $prax.showingImportImageEditor, contentRect: CGRect(x: 0, y: 0, width: 650, height: 1000)) { ImageImportEditor() }
+        .inspectorPanel(prax, isPresented: $prax.showingImportEditor, contentRect: CGRect(x: 0, y: 0, width: 650, height: 1000)) { ImageImportEditor() }
         
         
         .inspectorPanel(prax, isPresented: $prax.showingPDFPageItemInspector) {

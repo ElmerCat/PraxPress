@@ -134,11 +134,11 @@ import OSLog
     }
     
     
-    func addPagesFromPDFURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil, title: String? = nil) {
+    func addPagesFromPDFURL(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil, title: String? = nil) {
         var url = url
-        if let bookmarkData {
+        if let bookmark {
             var isStale = false
-            guard let fileURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            guard let fileURL = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
             else {  print("addPagesFromPDFURL - Error resolvingBookmarkData for URL: ", url) ; return  }
             url = fileURL
         }

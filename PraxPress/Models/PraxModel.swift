@@ -147,10 +147,10 @@ final class PraxModel {
     var isOn = false
     var isLarge: Bool = false
     var showFilesPanel = true
-    var showingImageDropInspector: Bool = false
-    var showingImportImageEditor: Bool = false
+//    var showingImageDropInspector: Bool = false
+    var showingImportEditor: Bool = false
     var inspectNextImageDrop: Bool = false
-    var importSourceURL: URL?
+    
     var importDropIndexPath: IndexPath?
     
     var useAmountForFilename = false
@@ -182,6 +182,13 @@ final class PraxModel {
     
     
     var hoverSection = Set<HoverSection>()
+    
+    var importSourceAttributes: [FileAttributeKey: Any] = [:]
+    
+    var urlBookmarksToImport: [(url: URL, bookmark: Data, size: Int)] = []
+    var importSourceURL: URL?
+    var importSourceBookmark: Data?
+
     
     var selectedFiles = Set<PDFFile.ID>()
     var selectedSections = Set<Int>()
@@ -392,7 +399,7 @@ extension PraxModel {
         let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
             NSLocalizedDescriptionKey: "File not found or corrupted"
         ])
-        let praxError1 = PraxError.pdfImportFailed(
+        let praxError1 = PraxError.fileImportFailed(
             fileName: "test-document.pdf",
             underlyingError: testError1
         )
@@ -477,29 +484,87 @@ extension PraxModel {
     func clearImageInspectorState() {
         importSourceURL = nil
         importDropIndexPath = nil
-        showingImageDropInspector = false
+        showingImportEditor = false
+//        showingImageDropInspector = false
     }
 
     // MARK: - Drop routing
 
-    func receiveDroppedURL(_ url: URL, bookmarkData: Data? = nil, at indexPath: IndexPath? = nil) {
+    func receiveDroppedURL(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
 
+        
+        do { importSourceAttributes = try FileManager.default.attributesOfItem(atPath: url.path) }
+        catch { PraxLogger.shared.logError("Import Source Error", category: .import)
+            let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file attributes" ])
+            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            document.prax.presentError(praxError)}
+        
+        
+        let fileType = importSourceAttributes[.type] as! FileAttributeType
+        
+        guard fileType == .typeDirectory || fileType == .typeRegular else {
+            PraxLogger.shared.logError("Import Source Alert", category: .import)
+            let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            document.prax.presentError(praxError)
+            return
+        }
+        
+        
+        if fileType == .typeDirectory {
+            PraxLogger.shared.logWarning("Import Source Alert", category: .import)
+            let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Import Source is a Folder" ])
+            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            document.prax.presentError(praxError)
+            
+            PraxLogger.shared.logInfo("Importing Folder: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+  
+            Task {
+                do {
+                    PraxLogger.shared.logInfo(
+                        "Starting PDF persistence: \(url.lastPathComponent)",
+                        category: .import
+                    )
+   //                 try await document.persistence.processImportedURLs([url])
+                    PraxLogger.shared.logInfo(
+                        "PDF persistence completed: \(url.lastPathComponent)",
+                        category: .import
+                    )
+                } catch {
+                    // Create user-facing error with recovery suggestions
+                    let praxError = PraxError.fileImportFailed(
+                        fileName: url.lastPathComponent,
+                        underlyingError: error
+                    )
+                    self.presentError(praxError)
+                }
+            }
+            
+        }
+            
+            
+         
+        importSourceURL = url
+        importDropIndexPath = indexPath
+
+        
         let ext = url.pathExtension.lowercased()
         switch ext {
 
         case "pdf":
-            PraxLogger.shared.logInfo(
-                "Received PDF drop: \(url.lastPathComponent)",
-                category: .import
-            )
+            
+            
+            PraxLogger.shared.logInfo("Importing PDF: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+            
+
             
             DispatchQueue.main.async { [self] in
-                document.addPagesFromPDFURL(url, bookmarkData: bookmarkData, at: indexPath)
+                document.addPagesFromPDFURL(url, bookmark: bookmark, at: indexPath)
             }
 
-            Task {
+/*            Task {
                 do {
                     PraxLogger.shared.logInfo(
                         "Starting PDF persistence: \(url.lastPathComponent)",
@@ -512,22 +577,32 @@ extension PraxModel {
                     )
                 } catch {
                     // Create user-facing error with recovery suggestions
-                    let praxError = PraxError.pdfImportFailed(
+                    let praxError = PraxError.fileImportFailed(
                         fileName: url.lastPathComponent,
                         underlyingError: error
                     )
                     self.presentError(praxError)
                 }
             }
-
+*/
         case "png", "jpeg", "jpg", "gif", "heic":
-            importSourceURL = url
-            importDropIndexPath = indexPath
+            
+            PraxLogger.shared.logInfo("Importing Image File: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+            
+            
+            
             if inspectNextImageDrop {
-                showingImageDropInspector = true
+   
+                let praxError = PraxError.generic(
+                    title: "Operation Failed",
+                    message: "inspectNextImageDrop - Something unexpected happened. Please try again."
+                )
+                self.presentError(praxError)
+               
+                //            showingImageDropInspector = true
             } else {
                 
-                showingImportImageEditor = true
+                showingImportEditor = true
                 
                 // IMPORTANT: default size limit is applied inside addPageFromImageURL
       //          DispatchQueue.main.async { [self] in addPageFromImageURL(url, at: indexPath, options: .neutral) }

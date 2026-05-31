@@ -632,7 +632,7 @@ struct DocumentEditingView: NSViewRepresentable {
       
             Task {
                 do {
-                    try await document.persistence.processImportedURLs(droppedURLs)
+                   try await prax.processImportedURLs(droppedURLs)
                 } catch {
                     let praxError = PraxError.persistenceFailed(
                         operation: "Import dropped PDFs",
@@ -662,7 +662,7 @@ struct DocumentEditingView: NSViewRepresentable {
                         catch { print(" -- Failed to unarchive indexPath for dropped item.") }
                     } else { print( " -- No NSPasteboardItem")} })
             for pdfFilePayload in pdfFilePayloads {
-                document.addPagesFromPDFURL(pdfFilePayload.fileURL, bookmarkData: pdfFilePayload.bookmarkData, at: indexPath)
+                document.addPagesFromPDFURL(pdfFilePayload.fileURL, bookmark: pdfFilePayload.bookmarkData, at: indexPath)
             }
         }
             

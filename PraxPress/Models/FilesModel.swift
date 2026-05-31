@@ -216,9 +216,10 @@ final class PDFFileGroup {
 actor PersistenceController: Observable {
     private let DEBUG_LOGS = true
     
+    var praxModel: PraxModel?
+    var prax: PraxModel { praxModel! }
     
-    
-    func nopdfFiles() -> [PDFFile] {
+    func pdfFiles() -> [PDFFile] {
         do {
             return try modelContext.fetch(FetchDescriptor<PDFFile>())
         } catch {
@@ -228,6 +229,42 @@ actor PersistenceController: Observable {
     }
 
     
+/*
+    func filesRecursively(in folderURL: URL) -> [URL] {
+        var collected: [URL] = []
+        let fm = FileManager.default
+        if let enumerator = fm.enumerator(at: folderURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
+            for case let item as URL in enumerator {
+                do {
+                    let resourceValues = try item.resourceValues(forKeys: [.isDirectoryKey])
+                    if resourceValues.isDirectory == true {
+                        continue
+                    } else {
+                        if DEBUG_LOGS { print("Discovered file in folder: \(item.path)") }
+                        collected.append(item)
+                    }
+                } catch {
+                    continue
+                }
+            }
+        }
+        return collected
+    }
+    
+    func expandFolderRecursively(_ url: URL, for types:[String]) -> [(url: URL, bookmark: Data)] {
+        var urlBookmarks: [(url: URL, bookmark: Data)] = []
+        let needsStop = url.startAccessingSecurityScopedResource()
+        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+        let discovered = filesRecursively(in: url)
+        for fileURL in discovered {
+            guard types.contains(fileURL.pathExtension.lowercased()) else { continue }
+            if let data = try? fileURL.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                urlBookmarks.append((url: fileURL, bookmark: data)) } }
+        return urlBookmarks
+    }
+*/
+
+/*
     func processImportedURLs(_ urls: [URL]) async throws {
         
         var pdfFiles: [PDFFile] = []
@@ -238,51 +275,95 @@ actor PersistenceController: Observable {
             throw (error)
         }
         
-
-        var expanded: [(url: URL, bookmark: Data)] = []
+        let fileTypes = ["pdf", "png", "jpeg", "jpg", "gif", "heic"]
+ 
+        var urlBookmarks: [(url: URL, bookmark: Data)] = []
         
         for url in urls {
             let needsStop = url.startAccessingSecurityScopedResource()
             defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
             
-            do {
-                let values = try url.resourceValues(forKeys: [.isDirectoryKey])
-                if values.isDirectory == true {
-                    let discovered = filesRecursively(in: url)
-                    for fileURL in discovered {
-                        guard isPDF(fileURL) else { continue }
-                        if let data = try? fileURL.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                            expanded.append((url: fileURL, bookmark: data))
-                        }
-                    }
-                } else {
-                    if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                        expanded.append((url: url, bookmark: data))
-                    }
+             do {
+                let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+                let fileType = fileAttributes[.type] as! FileAttributeType
+                guard fileType == .typeDirectory || fileType == .typeRegular else {
+                    await PraxLogger.shared.logError("Import Source Alert", category: .import)
+                    let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+                    let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                    await self.prax.presentError(praxError)
+                    return
                 }
-            } catch {
-                if isPDF(url), let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                    expanded.append((url: url, bookmark: data))
+ 
+                if fileType == .typeDirectory {
+                    urlBookmarks.append(contentsOf: expandFolderRecursively(url, for: fileTypes))
+                    
                 }
+                else {
+                    guard let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) else {
+                        await PraxLogger.shared.logError("Import Source Error", category: .import)
+                        let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file bookmark data" ])
+                        let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                        await self.prax.presentError(praxError)
+                        return
+                    }
+                    urlBookmarks.append((url: url, bookmark: data))
+                } }
+            catch {let praxError = PraxError.fileImportFailed( fileName: url.lastPathComponent, underlyingError: error )
+                await self.prax.presentError(praxError)
             }
         }
-        var seen = Set<URL>(pdfFiles.map { $0.url })
+
+        prax.urlBookmarksToImport = urlBookmarks
         
-        
-        let uniquePairs: [(url: URL, bookmark: Data)] = expanded.filter { pair in
-            seen.insert(pair.url).inserted
+        var existingPDFFileURLs = Set<URL>(pdfFiles.map { $0.url })
+        urlBookmarks = urlBookmarks.filter { urlBookmark in
+            existingPDFFileURLs.insert(urlBookmark.url).inserted
         }
         
         do {
-            for urlBookmark in uniquePairs {
+            for urlBookmark in urlBookmarks {
+                let url = urlBookmark.url
                 
-                guard let pdfFile = try await newPDFFileFromURLBookmark(url: urlBookmark.url, bookmarkData: urlBookmark.bookmark) else {
-                    print("Failed newPDFFileFromURLBookmark(url: ", urlBookmark.url)
-                    continue
+                switch url.pathExtension.lowercased() {
+                    
+                case "pdf":
+                    guard let pdfFile = try await newPDFFileFromURLBookmark(url: urlBookmark.url, bookmarkData: urlBookmark.bookmark) else {
+                        print("Failed newPDFFileFromURLBookmark(url: ", urlBookmark.url)
+                        continue
+                    }
+                    modelContext.insert(pdfFile)
+                    
+                    try modelContext.save()
+                    
+                case "png", "jpeg", "jpg", "gif", "heic":
+                    
+                    
+                    await PraxLogger.shared.logInfo("Importing Image File: \(url.lastPathComponent) - size: \(prax.importSourceAttributes[.size] ?? 0) - type: \(sourceAttributes[.type] ?? "unknown")", category: .import)
+                    
+                    
+                    
+                    if await prax.inspectNextImageDrop {
+                        
+                        let praxError = PraxError.generic(
+                            title: "Operation Failed",
+                            message: "inspectNextImageDrop - Something unexpected happened. Please try again."
+                        )
+                        prax.presentError(praxError)
+                        
+                        //            showingImageDropInspector = true
+                    } else {
+                        
+                        prax.showingImportEditor = true
+                        
+                        // IMPORTANT: default size limit is applied inside addPageFromImageURL
+                        //          DispatchQueue.main.async { [self] in addPageFromImageURL(url, at: indexPath, options: .neutral) }
+                    }
+                    
+                default:
+                    break
+                    
                 }
-                modelContext.insert(pdfFile)
                 
-                try modelContext.save()
             }
             
         }
@@ -293,30 +374,11 @@ actor PersistenceController: Observable {
         
         
         
-        func filesRecursively(in folderURL: URL) -> [URL] {
-            var collected: [URL] = []
-            let fm = FileManager.default
-            if let enumerator = fm.enumerator(at: folderURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
-                for case let item as URL in enumerator {
-                    do {
-                        let resourceValues = try item.resourceValues(forKeys: [.isDirectoryKey])
-                        if resourceValues.isDirectory == true {
-                            continue
-                        } else {
-                            if DEBUG_LOGS { print("Discovered file in folder: \(item.path)") }
-                            collected.append(item)
-                        }
-                    } catch {
-                        continue
-                    }
-                }
-            }
-            return collected
-        }
+        
         
     }
     
-
+*/
     func newPDFFileFromURLBookmark(url: URL, bookmarkData: Data) async throws -> PDFFile? {
         
         var isStale = false
@@ -343,7 +405,7 @@ actor PersistenceController: Observable {
                 "Failed to open PDF: \(resolvedURL.path)",
                 category: .pdf
             )
-            throw PraxError.pdfImportFailed(
+            throw PraxError.fileImportFailed(
                 fileName: url.lastPathComponent,
                 underlyingError: NSError(domain: "PDFDocument", code: -2, userInfo: [
                     NSLocalizedDescriptionKey: "Could not load PDF file. File may be corrupted or an unsupported PDF format."
@@ -406,6 +468,10 @@ actor PersistenceController: Observable {
                     }
                 }
                 pdfFile.dataFields = dataFields
+                
+                modelContext.insert(pdfFile)
+                try modelContext.save()
+                
                 return pdfFile
             }
         catch {

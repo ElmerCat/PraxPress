@@ -62,8 +62,8 @@ struct MainSceneRoot: View {
                 )
                 // Attach the document back to PraxModel to complete the cycle
                 prax.attach(document: document)
-                // Publish into @State so it propagates into the environment
                 self.document = document
+                persistence.praxModel = prax
             }
         }
     }

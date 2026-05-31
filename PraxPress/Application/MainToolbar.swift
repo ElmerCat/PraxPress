@@ -45,6 +45,10 @@ struct MainToolbar: ToolbarContent {
        
         ToolbarItemGroup(placement: .status) {
             
+            Button("🧪 Open Log") {
+                PraxLogger.shared.openLogFile()
+            }
+
             Button("🧪 Test Error") {
                 prax.praxTest()
             }
