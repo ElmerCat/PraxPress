@@ -21,10 +21,6 @@ import OSLog
         self.prax = prax
         self.persistence = persistence
     }
-    var widthGuidePageID: UUID? = nil
-    var widthGuideLeftX: CGFloat? = nil
-    var widthGuideRightX: CGFloat? = nil
-    
 
     private var _mergedPages: [MergedPage] = []
     var mergedPages: [MergedPage] {
@@ -46,57 +42,11 @@ import OSLog
          }
     }
 
-
-    var mergedDocumentVersion = UUID()
-    var mergedDocumentSizeKB = 0
+ 
+    var widthGuidePageID: UUID? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
     
-    var refreshingMergedDocument: Bool = false
-    func refreshMergedDocument() {
-        if refreshingMergedDocument { return }
-     //   print("refreshMergedDocument")
-        refreshingMergedDocument = true
-        
-        Task {
-            
-            try? await Task.sleep(for:.milliseconds(100))
-
-            var insertIndex = 0
-            let pdfDocument = PDFDocument()
-            
-            for mergedPage in mergedPages {
-                if let pdfPage = mergedPage.pdfPage {
-                    
-                    pdfDocument.insert(pdfPage, at: insertIndex)
-                    insertIndex += 1
-                }
-
-            }
-            
-
-            mergedPDFDocument = pdfDocument
-            mergedDocumentVersion = UUID()
-            
-            if let pdfData = pdfDocument.dataRepresentation() {
-                let sizeInBytes = pdfData.count
-                mergedDocumentSizeKB = sizeInBytes / (1000)
-                print("mergedDocumentSizeKB: \(mergedDocumentSizeKB) KB")
-            }
-            self.refreshingMergedDocument = false
-            print("refreshMergedDocument — done")
-        }
-  
-    }
-
-    var mergedPDFURL: URL = {
-        FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf")
-    }()
-    
-    var mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
-        didSet {
-           prax.mergedDocumentPDFView.document = mergedPDFDocument
-        }
-    }
-
 
     var sourceFolderURL: URL?
     var exportFolderURL: URL?
@@ -108,10 +58,66 @@ import OSLog
     var exportFilenameExtension: String = "pdf"
     var exportFilename: String { exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix }
     
+    
+    
+    
+    
+    
     var exportFileURL: URL? {
         if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
         guard let folder = exportFolderURL else { return nil }
         return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension) }
+
+    let mergedPDFURL: URL = { FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf") }()
+    let defaultPDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+ 
+    var mergedDocumentVersion = UUID()
+    var mergedDocumentPages = 0
+    var mergedDocumentSizeKB = 0
+    var readyToExport: Bool {
+        if mergedDocumentPages == 0 { return false }
+        if exportFilenameBody == ""  { return false }
+        
+        return true
+    }
+    
+    private var _mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+    var mergedPDFDocument: PDFDocument { get { _mergedPDFDocument }
+        set { guard newValue != _mergedPDFDocument else { return }
+            _mergedPDFDocument = newValue
+             
+            if let pdfData = newValue.dataRepresentation() {
+                let sizeInBytes = pdfData.count
+                mergedDocumentSizeKB = sizeInBytes / (1000)
+                print("mergedDocumentSizeKB: \(mergedDocumentSizeKB) KB")
+            }
+            
+            mergedDocumentVersion = UUID()
+            prax.mergedDocumentPDFView.document = mergedPDFDocument
+        }
+    }
+        
+        
+    var refreshingMergedDocument: Bool = false
+    func refreshMergedDocument() {
+        if refreshingMergedDocument { return }
+        refreshingMergedDocument = true
+        Task {
+            try? await Task.sleep(for:.milliseconds(100))
+            mergedDocumentPages = 0
+            let pdfDocument = PDFDocument()
+            for mergedPage in mergedPages {
+                if let pdfPage = mergedPage.pdfPage {
+                    pdfDocument.insert(pdfPage, at: mergedDocumentPages)
+                    mergedDocumentPages += 1 }
+            }
+            
+            mergedPDFDocument = pdfDocument
+           
+            self.refreshingMergedDocument = false
+            print("refreshMergedDocument — done") }
+    }
+
     
     func setExportURL(from pageItem: PageItem) {
         if let url = URL(string: pageItem.sourceURLString) {
@@ -160,7 +166,7 @@ import OSLog
                         sourceURL: url,
                         sourcePageIndex: index,
                         pdfPage: pdfDocument.page(at: index)!,
-                        dataFields: PDFFile.dataFieldsFromPDFDocument(pdfDocument)
+                        dataFields: SourceFile.dataFieldsFromPDFDocument(pdfDocument)
                     )
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
                 pageInsertIndex += 1
@@ -371,14 +377,11 @@ import OSLog
     }
     
     func clearMergedDocument() {
-        if !mergedPages.isEmpty {
-            
             print("Clear Merged Document")
-            
             prax.selectedPageItems.removeAll()
-
-        }
-        
+            mergedPDFDocument = defaultPDFDocument
+            prax.editingDocumentPDFView.document = nil
+            exportFilenameBody = ""
     }
     
     func clickedDeletePageButton(_ pageItem: PageItem) {

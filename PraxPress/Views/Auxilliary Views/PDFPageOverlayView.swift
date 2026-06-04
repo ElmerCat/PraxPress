@@ -976,7 +976,7 @@ struct OverlayControlView: View {
     let pageItem: PageItem
     
     @State var hoveredButton: Int?
-    let praxTheme = PraxTheme(.erika)
+   
     
     var body: some View {
         @Bindable var prax = praxModel
@@ -987,7 +987,7 @@ struct OverlayControlView: View {
                 VStack {
                     Button("", systemImage: "ruler", action: {
                         document.clickedGuidePageButton(pageItem)
-                    })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 4, isFocused: false))
+                    })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 4))
                         .onHover { hovering in
                             hoveredButton = hovering ? 4 : nil
                         }

@@ -13,11 +13,11 @@ struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(PersistenceController.self) private var persistence
-    @Environment(SettingsModel.self) private var settingsModel
+  //  @Environment(SettingsModel.self) private var settingsModel
     
     @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
      
-    @AppStorage("selectedPDFFileGroupId") private var selectedPDFFileGroupId: Int?
+    @AppStorage("selectedSourceFileGroupId") private var selectedSourceFileGroupId: Int?
 
     enum PraxFocus: Hashable {
         case firstButton
@@ -26,23 +26,30 @@ struct SettingsView: View {
         // add more if needed
     }
     @FocusState private var focusedField: PraxFocus?
-    let praxTheme = PraxTheme(.erika)
     
-    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
-    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+    @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
+    @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
 
     var praxLady = "Julie d'Prax"
     @State private var hoveredButton: Int? = nil
-//    let document: MergedPDFDocument = MergedPDFDocument(windowModelContext: modelContext, prax: PraxModel(), persistence: persistence)
-    let pdfView = PDFView()
+
+    @State private var selectedFileType = Set<UUID>()
+    @State private var importFileTypes: [FileType] = [
+        FileType(fileType: "PDF"),
+        FileType(fileType: "DOCX"),
+        FileType(fileType: "TXT")
+    ]
     
-//    func configure() {
-//        document.mergedPDFView = pdfView
-//    }
+    struct FileType: Identifiable, Hashable {
+        let fileType: String
+        let id = UUID()
+    }
+
+    
+    
     
     var body: some View {
-        @Bindable var settingsModel = settingsModel
-        
+        @Bindable var settingsModel = SettingsModel.shared
         
  
         TabView(selection: $selectedSettingsTab) {
@@ -52,6 +59,28 @@ struct SettingsView: View {
 
 
                VStack {
+                   
+                   GroupBox(label: Text("Import File Types")) {
+                       
+                       NavigationView {
+                           List(importFileTypes, id: \.id, selection: $selectedFileType) { fileType in
+                               Text(fileType.fileType)
+                           }
+                           .frame(height: 200)
+                           .listStyle(.plain)
+                           .navigationTitle("Oceans")
+        //                   .toolbar { EditButton() }
+                       }
+                       Text("\(selectedFileType.count) selections")
+                       
+                       
+                       
+                           
+                      
+                       
+                       
+                   }
+                   
                    HStack(spacing: 8) {
                        Text("Import File Count Limit:")
                        
@@ -74,8 +103,8 @@ struct SettingsView: View {
 
                    Divider()
 
-                   Text("pdfFileGroups: \(pdfFileGroups.count)")
-                   Text("pdfFiles: \(pdfFiles.count)")
+                   Text("sourceFileGroups: \(sourceFileGroups.count)")
+                   Text("sourceFiles: \(sourceFiles.count)")
                    Button("Erase All Data", action: eraseData)
                    Button("PraxTest", action: praxTest)
 
@@ -127,13 +156,13 @@ struct SettingsView: View {
      
 
         print ("\nJulie d'Prax")
-        for pdfFile in pdfFiles {
-            print (pdfFile.fileName)
+        for sourceFile in sourceFiles {
+            print (sourceFile.fileName)
         }
         
         print ("\nJuliette M. Belanger")
-        for pdfFileGroup in pdfFileGroups {
-            print (pdfFileGroup.name)
+        for sourceFileGroup in sourceFileGroups {
+            print (sourceFileGroup.name)
         }
        
        
@@ -141,7 +170,7 @@ struct SettingsView: View {
     
     func eraseData() {
         do {
-            try modelContext.delete(model: PDFFileGroup.self)
+            try modelContext.delete(model: SourceFileGroup.self)
             
         } catch {
             fatalError(error.localizedDescription)

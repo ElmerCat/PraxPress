@@ -16,14 +16,14 @@ import OSLog
 struct PraxPressApp: App {
     
     private let persistence: PersistenceController
-    private var settingsModel = SettingsModel()
+//    private var settingsModel = SettingsModel()
 
     init() {
         self.persistence = PersistenceController(modelContainer: modelContainer)
         do {
             try Tips.configure([Tips.ConfigurationOption.displayFrequency(.daily)])
  //           try Tips.resetDatastore()
-           // Tips.showAllTipsForTesting()
+            Tips.showAllTipsForTesting()
             }
         catch {
             print("Error configuring Tips: \(error)")
@@ -34,7 +34,7 @@ struct PraxPressApp: App {
     @AppStorage("App.toolbarLabelStyle")  private var toolbarLabelStyle: ToolbarLabelStyle = .titleAndIcon
     
     private let modelContainer: ModelContainer = {
-        let schema = Schema([PDFFile.self, PDFFileGroup.self])
+        let schema = Schema([SourceFile.self, SourceFileGroup.self])
         let config = ModelConfiguration() // customize if needed
         return try! ModelContainer(for: schema, configurations: [config])
     }()
@@ -89,7 +89,7 @@ struct PraxPressApp: App {
             SettingsView()
                 .environment(\.modelContext, modelContainer.mainContext)
                 .environment(persistence)
-                .environment(settingsModel)
+  //              .environment(settingsModel)
             
         }
 

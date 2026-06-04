@@ -14,11 +14,24 @@ protocol ImportPatternTypeDelegate: AnyObject {
 }
 @Observable
 final class SettingsModel: ImportPatternTypeDelegate {
+    static let shared = SettingsModel()
     
     init() {
         _importFileCountLimit = Int(UserDefaults.standard.integer(forKey: "importFileCountLimit"))
         _savedTemplatesData = UserDefaults.standard.data(forKey: "savedTemplates") ?? Data()
+        _importFileTypesData = UserDefaults.standard.data(forKey: "importFileTypes") ?? Data()
+        
+        loadPatternTypes()
+        loadFileTypes()
+        
     }
+    
+    func loadFileTypes() {do { let data = importFileTypesData
+            importFileTypes = try JSONDecoder().decode([String].self, from: data) }
+        catch { print("Error loading file types: \(error)"); importFileTypes = [] }
+    }
+    
+    
     
     private var _importFileCountLimit: Int
     var importFileCountLimit: Int {
@@ -29,6 +42,18 @@ final class SettingsModel: ImportPatternTypeDelegate {
             UserDefaults.standard.set(newValue, forKey: "importFileCountLimit") }
     }
     
+    private var _importFileTypesData: Data
+    private var importFileTypesData: Data {
+        get {
+            UserDefaults.standard.data(forKey: "importFileTypes") ?? Data()
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "importFileTypes")
+        }
+    }
+    
+    var importFileTypes: [String] = []
+    
     private var _savedTemplatesData: Data
     private var savedTemplatesData: Data {
         get {
@@ -38,7 +63,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
             UserDefaults.standard.set(newValue, forKey: "savedTemplates")
         }
     }
-    
+
     let undoManager = UndoManager()
     
     var optionKeyPressed = false
@@ -94,6 +119,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
 
 
     
+
     func loadPatternTypes() {
         loadingPatterns = true
         // Load the ImportPatternType records from AppStorage
@@ -106,7 +132,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
             importPatternTypes = []
         }
         loadingPatterns = false
-       
+        
     }
     
     func importPatternTypeDidChange(_ patternType: ImportPatternType, property: String, oldValue: Any?) {

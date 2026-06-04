@@ -48,29 +48,19 @@ struct MainToolbar: ToolbarContent {
             Button("🧪 Open Log") {
                 PraxLogger.shared.openLogFile()
             }
-
+            
             Button("🧪 Test Error") {
                 prax.praxTest()
             }
             
             ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
+            
+            
+            
         }
-        
+
         ToolbarItemGroup(placement: .secondaryAction) {
-            Spacer()
-            
-            Button {
-                showDelete = !showDelete
-            }label: {
-                Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
-            }
-            .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: prax.document.mergedPages.isEmpty))
-            .onHover { hovering in hoveredButton = hovering ? 40 : nil }
-            .disabled(prax.document.mergedPages.isEmpty)
-            .popover(isPresented: $showDelete, arrowEdge: .leading) {
-                DeletePopover() }
-            
-            Spacer()
+
             
             
             Button {

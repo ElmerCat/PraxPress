@@ -33,7 +33,7 @@ struct PageItemTrimsView: View {
                             Image(systemName: "ruler.fill")  }  else {
                                 Image(systemName: "ruler") }
                         }
-                        .buttonStyle(SelectableButtonStyle(isSelected: document.widthGuidePageID != nil, isHovering: hoveredButton == 235))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 235, isOn: document.widthGuidePageID != nil))
                         .onHover { hovering in hoveredButton = hovering ? 235 : nil }
                         .help("Set Width Guide")
                     }

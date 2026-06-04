@@ -60,7 +60,6 @@ class EditingPDFDocumentNSView: NSView, HostingViewContainer {
 struct EditingPDFDocumentView: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
@@ -74,8 +73,23 @@ struct EditingPDFDocumentView: View {
     //    let _ = Self._printChanges()
         let hovering = prax.hoverSection.contains(.editingDocument)
         
-   //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
+        GroupBox {
+            EditingPDFViewRepresentable(
+                document: document,
+                onPDFViewReady: { pdfView in
+                    // Store a weak reference so buttons can use it
+                    pdfViewRef.view = pdfView
+                }
+            )
+        }
+        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
+        .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
+        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
+
         
+        
+   //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
+  /*
         GroupBox {
             GeometryReader { proxy in
                 VStack {
@@ -103,7 +117,7 @@ struct EditingPDFDocumentView: View {
                 }
             }
         }
-        
+        */
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
         .background(PraxGradient(hovering ? 0 : 1)).animation(.easeInOut(duration: 1.5), value: praxModel.hoverSection)
@@ -309,28 +323,35 @@ struct EditingPDFDocumentView: View {
         }
         
         func updateNSView(_ pdfView: PDFView, context: Context) {
-            pdfView.isHidden = document.mergedPages.isEmpty
-            
-            print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
-            
-            if let pageItem = document.prax.selectedPageItem {
-                if context.coordinator.documentVersion != pageItem.mergedPage.editingDocumentVersion {
-                    context.coordinator.documentVersion = pageItem.mergedPage.editingDocumentVersion
-                    pdfView.document = pageItem.mergedPage.editingPDFDocument
-                    scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
-                    if !pdfView.visiblePages.contains(pageItem.pdfPage) {
-                        pdfView.go(to: pageItem.pdfPage)
-                    }
-                }
-                else {
-                    print("EditingPDFViewRepresentable - updateNSView - No Change selectedPageItem: ", pageItem.name)
-                }
-                
-
+            if document.mergedDocumentSizeKB == 0 {
+                pdfView.document = document.defaultPDFDocument
+                pdfView.isHidden = true
             }
             else {
-                print("EditingPDFViewRepresentable - updateNSView - No selectedPageItem ")
+                pdfView.isHidden = false
+                print("EditingPDFViewRepresentable - updateNSView - context.coordinator.documentVersion:  ", context.coordinator.documentVersion)
+                
+                if let pageItem = document.prax.selectedPageItem {
+                    if context.coordinator.documentVersion != pageItem.mergedPage.editingDocumentVersion {
+                        context.coordinator.documentVersion = pageItem.mergedPage.editingDocumentVersion
+                        pdfView.document = pageItem.mergedPage.editingPDFDocument
+                        scalePDFViewToFit(pdfView: context.coordinator.document.prax.editingDocumentPDFView)
+                        if !pdfView.visiblePages.contains(pageItem.pdfPage) {
+                            pdfView.go(to: pageItem.pdfPage)
+                        }
+                    }
+                    else {
+                        print("EditingPDFViewRepresentable - updateNSView - No Change selectedPageItem: ", pageItem.name)
+                    }
+                    
+                    
+                }
+                else {
+                    print("EditingPDFViewRepresentable - updateNSView - No selectedPageItem ")
+                }
+
             }
+            
             
         }
     }

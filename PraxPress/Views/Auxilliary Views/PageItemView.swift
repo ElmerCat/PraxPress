@@ -17,8 +17,8 @@ struct PageItemView: View {
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
+    
+    
     
     @State var showSettings = false
     @State private var hoveredButton: Int? = nil
@@ -88,7 +88,7 @@ struct PageItemView: View {
                             Button { document.clickedSkipPageButton(pageItem) }
                             label: { Image(systemName: pageItem.skipped ? "text.page.slash" : "text.page") }
                                 .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
-                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
                                 .onHover { hovering in hoveredButton = hovering ? 126 : nil }
                                 .position(x: proxy.size.width - 30, y: 20)
                             
@@ -98,7 +98,7 @@ struct PageItemView: View {
                             Button { document.clickedDeletePageButton(pageItem) }
                             label: { Image(systemName: "trash") }
                                 .help("Discard This Page")
-                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
                                 .onHover { hovering in hoveredButton = hovering ? 150 : nil }
                                 .position(x: proxy.size.width - 30, y: 10)
                             

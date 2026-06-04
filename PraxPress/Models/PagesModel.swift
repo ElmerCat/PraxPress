@@ -147,7 +147,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                             dataFieldPage = pageItem
                         }
                         else {
-                            prax.moreThanOneDataPageError()
+                          //  prax.moreThanOneDataPageError()
                         }
                         
                     }

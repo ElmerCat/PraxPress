@@ -230,7 +230,7 @@ struct DocumentNumberPopover: View {
                  label: {
                      Image(systemName: "arrow.right.page.on.clipboard").padding(0)
                 }
-                 .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 422))
+                 .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 422))
                  .onHover { hovering in hoveredButton = hovering ? 422: nil }
                 TextField("DocumentNumber", text: Binding<String>(
                     get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
@@ -402,16 +402,15 @@ struct DeletePopover: View {
       //  .tipImageSize(CGSize(width: 500, height: 500))
         
         
-        
+     
     }
+        
 }
 
 struct FilenamePrefixPopover: View {
 //    let mergedPage: MergedPage
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
     
     @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
@@ -508,7 +507,7 @@ struct FilenamePrefixPopover: View {
                     } label: {
                         Image(systemName: "checkmark")
                     }
-                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 427))
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 427))
                     .onHover { hovering in hoveredButton = hovering ? 427 : nil }
                 }
                 
@@ -527,7 +526,7 @@ struct FilenamePrefixPopover: View {
 
                             
                         }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 426))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 426))
                         .onHover { hovering in hoveredButton = hovering ? 426 : nil }
                     }
 
@@ -554,8 +553,8 @@ struct SectionHeaderPopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
+    let praxTheme = PraxTheme()
+    let deleteTheme = PraxTheme()
     
     @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
@@ -629,7 +628,7 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 153))
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 153))
                     .onHover { hovering in hoveredButton = hovering ? 153 : nil }
                     
                 }
@@ -656,7 +655,7 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 156))
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 156))
                     .onHover { hovering in hoveredButton = hovering ? 156 : nil }
                     
                 }
@@ -677,7 +676,7 @@ struct SectionHeaderPopover: View {
                       
                         dismiss() }
                     label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
                         .onHover { hovering in
                             hoveredButton = hovering ? 150 : nil
                         }
@@ -728,7 +727,7 @@ struct SectionHeaderPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 153))
+                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 153))
                             .onHover { hovering in hoveredButton = hovering ? 153 : nil }
                             
                         }
@@ -752,7 +751,7 @@ struct SectionHeaderPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 176))
+                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 176))
                             .onHover { hovering in hoveredButton = hovering ? 176 : nil }
                             
                         }
@@ -771,7 +770,7 @@ struct SectionHeaderPopover: View {
                             document.refreshMergedDocument()
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                            .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 150))
+                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
                             .onHover { hovering in
                                 hoveredButton = hovering ? 150 : nil
                             }
@@ -805,9 +804,7 @@ struct PageItemPopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
-    let praxTheme = PraxTheme(.erika)
-    let deleteTheme = PraxTheme(.julie)
-    
+     
     @State private var hoveredButton: Int? = nil
     
     var theTip = PageItemTip()
@@ -840,7 +837,7 @@ struct PageItemPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                             }
                         }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 126))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
                         .onHover { hovering in hoveredButton = hovering ? 126 : nil }
                         
                     }
@@ -859,7 +856,7 @@ struct PageItemPopover: View {
                                 Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle")
                             }
                         }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 121))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 121))
                         .onHover { hovering in hoveredButton = hovering ? 121 : nil }
                         .help("Merge page mode")
                     }
@@ -870,7 +867,7 @@ struct PageItemPopover: View {
                             document.clickedGuidePageButton(pageItem)
                             dismiss() }
                         label: { Image(systemName: "ruler") }
-                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 124, isFocused: false))
+                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
                         .onHover { hovering in hoveredButton = hovering ? 124 : nil }
                         .help("Set width guide")
                         
@@ -882,7 +879,7 @@ struct PageItemPopover: View {
                             document.clickedDeletePageButton(pageItem)
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 120))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 120))
                         .onHover { hovering in
                             hoveredButton = hovering ? 120 : nil
                         }

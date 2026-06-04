@@ -53,7 +53,6 @@ class MergedPDFDocumentNSView: NSView, HostingViewContainer {
 struct MergedPDFDocumentView: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
     @State private var pdfViewRef = WeakPDFViewRef()
     @State private var hoveredButton: Int? = nil
     
@@ -65,85 +64,103 @@ struct MergedPDFDocumentView: View {
         
         GroupBox {
             GeometryReader { proxy in
-                VStack {
-                    
-                 /*
-                    HStack {
-
-                        Text("PraxPress - ")
-                            .font(Font.custom("BrushScriptMT", size: 30))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        Text("\(document.documentVersion)")
-                            .font(Font.custom("BrushScriptMT", size: 12))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                   
-
-                    }
-*/
-                    
-
+                
+                VSplitView {
                     
                     GroupBox {
-                        PDFViewRepresentable(
-                            document: document,
-                            onPDFViewReady: { pdfView in
-                                // Store a weak reference so buttons can use it
-                                pdfViewRef.view = pdfView
-                                 
+                        VStack {
+                            
+   
+                            GroupBox {
+                                PDFViewRepresentable(
+                                    document: document,
+                                    onPDFViewReady: { pdfView in
+                                        // Store a weak reference so buttons can use it
+                                        pdfViewRef.view = pdfView
+                                        
+                                    }
+                                )
+                                .opacity(document.refreshingMergedDocument ? 0.75 : 1)
+                                .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
+                                .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
                             }
-                        )
-                        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
-                        .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
-                        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-                    }
-                    
-                    HStack {
-
-                        Button("", systemImage: "arrow.up.and.down.circle", action: {
-                            if let pdfView =  pdfViewRef.view {
-                                MergedPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
+                            
+                            HStack {
+                                
+                                Button("", systemImage: "arrow.up.and.down.circle", action: {
+                                    if let pdfView =  pdfViewRef.view {
+                                        MergedPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
+                                        
+                                    }
+                                })
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 0))
+                                .onHover { hovering in
+                                    hoveredButton = hovering ? 0 : nil
+                                }
+                                
+                                
+                                Button("", systemImage: "plus.circle", action: {
+                                    pdfViewRef.view?.zoomIn(self)
+                                })
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
+                                .onHover { hovering in
+                                    hoveredButton = hovering ? 1 : nil
+                                }
+                                
+                                
+                                
+                                Button("", systemImage: "minus.circle", action: {
+                                    pdfViewRef.view?.zoomOut(self)
+                                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
+                                    .onHover { hovering in
+                                        hoveredButton = hovering ? 2 : nil
+                                    }
+                                
+                                Button("", systemImage: "arrow.left.and.right.circle", action: {
+                                    pdfViewRef.view?.autoScales = true
+                                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 3))
+                                    .onHover { hovering in
+                                        hoveredButton = hovering ? 3 : nil
+                                    }
+                                Spacer()
+                                Text(String(format: "Merged size:  %u KB", document.mergedDocumentSizeKB))
+                                Spacer()
                                 
                             }
-                        })
-                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
-                        .onHover { hovering in
-                            hoveredButton = hovering ? 0 : nil
-                        }
-
-                        
-                        Button("", systemImage: "plus.circle", action: {
-                            pdfViewRef.view?.zoomIn(self)
-                        })
-                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
-                        .onHover { hovering in
-                            hoveredButton = hovering ? 1 : nil
+                            
+                            
                         }
                         
-                        
-
-                        Button("", systemImage: "minus.circle", action: {
-                            pdfViewRef.view?.zoomOut(self)
-                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 2 : nil
-                            }
-
-                        Button("", systemImage: "arrow.left.and.right.circle", action: {
-                            pdfViewRef.view?.autoScales = true
-                        })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
-                            .onHover { hovering in
-                                hoveredButton = hovering ? 3 : nil
-                            }
-                        Spacer()
-                        Text(String(format: "Merged size:  %u KB", document.mergedDocumentSizeKB))
-                        Spacer()
-                    
                     }
+                    .frame(minWidth: 100, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                     
+                    GroupBox {
+                        
+                        VStack {
+                            Spacer()
+                            HStack {
+                                
+                                Text("PraxPress - ")
+                                    .font(Font.custom("BrushScriptMT", size: 30))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                Text("\(document.mergedDocumentVersion)")
+                                    .font(Font.custom("BrushScriptMT", size: 12))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                Spacer()
+                            }
+                                
+                                
+                        }
+                        
+                        
+                    }
+                    .frame(minWidth: 100, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                     
                 }
+                
+           
                 
                 //  .position(x: 0, y: 16)
             }
@@ -398,7 +415,7 @@ struct MergedDocumentFooter: View {
     @FocusState private var focusedField: PraxFocus?
     @Environment(MergedPDFDocument.self) var _document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
+    let praxTheme = PraxTheme()
     
     @State private var hoveredButton: Int? = nil
     
@@ -414,7 +431,7 @@ struct MergedDocumentFooter: View {
                 document.autoScales = false
                 document.mergedPDFView.zoomIn(self)
             })
-            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
+            .buttonStyle(PraxButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: focusedField == .firstButton))
             .onHover { hovering in
                 hoveredButton = hovering ? 1 : nil
             }
@@ -425,7 +442,7 @@ struct MergedDocumentFooter: View {
             Button("", systemImage: "minus.circle", action: {
                 document.autoScales = false
                 document.mergedPDFView.zoomOut(self)
-            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
+            })                .buttonStyle(PraxButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: focusedField == .secondButton))
                 .onHover { hovering in
                     hoveredButton = hovering ? 2 : nil
                 }
@@ -434,7 +451,7 @@ struct MergedDocumentFooter: View {
        //         .keyboardShortcut(.space, modifiers: [])
             
             Toggle("", systemImage: document.autoScales ? "circle.inset.filled" : "equal.circle", isOn: $document.autoScales).toggleStyle(.button)
-                .buttonStyle(SelectableButtonStyle(isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
+                .buttonStyle(PraxButtonStyle(isSelected: document.autoScales, isHovering: hoveredButton == 3, isFocused: focusedField == .textField))
                 .onHover { hovering in
                     hoveredButton = hovering ? 3 : nil
                 }

@@ -23,9 +23,9 @@
 	<array>
 		<dict>
 			<key>UTTypeDescription</key>
-			<string>PraxPress PDFFile Item</string>
+			<string>PraxPress SourceFile Item</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.praxpress.pdf-file-item</string>
+			<string>com.praxpress.source-file-item</string>
 		</dict>
 		<dict>
 			<key>UTTypeDescription</key>

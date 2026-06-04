@@ -14,9 +14,6 @@ struct DocumentEditingToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
-    let praxTheme = PraxTheme(.erika)
-    
-    
     @State var showSettings = false
     @State var showDelete = false
     @State private var hoveredButton: Int? = nil
@@ -51,22 +48,20 @@ struct DocumentEditingToolbar: View {
                 
                 HStack {
                 
-                    Button {
-                        showDelete = !showDelete
-                    }label: {
-                        Image(systemName: document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash")
-                    }
-                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 40, isDisabled: document.mergedPages.isEmpty))
-                    .onHover { hovering in hoveredButton = hovering ? 40 : nil }
-                    .disabled(document.mergedPages.isEmpty)
-                    .popover(isPresented: $showDelete, arrowEdge: .leading) {
-                        DeletePopover() }
-  
                     
+ /*
+                    Button(role: .destructive, action: { document.mergedPages.removeAll() }, label: {
+                        HStack {
+                            if !prax.document.mergedPages.isEmpty && hoveredButton == 40 { Text("Clear Merged Document") }
+                            Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
+                        .padding(.horizontal, 5)})
+                        .disabled(prax.document.mergedPages.isEmpty)
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 40, hoverWidth: 200))
+                        .onHover { hovering in hoveredButton = hovering ? 40 : nil }
                     
                     Spacer()
                     
-                   
+ */
                     if let pageItem = prax.selectedPageItem {
                      //   Text(pageItem.name)
                         Group {
@@ -105,6 +100,8 @@ struct DocumentEditingToolbar: View {
                             
                             Text(".pdf")
                             
+                            
+                            
                             Button { }
                             label: {
                                 HStack{
@@ -135,6 +132,7 @@ struct DocumentEditingToolbar: View {
                                 }()!, preview: {
                                     PraxDragPreview()
                                 })
+                                .disabled(!document.readyToExport)
                             
 
                         
@@ -153,7 +151,7 @@ struct DocumentEditingToolbar: View {
                                 }
                                 
                                 
-                                .buttonStyle(SwitchButtonStyle(isOn: prax.showDataFields, isHovering: hoveredButton == 417))
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 417, isOn: prax.showDataFields))
                                 .controlSize(.extraLarge)
                                 .onHover { hovering in hoveredButton = hovering ? 417 : nil }
                                 
@@ -195,8 +193,7 @@ struct DocumentEditingToolbar: View {
                     Spacer()
                 }
             
-                .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
-                .padding(0)
+                
                 
        
             
@@ -204,7 +201,8 @@ struct DocumentEditingToolbar: View {
 
             
         }
-        
+        .frame(maxWidth: .infinity, minHeight: 30, maxHeight: 30, alignment: .leading)
+        .padding(0)
         
         .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
 
@@ -274,7 +272,44 @@ struct DocumentEditingFooter: View {
     }
 }
 
+struct PageItemToolbar: View {
+    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var prax
+    
+    
+    @State private var hoveredButton: Int? = nil
+    
+    
+    var body: some View {
+        @Bindable var prax = prax
+        GroupBox {
 
+            HStack {
+                
+                Button(role: .destructive, action: { document.mergedPages.removeAll() }, label: {
+                    HStack {
+                        if !prax.document.mergedPages.isEmpty && hoveredButton == 40 { Text("Clear Merged Document") }
+                        Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
+                    .padding(.horizontal, 5)})
+                .disabled(prax.document.mergedPages.isEmpty)
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 40, hoverWidth: 200))
+                .onHover { hovering in hoveredButton = hovering ? 40 : nil }
+                
+                Spacer()
+             
+                Button(role: .confirm, action: { prax.showingImportEditor.toggle() }, label: {
+                    HStack {
+                        if !prax.document.mergedPages.isEmpty && hoveredButton == 41 { Text("Options") }
+                        Image(systemName: prax.document.mergedPages.isEmpty ? "gear" : "gear.circle") }})
+                .disabled(prax.document.mergedPages.isEmpty)
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 41, hoverWidth: 200))
+                .onHover { hovering in hoveredButton = hovering ? 41 : nil }
+
+            }
+
+        }
+    }
+}
 
 struct EditingDocumentToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
@@ -302,242 +337,242 @@ struct EditingDocumentToolbar: View {
         return 0
     }
     
-    var body: some View { GeometryReader { proxy in
+    var body: some View {
         @Bindable var prax = prax
         
-        if let pageItem = prax.selectedPageItem {
-            
-            let undoManager = prax.undoManager
-            let _ = Self._printChanges()
-
-            
-            
-            GroupBox {
-                
+        
+        GroupBox {
+            if let pageItem = prax.selectedPageItem {
+                let undoManager = prax.undoManager
+                let _ = Self._printChanges()
+                GroupBox {
                     
-                VStack {
-                    HStack {
-                        
-                        
-                        GroupBox {
-                            HStack {
-                                GroupBox() {
-                                    VStack {
-                                        Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
-                                        
-                                        HStack {
-                                            Text(String("\(currentPageIndex() + 1)")).monospaced()
-                                            VStack(spacing: 0) {
-                                                Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
-                                                label: { Image(systemName: "arrowtriangle.up")  }
-                                                    .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                                    .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
-                                                    .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                    
+                    VStack {
+                        HStack {
+                            
+                            GroupBox {
+                                HStack {
+                                    GroupBox() {
+                                        VStack {
+                                            Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
+                                            
+                                            HStack {
+                                                Text(String("\(currentPageIndex() + 1)")).monospaced()
+                                                VStack(spacing: 0) {
+                                                    Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+                                                    label: { Image(systemName: "arrowtriangle.up")  }
+                                                        .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
+                                                        .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+                                                    
+                                                    Button { prax.editingDocumentPDFView.goToNextPage(self) }
+                                                    label: {  Image(systemName: "arrowtriangle.down")}
+                                                        .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
+                                                        .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+                                                }
                                                 
-                                                Button { prax.editingDocumentPDFView.goToNextPage(self) }
-                                                label: {  Image(systemName: "arrowtriangle.down")}
-                                                    .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                                                    .buttonStyle(StackedButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
-                                                    .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
                                             }
+                                            
                                             
                                         }
                                         
                                         
+                                        
                                     }
+                                    .background(Color.clear, in: .containerRelative)
+                                    .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
+                                    .padding(2)
+                                    Divider().foregroundStyle(.white).background(.white)
+                                    
+                                    Button {undoManager.undo() }
+                                    label: {
+                                        Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
+                                        Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
+                                    .disabled(undoManager.undoCount < 1)
+                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 274))
+                                    .onHover { hovering in hoveredButton = hovering ? 274 : nil }
+                                    
+                                    //         Text(String("\(undoManager.undoCount)"))
+                                    
+                                    //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
+                                    Button {undoManager.redo() }
+                                    label: { if undoManager.redoCount > 0 {
+                                        Image(systemName: "arrow.uturn.forward.circle.fill") } else {
+                                            Image(systemName: "arrow.uturn.forward.circle") }
+                                        Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
+                                    .disabled(undoManager.redoCount < 1)
+                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 276))
+                                    .onHover { hovering in hoveredButton = hovering ? 276 : nil }
+                                    
+                                    Spacer()
+                                    
+                                    Divider().foregroundStyle(.white).background(.white)
+                                    
+                                    PageItemTrimsView()
                                     
                                     
                                     
                                 }
-                                .background(Color.clear, in: .containerRelative)
-                                .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
-                                .padding(2)
-                                Divider().foregroundStyle(.white).background(.white)
-                                
-                                Button {undoManager.undo() }
-                                label: {
-                                    Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
-                                    Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
-                                .disabled(undoManager.undoCount < 1)
-                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 274))
-                                .onHover { hovering in hoveredButton = hovering ? 274 : nil }
-                                
-                                //         Text(String("\(undoManager.undoCount)"))
-                                
-                                //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
-                                Button {undoManager.redo() }
-                                label: { if undoManager.redoCount > 0 {
-                                    Image(systemName: "arrow.uturn.forward.circle.fill") } else {
-                                        Image(systemName: "arrow.uturn.forward.circle") }
-                                    Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
-                                .disabled(undoManager.redoCount < 1)
-                                .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 276))
-                                .onHover { hovering in hoveredButton = hovering ? 276 : nil }
-                                
-                                Spacer()
-                                
-                                Divider().foregroundStyle(.white).background(.white)
-                                
-                                PageItemTrimsView()
-                                
-                                
-                                
                             }
-                        }
-                        
-                        
-                        
-                        
-                    }
-                    if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
-                        
-                        HStack (spacing: 0) {
                             
-                            GroupBox {
-                                Button { showDatePopover = true}
-                                label: { Text("\(dataFieldPage.dataFields["Date"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)
-                                }
-                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 410, isDisabled: document.mergedPages.isEmpty))
+                            
+                            
+                            
+                        }
+                        if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
+                            
+                            HStack (spacing: 0) {
+                                
+                                GroupBox {
+                                    Button { showDatePopover = true}
+                                    label: { Text("\(dataFieldPage.dataFields["Date"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)
+                                    }
+                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 410))
                                     .onHover { hovering in hoveredButton = hovering ? 410 : nil }
-                                    .disabled(showDatePopover == true)
+                                    .disabled(showDatePopover == true || document.mergedPages.isEmpty)
                                     .popover(isPresented: $showDatePopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
                                         DatePopover() }
-                            }
-                            .padding(0)
-                            .background(PraxGradient(2))
-                            .border(.blue, width: 1)
-                            
-                            GroupBox {
-                                HStack(spacing: 0) {
-                                    Button { if let string = NSPasteboard.general.string(forType: .string){
-                                            dataFieldPage.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
-                                     label: {
-                                         Image(systemName: "arrow.right.page.on.clipboard").padding(0)
-                                    }
-                                     .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 422))
-                                     .onHover { hovering in hoveredButton = hovering ? 422: nil }
-
-                               //     .controlSize(.mini)
-                                    Divider()
-
-                                    Button { showDocumentNumberPopover = true }
-                                    label: { Text("Doc# \(dataFieldPage.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
-                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 421, isDisabled: document.mergedPages.isEmpty))
-                                        .onHover { hovering in hoveredButton = hovering ? 421 : nil }
-                                        .disabled (showDocumentNumberPopover == true )
-                                        .popover(isPresented: $showDocumentNumberPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
-                                            DocumentNumberPopover() }
-                                        .padding(.trailing, 5)
-                                  //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
-                                        
-                                    
-
                                 }
-                          //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
-                                .padding(.horizontal, 4)
+                                .padding(0)
                                 .background(PraxGradient(2))
                                 .border(.blue, width: 1)
-
                                 
-                            }
-               
-                            
-                            GroupBox {
-                                Button { showVendorAccountsPopover = true}
-                                label: { Text("Vendor/Accounts").font(.system(size: 10)).padding(0)
+                                GroupBox {
+                                    HStack(spacing: 0) {
+                                        Button { if let string = NSPasteboard.general.string(forType: .string){
+                                            dataFieldPage.dataFields["DocumentNumber"] = .string(string.filter(\.isNumber)) } }
+                                        label: {
+                                            Image(systemName: "arrow.right.page.on.clipboard").padding(0)
+                                        }
+                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 422))
+                                        .onHover { hovering in hoveredButton = hovering ? 422: nil }
+                                        
+                                        //     .controlSize(.mini)
+                                        Divider()
+                                        
+                                        Button { showDocumentNumberPopover = true }
+                                        label: { Text("Doc# \(dataFieldPage.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
+                                            .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 421))
+                                            .onHover { hovering in hoveredButton = hovering ? 421 : nil }
+                                            .disabled (showDocumentNumberPopover == true || document.mergedPages.isEmpty)
+                                            .popover(isPresented: $showDocumentNumberPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                                DocumentNumberPopover() }
+                                            .padding(.trailing, 5)
+                                        //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
+                                        
+                                        
+                                        
+                                    }
+                                    //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
+                                    .padding(.horizontal, 4)
+                                    .background(PraxGradient(2))
+                                    .border(.blue, width: 1)
+                                    
+                                    
                                 }
-                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 460, isDisabled: document.mergedPages.isEmpty))
+                                
+                                
+                                GroupBox {
+                                    Button { showVendorAccountsPopover = true}
+                                    label: { Text("Vendor/Accounts").font(.system(size: 10)).padding(0)
+                                    }
+                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 460))
                                     .onHover { hovering in hoveredButton = hovering ? 460 : nil }
-                                    .disabled(showDatePopover == true)
+                                    .disabled(showDatePopover == true || document.mergedPages.isEmpty)
                                     .popover(isPresented: $showVendorAccountsPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
                                         VendorAccountsPopover() }
-                            }
-                            .padding(0)
-                            .background(PraxGradient(2))
-                            .border(.blue, width: 1)
-                            
-                            
-                            
-                            GroupBox {
-                                HStack(spacing: 0) {
-
-
-                                    Button { showDescriptionPopover = true }
-                                    label: {
-                                        Image(systemName: "pencil.and.list.clipboard").padding(0)
-                                        Text("Description").font(.system(size: 8, weight: .ultraLight))
-                                    }
-                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 451, isDisabled: document.mergedPages.isEmpty))
+                                }
+                                .padding(0)
+                                .background(PraxGradient(2))
+                                .border(.blue, width: 1)
+                                
+                                
+                                
+                                GroupBox {
+                                    HStack(spacing: 0) {
+                                        
+                                        
+                                        Button { showDescriptionPopover = true }
+                                        label: {
+                                            Image(systemName: "pencil.and.list.clipboard").padding(0)
+                                            Text("Description").font(.system(size: 8, weight: .ultraLight))
+                                        }
+                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 451))
                                         .onHover { hovering in hoveredButton = hovering ? 451 : nil }
-                                        .disabled (showDescriptionPopover == true )
+                                        .disabled (showDescriptionPopover == true || document.mergedPages.isEmpty)
                                         .popover(isPresented: $showDescriptionPopover, attachmentAnchor: .point(.bottomLeading), arrowEdge: .bottom) {
                                             DescriptionPopover() }
                                         .padding(0)
-
-                                    Button {
-                                        let pasteboard = NSPasteboard.general
+                                        
+                                        Button {
+                                            let pasteboard = NSPasteboard.general
                                             pasteboard.clearContents()
                                             pasteboard.setString(dataFieldPage.dataFields["Description"]?.stringValue ?? "" , forType: .string)
+                                        }
+                                        label: {
+                                            Image(systemName: "arrow.up.page.on.clipboard").padding(0)
+                                        }
+                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 452))
+                                        .onHover { hovering in hoveredButton = hovering ? 452: nil }
+                                        
+                                        //     .controlSize(.mini)
+                                        .padding(0)
+                                        
+                                        
+                                        
                                     }
-                                     label: {
-                                         Image(systemName: "arrow.up.page.on.clipboard").padding(0)
-                                    }
-                                     .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 452))
-                                     .onHover { hovering in hoveredButton = hovering ? 452: nil }
-
-                               //     .controlSize(.mini)
-                                    .padding(0)
+                                    .background(PraxGradient(2))
+                                    .border(.blue, width: 1)
                                     
                                     
-
                                 }
+                                
+                                
+                                GroupBox {
+                                    Button { showAmountPopover = true }
+                                    label: { Text("Amount: $\(dataFieldPage.dataFields["Amount"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)}
+                                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 420))
+                                        .onHover { hovering in hoveredButton = hovering ? 420 : nil }
+                                        .disabled (showAmountPopover == true || document.mergedPages.isEmpty)
+                                        .popover(isPresented: $showAmountPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                            AmountPopover() }
+                                }
+                                .padding(0)
                                 .background(PraxGradient(2))
                                 .border(.blue, width: 1)
-
+                                
                                 
                             }
-                            
-                            
-                            GroupBox {
-                                Button { showAmountPopover = true }
-                                label: { Text("Amount: $\(dataFieldPage.dataFields["Amount"]?.stringValue ?? "" )").font(.system(size: 10)).padding(0)}
-                                    .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 420, isDisabled: document.mergedPages.isEmpty))
-                                    .onHover { hovering in hoveredButton = hovering ? 420 : nil }
-                                    .disabled (showAmountPopover == true )
-                                    .popover(isPresented: $showAmountPopover, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
-                                        AmountPopover() }
-                            }
                             .padding(0)
-                            .background(PraxGradient(2))
-                            .border(.blue, width: 1)
+                            
+                            
                             
                             
                         }
-                        .padding(0)
-                        
-                        
-                        
-                        
                     }
                 }
             }
-            .padding(0)
-            .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
         }
-        else { EmptyView() }
-    } }
-    
-    
- 
+        .padding(10)
+ //       .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
+        .cornerRadius(50)
+        
+        
+  //      EditingDocumentToolbar()
+            .frame(maxWidth: .infinity, minHeight: prax.selectedPageItem != nil ? 200 : 20.0, maxHeight: prax.selectedPageItem != nil ? 200 : 20.0, alignment: .center)
+            .animation(.easeInOut(duration: 1.25), value: prax.selectedPageItem)
+            .zIndex(258)
+    }
 }
 
 
 struct EditingDocumentFooter: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
-    
+   
     @State private var hoveredButton: Int? = nil
     
    
@@ -560,14 +595,14 @@ struct EditingDocumentFooter: View {
                 Button("", systemImage: "arrow.up.and.down.circle", action: {
                     EditingPDFDocumentView.scalePDFViewToFit(pdfView: prax.editingDocumentPDFView)
                 })
-                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 0, isFocused: false))
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 0))
                 .onHover { hovering in
                     hoveredButton = hovering ? 0 : nil
                 }
 
                 Button("", systemImage: "minus.circle", action: {
                     prax.editingDocumentPDFView.zoomOut(self)
-                })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
                     .onHover { hovering in
                         hoveredButton = hovering ? 2 : nil
                     }
@@ -575,14 +610,14 @@ struct EditingDocumentFooter: View {
                 Button("", systemImage: "plus.circle", action: {
                     prax.editingDocumentPDFView.zoomIn(self)
                 })
-                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
                 .onHover { hovering in
                     hoveredButton = hovering ? 1 : nil
                 }
 
                 Button("", systemImage: "arrow.left.and.right.circle", action: {
                     prax.editingDocumentPDFView.autoScales = true
-                })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 3, isFocused: false))
+                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 3))
                     .onHover { hovering in
                         hoveredButton = hovering ? 3 : nil
                     }
@@ -596,7 +631,7 @@ struct EditingDocumentFooter: View {
                             prax.editingDocumentPDFView.goToPreviousPage(self)
                         })
                         .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 11, isFocused: false))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 11))
                         .onHover { hovering in
                             hoveredButton = hovering ? 11 : nil
                         }
@@ -611,7 +646,7 @@ struct EditingDocumentFooter: View {
                             prax.editingDocumentPDFView.goToNextPage(self)
                         })
                         .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                        .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 12, isFocused: false))
+                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 12))
                         .onHover { hovering in
                             hoveredButton = hovering ? 12 : nil
                         }

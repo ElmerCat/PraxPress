@@ -162,7 +162,7 @@ struct ContentDetailView: View {
         @Bindable var prax = praxModel
         
         VStack(spacing: 0) {
-            DocumentEditingToolbar()
+//            DocumentEditingToolbar()
             
             if document.mergedPages.count >= 0 {
                 if prax.praxPressMode == .prax {
@@ -173,22 +173,41 @@ struct ContentDetailView: View {
                 }
                 else {
                     HSplitView {
-                      //  AnyOldView()
+                     
+                        GroupBox {
+                            VStack {
+                                PageItemToolbar()
+                                PageItemCollectionView()
+                                
+                            }
+                        }
+                        .frame(minWidth: 100, idealWidth: 150, maxWidth: 300)
                         
+                        GroupBox {
+                            VStack {
+                          //      let toolbarHeight = prax.selectedPageItem != nil ? 100 : 20.0
+                                EditingDocumentToolbar()
+                         //           .frame(maxWidth: .infinity, minHeight: toolbarHeight, maxHeight: toolbarHeight, alignment: .center)
+                         //           .animation(.snappy(duration: 0.25), value: toolbarHeight)
+                       //            .zIndex(258)
+                                EditingPDFDocumentView()
+                                
+                            }
+                        }
+                        .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
                         
-                        DocumentEditingView()
-                            .frame(minWidth: 100, idealWidth: 150, maxWidth: 200)
-                        
-                        EditingPDFDocumentView()
-                            .frame(minWidth: 250, idealWidth: 400, maxWidth: 1000)
-                        
-                        MergedPDFDocumentView()
-                            .frame(minWidth: 150, idealWidth: 300, maxWidth: 1000)
-
-                        //   AnyOldView()
+                        GroupBox {
+                            VStack {
+                               // EditingDocumentToolbar()
+                                DocumentEditingToolbar()
+                                MergedPDFDocumentView()
+                                
+                            }
+                        }
+                        .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
                         
                     }
-                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
+                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
                     .overlay(content: {
                        
                         if document.mergedPages.isEmpty {
@@ -196,7 +215,7 @@ struct ContentDetailView: View {
                                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
-                                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+                                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(PraxGradient())
@@ -210,7 +229,7 @@ struct ContentDetailView: View {
                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
-                    .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
             }
             
             DocumentEditingFooter()

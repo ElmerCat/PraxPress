@@ -64,7 +64,7 @@ struct DataFieldsEditor: View {
                                             pasteboard.clearContents()
                                             pasteboard.setString(value.stringValue ?? "", forType: .string)
                                     }
-                                    .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == key, isFocused: false))
+                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == key))
                                     .onHover { hovering in
                                         hoveredButton = hovering ? key : nil
                                     }
@@ -74,7 +74,7 @@ struct DataFieldsEditor: View {
                                         if setTitleKey == key { setTitleKey = "" }
                                         else { setTitleKey = key }
                                     }
-                                    .buttonStyle(SelectableButtonStyle(isSelected: setTitleKey == key, isHovering: hoveredButton == key, isFocused: false))
+                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == key, isOn: setTitleKey == key, isFocused: false))
                                     .onHover { hovering in
                                         hoveredButton = hovering ? key : nil
                                     }

@@ -13,16 +13,16 @@ import UniformTypeIdentifiers
 
 private let DEBUG_LOGS = true
 
-struct PDFFilesListRow: View {
+struct SourceFilesListRow: View {
     @Environment(PersistenceController.self) private var persistence
     
         
    
     
     let document: MergedPDFDocument
-    let pdfFile: PDFFile
+    let sourceFile: SourceFile
     func backgroundColor() -> Color {
-        switch pdfFile.status {
+        switch sourceFile.status {
         case .bad: .red
         case .stale: .orange
         case .okay: .blue
@@ -32,15 +32,15 @@ struct PDFFilesListRow: View {
     var body: some View {
         GroupBox {
             HStack {
-                Text(pdfFile.fileName).lineLimit(1).font(.system(size: 12))
+                Text(sourceFile.fileName).lineLimit(1).font(.system(size: 12))
                 Spacer()
-                Text("\(pdfFile.pageCount)")
+                Text("\(sourceFile.pageCount)")
             }
         }
         .background(backgroundColor())
         .padding(0)
         .draggable {
-            return PDFFileTransfer(pdfFile: pdfFile)
+            return SourceFileTransfer(sourceFile: sourceFile)
         }
         
 
@@ -56,8 +56,8 @@ struct SourceFilesView: View {
     //   @State private var prax = PraxModel.shared
     @Environment(PersistenceController.self) private var persistence
     @Environment(PraxModel.self) private var praxModel
-    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
-    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+    @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
+    @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
     
     @State private var importError: String?
     
@@ -65,13 +65,13 @@ struct SourceFilesView: View {
     func praxTest() {
         print("\nJulie d'Prax")
         
-        for pdfFile in pdfFiles {
-            print(pdfFile.fileName, "  status: ", pdfFile.status)
+        for sourceFile in sourceFiles {
+            print(sourceFile.fileName, "  status: ", sourceFile.status)
         }
         
         print("\nJuliette M. Belanger")
-        for pdfFileGroup in pdfFileGroups {
-            print(pdfFileGroup.name)
+        for sourceFileGroup in sourceFileGroups {
+            print(sourceFileGroup.name)
         }
         
         // MARK: - Test Error Alert (Add this section)
@@ -125,7 +125,7 @@ struct SourceFilesView: View {
         @Bindable var prax = praxModel
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                if !pdfFiles.isEmpty {
+                if !sourceFiles.isEmpty {
                     GroupBox {
                         HStack {
                             Button("PraxTest", action: praxTest)
@@ -151,10 +151,10 @@ struct SourceFilesView: View {
                     VSplitView {
                         
                         GroupBox {
-                            PDFFilesList()
+                            SourceFilesList()
                                 .background(Color.prax)
                             
-                            Text("\(prax.selectedFiles.count)  of \(pdfFiles.count) Files Selected")
+                            Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
@@ -263,10 +263,10 @@ struct SourceFilesView: View {
             case .success(let urls):
                 Task {
                     do {
-                        try await prax.processImportedURLs(urls)
+                        try await persistence.importURLs(urls)
                     }
                     catch {
-                        print("Failed to processImportedURLs(urls)", urls)
+                        print("Failed to importURLs(urls)", urls)
                     }
                 }
 
@@ -290,10 +290,10 @@ struct SourceFilesView: View {
             
             print("View modelContext:", ObjectIdentifier(modelContext))
             
-            for pdfFile in pdfFiles {
-                pdfFile.testBookmark()
-//                let isOkay = testBookmark(for: pdfFile)
-//                print ("testBookmark for: ", pdfFile.fileName, "  isOkay: ", isOkay)
+            for sourceFile in sourceFiles {
+                sourceFile.testBookmark()
+//                let isOkay = testBookmark(for: sourceFile)
+//                print ("testBookmark for: ", sourceFile.fileName, "  isOkay: ", isOkay)
             }
             
         }
@@ -309,7 +309,7 @@ struct SourceFilesView: View {
         let filesToDelete = praxModel.selectedFiles
         Task {
             do {
-                try await persistence.deletePDFFiles(filesToDelete)
+                try await persistence.deleteSourceFiles(filesToDelete)
             } catch {
                 // Handle or present the error appropriately
                 print("Failed to delete files: \(error)")
@@ -323,16 +323,16 @@ struct SourceFilesView: View {
 }
 
 
-struct PDFFilesList: View {
+struct SourceFilesList: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
 
     @Environment(PraxModel.self) private var praxModel
-    @Query(sort: \PDFFileGroup.name) private var pdfFileGroups: [PDFFileGroup]
-    @Query(sort: \PDFFile.fileName) private var pdfFiles: [PDFFile]
+    @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
+    @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
     
     
-    private func displayValue(for key: String, in entry: PDFFile) -> String {
+    private func displayValue(for key: String, in entry: SourceFile) -> String {
         guard let fields = entry.dataFields else {return "No Data Fields"}
         guard let field = fields[key] else { return "No Field: " + key }
 
@@ -356,9 +356,9 @@ struct PDFFilesList: View {
             if prax.praxPressMode != .data {
                 ZStack {
                     Color.contentViewBackground.ignoresSafeArea()
-                    List(pdfFiles, selection: $prax.selectedFiles) { pdfFile in
-                        let notFound = pdfFile.bookmarkData.count == 0
-                        PDFFilesListRow(document: document, pdfFile: pdfFile)
+                    List(sourceFiles, selection: $prax.selectedFiles) { sourceFile in
+                        let notFound = sourceFile.bookmarkData.count == 0
+                        SourceFilesListRow(document: document, sourceFile: sourceFile)
                             .listRowBackground(notFound ? Color.red : Color.clear)
                             .selectionDisabled(notFound)
                     }
@@ -367,9 +367,9 @@ struct PDFFilesList: View {
                 .onChange(of: prax.selectedFiles) {
                     if document.mergedPages.isEmpty, !prax.selectedFiles.isEmpty {
                         for selectedFile in prax.selectedFiles {
-                            let pdfFile = pdfFiles.first(where: { $0.id == selectedFile })!
+                            let sourceFile = sourceFiles.first(where: { $0.id == selectedFile })!
         
-                            document.addPagesFromPDFURL(pdfFile.url, bookmark: pdfFile.bookmarkData)
+                            document.addPagesFromPDFURL(sourceFile.url, bookmark: sourceFile.bookmarkData)
                         }
                     }
 
@@ -379,7 +379,7 @@ struct PDFFilesList: View {
                 ZStack {
                     Color.pink.ignoresSafeArea()
 
-                    let fieldNames = PDFFile.defaultFieldNames
+                    let fieldNames = SourceFile.defaultFieldNames
 
                     // Define grid columns: fixed first two columns + one for each dynamic field
                     let columns: [GridItem] = [
@@ -406,7 +406,7 @@ struct PDFFilesList: View {
 
                             // Data rows
                             // Data rows
-                            ForEach(pdfFiles, id: \.id) { entry in
+                            ForEach(sourceFiles, id: \.id) { entry in
                                 // File name
                                 Text(entry.fileName)
                                     .lineLimit(1)

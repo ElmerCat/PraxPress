@@ -1,4 +1,4 @@
-//  DocumentEditingView.swift
+//  PageItemCollectionView.swift
 //  PraxPress - Prax=0104-1
 //
 //
@@ -13,14 +13,14 @@ import UniformTypeIdentifiers
 
 
 
-struct DocumentEditingView: NSViewRepresentable {
+struct PageItemCollectionView: NSViewRepresentable {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     
     
-    func makeCoordinator() -> DocumentEditingViewCoordinator {
+    func makeCoordinator() -> PageItemCollectionViewCoordinator {
         let svd = SplitViewDelegate(prax: prax)
-        return DocumentEditingViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
+        return PageItemCollectionViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
     }
 
 //    func makeNSView(context: Context) -> NSSplitView {
@@ -74,7 +74,7 @@ struct DocumentEditingView: NSViewRepresentable {
             
 //            let positionTwo = splitView.frame.width - remainingWidth
 
- //           print("DocumentEditingView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
+ //           print("PageItemCollectionView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
             splitView.setPosition(200, ofDividerAt: 0)
             splitView.setPosition(600, ofDividerAt: 1)
    //         splitView.setPosition(positionTwo, ofDividerAt: 2)
@@ -88,7 +88,7 @@ struct DocumentEditingView: NSViewRepresentable {
         scrollView.isHidden = document.mergedPages.isEmpty
         //     splitView.setPosition(200, ofDividerAt: 0)
     //    splitView.setPosition(600, ofDividerAt: 1)
-        print("DocumentEditingView - uupdateNSView(_ scrollView: NSScrollView, context: Context)- ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
+        print("PageItemCollectionView - uupdateNSView(_ scrollView: NSScrollView, context: Context)- ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
         
                 
@@ -99,7 +99,7 @@ struct DocumentEditingView: NSViewRepresentable {
     
     
     
-    final class DocumentEditingViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
+    final class PageItemCollectionViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
         // Shared model
         private let document: MergedPDFDocument
         private let prax: PraxModel
@@ -157,7 +157,7 @@ struct DocumentEditingView: NSViewRepresentable {
                 .fileURL,
                 .pdfPageDragType,
                 .mergedPageType,
-                .pdfFileType
+                .sourceFileType
             ])
 
             // Data source
@@ -500,8 +500,8 @@ struct DocumentEditingView: NSViewRepresentable {
 //                print("collectionView validateDrop .mergedPageType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
                 validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
             
-            else if draggingTypes.contains(.pdfFileType) {
- //               print("collectionView validateDrop .pdfFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+            else if draggingTypes.contains(.sourceFileType) {
+ //               print("collectionView validateDrop .sourceFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
                 validatedDropOperation = [.copy]  }
 
             else if draggingTypes.contains(.fileURL) {
@@ -527,14 +527,14 @@ struct DocumentEditingView: NSViewRepresentable {
                 print("collectionView acceptDrop .mergedPageType")
                 dropInternalSections(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
-            else if draggingTypes.contains(.pdfFileType) {
-                print("collectionView acceptDrop .pdfFileType")
-                dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+            else if draggingTypes.contains(.sourceFileType) {
+                print("collectionView acceptDrop .sourceFileType")
+                dropSourceFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
             }
 
             else if draggingTypes.contains(.fileURL) {
                 print("collectionView acceptDrop .fileURL")
-                dropPDFFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
+                dropSourceFiles(collectionView, draggingInfo: draggingInfo, indexPath: indexPath)
                 return dropExternalPages(draggingInfo: draggingInfo, indexPath: indexPath)
             }
 
@@ -627,12 +627,12 @@ struct DocumentEditingView: NSViewRepresentable {
             
             for url in droppedURLs {
                 print ("\n\(url)")
-                prax.receiveDroppedURL(url, at: indexPath)
+//                prax.receiveDroppedURL(url, at: indexPath)
             }
       
-            Task {
+/*            Task {
                 do {
-                   try await prax.processImportedURLs(droppedURLs)
+                   try await prax.importURLs(droppedURLs)
                 } catch {
                     let praxError = PraxError.persistenceFailed(
                         operation: "Import dropped PDFs",
@@ -641,13 +641,13 @@ struct DocumentEditingView: NSViewRepresentable {
                     self.prax.presentError(praxError)
                 }
             }
-            
+*/
             return true
           }
         
-        func dropPDFFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
-            print("dropPDFFiles to: ", indexPath)
-            var pdfFilePayloads: [PDFFilePayload] = []
+        func dropSourceFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
+            print("dropSourceFiles to: ", indexPath)
+            var sourceFilePayloads: [SourceFilePayload] = []
             draggingInfo.enumerateDraggingItems(
                 options: NSDraggingItemEnumerationOptions.concurrent,
                 for: collectionView,
@@ -655,14 +655,14 @@ struct DocumentEditingView: NSViewRepresentable {
                 searchOptions: [:],
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
-                        do { if let data = pasteboardItem.data(forType: .pdfFileType) {
-                            let pdfFilePayload = try JSONDecoder().decode(PDFFilePayload.self, from: data)
-                            pdfFilePayloads.append(pdfFilePayload)
-                            print ("dropPDFFile: ", pdfFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
+                        do { if let data = pasteboardItem.data(forType: .sourceFileType) {
+                            let sourceFilePayload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
+                            sourceFilePayloads.append(sourceFilePayload)
+                            print ("dropSourceFile: ", sourceFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
                         catch { print(" -- Failed to unarchive indexPath for dropped item.") }
                     } else { print( " -- No NSPasteboardItem")} })
-            for pdfFilePayload in pdfFilePayloads {
-                document.addPagesFromPDFURL(pdfFilePayload.fileURL, bookmark: pdfFilePayload.bookmarkData, at: indexPath)
+            for sourceFilePayload in sourceFilePayloads {
+                document.addPagesFromPDFURL(sourceFilePayload.fileURL, bookmark: sourceFilePayload.bookmarkData, at: indexPath)
             }
         }
             
@@ -720,7 +720,6 @@ struct DocumentEditingView: NSViewRepresentable {
 struct DocumentEditingLeadingEdge: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
     
     @State private var hoveredButton: Int? = nil
     @State private var viewWidth: CGFloat = 20
@@ -823,7 +822,7 @@ struct DocumentEditingLeadingEdge: View {
 /*struct DocumentEditingTrailingEdge: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme(.erika)
+    let praxTheme = PraxTheme()
     
     @State private var hoveredButton: Int? = nil
     @State private var viewWidth: CGFloat = 50
@@ -888,7 +887,7 @@ struct DocumentEditingLeadingEdge: View {
 #Preview {
     
     DocumentEditingToolbar()
-    DocumentEditingView()
+    PageItemCollectionView()
     DocumentEditingFooter()
 }
 

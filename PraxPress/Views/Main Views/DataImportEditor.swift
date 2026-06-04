@@ -18,7 +18,7 @@ import SwiftUI
 
 
 struct DataImportEditor: View {
-    @Environment(SettingsModel.self) private var settingsModel
+  //  @Environment(SettingsModel.self) private var settingsModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: String?
     @State private var hoveredButton: Int?
@@ -33,7 +33,7 @@ struct DataImportEditor: View {
     //    private let analyzer = TemplateAnalyzer()
     
     var body: some View {
-        @Bindable var settingsModel = settingsModel
+        @Bindable var settingsModel = SettingsModel.shared
             
             VStack {
                 Text("PraxPress Import Editor").font(Font.custom("BrushScriptMT", size: 20))
@@ -46,7 +46,7 @@ struct DataImportEditor: View {
                         label: {
                             Image(systemName: "arrow.right.page.on.clipboard").padding(0)
                         }
-                        //                        .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 161))
+                        //                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 161))
                         .onHover { hovering in hoveredButton = hovering ? 161: nil }
                         
                         Spacer()

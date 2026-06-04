@@ -155,7 +155,7 @@ class CollectionViewBackground: NSView, HostingViewContainer {
             .fileURL,
             .pdfPageDragType,
             .mergedPageType,
-            .pdfFileType
+            .sourceFileType
         ])
    */
     }
@@ -244,7 +244,7 @@ struct CollectionViewBackgroundView: View {
                 .stroke(Color.blue, lineWidth: 5).opacity(0.5)
         )
         
-//        .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
+//        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
         
         
   /*      .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
@@ -263,7 +263,7 @@ struct SectionHeaderView: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
-    let praxTheme = PraxTheme(.erika)
+   
     
     @State var showSettings = false
     @State private var hoveredButton: Int? = nil
@@ -288,7 +288,7 @@ struct SectionHeaderView: View {
                         showSettings = !showSettings
                     }
                     label: { Image(systemName: "gear")}
-                    .buttonStyle(ItemButtonStyle(isHovering: hoveredButton == 2))
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
                     .onHover { hovering in
                         hoveredButton = hovering ? 2 : nil
                     }
@@ -415,7 +415,7 @@ struct MergedPageFooterView: View {
     let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
-    let praxTheme = PraxTheme(.erika)
+    
     @State private var hoveredButton: Int? = nil
     
     func mergedSizeText() -> String {
@@ -463,15 +463,15 @@ struct MergedPageFooterView: View {
             Button("", systemImage: "plus.circle", action: {
                 pdfViewMode(.zoomIn)
             })
-            .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 1, isFocused: false))
+            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
             
             Button("", systemImage: "minus.circle", action: {
                 pdfViewMode(.zoomOut)
-            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
             
             Button("", systemImage: "equal.circle", action: {
                 pdfViewMode(.zoomFit)
-            })                .buttonStyle(SelectableButtonStyle(isSelected: false, isHovering: hoveredButton == 2, isFocused: false))
+            })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
             
             Spacer()
 

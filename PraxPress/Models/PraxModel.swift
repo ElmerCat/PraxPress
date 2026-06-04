@@ -56,7 +56,7 @@ final class PraxModel {
     
     var undoManager = UndoManager()
     
-    let theme = PraxTheme(.erika)
+    let theme = PraxTheme()
    
     
     enum AnnotationSaveMode: String, CaseIterable {
@@ -190,7 +190,7 @@ final class PraxModel {
     var importSourceBookmark: Data?
 
     
-    var selectedFiles = Set<PDFFile.ID>()
+    var selectedFiles = Set<SourceFile.ID>()
     var selectedSections = Set<Int>()
     
     private var _selectedPageItems = Set<IndexPath>()
@@ -490,7 +490,7 @@ extension PraxModel {
 
     // MARK: - Drop routing
 
-    func receiveDroppedURL(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil) {
+    func receiveDroppedSourceFile(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
 
@@ -527,7 +527,7 @@ extension PraxModel {
                         "Starting PDF persistence: \(url.lastPathComponent)",
                         category: .import
                     )
-   //                 try await document.persistence.processImportedURLs([url])
+   //                 try await document.persistence.importURLs([url])
                     PraxLogger.shared.logInfo(
                         "PDF persistence completed: \(url.lastPathComponent)",
                         category: .import
@@ -570,7 +570,7 @@ extension PraxModel {
                         "Starting PDF persistence: \(url.lastPathComponent)",
                         category: .import
                     )
-                    try await document.persistence.processImportedURLs([url])
+                    try await document.persistence.importURLs([url])
                     PraxLogger.shared.logInfo(
                         "PDF persistence completed: \(url.lastPathComponent)",
                         category: .import

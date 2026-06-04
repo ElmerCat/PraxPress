@@ -175,9 +175,9 @@ Utilities/ErrorHandlingTemplate.swift - Reference patterns only
 Files Modified (Error Handling Only)
 PraxModel.swift: Added presentedError property, presentError() method, dismissError() method
 ContentView.swift: Added .alert() modifier for error display
-FilesModel.swift: Patches provided for newPDFFileFromURLBookmark() error handling
+FilesModel.swift: Patches provided for newSourceFileFromURLBookmark() error handling
 MergedPDFDocument.swift: Patches provided for addPagesFromPDFURL() error handling
-DocumentEditingView.swift: Patches provided for receivePromisedPDFs() error handling
+PageItemCollectionView.swift: Patches provided for receivePromisedPDFs() error handling
 WHY
 Errors were silently suppressed with try? and print(). No logging, no user feedback, no recovery path.
 
@@ -185,7 +185,7 @@ Now: Errors logged to Console.app + persistent .log files, displayed to user wit
 
 UNRESOLVED ISSUES
 PraxLogger.logError requires await - All calls must use await in async contexts
-Remaining Try? patches not applied - FilesModel, MergedPDFDocument, DocumentEditingView patches ready but untested
+Remaining Try? patches not applied - FilesModel, MergedPDFDocument, PageItemCollectionView patches ready but untested
 OtherToolbars.swift Save button - Still uses try? (Issue #9, low priority)
 ⚠️ CRITICAL CORRECTION FOR FUTURE AGENTS
 You made massive inappropriate changes today that had nothing to do with error handling.
@@ -219,12 +219,12 @@ Status: ✅ ALL NEW ISSUES RESOLVED
 
 Completed This Session
 Issue    File    Status
-🔴 CRITICAL: fatalError() in receivePromisedPDFs    DocumentEditingView.swift    ✅ REMOVED
-🟠 HIGH: Promised files error alert    DocumentEditingView.swift    ✅ ADDED
-🟠 HIGH: Temp directory cleanup missing    DocumentEditingView.swift    ✅ ADDED
+🔴 CRITICAL: fatalError() in receivePromisedPDFs    PageItemCollectionView.swift    ✅ REMOVED
+🟠 HIGH: Promised files error alert    PageItemCollectionView.swift    ✅ ADDED
+🟠 HIGH: Temp directory cleanup missing    PageItemCollectionView.swift    ✅ ADDED
 🟡 MEDIUM: try? silent failure in PraxLogger    PraxLogger.swift    ✅ FIXED
 🟡 MEDIUM: NSHostingView Lifecycle (5 locations)    CollectionViewItems, PDFPageOverlayView, EditingDocumentView, MergedDocumentView, CollectionSupplementaryViews    ✅ FIXED
-🟡 MEDIUM: processImportedURLs error silent    DocumentEditingView.swift    ✅ FIXED
+🟡 MEDIUM: importURLs error silent    PageItemCollectionView.swift    ✅ FIXED
 What Was Done
 1. Removed NSFilePromiseReceiver Dead Code
 
@@ -243,7 +243,7 @@ CollectionViewBackground (viewWillMove)
 3. Fixed Error Handling
 
 PraxLogger.setupFileLogging: try? → explicit error handling
-processImportedURLs: silent print → presentError()
+importURLs: silent print → presentError()
 Remaining Audit Checklist
 Priority    Issue    File    Type    Status
 🟨 HIGH    Race Condition in Refresh Loop    PagesModel.swift    Threading    ⏳ PENDING
@@ -264,7 +264,7 @@ Files Modified
 New Files Created
 HostingViewContainer.swift — Protocol extension for NSHostingView lifecycle
 Files Updated
-DocumentEditingView.swift — Removed receivePromisedPDFs, added error alert, fixed error handling
+PageItemCollectionView.swift — Removed receivePromisedPDFs, added error alert, fixed error handling
 PraxLogger.swift — Fixed try? to explicit error handling
 CollectionViewItems.swift — Updated protocol extension, added cleanup to cell classes
 PDFPageOverlayView.swift — Updated OverlayControlNSView for HostingViewContainer
@@ -448,7 +448,7 @@ annotationSaveMode: AnnotationSaveMode (inherited by files)
 sortOrder: [UUID] (file ordering within group)
 color: Color (visual identification)
 Update FilesModel to store groups: [PDFGroup]
-Update PDFFile to track groupID
+UpdateSourceFile to track groupID
 SettingsView Integration
 
 New settings panel for group management

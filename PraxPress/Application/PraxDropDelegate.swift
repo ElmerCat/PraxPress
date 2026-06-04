@@ -14,13 +14,13 @@ import PDFKit
 extension NSPasteboard.PasteboardType {
     static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
     static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
-    static let pdfFileType = NSPasteboard.PasteboardType("com.praxpress.pdf-file-item")
+    static let sourceFileType = NSPasteboard.PasteboardType("com.praxpress.source-file-item")
 }
 
 extension UTType {
     static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
     static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
-    static let pdfFileType = UTType(exportedAs: "com.praxpress.pdf-file-item")
+    static let sourceFileType = UTType(exportedAs: "com.praxpress.source-file-item")
 }
 
 final class PraxDropDelegate: DropDelegate {
@@ -49,19 +49,19 @@ final class PraxDropDelegate: DropDelegate {
         }
     }
     
+    
     func performDrop(info: DropInfo) -> Bool { //  print("DropTargetControl - performDrop")
         prax.dropTargeted = false
 
-        if info.hasItemsConforming(to: [.pdfFileType]) {
-           for provider in info.itemProviders(for: [UTType.pdfFileType]) {
-                provider.loadDataRepresentation(forTypeIdentifier: UTType.pdfFileType.identifier) { [self] (data, error) in
-                    if let data = data {  Task {  struct Payload: Codable {
-                        let fileURL: URL
-                        let bookmark: Data }; do {
-                        let payload = try JSONDecoder().decode(Payload.self, from: data)
-                            await prax.receiveDroppedURL(payload.fileURL, bookmark: payload.bookmark) }
-                        catch { print("failed to decode Payload ") } }}
-                    else { print("no data for forTypeIdentifier: UTType.pdfFileType.identifier")}}}}
+        if info.hasItemsConforming(to: [.sourceFileType]) {
+           for provider in info.itemProviders(for: [UTType.sourceFileType]) {
+                provider.loadDataRepresentation(forTypeIdentifier: UTType.sourceFileType.identifier) { [self] (data, error) in
+                    if let data = data {  Task { do {
+                            let payload = try JSONDecoder().decode(SourceFileTransfer.Payload.self, from: data)
+                            await prax.receiveDroppedSourceFile(payload.fileURL, bookmark: payload.bookmarkData) }
+                        catch {
+                            print("failed to decode Payload ") } }}
+                    else { print("no data for forTypeIdentifier: UTType.sourceFileType.identifier")}}}}
         
         else if info.hasItemsConforming(to: [.fileURL]) {
             for provider in info.itemProviders(for: [UTType.fileURL]) {
@@ -71,8 +71,8 @@ final class PraxDropDelegate: DropDelegate {
                        let url = URL(string: path) {
                         print("Julie Belanger path = ", path, "  URL: ", url)
                         Task {
-                            do { try await prax.processImportedURLs([url]) }
-                            catch { print("Failed to processImportedURLs: \(error)") }
+                            do { try await document.persistence.importURLs([url]) }
+                            catch { print("Failed to importURLs: \(error)") }
                         }
                         
                     }}}}
@@ -94,8 +94,8 @@ final class PraxDropDelegate: DropDelegate {
             return DropProposal(operation: .forbidden)
             
         }
-        else if info.hasItemsConforming(to: [.pdfFileType]) {
-  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfFileType])")
+        else if info.hasItemsConforming(to: [.sourceFileType]) {
+  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.sourceFileType])")
             return DropProposal(operation: .copy)
             
         }
@@ -226,7 +226,7 @@ struct DropTargetControl: View {
         }
   //      .popover(isPresented: $prax.showingImageDropInspector) { ImageInspectingPopover() }
         
-        .onDrop(of: [.fileURL, .pdfFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
         
         
     }
