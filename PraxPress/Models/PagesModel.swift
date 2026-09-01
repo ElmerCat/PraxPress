@@ -413,6 +413,7 @@ final class PageItem: Identifiable, Equatable, Hashable {
     var sourceBookmark: Data
     var sourceURLString: String
     var sourcePageIndex: Int
+    var imageOptions: ImageImportOptions?
     var dataFields: [String: FieldValue] {
         didSet {
             print("dataFields: [String: FieldValue] didSet ", dataFields)
@@ -421,9 +422,8 @@ final class PageItem: Identifiable, Equatable, Hashable {
     }
     
   
-    let pdfPage: PDFPage
-    let media: CGRect
-    let aspectRatio: CGFloat
+    let _pdfPage: PDFPage?
+    
     
     init(
         id: UUID = UUID(),
@@ -433,7 +433,8 @@ final class PageItem: Identifiable, Equatable, Hashable {
         sourceBookmark: Data = Data(),
         sourceURL: URL,
         sourcePageIndex: Int = 0,
-        pdfPage: PDFPage,
+        pdfPage: PDFPage?,
+        imageOptions: ImageImportOptions? = nil,
         dataFields: [String: FieldValue]
 
     ) {
@@ -444,18 +445,28 @@ final class PageItem: Identifiable, Equatable, Hashable {
         self.sourceBookmark = sourceBookmark
         self.sourceURLString = sourceURL.absoluteString
         self.sourcePageIndex = sourcePageIndex
+        self.imageOptions = imageOptions
         self.dataFields = dataFields
-        self.pdfPage = pdfPage
-        self.aspectRatio = {
-            let bounds = pdfPage.bounds(for: .cropBox)
-            return bounds.size.width / bounds.size.height
-        }()
-        self.media = {
-            return pdfPage.bounds(for: .cropBox)
-        }()
+        self._pdfPage = pdfPage
+        
     }
     
     
+    var aspectRatio: CGFloat {
+        let bounds = pdfPage.bounds(for: .cropBox)
+        return bounds.size.width / bounds.size.height
+    }
+    var media: CGRect {
+        return pdfPage.bounds(for: .cropBox)
+    }
+    
+    var pdfPage: PDFPage {
+        if _pdfPage != nil { return _pdfPage! }
+        
+        
+        return PDFPage()
+        
+    }
     
     func trimmedPageSize() -> CGRect {
         let minX = media.minX + trims.left
@@ -471,10 +482,11 @@ final class PageItem: Identifiable, Equatable, Hashable {
     private var _overlayView: PDFPageOverlayView?
     var overlayView: PDFPageOverlayView {
         if let view = _overlayView { return view }
-        let view = PDFPageOverlayView(pageItem: self)
-        _overlayView = view
-        return view
+            let view = PDFPageOverlayView(pageItem: self)
+            _overlayView = view
+            return view
     }
+        
     
 
     private var _trims: EdgeTrims = .zero
@@ -534,5 +546,12 @@ final class PageItem: Identifiable, Equatable, Hashable {
             print("PageItem merge didSet")
             mergedPage.refreshEditingDocument()
         }
+    }
+    
+    func editImageOptions() {
+        print("PageItem editImageOptions")
+        prax.importEditingURLBookmark = (URL(string: sourceURLString)!, sourceBookmark)
+        prax.showingImportEditor = true
+        
     }
 }

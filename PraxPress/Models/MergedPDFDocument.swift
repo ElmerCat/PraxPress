@@ -139,40 +139,98 @@ import OSLog
         }
     }
     
-    
-    func addPagesFromPDFURL(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil, title: String? = nil) {
-        var url = url
-        if let bookmark {
-            var isStale = false
-            guard let fileURL = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+  
+    func addPagesFromSourceFile(_ sourceFile: SourceFile, at indexPath: IndexPath? = nil, title: String? = nil) {
+        let payload = SourceFileTransfer.Payload(fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, imageOptions: sourceFile.imageOptions)
+        addPagesFromSourceFilePayload(payload, at: indexPath, title: title)
+        
+        
+    }
+        
+        
+    func addPagesFromSourceFilePayload(_ payload: SourceFileTransfer.Payload, at indexPath: IndexPath? = nil, title: String? = nil) {
+        var url = payload.fileURL
+        var isStale = false
+        guard let fileURL = try? URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
             else {  print("addPagesFromPDFURL - Error resolvingBookmarkData for URL: ", url) ; return  }
-            url = fileURL
-        }
+        url = fileURL
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
 
         let mergedPage = mergedPagefrom(url, at: indexPath)
         let location = (indexPath?.item ?? 0) + 1
+        var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
         
-        if let pdfDocument = PDFDocument(url: url) {
-            var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
+        switch payload.fileType {
+            case .image:
+            
+            let imageOptions: ImageImportOptions?
+            if payload.imageOptions != nil {
+                imageOptions = payload.imageOptions
+            }
+            else {
+                imageOptions = ImageImportOptions.neutral
+            }
+            
+   //         prax.importImageOptions
+            
+            let effectiveOptions = prax.resolvedImportOptions(SettingsModel.shared.imageImportOptions)
+            
+            guard let image = prax.processedImageFromURL(url, imageOptions: effectiveOptions) else {
+                assertionFailure("Failed to process image at \(url)")
+                return
+            }
+            
+            guard let pdfPage = PDFPage(image: image) else {
+                assertionFailure("Failed to create PDFPage from processed image at \(url)")
+                return
+            }
+            
+            let pageItem = PageItem(
+                prax: prax,
+                mergedPage: mergedPage,
+                name: title ?? url.deletingPathExtension().lastPathComponent,
+                sourceBookmark: payload.bookmarkData,
+                sourceURL: url,
+                pdfPage: pdfPage,
+                imageOptions: imageOptions,
+                dataFields: [:]
+            )
+            
+            mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
+        
+
+            
+            
+        case .pdf:
+            
+            guard let pdfDocument = PDFDocument(url: url) else {  print("No PDFDocument from url: ", url);  return  }
+            
+            
             for index in 0..<pdfDocument.pageCount {
                 let displayName = nameForPage(url: url, index: index)
                 let item = PageItem(
-                        prax: prax,
-                        mergedPage: mergedPage,
-                        name: displayName,
-                        sourceBookmark: Data(),
-                        sourceURL: url,
-                        sourcePageIndex: index,
-                        pdfPage: pdfDocument.page(at: index)!,
-                        dataFields: SourceFile.dataFieldsFromPDFDocument(pdfDocument)
-                    )
+                    prax: prax,
+                    mergedPage: mergedPage,
+                    name: displayName,
+                    sourceBookmark: payload.bookmarkData,
+                    sourceURL: url,
+                    sourcePageIndex: index,
+                    pdfPage: pdfDocument.page(at: index)!,
+                    dataFields: SourceFile.dataFieldsFromPDFDocument(pdfDocument)
+                )
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
                 pageInsertIndex += 1
             }
+        
+
+            
+
+            default:
+                break
         }
-        else {  print("No PDFDocument from url: ", url)  }
+        
+        
     }
 
     
@@ -299,6 +357,7 @@ import OSLog
                     sourceURL: URL(string: pageItem.sourceURLString)!,
                     sourcePageIndex: pageItem.sourcePageIndex,
                     pdfPage: pdfPage,
+                    imageOptions: pageItem.imageOptions,
                     dataFields: pageItem.dataFields
                 )
                 copiedPageItem.trims = pageItem.trims

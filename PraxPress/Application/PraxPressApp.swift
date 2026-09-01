@@ -131,7 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         // Keep only PDFs (if that’s your intent)
-        urls = urls.filter { $0.pathExtension.lowercased() == "pdf" }
+        urls = urls.filter { Prax.fileTypes.contains( $0.pathExtension.lowercased()) }
         guard !urls.isEmpty else { return }
         
         pendingOpenURLs = urls
@@ -167,8 +167,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func insertPDFPageSectionsFromPendingURLs() {
         
         
-      /*  Task {
+        Task {
             do {
+                print("Julie d Prax", pendingOpenURLs, "Juliette: ")
+                
+                
  //               try await PraxModel.shared.insertPDFPageSectionsFromDocumentURLS(pendingOpenURLs, at: IndexPath(item: -1, section: -1))
  //               pendingOpenURLs.removeAll()
  //               PraxModel.shared.refreshMergedDocument()
@@ -178,7 +181,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 
             }
         }
-      */
+      
 
     }
     

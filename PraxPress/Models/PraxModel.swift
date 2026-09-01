@@ -148,7 +148,15 @@ final class PraxModel {
     var isLarge: Bool = false
     var showFilesPanel = true
 //    var showingImageDropInspector: Bool = false
-    var showingImportEditor: Bool = false
+    var showingImportEditor: Bool = false {
+        didSet {
+            print("showingImportEditor: ", windowSize)
+            importEditorMinWidth = showingImportEditor ? 400 : 20
+            importEditorMaxWidth = showingImportEditor ? 1200 : 50
+        }
+    }
+    var importEditorMinWidth: CGFloat = 0
+    var importEditorMaxWidth: CGFloat = 0
     var inspectNextImageDrop: Bool = false
     
     var importDropIndexPath: IndexPath?
@@ -166,7 +174,7 @@ final class PraxModel {
     var showSavePanel: Bool = false
     var columnVisibility: NavigationSplitViewVisibility = .all
     
-    var importImageOptions = ImageImportOptions()
+   // var imageOptions = ImageImportOptions()
     
     
     let editingDocumentPDFView = PDFView()
@@ -188,6 +196,7 @@ final class PraxModel {
     var urlBookmarksToImport: [(url: URL, bookmark: Data, size: Int)] = []
     var importSourceURL: URL?
     var importSourceBookmark: Data?
+    var importEditingURLBookmark: (url: URL, bookmark: Data)?
 
     
     var selectedFiles = Set<SourceFile.ID>()
@@ -198,6 +207,8 @@ final class PraxModel {
         get { _selectedPageItems }
         set {
             guard newValue != _selectedPageItems else { return }
+            
+            print("setting selectedPageItems to: ", newValue )
             _selectedPageItems = newValue
             
             if pageItemCollectionView.selectionIndexPaths != selectedPageItems {
@@ -210,9 +221,9 @@ final class PraxModel {
     }
 
     
-  //  private var _selectedPageItem: PageItem?
+    private var _selectedPageItem: PageItem?
     var selectedPageItem: PageItem?
-    /*
+    
     {
         get { _selectedPageItem }
         set {
@@ -221,21 +232,27 @@ final class PraxModel {
 
             let oldValue = _selectedPageItem
             _selectedPageItem = newValue
+  
+            if let pageItem = selectedPageItem {
+                if let indexPath = document.indexPath(for: pageItem) {
+                    selectedPageItems = Set([indexPath])
+                }
+            }
             
-            if newValue != nil, oldValue == nil {
+            
+            
+/*            if newValue != nil, oldValue == nil {
                 beginSelectedPage()
-                
-                
-                
             }
             else if oldValue != nil, newValue == nil {
                 endSelectedPage()
             }
- 
+ */
+            
         }
     }
     
-    */
+    
     func beginSelectedPage() {
         print("beginSelectedPage")
         if selectedPageItem == nil {
@@ -250,12 +267,13 @@ final class PraxModel {
     func updateSelectedPage() {
         print("updateSelectedPage")
         if let selectedPageItem, let selectedIndexPath = document.indexPath(for: selectedPageItem) {
-            if !selectedPageItems.contains(selectedIndexPath) {
-                if let indexPath = selectedPageItems.first,
-                   let pageItem = document.pageItem(indexPath: indexPath) {
-                    self.selectedPageItem = pageItem
-                return } } }
-        self.selectedPageItem = nil
+            
+            if selectedPageItems.contains(selectedIndexPath) { return }
+            else if let indexPath = selectedPageItems.first,
+                    let pageItem = document.pageItem(indexPath: indexPath) {
+                self.selectedPageItem = pageItem }
+            else { self.selectedPageItem = nil }
+        }
     }
     
     func endSelectedPage() {
@@ -448,37 +466,7 @@ extension PraxModel {
         document.prax.presentError(praxError)
     }
 
-    enum ImportSizingMode: String, CaseIterable, Identifiable {
-        case fileSizeLimit
-        case targetInches
-        var id: String { rawValue }
-    }
-
-    struct ImageImportOptions: Equatable {
-        var cropLeft: Double = 0
-        var cropRight: Double = 0
-        var cropTop: Double = 0
-        var cropBottom: Double = 0
-
-        var scaleDown: Double = 1.0
-
-        var brightness: Double = 0.0
-        var contrast: Double = 1.0
-        var exposure: Double = 0.0
-        var sharpness: Double = 0.0
-
-        // nil means "resolve from saved defaults"
-        var sizingMode: ImportSizingMode = .fileSizeLimit
-
-        // used in .fileSizeLimit mode
-        var sizeLimitKB: Int = 1024
-
-        // used in .targetInches mode
-        var targetWidthInches: Double = 8.5
-        var targetHeightInches: Double = 11.0
-
-        static let neutral = ImageImportOptions()
-    }
+    
     
     
     func clearImageInspectorState() {
@@ -490,15 +478,15 @@ extension PraxModel {
 
     // MARK: - Drop routing
 
-    func receiveDroppedSourceFile(_ url: URL, bookmark: Data? = nil, at indexPath: IndexPath? = nil) {
-        let needsStop = url.startAccessingSecurityScopedResource()
-        defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+    func receiveDroppedSourceFile(_ payload: SourceFileTransfer.Payload, at indexPath: IndexPath? = nil) {
+        let needsStop = payload.fileURL.startAccessingSecurityScopedResource()
+        defer { if needsStop { payload.fileURL.stopAccessingSecurityScopedResource() } }
 
         
-        do { importSourceAttributes = try FileManager.default.attributesOfItem(atPath: url.path) }
+        do { importSourceAttributes = try FileManager.default.attributesOfItem(atPath: payload.fileURL.path) }
         catch { PraxLogger.shared.logError("Import Source Error", category: .import)
             let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file attributes" ])
-            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
             document.prax.presentError(praxError)}
         
         
@@ -507,7 +495,7 @@ extension PraxModel {
         guard fileType == .typeDirectory || fileType == .typeRegular else {
             PraxLogger.shared.logError("Import Source Alert", category: .import)
             let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
-            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
             document.prax.presentError(praxError)
             return
         }
@@ -516,26 +504,26 @@ extension PraxModel {
         if fileType == .typeDirectory {
             PraxLogger.shared.logWarning("Import Source Alert", category: .import)
             let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Import Source is a Folder" ])
-            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
             document.prax.presentError(praxError)
             
-            PraxLogger.shared.logInfo("Importing Folder: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+            PraxLogger.shared.logInfo("Importing Folder: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
   
             Task {
                 do {
                     PraxLogger.shared.logInfo(
-                        "Starting PDF persistence: \(url.lastPathComponent)",
+                        "Starting PDF persistence: \(payload.fileURL.lastPathComponent)",
                         category: .import
                     )
-   //                 try await document.persistence.importURLs([url])
+   //                 try await document.persistence.importURLs([payload.fileURL])
                     PraxLogger.shared.logInfo(
-                        "PDF persistence completed: \(url.lastPathComponent)",
+                        "PDF persistence completed: \(payload.fileURL.lastPathComponent)",
                         category: .import
                     )
                 } catch {
                     // Create user-facing error with recovery suggestions
                     let praxError = PraxError.fileImportFailed(
-                        fileName: url.lastPathComponent,
+                        fileName: payload.fileURL.lastPathComponent,
                         underlyingError: error
                     )
                     self.presentError(praxError)
@@ -546,39 +534,39 @@ extension PraxModel {
             
             
          
-        importSourceURL = url
+        importSourceURL = payload.fileURL
         importDropIndexPath = indexPath
 
         
-        let ext = url.pathExtension.lowercased()
+        let ext = payload.fileURL.pathExtension.lowercased()
         switch ext {
 
         case "pdf":
             
             
-            PraxLogger.shared.logInfo("Importing PDF: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+            PraxLogger.shared.logInfo("Importing PDF: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
             
 
             
             DispatchQueue.main.async { [self] in
-                document.addPagesFromPDFURL(url, bookmark: bookmark, at: indexPath)
+  //              document.addPagesFromPDFURL(payload.fileURL, bookmark: payload.bookmarkData, at: indexPath)
             }
 
 /*            Task {
                 do {
                     PraxLogger.shared.logInfo(
-                        "Starting PDF persistence: \(url.lastPathComponent)",
+                        "Starting PDF persistence: \(payload.fileURL.lastPathComponent)",
                         category: .import
                     )
-                    try await document.persistence.importURLs([url])
+                    try await document.persistence.importURLs([payload.fileURL])
                     PraxLogger.shared.logInfo(
-                        "PDF persistence completed: \(url.lastPathComponent)",
+                        "PDF persistence completed: \(payload.fileURL.lastPathComponent)",
                         category: .import
                     )
                 } catch {
                     // Create user-facing error with recovery suggestions
                     let praxError = PraxError.fileImportFailed(
-                        fileName: url.lastPathComponent,
+                        fileName: payload.fileURL.lastPathComponent,
                         underlyingError: error
                     )
                     self.presentError(praxError)
@@ -587,7 +575,7 @@ extension PraxModel {
 */
         case "png", "jpeg", "jpg", "gif", "heic":
             
-            PraxLogger.shared.logInfo("Importing Image File: \(url.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+            PraxLogger.shared.logInfo("Importing Image File: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
             
             
             
@@ -605,7 +593,7 @@ extension PraxModel {
                 showingImportEditor = true
                 
                 // IMPORTANT: default size limit is applied inside addPageFromImageURL
-      //          DispatchQueue.main.async { [self] in addPageFromImageURL(url, at: indexPath, options: .neutral) }
+      //          DispatchQueue.main.async { [self] in addPageFromImageURL(payload.fileURL, at: indexPath, imageOptions: .neutral) }
             }
 
         default:
@@ -619,7 +607,7 @@ extension PraxModel {
         _ url: URL,
         at indexPath: IndexPath? = nil,
         title: String? = nil,
-        options: ImageImportOptions = .neutral
+        imageOptions: ImageImportOptions = .neutral
     ) {
         let mergedPage = document.mergedPagefrom(url, at: indexPath)
         let pageInsertIndex = document.normalizedInsertionIndex(
@@ -627,9 +615,9 @@ extension PraxModel {
             location: (indexPath?.item ?? 0) + 1
         )
 
-        let effectiveOptions = resolvedImportOptions(options)
+        let effectiveOptions = resolvedImportOptions(imageOptions)
 
-        guard let image = processedImageFromURL(url, options: effectiveOptions) else {
+        guard let image = processedImageFromURL(url, imageOptions: effectiveOptions) else {
             assertionFailure("Failed to process image at \(url)")
             return
         }
@@ -645,6 +633,7 @@ extension PraxModel {
             name: title ?? url.deletingPathExtension().lastPathComponent,
             sourceURL: url,
             pdfPage: pdfPage,
+            imageOptions: imageOptions,
             dataFields: [:]
         )
 
@@ -652,25 +641,25 @@ extension PraxModel {
     }
 
     /// New signature (size-limit based).
-    func processedImageFromURL(_ url: URL, options: ImageImportOptions) -> NSImage? {
+    func processedImageFromURL(_ url: URL, imageOptions: ImageImportOptions) -> NSImage? {
         guard let sourceImage = NSImage(contentsOf: url) else { return nil }
-        return processedImage(sourceImage, options: resolvedImportOptions(options))
+        return processedImage(sourceImage, imageOptions: resolvedImportOptions(imageOptions))
     }
 
 
 
     // MARK: - Core processing
     private static let imageCIContext = CIContext()
-    private func processedImage(_ sourceImage: NSImage, options: ImageImportOptions) -> NSImage? {
+    private func processedImage(_ sourceImage: NSImage, imageOptions: ImageImportOptions) -> NSImage? {
         guard let tiff = sourceImage.tiffRepresentation,
               var ciImage = CIImage(data: tiff) else { return nil }
 
         // 1) Crop
-        let crop = cropRect(for: ciImage.extent.size, options: options)
+        let crop = cropRect(for: ciImage.extent.size, imageOptions: imageOptions)
         ciImage = ciImage.cropped(to: crop)
 
         // 2) Adjustments
-        ciImage = applyAdjustments(to: ciImage, options: options)
+        ciImage = applyAdjustments(to: ciImage, imageOptions: imageOptions)
 
         // 3) Render CI -> NSImage
         let extent = ciImage.extent.integral
@@ -678,10 +667,10 @@ extension PraxModel {
         var output = NSImage(cgImage: cgImage, size: NSSize(width: extent.width, height: extent.height))
 
         // 4) Size strategy
-        switch importImageOptions.sizingMode {
+        switch imageOptions.sizingMode {
         case .fileSizeLimit:
             // Keep current manual downscale behavior
-            let userScale = CGFloat(options.scaleDown).clamped(to: 0.05...1.0)
+            let userScale = CGFloat(imageOptions.scaleDown).clamped(to: 0.05...1.0)
             if userScale < 0.999 {
                 let px = pixelSize(of: output)
                 let scaled = NSSize(
@@ -691,15 +680,15 @@ extension PraxModel {
                 output = output.resize(to: scaled) ?? output
             }
 
-            if importImageOptions.sizeLimitKB > 0 {
-                output = downscaleToMeetPDFSizeLimit(output, targetKB: importImageOptions.sizeLimitKB)
+            if imageOptions.sizeLimitKB > 0 {
+                output = downscaleToMeetPDFSizeLimit(output, targetKB: imageOptions.sizeLimitKB)
             }
 
         case .targetInches:
             output = scaleImageToTargetInches(
                 output,
-                targetWidthInches: options.targetWidthInches,
-                targetHeightInches: options.targetHeightInches
+                targetWidthInches: imageOptions.targetWidthInches,
+                targetHeightInches: imageOptions.targetHeightInches
             )
         }
 
@@ -744,16 +733,16 @@ extension PraxModel {
         return image.resize(to: newSize) ?? image
     }
     
-    private func cropRect(for size: CGSize, options: ImageImportOptions) -> CGRect {
+    private func cropRect(for size: CGSize, imageOptions: ImageImportOptions) -> CGRect {
         let minRemainingFraction: CGFloat = 0.05
 
         let w = max(size.width, 1)
         let h = max(size.height, 1)
 
-        let left = CGFloat(options.cropLeft).clamped(to: 0...0.95)
-        let right = CGFloat(options.cropRight).clamped(to: 0...0.95)
-        let top = CGFloat(options.cropTop).clamped(to: 0...0.95)
-        let bottom = CGFloat(options.cropBottom).clamped(to: 0...0.95)
+        let left = CGFloat(imageOptions.cropLeft).clamped(to: 0...0.95)
+        let right = CGFloat(imageOptions.cropRight).clamped(to: 0...0.95)
+        let top = CGFloat(imageOptions.cropTop).clamped(to: 0...0.95)
+        let bottom = CGFloat(imageOptions.cropBottom).clamped(to: 0...0.95)
 
         let horizontalTrim = min(left + right, 1 - minRemainingFraction)
         let verticalTrim = min(top + bottom, 1 - minRemainingFraction)
@@ -769,29 +758,29 @@ extension PraxModel {
         return CGRect(x: x, y: y, width: cw, height: ch).integral
     }
 
-    private func applyAdjustments(to image: CIImage, options: ImageImportOptions) -> CIImage {
+    private func applyAdjustments(to image: CIImage, imageOptions: ImageImportOptions) -> CIImage {
         var output = image
 
-        if options.brightness != 0 || options.contrast != 1 {
+        if imageOptions.brightness != 0 || imageOptions.contrast != 1 {
             let f = CIFilter(name: "CIColorControls")
             f?.setValue(output, forKey: kCIInputImageKey)
-            f?.setValue(options.brightness, forKey: kCIInputBrightnessKey)
-            f?.setValue(options.contrast, forKey: kCIInputContrastKey)
+            f?.setValue(imageOptions.brightness, forKey: kCIInputBrightnessKey)
+            f?.setValue(imageOptions.contrast, forKey: kCIInputContrastKey)
             f?.setValue(1.0, forKey: kCIInputSaturationKey)
             if let o = f?.outputImage { output = o }
         }
 
-        if options.exposure != 0 {
+        if imageOptions.exposure != 0 {
             let f = CIFilter(name: "CIExposureAdjust")
             f?.setValue(output, forKey: kCIInputImageKey)
-            f?.setValue(options.exposure, forKey: kCIInputEVKey)
+            f?.setValue(imageOptions.exposure, forKey: kCIInputEVKey)
             if let o = f?.outputImage { output = o }
         }
 
-        if options.sharpness > 0 {
+        if imageOptions.sharpness > 0 {
             let f = CIFilter(name: "CISharpenLuminance")
             f?.setValue(output, forKey: kCIInputImageKey)
-            f?.setValue(options.sharpness, forKey: kCIInputSharpnessKey)
+            f?.setValue(imageOptions.sharpness, forKey: kCIInputSharpnessKey)
             if let o = f?.outputImage { output = o }
         }
 
@@ -800,14 +789,14 @@ extension PraxModel {
 
     // MARK: - Size-limit logic
 
-    private func resolvedImportOptions(_ options: ImageImportOptions) -> ImageImportOptions {
+     func resolvedImportOptions(_ imageOptions: ImageImportOptions) -> ImageImportOptions {
         // Convention:
-        // - .neutral means "use app-wide defaults from prax.importImageOptions"
-        // - otherwise use explicit passed options
-        if options == .neutral {
-            return importImageOptions
+        // - .neutral means "use app-wide defaults from prax.imageOptions"
+        // - otherwise use explicit passed imageOptions
+        if imageOptions == .neutral {
+            return imageOptions
         }
-        return options
+        return imageOptions
     }
     
 /*

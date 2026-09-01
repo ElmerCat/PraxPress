@@ -63,7 +63,7 @@ struct DocumentEditingToolbar: View {
                     
  */
                     if let pageItem = prax.selectedPageItem {
-                     //   Text(pageItem.name)
+                        Text(pageItem.name)
                         Group {
                             Button { showFilenamePrefixPopover = !showFilenamePrefixPopover  }
                             label: {
@@ -204,9 +204,6 @@ struct DocumentEditingToolbar: View {
         .frame(maxWidth: .infinity, minHeight: 30, maxHeight: 30, alignment: .leading)
         .padding(0)
         
-        .onDrop(of: [.fileURL], delegate: PraxDropDelegate(document, prax))
-
-        
   //     .background(PraxGradient(2))
   //      .background(prax.dropTargeted ? Color(red: 0.4, green: 0.4, blue: 0.8, opacity: 0.3) : Color.orange)
     //    .foregroundStyle(Color.white)
@@ -328,18 +325,17 @@ struct EditingDocumentToolbar: View {
 //    @State private var guideXLeft = 0.0
 //    @State private var guideXRight = 0.0
     
-    func currentPageIndex() -> Int {
-        if let pdfDocument = prax.editingDocumentPDFView.document {
-            if let pdfPage = prax.editingDocumentPDFView.currentPage {
-                return pdfDocument.index(for: pdfPage)
-            }
-        }
-        return 0
-    }
+    @State private var currentPageIndex: Int = 0
     
+    func heightFor(pageItem: PageItem?) -> CGFloat {
+        if pageItem == nil { return 10.0 }
+        if pageItem!.dataFields.isEmpty { return 40 }
+        else { return 400 }
+    }
     var body: some View {
         @Bindable var prax = prax
-        
+        let height = heightFor(pageItem: prax.selectedPageItem)
+        let imageSize = CGSize(width: 85, height: 110)
         
         GroupBox {
             if let pageItem = prax.selectedPageItem {
@@ -358,7 +354,7 @@ struct EditingDocumentToolbar: View {
                                             Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
                                             
                                             HStack {
-                                                Text(String("\(currentPageIndex() + 1)")).monospaced()
+                                                Text(String("\(currentPageIndex + 1)")).monospaced()
                                                 VStack(spacing: 0) {
                                                     Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
                                                     label: { Image(systemName: "arrowtriangle.up")  }
@@ -384,6 +380,18 @@ struct EditingDocumentToolbar: View {
                                     .background(Color.clear, in: .containerRelative)
                                     .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
                                     .padding(2)
+                                    Divider().foregroundStyle(.white).background(.white)
+                                    
+                                    GroupBox {
+                                        Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                        //  .cornerRadius(6)
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                            .padding(3)
+                                            .opacity(pageItem.skipped ? 0.25 : 1.0)
+                                    }
+                                    
                                     Divider().foregroundStyle(.white).background(.white)
                                     
                                     Button {undoManager.undo() }
@@ -450,7 +458,7 @@ struct EditingDocumentToolbar: View {
                                         .onHover { hovering in hoveredButton = hovering ? 422: nil }
                                         
                                         //     .controlSize(.mini)
-                                        Divider()
+                                        //   Divider()
                                         
                                         Button { showDocumentNumberPopover = true }
                                         label: { Text("Doc# \(dataFieldPage.dataFields["DocumentNumber"]?.stringValue ?? "" )").font(.system(size: 10))}
@@ -467,6 +475,7 @@ struct EditingDocumentToolbar: View {
                                     }
                                     //      .frame(minWidth: 130, idealWidth: 130, maxWidth: 130, minHeight: 30, idealHeight: 30, maxHeight: 30, alignment: .trailing)
                                     .padding(.horizontal, 4)
+                                    .padding(.vertical, 0)
                                     .background(PraxGradient(2))
                                     .border(.blue, width: 1)
                                     
@@ -554,7 +563,19 @@ struct EditingDocumentToolbar: View {
                     }
                 }
             }
+            else {
+                Text(" ")
+                    .frame(maxWidth: .infinity, minHeight: 10.0, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .center))
+            }
         }
+        .onChange(of: prax.editingDocumentPDFView.currentPage, {
+            if let pdfDocument = prax.editingDocumentPDFView.document {
+                if let pdfPage = prax.editingDocumentPDFView.currentPage {
+                    currentPageIndex = pdfDocument.index(for: pdfPage)
+                }
+            }
+        })
+        
         .padding(10)
  //       .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerSize: CGSize(width: 5, height: 5), style: .continuous).fill(PraxGradient(3)))
@@ -562,8 +583,9 @@ struct EditingDocumentToolbar: View {
         
         
   //      EditingDocumentToolbar()
-            .frame(maxWidth: .infinity, minHeight: prax.selectedPageItem != nil ? 200 : 20.0, maxHeight: prax.selectedPageItem != nil ? 200 : 20.0, alignment: .center)
-            .animation(.easeInOut(duration: 1.25), value: prax.selectedPageItem)
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height, alignment: .center)
+            .offset(x: 0, y: 50)
+            .animation(.easeInOut(duration: 0.25), value: prax.selectedPageItem)
             .zIndex(258)
     }
 }

@@ -15,7 +15,7 @@ extension NSSplitView {
 }
 
 
-final class SplitViewDelegate: NSObject, NSSplitViewDelegate {
+final class aSplitViewDelegate: NSObject, NSSplitViewDelegate {
     let prax: PraxModel
     
     init(prax: PraxModel, splitView: NSSplitView? = nil) {

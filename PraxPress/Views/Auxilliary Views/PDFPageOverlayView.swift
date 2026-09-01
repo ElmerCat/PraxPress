@@ -942,7 +942,7 @@ class OverlayControlNSView: NSView, HostingViewContainer {
     
     init(pageItem: PageItem) {
         self.pageItem = pageItem
-        super.init(frame: CGRect(x: 100, y: 300, width: 400, height: 400))
+        super.init(frame: .zero)
         wantsLayer = true
         configure()
     }
@@ -976,6 +976,7 @@ struct OverlayControlView: View {
     let pageItem: PageItem
     
     @State var hoveredButton: Int?
+    @State var showPopover = false
    
     
     var body: some View {
@@ -985,27 +986,27 @@ struct OverlayControlView: View {
         GroupBox {
             GeometryReader { proxy in
                 VStack {
-                    Button("", systemImage: "ruler", action: {
-                        document.clickedGuidePageButton(pageItem)
-                    })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 4))
-                        .onHover { hovering in
-                            hoveredButton = hovering ? 4 : nil
-                        }
-                        .help("Set width guide")
-                    //  .position(x: 0, y: 16)
-                    Spacer()
-                        Text("Trims")
-                            .font(Font.custom("BrushScriptMT", size: 30))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    Text("\(pageItem.name)  L-\(Int(pageItem.trims.left)) T-\(Int(pageItem.trims.top)) B-\(Int(pageItem.trims.bottom)) R-\(Int(pageItem.trims.right))")
-                        .font(.system(size: 4, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .init(horizontal: .center, vertical: .center))
+                    Divider()
                 }
             }
         }
+        .onHover { hovering in showPopover = true }
+        .onChange(of: pageItem, {
+            showPopover = prax.selectedPageItem == pageItem
+        })
         
+        .onChange(of: prax.selectedPageItem, {
+            showPopover = prax.selectedPageItem == pageItem
+        })
+        .popover(isPresented: $showPopover, arrowEdge: .bottom) {
+            EditPagePopover(pageItem: pageItem)
+                .presentationDetents(
+                    [.height(120), .medium, .large])
+                .presentationBackgroundInteraction(
+                    .enabled(upThrough: .height(120)))
+                .presentationSizing(.form)
+                .interactiveDismissDisabled()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .zIndex(1000)
         .padding(0)

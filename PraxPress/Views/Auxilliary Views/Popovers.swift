@@ -865,7 +865,8 @@ struct PageItemPopover: View {
                         Text("Set Width Guide")
                         Button {
                             document.clickedGuidePageButton(pageItem)
-                            dismiss() }
+                            //    dismiss()
+                        }
                         label: { Image(systemName: "ruler") }
                             .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
                         .onHover { hovering in hoveredButton = hovering ? 124 : nil }
@@ -904,6 +905,50 @@ struct PageItemPopover: View {
     }
 }
 
+struct EditPagePopover: View {
+    let pageItem: PageItem
+    @Environment(\.dismiss) private var dismiss
+    @Environment(PraxModel.self) private var prax
+    @State private var hoveredButton: Int? = nil
+  
+    var body: some View {
+            HStack {
+                Button { prax.document.clickedSkipPageButton(pageItem) }
+                label: {
+                    if pageItem.skipped { Image(systemName: "rectangle.portrait.slash.fill") }
+                    else {  Image(systemName: "rectangle.portrait.slash")  }
+                }
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
+                .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                
+                Button { prax.document.clickedMergeModeButton(pageItem) }
+                label: { switch(pageItem.merge) {
+                case .mergeSkip:
+                    Image(systemName: "rectangle.portrait.slash.fill")
+                case .mergeDown:
+                    Image(systemName: "arrow.down.document.fill")
+                case .mergeRight:
+                    Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle") }
+                }
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 121))
+                .onHover { hovering in hoveredButton = hovering ? 121 : nil }
+                
+                Button { prax.document.clickedGuidePageButton(pageItem) }
+                label: { Image(systemName: "ruler") }
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
+                    .onHover { hovering in hoveredButton = hovering ? 124 : nil }
+                
+                Button { prax.document.clickedDeletePageButton(pageItem) }
+                label: { Image(systemName: "trash")   }
+                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 120))
+                    .onHover { hovering in hoveredButton = hovering ? 120 : nil  }
+                    .help("Delete page")
+                
+        }
+        .background(PraxGradient(0).ignoresSafeArea())
+        .foregroundColor(.white)
+    }
+}
 
 
 /*

@@ -27,59 +27,23 @@ struct PDFDataFields: Codable {
     var justification: String?
 }
 
-struct SourceFilePayload: Codable {
-    let fileURL: URL
-    let bookmarkData: Data
-}
-
 enum SourceFileStatus: String, Codable {
     case okay
     case stale
     case bad
 }
 
-
-struct SourceFileTransfer: Transferable, Identifiable, @unchecked Sendable {
-    let id = UUID()
-    let sourceFile: SourceFile
-
-    struct Payload: Codable {
-        let fileURL: URL
-        let bookmarkData: Data
+enum SourceFileType: String, Codable, Hashable, Comparable {
+    static func < (lhs: SourceFileType, rhs: SourceFileType) -> Bool {
+        lhs.rawValue == rhs.rawValue
     }
-
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(contentType: .sourceFileType) { item in
-            // Encode a small payload containing the file's name and bookmark data
-            let payload = Payload(fileURL: item.sourceFile.url, bookmarkData: item.sourceFile.bookmarkData)
-            return try JSONEncoder().encode(payload)
-        } importing: { data in
-            // Decode the payload and reconstruct a minimal SourceFile via its bookmark
-            let payload = try JSONDecoder().decode(Payload.self, from: data)
-            // Resolve the URL from the bookmark to rebuild a SourceFile
-            var isStale = false
-            let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-            // Create a placeholder SourceFile; callers can insert into model context as needed
-            let fileGroup = SourceFileGroup(name: "Imported")
-            let sourceFile = SourceFile(fileGroup: fileGroup, url: url, bookmarkData: payload.bookmarkData, pageCount: 0)
-            return SourceFileTransfer(sourceFile: sourceFile)
-        }
-        
-        // Add a standard file URL representation for maximum compatibility
-        DataRepresentation(contentType: .fileURL) { item in
-            item.sourceFile.url.absoluteString.data(using: .utf8)!
-        } importing: { data in
-            guard let urlString = String(data: data, encoding: .utf8),
-                  let url = URL(string: urlString) else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-            // You may need to resolve the URL with a default bookmark data here, if desired.
-            let fileGroup = SourceFileGroup(name: "Imported")
-            let sourceFile = SourceFile(fileGroup: fileGroup, url: url, bookmarkData: Data(), pageCount: 0)
-            return SourceFileTransfer(sourceFile: sourceFile)
-        }
-    }
+    
+    case pdf = "pdf"
+    case image = "image"
+    case text = "text"
+    case other = "other"
 }
+
 
 
 @Model
@@ -122,39 +86,46 @@ final class SourceFile {
     var bookmarkData: Data
     var fileName: String
     var pageCount: Int
+    var fileType: SourceFileType
+    var fileSize: Int
     var fileGroup: SourceFileGroup
     // Persisted as Data
+    var imageOptionsData: Data?
     var dataFieldsData: Data?
     var status = SourceFileStatus.okay
     
-    init(fileGroup: SourceFileGroup, url: URL, bookmarkData: Data, pageCount: Int, dataFields: [String: FieldValue]? = nil) {
+    init(fileGroup: SourceFileGroup, url: URL, bookmarkData: Data, pageCount: Int, fileType: SourceFileType, fileSize: Int, imageOptions: ImageImportOptions? = nil, dataFields: [String: FieldValue]? = nil) {
         self.id = UUID()
         self.fileGroup = fileGroup
         self.url = url
         self.bookmarkData = bookmarkData
         self.fileName = url.lastPathComponent
         self.pageCount = pageCount
+        self.fileType = fileType
+        self.fileSize = fileSize
         if let dict = dataFields {
-            self.dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict))
-        } else {
-            self.dataFieldsData = nil
-        }
+            self.dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict)) } else {
+            self.dataFieldsData = nil }
         
     }
     
-    // A convenient computed property that callers can work with
+    var imageOptions: ImageImportOptions? {
+        get { guard let data = imageOptionsData else { return nil }; do {
+            let options = try JSONDecoder().decode(ImageImportOptions.self, from: data)
+            return options }
+            catch { return nil } }
+        set { if let options = newValue {
+            if let data = try? JSONEncoder().encode(options) { imageOptionsData = data }
+            else { imageOptionsData = nil } }
+        }
+    }
+    
     var dataFields: [String: FieldValue]? {
-        get {
-            guard let data = dataFieldsData else { return nil }
-            return decodeFlexibleFields(from: data)?.storage
-        }
-        set {
-            if let dict = newValue {
-                dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict))
-            } else {
-                dataFieldsData = nil
-            }
-        }
+        get {guard let data = dataFieldsData else { return nil }
+            return decodeFlexibleFields(from: data)?.storage}
+        set { if let dict = newValue {
+            dataFieldsData = encodeFlexibleFields(FlexibleFields(storage: dict)) }
+            else { dataFieldsData = nil } }
     }
     
     func testBookmark() {
@@ -198,13 +169,54 @@ final class SourceFile {
     }
 }
 
+struct SourceFileTransfer: Transferable, Identifiable, @unchecked Sendable {
+    let id = UUID()
+    let sourceFile: SourceFile
+    
+     struct Payload: Codable {
+        let fileURL: URL
+        let bookmarkData: Data
+        let fileType: SourceFileType
+        var fileSize: Int
+        let imageOptions: ImageImportOptions?
+    }
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .sourceFileType) { item in
+            // Encode a small payload containing the file's name and bookmark data
+            
+            let payload = Payload(
+                fileURL: item.sourceFile.url,
+                bookmarkData: item.sourceFile.bookmarkData,
+                fileType: item.sourceFile.fileType,
+                fileSize: item.sourceFile.fileSize,
+                imageOptions: item.sourceFile.imageOptions
+            )
+            return try JSONEncoder().encode(payload)
+        } importing: { data in
+            // Decode the payload and reconstruct a minimal SourceFile via its bookmark
+            let payload = try JSONDecoder().decode(Payload.self, from: data)
+            // Resolve the URL from the bookmark to rebuild a SourceFile
+   //         var isStale = false
+   //         let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+     //       var options: [String:FieldValue]?
+            
+            
+            let fileGroup = SourceFileGroup(name: "Imported")
+            let sourceFile = SourceFile(fileGroup: fileGroup, url: payload.fileURL, bookmarkData: payload.bookmarkData, pageCount: 0, fileType: payload.fileType, fileSize: payload.fileSize, imageOptions: payload.imageOptions)
+            return SourceFileTransfer(sourceFile: sourceFile)
+        }
+    }
+}
+
 
 
 @Model
 final class SourceFileGroup {
     @Attribute(.unique) var name: String
     @Relationship(deleteRule: .cascade, inverse: \SourceFile.fileGroup)
-     var sourceFiles: [SourceFile] = []
+    var sourceFiles: [SourceFile] = []
+    var fileTypes: [SourceFileType] = []
     
     init(name: String) {
         self.name = name

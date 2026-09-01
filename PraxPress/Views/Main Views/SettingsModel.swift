@@ -20,18 +20,50 @@ final class SettingsModel: ImportPatternTypeDelegate {
         _importFileCountLimit = Int(UserDefaults.standard.integer(forKey: "importFileCountLimit"))
         _savedTemplatesData = UserDefaults.standard.data(forKey: "savedTemplates") ?? Data()
         _importFileTypesData = UserDefaults.standard.data(forKey: "importFileTypes") ?? Data()
+ //       _importImageOptionsData = UserDefaults.standard.data(forKey: "importImageOptions") ?? Data()
+        
         
         loadPatternTypes()
         loadFileTypes()
+  //      loadImportImageOptions()
         
     }
     
+    
+/*    private var _importImageOptionsData: Data
+    private var importImageOptionsData: Data {
+        get {
+            UserDefaults.standard.data(forKey: "importImageOptions") ?? Data()
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "importImageOptions")
+        }
+    }
+  */
+    private var _imageImportOptions: ImageImportOptions?
+    var imageImportOptions: ImageImportOptions {
+        get { if _imageImportOptions == nil {
+            if let data = UserDefaults.standard.data(forKey: "importImageOptions") {
+                do { _imageImportOptions = try JSONDecoder().decode(ImageImportOptions.self, from: data) }
+                catch { print("Error loading _imageImportOptions: \(error)") } }
+            if _imageImportOptions == nil { _imageImportOptions = ImageImportOptions() } }// Not in Defaults - create new
+            return _imageImportOptions!
+            
+        }
+        set {
+            guard newValue != _imageImportOptions else { return }
+            _imageImportOptions = newValue }
+    }
+    
+   
+    
+    
     func loadFileTypes() {do { let data = importFileTypesData
-            importFileTypes = try JSONDecoder().decode([String].self, from: data) }
+        importFileTypes = try JSONDecoder().decode([String].self, from: data) }
         catch { print("Error loading file types: \(error)"); importFileTypes = [] }
     }
     
-    
+
     
     private var _importFileCountLimit: Int
     var importFileCountLimit: Int {

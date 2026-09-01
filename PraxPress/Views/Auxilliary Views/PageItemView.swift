@@ -92,7 +92,16 @@ struct PageItemView: View {
                                 .onHover { hovering in hoveredButton = hovering ? 126 : nil }
                                 .position(x: proxy.size.width - 30, y: 20)
                             
+                            Button {
+                                pageItem.editImageOptions()
+                            }
+                            label: { Image(systemName: "gear") }
+                                .help("Options")
+                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
+                                .onHover { hovering in hoveredButton = hovering ? 124 : nil }
+                                .position(x: proxy.size.width - 30, y: 10)
                             
+
                             Divider()
                             
                             Button { document.clickedDeletePageButton(pageItem) }
@@ -100,7 +109,7 @@ struct PageItemView: View {
                                 .help("Discard This Page")
                                 .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
                                 .onHover { hovering in hoveredButton = hovering ? 150 : nil }
-                                .position(x: proxy.size.width - 30, y: 10)
+                                .position(x: proxy.size.width - 30, y: 0)
                             
                         }
                         

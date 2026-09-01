@@ -243,18 +243,7 @@ struct CollectionViewBackgroundView: View {
             RoundedRectangle(cornerRadius: 5)
                 .stroke(Color.blue, lineWidth: 5).opacity(0.5)
         )
-        
-//        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
-        
-        
-  /*      .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
-              prax.acceptDrop(providers)
-        }
-*/
-        .onDropSessionUpdated({ dropSession in
-            print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
-        })
-        
+
 
     }
 }

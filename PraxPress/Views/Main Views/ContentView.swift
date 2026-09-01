@@ -32,6 +32,13 @@ struct ContentView: View {
                 else {
                     NavigationSplitView(columnVisibility: $prax.columnVisibility) {
                         SourceFilesView()
+                        
+                        
+                            .inspector(isPresented: $prax.isLarge) {
+                                ImageImportEditor()
+                                    .frame(minWidth: 400, maxWidth: 1000)
+                            }
+                        
                             .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: .infinity)
                     }
                     detail: {
@@ -102,7 +109,7 @@ struct ContentView: View {
         }
         
  
-        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation()!, filename: document.exportFilename), contentTypes: [.pdf]) { result in
+        .fileExporter(isPresented: $prax.showSavePanel, item: MergedPDFTransfer(data: document.mergedPDFDocument.dataRepresentation() ?? Data(), filename: document.exportFilename), contentTypes: [.pdf]) { result in
             switch result {
             case .success(let url):
                 print ("Writing mergedPDFView to: ", url)
@@ -125,7 +132,7 @@ struct ContentView: View {
         
         .inspectorPanel(prax, isPresented: $prax.showDataFields) { DataFieldsEditor() }
         
-        .inspectorPanel(prax, isPresented: $prax.showingImportEditor, contentRect: CGRect(x: 0, y: 0, width: 650, height: 1000)) { ImageImportEditor() }
+   //     .inspectorPanel(prax, isPresented: $prax.showingImportEditor, contentRect: CGRect(x: 0, y: 0, width: 650, height: 1000)) { ImageImportEditor() }
         
         
         .inspectorPanel(prax, isPresented: $prax.showingPDFPageItemInspector) {
@@ -173,7 +180,34 @@ struct ContentDetailView: View {
                 }
                 else {
                     HSplitView {
-                     
+                        
+         /*               GroupBox {
+                            Rectangle()
+                                .fill(Color.clear)
+                                .frame(width: 1, height: prax.windowSize.height)
+                                .inspector(isPresented: $prax.isLarge) {
+                                    ImageImportEditor()
+                                        .frame(minWidth: 400, maxWidth: 1000)
+                                    //      }
+                                    
+                                    //      if prax.showingImportEditor {
+                                    //                         GroupBox {
+                                    
+                                    //        AnyOldView()
+                                    //                          ImageImportEditor()
+                                    
+                                    //          }
+                                    //                      else {
+                                    //
+                                    //
+                                    //                       }
+                                    //   .frame(minWidth: prax.importEditorMinWidth, idealWidth: prax.importEditorMaxWidth, maxWidth: prax.importEditorMaxWidth, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
+                                     //   .animation(.easeIn(duration: 1.25), value: prax.importEditorMinWidth)
+                                     //   .animation(.easeIn(duration: 1.25), value: prax.importEditorMaxWidth)
+                                }
+                        }
+        */
+           
                         GroupBox {
                             VStack {
                                 PageItemToolbar()
@@ -222,6 +256,8 @@ struct ContentDetailView: View {
                             
                         }
                     })
+                    
+//                    .animation(.easeIn(duration: 1.25), value: prax.showingImportEditor)
                 }
                 
             }

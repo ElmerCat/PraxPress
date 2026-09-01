@@ -262,7 +262,7 @@ struct MergedPDFDocumentView: View {
                     if let mergedPage = document.mergedPages.first {
                         if let pageItem = mergedPage.pageItems.first(where: {!$0.skipped}) {
                             DispatchQueue.main.async {
-                                print("document.prax.selectedPageItem = pageItem")
+                                print("PDFViewRepresentable updateNSView document.prax.selectedPageItem = pageItem")
                                 document.prax.selectedPageItem = pageItem
                             }
                             

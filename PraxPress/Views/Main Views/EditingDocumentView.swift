@@ -155,52 +155,20 @@ struct EditingPDFDocumentView: View {
         }
         
         var documentVersion = UUID()
-      //  var pdfPageItem: PageItem?
         
         func pdfView(_ pdfView: PDFView, overlayViewFor pdfPage: PDFPage) -> NSView? {
-            
             if let pageItem = document.pageItem(for: pdfPage) {
-  //              print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - ", pageItem.name)
                 let overlayView = pageItem.overlayView
                 overlayView.pdfView = pdfView
-         //       overlayView.document = document
-            //    let overlayControlView = OverlayControlNSView(frame: CGRect(x: -50, y: 0, width: 100, height: 100))
-                
                 pdfView.wantsLayer = true
                 pdfView.layer?.masksToBounds = false
-                
-           //     overlayView.addSubview(overlayControlView)
-                
-                /*
-                // Seed current rect from trims
-                            DispatchQueue.main.async { [weak overlayView, weak pdfPage, weak pdfView] in
-                                guard let view = overlayView, let pdfPage = pdfPage, let pdfView = pdfView else { return }
-                                guard let pageItem = self.document.pdfPageItem(for: pdfPage) else { return }
-                                
-                                let crop = pdfPage.bounds(for: .cropBox)
-                                let cropInView = pdfView.convert(crop, from: pdfPage)
-                                let cropInOverlay = view.convert(cropInView, from: pdfView)
-                          //      view.clampRect = cropInOverlay
-                                // Recompute visible using current trims
-                                //                 fatalError()
-                                let trims = pageItem.trims
-                                let visibleInPage = CGRect(
-                                    x: crop.minX + trims.left,
-                                    y: crop.minY + trims.bottom,
-                                    width: crop.width - trims.left - trims.right,
-                                    height: crop.height - trims.top - trims.bottom
-                                )
-                                
-                                let visibleInView = pdfView.convert(visibleInPage, from: pdfPage)
-                                let visibleInOverlay = view.convert(visibleInView, from: pdfView)
-                                
-                                view.currentRect = visibleInOverlay
-                                
-                                view.needsDisplay = true
-                            }
-                  */
-                
+
+   //             if pageItem.imageOptions != nil {
+   //                 let overlayControlView = OverlayControlNSView(pageItem: pageItem)
+   //                 overlayView.addSubview(overlayControlView)
+   //             }
                 return overlayView
+               
             }
             else {
  //               print( "EditingPDFDocumentViewCoordinator - overlayViewFor pdfPage - NO PAGE ITEM")
@@ -226,8 +194,12 @@ struct EditingPDFDocumentView: View {
             print("EditingPDFDocumentViewCoordinator - displayBoxChanged: ")
          }
         
-        @objc func visiblePageChanged(_ note: Notification) {
-            print("EditingPDFDocumentViewCoordinator - visiblePageChanged: ")
+        @objc func visiblePagesChanged(_ note: Notification) {
+            if let pdfView = note.object as? PDFView {
+                print("EditingPDFDocumentViewCoordinator - visiblePagesChanged: ", pdfView.visiblePages)
+            }
+            
+           
          }
         
         @objc func viewScaleChanged(_ note: Notification) {
@@ -315,7 +287,7 @@ struct EditingPDFDocumentView: View {
             )
 
             NotificationCenter.default.addObserver (observer,
-                selector: #selector(EditingPDFDocumentViewCoordinator.visiblePageChanged(_:)),
+                selector: #selector(EditingPDFDocumentViewCoordinator.visiblePagesChanged(_:)),
                 name: Notification.Name.PDFViewVisiblePagesChanged,
                 object: observer.document.prax.editingDocumentPDFView
             )

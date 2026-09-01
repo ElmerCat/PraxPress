@@ -19,21 +19,12 @@ struct PageItemCollectionView: NSViewRepresentable {
     
     
     func makeCoordinator() -> PageItemCollectionViewCoordinator {
-        let svd = SplitViewDelegate(prax: prax)
-        return PageItemCollectionViewCoordinator(document: document, prax: prax, splitViewDelegate: svd)
+        return PageItemCollectionViewCoordinator(prax: prax)
     }
 
-//    func makeNSView(context: Context) -> NSSplitView {
+
     func makeNSView(context: Context) -> NSScrollView {
-        
- //       let splitView = NSSplitView()
-//        splitView.isVertical = true
-//        splitView.dividerStyle = .paneSplitter
-//        splitView.autosaveName = NSSplitView.AutosaveName("DocumentEditingSplitView")
-//        splitView.delegate = context.coordinator.splitViewDelegate
-//        context.coordinator.splitViewDelegate.splitView = splitView
         let scrollView = NSScrollView()
-    //    pageItemScrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
 
@@ -45,87 +36,39 @@ struct PageItemCollectionView: NSViewRepresentable {
         prax.pageItemCollectionView.delegate = context.coordinator
         scrollView.documentView = prax.pageItemCollectionView
         
- //       let mergedDoumentView = MergedPDFDocumentNSView(prax: prax)
-//        let editingDoumentView = EditingPDFDocumentNSView(prax: prax)
- //
- //       splitView.arrangesAllSubviews = true
- //       splitView.addArrangedSubview(scrollView)
- //       splitView.addArrangedSubview(editingDoumentView)
- //       splitView.addArrangedSubview(mergedDoumentView)
-  //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 0)
-  //      splitView.setHoldingPriority(.defaultLow, forSubviewAt: 1)
-  //      splitView.setHoldingPriority(.defaultHigh, forSubviewAt: 2)
-        
-        // Configure collection views: layout, registration, data sources
         context.coordinator.configure(collectionView: prax.pageItemCollectionView, kind: .pageItem)
  
         // Apply initial snapshot to both
         context.coordinator.applySnapshot(animated: false)
 
-        // Initial divider position
-/*        DispatchQueue.main.async {
-            
-//            let pageItemWidth = 120.0
- //           let pageEditWidth = 100.0
-            
-//            let positionOne = pageEditWidth + pageItemWidth
-//            var remainingWidth = splitView.frame.width - positionOne
-//            remainingWidth = remainingWidth * 0.25
-            
-//            let positionTwo = splitView.frame.width - remainingWidth
-
- //           print("PageItemCollectionView - plitView.setPositions 1: \(String(describing: positionOne)),  -  2: \(String(describing: positionTwo)) <-- ")
-            splitView.setPosition(200, ofDividerAt: 0)
-            splitView.setPosition(600, ofDividerAt: 1)
-   //         splitView.setPosition(positionTwo, ofDividerAt: 2)
-        }
-*/
-        
         return scrollView
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         scrollView.isHidden = document.mergedPages.isEmpty
-        //     splitView.setPosition(200, ofDividerAt: 0)
-    //    splitView.setPosition(600, ofDividerAt: 1)
         print("PageItemCollectionView - uupdateNSView(_ scrollView: NSScrollView, context: Context)- ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
-        
-                
-            
     }
 
-    
-    
-    
     
     final class PageItemCollectionViewCoordinator: NSObject, NSSplitViewDelegate, NSCollectionViewDelegate {
         // Shared model
         private let document: MergedPDFDocument
         private let prax: PraxModel
-        let splitViewDelegate: SplitViewDelegate
-        
-        // Views
-//        weak var splitView: NSSplitView?
- //       weak var pageItemScrollView: NSScrollView?
 
-        // Data sources
         private var leftDataSource: NSCollectionViewDiffableDataSource<MergedPage, PageItem>!
 
-        init(document: MergedPDFDocument, prax: PraxModel, splitViewDelegate: SplitViewDelegate) {
-            self.document = document
+        init( prax: PraxModel) {
+            self.document = prax.document
             self.prax = prax
-            self.splitViewDelegate = splitViewDelegate
         }
-        
 
         private func selectFirstPageItemIfNeeded() {
             if prax.selectedPageItems.isEmpty {
                 prax.selectedPageItems = [IndexPath(item: 0, section: 0)]
             }
         }
-  
-        
+
         enum CollectionKind { case pageItem } //, mergedPage }
 
         // Configure one collection view (layout, registration, data source)
@@ -267,21 +210,7 @@ struct PageItemCollectionView: NSViewRepresentable {
                 layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
                 layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -25, leading: 0, bottom: 0, trailing: 0)
                 
-             
-/*
-            case .pageEdit:
-                layoutSettings.itemHeight = .fractionalWidth(2.0)
-                
-                layoutSettings.groupHeight = .fractionalWidth(2.0)
-                
-                layoutSettings.sectionInsets = NSDirectionalEdgeInsets(top: 60, leading: 5, bottom: 50, trailing: 5)
-                layoutSettings.sectionSpacing = 15
-                layoutSettings.headerKind = CollectionViewItem.sectionHeaderElementKind
-                layoutSettings.footerKind = CollectionViewItem.sectionFooterElementKind
-                layoutSettings.backgroundKind = CollectionViewItem.pageItemSectionBackgroundElementKind
-                layoutSettings.headerInsets = NSDirectionalEdgeInsets(top: 33, leading: 0, bottom: 0, trailing: 0)
-                layoutSettings.footerInsets = NSDirectionalEdgeInsets(top: -50, leading: 0, bottom: 0, trailing: 0)
- */
+
 
             }
             return createLayout(layoutSettings)
@@ -360,38 +289,14 @@ struct PageItemCollectionView: NSViewRepresentable {
 
         func applySnapshot(animated: Bool) {
             var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
- //           var editPageSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
             for mergedPage in document.mergedPages {
-                
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
-                
-      /*          if mergedPage.mergeModePages > 0 {
-                    editPageSnapshot.appendSections([mergedPage])
-                    
-                    editPageSnapshot.appendItems([mergedPage.mergedPageItem()])
-                    
-                   // for pageItem in mergedPage.pageItems {
-                   //     if !pageItem.skipped {
-                     //       editPageSnapshot.appendItems([pageItem])
-                   //     }
-                 //   }
-
-                }
-*/
             }
             leftDataSource?.apply(pageItemSnapshot, animatingDifferences: animated)
-     //       centerDataSource?.apply(editPageSnapshot, animatingDifferences: animated)
-            
-     //      DispatchQueue.main.async {
-       //         self.selectFirstPageItemIfNeeded()
-     //       }
-            
-            
         }
 
         func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-            if collectionView == prax.pageItemCollectionView {
                 print("pageItemCollectionView - didSelectItemsAt - ", indexPaths)
 
                 prax.selectedPageItems = collectionView.selectionIndexPaths
@@ -403,22 +308,10 @@ struct PageItemCollectionView: NSViewRepresentable {
                 }
                 prax.selectedSections = selectedSections
  
-            }
- /*           else if collectionView == prax.pageEditCollectionView {
-                print("pageEditCollectionView - didSelectItemsAt - ", indexPaths)
-                
-                prax.selectedEditPages = collectionView.selectionIndexPaths
-                
-            }
- */
-            else {
-                assertionFailure("Unexpected collection view")
-            }
           //  mirrorSelection(from: collectionView)
         }
 
         func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
-            if collectionView == prax.pageItemCollectionView {
                 
                 print("pageItemCollectionView - didDeSelectItemsAt - ", indexPaths, " - ", collectionView.selectionIndexPaths)
                 prax.selectedPageItems = collectionView.selectionIndexPaths
@@ -430,26 +323,9 @@ struct PageItemCollectionView: NSViewRepresentable {
                 }
                 prax.selectedSections = selectedSections
                 
-            }
-            
-/*            else if collectionView == prax.pageEditCollectionView {
-                print("pageEditCollectionView - did DE SelectItemsAt - ", indexPaths)
-                prax.selectedEditPages = collectionView.selectionIndexPaths
-            }
-*/
-            else {
-                assertionFailure("Unexpected collection view")
-            }
         //    mirrorSelection(from: collectionView)
         }
 
-      /*  private func mirrorSelection(from source: NSCollectionView) {
-            guard let left = pageItemCollectionView, let right = pageEditCollectionView else { return }
-            let target = (source === left) ? right : left
-            target.selectionIndexPaths = prax.selectedPageItems
-        }
-        */
-        
         func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent
         ) -> Bool {
             print("collectionView canDragItemsAt  ", indexPaths, " event ", event)
@@ -461,8 +337,6 @@ struct PageItemCollectionView: NSViewRepresentable {
             
             print("collectionView pasteboardWriterForItemAt  ", indexPath)
 
-            
-            //       guard let pageItem = dataSource.itemIdentifier(for: IndexPath(item: indexPath.item, section: 0)) else { return provider }
             
             let typeIdentifier = UTType(filenameExtension: "pdf")
             
@@ -501,11 +375,11 @@ struct PageItemCollectionView: NSViewRepresentable {
                 validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
             
             else if draggingTypes.contains(.sourceFileType) {
- //               print("collectionView validateDrop .sourceFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+//                print("collectionView validateDrop .sourceFileType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
                 validatedDropOperation = [.copy]  }
 
             else if draggingTypes.contains(.fileURL) {
-  //              print("collectionView validateDrop .fileURL - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+//                print("collectionView validateDrop .fileURL - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
                 validatedDropOperation = [.copy]  }
 
             else {
@@ -544,6 +418,7 @@ struct PageItemCollectionView: NSViewRepresentable {
         }
         
         func dropExternalPages(draggingInfo: NSDraggingInfo, indexPath: IndexPath) -> Bool {
+            print("collectionView dropExternalPages")
             let pasteboard = draggingInfo.draggingPasteboard
             let receivers = pasteboard.readObjects(forClasses: [NSFilePromiseReceiver.self], options: nil) as? [NSFilePromiseReceiver] ?? []
             if !receivers.isEmpty {
@@ -647,7 +522,7 @@ struct PageItemCollectionView: NSViewRepresentable {
         
         func dropSourceFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropSourceFiles to: ", indexPath)
-            var sourceFilePayloads: [SourceFilePayload] = []
+            var sourceFilePayloads: [SourceFileTransfer.Payload] = []
             draggingInfo.enumerateDraggingItems(
                 options: NSDraggingItemEnumerationOptions.concurrent,
                 for: collectionView,
@@ -656,13 +531,13 @@ struct PageItemCollectionView: NSViewRepresentable {
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
                         do { if let data = pasteboardItem.data(forType: .sourceFileType) {
-                            let sourceFilePayload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
+                            let sourceFilePayload = try JSONDecoder().decode(SourceFileTransfer.Payload.self, from: data)
                             sourceFilePayloads.append(sourceFilePayload)
                             print ("dropSourceFile: ", sourceFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
                         catch { print(" -- Failed to unarchive indexPath for dropped item.") }
                     } else { print( " -- No NSPasteboardItem")} })
-            for sourceFilePayload in sourceFilePayloads {
-                document.addPagesFromPDFURL(sourceFilePayload.fileURL, bookmark: sourceFilePayload.bookmarkData, at: indexPath)
+            for payload in sourceFilePayloads {
+                document.addPagesFromSourceFilePayload(payload, at: indexPath)
             }
         }
             

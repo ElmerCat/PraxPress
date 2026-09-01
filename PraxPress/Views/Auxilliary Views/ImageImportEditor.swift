@@ -15,324 +15,321 @@ struct ImageImportEditor: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
     
-    @AppStorage("import-sizing-mode") private var importSizingModeRaw: String = PraxModel.ImportSizingMode.fileSizeLimit.rawValue
-    @AppStorage("import-size-limit") private var importSizeLimitKB: Int = 1024
-    @AppStorage("import-target-width-inches") private var importTargetWidthInches: Double = 0
-    @AppStorage("import-target-height-inches") private var importTargetHeightInches: Double = 0
-    
+    @State private var imageOptions = SettingsModel.shared.imageImportOptions
+     
     @State private var imageAngle = 0.0
-    //  @State private var options = PraxModel.ImageImportOptions()
+   
     @State private var previewImage: NSImage?
     
-    @State private var sourcePixelSize: CGSize = .zero
-    @State private var outputPixelSize: CGSize = .zero
+    @State private var sourceImageSize: CGSize = .zero
+    @State private var outputImageSize: CGSize = .zero
     @State private var outputInches: CGSize = .zero
     @State private var estimatedPDFKB: Int?
     @State private var loadedURLForSource: URL?
     @State private var importInProgress = false
     
     private let minRemainingCrop = 0.05
+
+    private var cropLeftBinding: Binding<Double> { Binding( get: { imageOptions.cropLeft },
+                                                            set: { imageOptions.cropLeft = min($0, 1 - minRemainingCrop - (imageOptions.cropRight )) } ) }
+    private var cropRightBinding: Binding<Double> {Binding(get: { imageOptions.cropRight },
+                                                           set: { imageOptions.cropRight = min($0, 1 - minRemainingCrop - (imageOptions.cropLeft )) } )}
+    private var cropTopBinding: Binding<Double> { Binding( get: { imageOptions.cropTop },
+                                                           set: { imageOptions.cropTop = min($0, 1 - minRemainingCrop - (imageOptions.cropBottom )) }) }
+    private var cropBottomBinding: Binding<Double> {Binding( get: { imageOptions.cropBottom },set: { imageOptions.cropBottom = min($0, 1 - minRemainingCrop - (imageOptions.cropTop )) } ) }
     
-    /*    private var importSizingMode: PraxModel.ImportSizingMode {
-     get { PraxModel.ImportSizingMode(rawValue: importSizingModeRaw) ?? .fileSizeLimit }
-     set { importSizingModeRaw = newValue.rawValue }
-     }
-     
-     private var importSizingModeBinding: Binding<PraxModel.ImportSizingMode> {
-     Binding(
-     get: { importSizingMode },
-     set: { importSizingMode = $0 }
-     )
-     }
-     */
-    /*
-     private var effectiveOptions: PraxModel.ImageImportOptions {
-     var o = options
-     o.sizingMode = prax.importImageOptions.sizingMode
-     
-     switch prax.importImageOptions.sizingMode {
-     case .fileSizeLimit:
-     o.sizeLimitKB = importSizeLimitKB > 0 ? importSizeLimitKB : nil
-     o.targetWidthInches = nil
-     o.targetHeightInches = nil
-     
-     case .targetInches:
-     o.sizeLimitKB = nil
-     o.targetWidthInches = importTargetWidthInches > 0 ? importTargetWidthInches : nil
-     o.targetHeightInches = importTargetHeightInches > 0 ? importTargetHeightInches : nil
-     
-     }
-     
-     return o
-     }
-     */
-    
-    private var cropLeftBinding: Binding<Double> { Binding( get: { prax.importImageOptions.cropLeft },
-            set: { prax.importImageOptions.cropLeft = min($0, 1 - minRemainingCrop - prax.importImageOptions.cropRight) } ) }
-    private var cropRightBinding: Binding<Double> {Binding(get: { prax.importImageOptions.cropRight },
-            set: { prax.importImageOptions.cropRight = min($0, 1 - minRemainingCrop - prax.importImageOptions.cropLeft) } )}
-    private var cropTopBinding: Binding<Double> { Binding( get: { prax.importImageOptions.cropTop },
-            set: { prax.importImageOptions.cropTop = min($0, 1 - minRemainingCrop - prax.importImageOptions.cropBottom) }) }
-    private var cropBottomBinding: Binding<Double> {Binding( get: { prax.importImageOptions.cropBottom },set: { prax.importImageOptions.cropBottom = min($0, 1 - minRemainingCrop - prax.importImageOptions.cropTop) } ) }
-    
-    struct SourceInfoBox: View {
-        @Bindable var prax: PraxModel
-        
-        var body: some View {
-            VStack(spacing: 12) {
-                
-                
-                
-                Text("Preview:")
-                Text("URL: \(prax.importSourceURL?.lastPathComponent ?? "no URL")")
-                HStack(spacing: 12) {
-                    Text(prax.importImageOptions.sizingMode.rawValue)
-                }
-            }
-        }
-    }
     
     var body: some View {
         @Bindable var prax = prax
+  
+        if let pageItem = prax.selectedPageItem {
+            
         
-        VStack(spacing: 12) {
-            GroupBox {
-                HStack {
-                    Image("PraxPress")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20)
-                        .padding(3)
-                        .rotationEffect(.degrees(imageAngle))
-                        .onAppear { withAnimation { imageAngle -= (2 * 360) - 120 } }
-                        .onDisappear { withAnimation { imageAngle = 0 } }
-                    
-                    Text("PraxPress   Import  Editor")
-                        .font(prax.theme.fontFeature)
-                    Spacer()
-                    Toggle("Test on Next Drop", isOn: $prax.inspectNextImageDrop)
-                        .toggleStyle(.switch)
-                }
-            }
+//        if let urlBookmark = prax.importEditingURLBookmark {
             
-            let titleString = "Preview — Import URL: \(prax.importSourceURL?.lastPathComponent ?? "no URL"  )" + "  Size:  \(pxText(sourcePixelSize))"
-            
-            if let previewImage {
-                VSplitView {
-                     GroupBox(titleString) {
-                        HStack {
-                            SourceInfoBox(prax: prax)
-                            Spacer()
-                            
-                            Image(nsImage: previewImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing) }
+            @Bindable var prax = prax
+           
+            VStack(spacing: 12) {
+                GroupBox {
+                    HStack {
+                        Image("PraxPress")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 20)
+                            .padding(3)
+                            .rotationEffect(.degrees(imageAngle))
+                            .onAppear { withAnimation { imageAngle -= (2 * 360) - 120 } }
+                            .onDisappear { withAnimation { imageAngle = 0 } }
+                        
+                        Text("PraxPress   Import  Editor")
+                            .font(prax.theme.fontFeature)
+                        Spacer()
+                        Toggle("Test on Next Drop", isOn: $prax.inspectNextImageDrop)
+                            .toggleStyle(.switch)
                     }
-                    
-                    
-                    ScrollView {
-                        GroupBox("Import Size") {
-                            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
-                                GridRow {
-                                    Text("Size Limit:")
-                                    HStack {
-                                        TextField("", value: $importSizeLimitKB, format: .number)
-                                            .frame(width: 90)
-                                        Text("KB")
+                }
+                
+                let titleString = "Preview "//— Import URL: \(prax.importEditingURLBookmark.url?.lastPathComponent ?? "no URL"  )" + "  Size:  \(pxText(sourceImageSize))"
+                
+                if let previewImage {
+                    VSplitView {
+                        GroupBox(titleString) {
+                            HStack {
+                                
+                                
+                                VStack(spacing: 12) {
+                                    
+                                    
+                                    if let urlBookmark = prax.importEditingURLBookmark {
+                                        Text("Preview:")
+                                        Text("URL: \(urlBookmark.url.lastPathComponent)")
+                                        HStack(spacing: 12) {
+                                            Text(imageOptions.sizingMode.rawValue)
+                                        }
+                                        
                                     }
+                                    
+                                    
                                 }
                                 
-                                GridRow {
-                                    Text("Limit By:")
-                                    Picker("", selection: $prax.importImageOptions.sizingMode) {
-                                        Text("File Size").tag(PraxModel.ImportSizingMode.fileSizeLimit)
-                                        Text("PDF Inches").tag(PraxModel.ImportSizingMode.targetInches)
-                                    }
-                                    .pickerStyle(.segmented)
-                                }
+                                Spacer()
                                 
-                                if prax.importImageOptions.sizingMode == .fileSizeLimit {
+                                Image(nsImage: previewImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing) }
+                        }
+                        
+                        ScrollView {
+                            
+                            
+                            GroupBox("Import Size") {
+                                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                                     GridRow {
                                         Text("Size Limit:")
                                         HStack {
-                                            TextField("", value: $importSizeLimitKB, format: .number)
+                                            TextField("", value: $imageOptions.sizeLimitKB, format: .number)
                                                 .frame(width: 90)
                                             Text("KB")
                                         }
                                     }
                                     
                                     GridRow {
-                                        Text("Scale Down:")
-                                        HStack {
-                                            Slider(value: $prax.importImageOptions.scaleDown, in: 0.1...1.0, step: 0.01)
-                                            Text("\(Int(prax.importImageOptions.scaleDown * 100))%")
-                                                .frame(width: 50, alignment: .trailing)
+                                        Text("Limit By:")
+                                        Picker("", selection: $imageOptions.sizingMode) {
+                                            Text("File Size").tag(ImportSizingMode.fileSizeLimit)
+                                            Text("PDF Inches").tag(ImportSizingMode.targetInches)
+                                        }
+                                        .pickerStyle(.segmented)
+                                    }
+                                    
+                                    if imageOptions.sizingMode == .fileSizeLimit {
+                                        GridRow {
+                                            Text("Size Limit:")
+                                            HStack {
+                                                TextField("", value: $imageOptions.sizeLimitKB, format: .number)
+                                                    .frame(width: 90)
+                                                Text("KB")
+                                            }
+                                        }
+                                        
+                                        GridRow {
+                                            Text("Scale Down:")
+                                            HStack {
+                                                Slider(value: $imageOptions.scaleDown, in: 0.1...1.0, step: 0.01)
+                                                Text("\(Int(imageOptions.scaleDown * 100))%")
+                                                    .frame(width: 50, alignment: .trailing)
+                                            }
+                                        }
+                                    } else {
+                                        GridRow {
+                                            Text("PDF Width:")
+                                            HStack {
+                                                TextField("", value: $imageOptions.targetWidthInches, format: .number.precision(.fractionLength(0...2)))
+                                                    .frame(width: 90)
+                                                Text("in")
+                                            }
+                                        }
+                                        
+                                        GridRow {
+                                            Text("PDF Height:")
+                                            HStack {
+                                                TextField("", value: $imageOptions.targetHeightInches, format: .number.precision(.fractionLength(0...2)))
+                                                    .frame(width: 90)
+                                                Text("in")
+                                            }
                                         }
                                     }
-                                } else {
+                                    
+                                    
                                     GridRow {
-                                        Text("PDF Width:")
+                                        Text("Scale Down:")
                                         HStack {
-                                            TextField("", value: $importTargetWidthInches, format: .number.precision(.fractionLength(0...2)))
-                                                .frame(width: 90)
-                                            Text("in")
+                                            Slider(value: $imageOptions.scaleDown, in: 0.1...1.0, step: 0.01)
+                                            Text("\(Int(imageOptions.scaleDown * 100))%")
+                                                .frame(width: 50, alignment: .trailing)
                                         }
                                     }
                                     
                                     GridRow {
-                                        Text("PDF Height:")
-                                        HStack {
-                                            TextField("", value: $importTargetHeightInches, format: .number.precision(.fractionLength(0...2)))
-                                                .frame(width: 90)
-                                            Text("in")
-                                        }
+                                        Text("Original:")
+                                        Text(pxText(sourceImageSize))
+                                            .font(.system(.caption, design: .monospaced))
+                                    }
+                                    GridRow {
+                                        Text("After Resize:")
+                                        Text(pxText(outputImageSize))
+                                            .font(.system(.caption, design: .monospaced))
+                                    }
+                                    GridRow {
+                                        Text("PDF Page Size:")
+                                        Text(inchesText(outputInches))
+                                            .font(.system(.caption, design: .monospaced))
+                                    }
+                                    GridRow {
+                                        Text("Est. PDF Size:")
+                                        Text(estimatedSizeText)
+                                            .font(.system(.caption, design: .monospaced))
                                     }
                                 }
-                                
-                                
-                                GridRow {
-                                    Text("Scale Down:")
+                            }
+                            
+                            
+                            
+                            
+                            GroupBox("Crop (%)") {
+                                VStack {
                                     HStack {
-                                        Slider(value: $prax.importImageOptions.scaleDown, in: 0.1...1.0, step: 0.01)
-                                        Text("\(Int(prax.importImageOptions.scaleDown * 100))%")
-                                            .frame(width: 50, alignment: .trailing)
+                                        Text("Left")
+                                        Slider(value: cropLeftBinding, in: 0...0.9, step: 0.01)
+                                        Text("\(Int(imageOptions.cropLeft * 100))").frame(width: 36, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Right")
+                                        Slider(value: cropRightBinding, in: 0...0.9, step: 0.01)
+                                        Text("\(Int(imageOptions.cropRight * 100))").frame(width: 36, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Top")
+                                        Slider(value: cropTopBinding, in: 0...0.9, step: 0.01)
+                                        Text("\(Int(imageOptions.cropTop * 100))").frame(width: 36, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Bottom")
+                                        Slider(value: cropBottomBinding, in: 0...0.9, step: 0.01)
+                                        Text("\(Int(imageOptions.cropBottom * 100))").frame(width: 36, alignment: .trailing)
                                     }
                                 }
-                                
-                                GridRow {
-                                    Text("Original:")
-                                    Text(pxText(sourcePixelSize))
-                                        .font(.system(.caption, design: .monospaced))
-                                }
-                                GridRow {
-                                    Text("After Resize:")
-                                    Text(pxText(outputPixelSize))
-                                        .font(.system(.caption, design: .monospaced))
-                                }
-                                GridRow {
-                                    Text("PDF Page Size:")
-                                    Text(inchesText(outputInches))
-                                        .font(.system(.caption, design: .monospaced))
-                                }
-                                GridRow {
-                                    Text("Est. PDF Size:")
-                                    Text(estimatedSizeText)
-                                        .font(.system(.caption, design: .monospaced))
+                            }
+                            
+                            
+                            
+                            GroupBox("Adjustments") {
+                                VStack {
+                                    HStack {
+                                        Text("Brightness")
+                                        Slider(value: $imageOptions.brightness, in: -0.5...0.5, step: 0.01)
+                                        Text(imageOptions.brightness, format: .number.precision(.fractionLength(2)))
+                                            .frame(width: 52, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Contrast")
+                                        Slider(value: $imageOptions.contrast, in: 0.5...2.0, step: 0.01)
+                                        Text(imageOptions.contrast, format: .number.precision(.fractionLength(2)))
+                                            .frame(width: 52, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Exposure")
+                                        Slider(value: $imageOptions.exposure, in: -2.0...2.0, step: 0.01)
+                                        Text(imageOptions.exposure, format: .number.precision(.fractionLength(2)))
+                                            .frame(width: 52, alignment: .trailing)
+                                    }
+                                    HStack {
+                                        Text("Sharpness")
+                                        Slider(value: $imageOptions.sharpness, in: 0.0...2.0, step: 0.01)
+                                        Text(imageOptions.sharpness, format: .number.precision(.fractionLength(2)))
+                                            .frame(width: 52, alignment: .trailing)
+                                    }
                                 }
                             }
-                        }
-                        
-                        
-                        GroupBox("Crop (%)") {
-                            VStack {
-                                HStack {
-                                    Text("Left")
-                                    Slider(value: cropLeftBinding, in: 0...0.9, step: 0.01)
-                                    Text("\(Int(prax.importImageOptions.cropLeft * 100))").frame(width: 36, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Right")
-                                    Slider(value: cropRightBinding, in: 0...0.9, step: 0.01)
-                                    Text("\(Int(prax.importImageOptions.cropRight * 100))").frame(width: 36, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Top")
-                                    Slider(value: cropTopBinding, in: 0...0.9, step: 0.01)
-                                    Text("\(Int(prax.importImageOptions.cropTop * 100))").frame(width: 36, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Bottom")
-                                    Slider(value: cropBottomBinding, in: 0...0.9, step: 0.01)
-                                    Text("\(Int(prax.importImageOptions.cropBottom * 100))").frame(width: 36, alignment: .trailing)
-                                }
-                            }
-                        }
-                        
-                        GroupBox("Adjustments") {
-                            VStack {
-                                HStack {
-                                    Text("Brightness")
-                                    Slider(value: $prax.importImageOptions.brightness, in: -0.5...0.5, step: 0.01)
-                                    Text(prax.importImageOptions.brightness, format: .number.precision(.fractionLength(2)))
-                                        .frame(width: 52, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Contrast")
-                                    Slider(value: $prax.importImageOptions.contrast, in: 0.5...2.0, step: 0.01)
-                                    Text(prax.importImageOptions.contrast, format: .number.precision(.fractionLength(2)))
-                                        .frame(width: 52, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Exposure")
-                                    Slider(value: $prax.importImageOptions.exposure, in: -2.0...2.0, step: 0.01)
-                                    Text(prax.importImageOptions.exposure, format: .number.precision(.fractionLength(2)))
-                                        .frame(width: 52, alignment: .trailing)
-                                }
-                                HStack {
-                                    Text("Sharpness")
-                                    Slider(value: $prax.importImageOptions.sharpness, in: 0.0...2.0, step: 0.01)
-                                    Text(prax.importImageOptions.sharpness, format: .number.precision(.fractionLength(2)))
-                                        .frame(width: 52, alignment: .trailing)
-                                }
-                            }
+                            
+                            
+                            
                         }
                         
                     }
-                    
-                    
-                    
                 }
-            }
-            
-            
-            
-            else {
-                Text("No preview available")
-            //        .frame(maxWidth: .infinity, minHeight: 220)
-            }
-
-            
-            
-            HStack {
-                Button("Reset Controls") {
-                    prax.importImageOptions = .neutral
+                
+                
+                
+                else {
+                    Text("No preview available")
+                    //        .frame(maxWidth: .infinity, minHeight: 220)
                 }
-                Spacer()
-                Button("Cancel") {
-                    closeInspector()
-                }
-                Button("Import Image") {
-                    guard !importInProgress else { return }
-                    guard let url = prax.importSourceURL else {
+                
+                
+                
+                HStack {
+                    Button("Reset Controls") {
+                        imageOptions = .neutral
+                    }
+                    Spacer()
+                    Button("Cancel") {
                         closeInspector()
-                        return
                     }
                     
-                    importInProgress = true
-                    defer { importInProgress = false }
+                    Button("Save Settings") {
+                        SettingsModel.shared.imageImportOptions = imageOptions
+                        pageItem.imageOptions = imageOptions
+                        closeInspector()
+                    }
                     
-                    prax.addPageFromImageURL(
-                        url,
-                        at: prax.importDropIndexPath,
-                        options: prax.importImageOptions)
-                    closeInspector()
+                    Button("Import Image") {
+                        guard !importInProgress else { return }
+                        guard let urlBookmark = prax.importEditingURLBookmark else {
+                            closeInspector()
+                            return
+                        }
+                        
+                        importInProgress = true
+                        defer { importInProgress = false }
+                        
+            //            prax.addPageFromImageURL(url, at: prax.importDropIndexPath, options: imageOptions)
+                         
+                        
+                        
+                        
+                        closeInspector()
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(importInProgress)
                 }
-                .keyboardShortcut(.defaultAction)
-                .disabled(importInProgress)
             }
+            .padding(20)
+       //     .frame(minWidth: prax.importEditorMinWidth, idealWidth: prax.importEditorMaxWidth, maxWidth: prax.importEditorMaxWidth, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
+       //     .animation(.easeIn(duration: 1.25), value: prax.importEditorMinWidth)
+       //     .animation(.easeIn(duration: 1.25), value: prax.importEditorMaxWidth)
+            .background(.clear).ignoresSafeArea(edges: .all)
+            .foregroundColor(.white)
+            .onAppear {
+                if let options = pageItem.imageOptions {
+                    imageOptions = options
+                }
+                refreshPreview() }
+            .onChange(of: pageItem) { refreshPreview() }
+            .onChange(of: prax.showingImportEditor ) {
+                if prax.showingImportEditor {
+                    refreshPreview()
+                }
+                
+            }
+            .onChange(of: imageOptions) { refreshPreview() }    }
+        else {
+            EmptyView()
         }
-        .padding(20)
-        .frame(minWidth: 620, maxWidth: .infinity, minHeight: 780, maxHeight: .infinity)
-        .background(.clear).ignoresSafeArea(edges: .all)
-        .foregroundColor(.white)
-        .onAppear { refreshPreview() }
-        .onChange(of: prax.importSourceURL) { refreshPreview() }
-        .onChange(of: prax.importImageOptions) { refreshPreview() }
-        .onChange(of: importSizingModeRaw) { refreshPreview() }
-        .onChange(of: importSizeLimitKB) { refreshPreview() }
-        .onChange(of: importTargetWidthInches) { refreshPreview() }
-        .onChange(of: importTargetHeightInches) { refreshPreview() }
+
+        
+
     }
     
     private func closeInspector() {
@@ -340,7 +337,7 @@ struct ImageImportEditor: View {
         dismiss()
     }
     
-    private func pixelSize(of image: NSImage) -> CGSize {
+    private func imageSize(of image: NSImage) -> CGSize {
         if let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first {
             return CGSize(width: rep.pixelsWide, height: rep.pixelsHigh)
         }
@@ -365,37 +362,48 @@ struct ImageImportEditor: View {
         return "\(estimatedPDFKB) KB"
     }
     
+    private func clearPreviewImage() {
+        previewImage = nil
+        sourceImageSize = .zero
+        outputImageSize = .zero
+        outputInches = .zero
+        estimatedPDFKB = nil
+        loadedURLForSource = nil
+    }
+    
     private func refreshPreview() {
         print("Prax: refresh preview")
-        guard let url = prax.importSourceURL else {
-            previewImage = nil
-            sourcePixelSize = .zero
-            outputPixelSize = .zero
-            outputInches = .zero
-            estimatedPDFKB = nil
-            loadedURLForSource = nil
-            return
+        
+        guard let pageItem = prax.selectedPageItem else { clearPreviewImage(); return }
+        
+        var isStale = false
+        guard let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+        else {  print("addPagesFromPDFURL - Error resolvingBookmarkData for PageItem ", pageItem.name) ; return  }
+        let needsStop = url.startAccessingSecurityScopedResource(); defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+        if loadedURLForSource != url { loadedURLForSource = url }
+        
+        guard let image = NSImage(contentsOf: url)
+        else { PraxLogger.shared.logError("Import Source Error", category: .import)
+            let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading source image file" ])
+            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            prax.presentError(praxError)
+            clearPreviewImage(); return
         }
         
-        if loadedURLForSource != url {
-            loadedURLForSource = url
-            if let src = NSImage(contentsOf: url) {
-                sourcePixelSize = pixelSize(of: src)
-            } else {
-                sourcePixelSize = .zero
-            }
-        }
+        sourceImageSize = imageSize(of: image)
         
-        previewImage = prax.processedImageFromURL(url, options: prax.importImageOptions)
+        previewImage = prax.processedImageFromURL(url, imageOptions: imageOptions)
         
         guard let previewImage else {
-            outputPixelSize = .zero
-            outputInches = .zero
-            estimatedPDFKB = nil
+            PraxLogger.shared.logError("Import Source Error", category: .import)
+            let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error applying Image Optiions" ])
+            let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+            prax.presentError(praxError)
+            clearPreviewImage()
             return
         }
         
-        outputPixelSize = pixelSize(of: previewImage)
+        outputImageSize = imageSize(of: previewImage)
         
         if let page = PDFPage(image: previewImage) {
             let bounds = page.bounds(for: .mediaBox)
@@ -412,5 +420,5 @@ struct ImageImportEditor: View {
             outputInches = .zero
             estimatedPDFKB = nil
         }
-    }
+   }
 }

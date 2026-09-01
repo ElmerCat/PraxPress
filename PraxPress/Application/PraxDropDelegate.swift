@@ -58,7 +58,7 @@ final class PraxDropDelegate: DropDelegate {
                 provider.loadDataRepresentation(forTypeIdentifier: UTType.sourceFileType.identifier) { [self] (data, error) in
                     if let data = data {  Task { do {
                             let payload = try JSONDecoder().decode(SourceFileTransfer.Payload.self, from: data)
-                            await prax.receiveDroppedSourceFile(payload.fileURL, bookmark: payload.bookmarkData) }
+                            await prax.receiveDroppedSourceFile(payload) }
                         catch {
                             print("failed to decode Payload ") } }}
                     else { print("no data for forTypeIdentifier: UTType.sourceFileType.identifier")}}}}
@@ -143,6 +143,7 @@ class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate 
     }
     
     override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
+        print ("pasteboardPropertyList(forType type: ", )
         guard let userInfoDict = userInfo as? [String: Any] else { return nil }
         switch type {
         case .fileURL:

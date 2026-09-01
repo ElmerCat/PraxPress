@@ -23,10 +23,13 @@ struct SourceFilesListRow: View {
     let sourceFile: SourceFile
     func backgroundColor() -> Color {
         switch sourceFile.status {
-        case .bad: .red
-        case .stale: .orange
-        case .okay: .blue
-        }
+        case .bad: return .red
+        case .stale: return .orange
+        case .okay: switch sourceFile.fileType {
+            case .pdf: return .blue
+            case .image: return .brown
+            case .text: return .green
+            case .other: return .gray } }
     }
 
     var body: some View {
@@ -34,7 +37,10 @@ struct SourceFilesListRow: View {
             HStack {
                 Text(sourceFile.fileName).lineLimit(1).font(.system(size: 12))
                 Spacer()
-                Text("\(sourceFile.pageCount)")
+                if sourceFile.pageCount > 1 { Text("\(sourceFile.pageCount) Pages  ") }
+                
+               
+                Text("\(sourceFile.fileSize/1000) KB")
             }
         }
         .background(backgroundColor())
@@ -60,63 +66,16 @@ struct SourceFilesView: View {
     @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
     
     @State private var importError: String?
-    
-
+ 
     func praxTest() {
         print("\nJulie d'Prax")
-        
-        for sourceFile in sourceFiles {
-            print(sourceFile.fileName, "  status: ", sourceFile.status)
-        }
-        
+        for sourceFile in sourceFiles { print(sourceFile.fileName, "  status: ", sourceFile.status) }
         print("\nJuliette M. Belanger")
-        for sourceFileGroup in sourceFileGroups {
-            print(sourceFileGroup.name)
-        }
-        
-        // MARK: - Test Error Alert (Add this section)
-        
-        // Test 1: PDF Import Error
+        for sourceFileGroup in sourceFileGroups { print(sourceFileGroup.name) }
         PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
-        let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
-            NSLocalizedDescriptionKey: "File not found or corrupted"
-        ])
-        let praxError1 = PraxError.fileImportFailed(
-            fileName: "test-document.pdf",
-            underlyingError: testError1
-        )
-        document.prax.presentError(praxError1)
-        
-        // Uncomment below to test other error types:
-        
-        /*
-        // Test 2: Image Processing Error
-        let praxError2 = PraxError.imageProcessingFailed(
-            fileName: "test-image.png",
-            reason: "Image format not supported or file corrupted"
-        )
-        document.prax.presentError(praxError2)
-        
-        // Test 3: File Access Error
-        let praxError3 = PraxError.fileAccessDenied(
-            filePath: "/Volumes/NetworkDrive/restricted-folder/file.pdf"
-        )
-        document.prax.presentError(praxError3)
-        
-        // Test 4: Bookmark Error
-        let testError4 = NSError(domain: "BookmarkDomain", code: -2, userInfo: [
-            NSLocalizedDescriptionKey: "Bookmark data is invalid or stale"
-        ])
-        let praxError4 = PraxError.bookmarkResolutionFailed(underlyingError: testError4)
-        document.prax.presentError(praxError4)
-        
-        // Test 5: Generic Error
-        let praxError5 = PraxError.generic(
-            title: "Operation Failed",
-            message: "Something unexpected happened. Please try again."
-        )
-        document.prax.presentError(praxError5)
-        */
+        let error = NSError(domain: "TestDomain", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File not found or corrupted" ])
+        let praxError = PraxError.fileImportFailed( fileName: "test-document.pdf", underlyingError: error )
+        document.prax.presentError(praxError)
     }
     
     
@@ -159,6 +118,18 @@ struct SourceFilesView: View {
                         }
                         .frame(minHeight: 200)
                         .background(.mergedPDFViewBackground)
+                        
+                        GroupBox {
+                            SourceFilesList()
+                                .background(Color.prax)
+                            
+                            Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
+                                .font(.subheadline)
+                        }
+                        .frame(minHeight: 200)
+                        .background(.mergedPDFViewBackground)
+                        
+                        
                     }
                     
                     
@@ -271,6 +242,11 @@ struct SourceFilesView: View {
                 }
 
             case .failure(let error):
+                PraxLogger.shared.logError("File Import Error", error: error, category: .import)
+                let praxError = PraxError.fileImportFailed( fileName: "No Files", underlyingError: error )
+                document.prax.presentError(praxError)
+
+                
                 importError = error.localizedDescription
             }
            
@@ -301,6 +277,8 @@ struct SourceFilesView: View {
         .onDisappear() {
             print ("Marsha Nolan")
         }
+        
+        
         
     }
     
@@ -356,26 +334,49 @@ struct SourceFilesList: View {
             if prax.praxPressMode != .data {
                 ZStack {
                     Color.contentViewBackground.ignoresSafeArea()
-                    List(sourceFiles, selection: $prax.selectedFiles) { sourceFile in
-                        let notFound = sourceFile.bookmarkData.count == 0
-                        SourceFilesListRow(document: document, sourceFile: sourceFile)
-                            .listRowBackground(notFound ? Color.red : Color.clear)
-                            .selectionDisabled(notFound)
-                    }
-                    .scrollContentBackground(.hidden)
-                }
-                .onChange(of: prax.selectedFiles) {
-                    if document.mergedPages.isEmpty, !prax.selectedFiles.isEmpty {
-                        for selectedFile in prax.selectedFiles {
-                            let sourceFile = sourceFiles.first(where: { $0.id == selectedFile })!
-        
-                            document.addPagesFromPDFURL(sourceFile.url, bookmark: sourceFile.bookmarkData)
-                        }
-                    }
-
                     
+                    
+                    
+                    List(selection: $prax.selectedFiles) {
+                        // Grouping items by a category attribute
+                        let categories = Dictionary(grouping: sourceFiles, by: { $0.fileType })
+                        
+                        ForEach(categories.keys.sorted(), id: \.self) { category in
+                            Section(header: Text(category.rawValue)) {
+                                ForEach(categories[category] ?? []) { sourceFile in
+                                    SourceFilesListRow(document: document, sourceFile: sourceFile) // .tag(sourceFile.id) // Required for selection
+                                }
+                            }
+                        }
+                        
+                        
+                        
+                        /*
+                         List(sourceFiles, selection: $prax.selectedFiles) { sourceFile in
+                         let notFound = sourceFile.bookmarkData.count == 0
+                         SourceFilesListRow(document: document, sourceFile: sourceFile)
+                         .listRowBackground(notFound ? Color.red : Color.clear)
+                         .selectionDisabled(notFound)
+                         }
+                         */
+                        .scrollContentBackground(.hidden)
+                        
+                        
+                        
+                    }
+                    .onChange(of: prax.selectedFiles) {
+                        if document.mergedPages.isEmpty, !prax.selectedFiles.isEmpty {
+                            for selectedFile in prax.selectedFiles {
+                                let sourceFile = sourceFiles.first(where: { $0.id == selectedFile })!
+                                
+                                document.addPagesFromSourceFile(sourceFile)
+                            }
+                        }
+                        
+                        
+                    }
                 }
-            } else {
+                } else {
                 ZStack {
                     Color.pink.ignoresSafeArea()
 

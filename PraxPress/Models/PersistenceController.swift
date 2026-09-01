@@ -57,12 +57,16 @@ actor PersistenceController: Observable {
         set { UserDefaults.standard.set(newValue, forKey: "importFileCountLimit") }
     }
 
+    struct ImportInfo {
+        let url: URL
+        let bookmark: Data
+        let size: Int
+    }
     
     func importURLs(_ urls: [URL]) async throws {
-        let fileTypes = ["pdf", "png", "jpeg", "jpg", "gif", "heic"]
         let importFileCountLimit = Int(UserDefaults.standard.integer(forKey: "importFileCountLimit"))
         
-        var urlBookmarks: [(url: URL, bookmark: Data, size: Int)] = []
+        var urlBookmarks: [ImportInfo] = []
         
         for url in urls {
             let needsStop = url.startAccessingSecurityScopedResource()
@@ -80,7 +84,7 @@ actor PersistenceController: Observable {
                 }
                 
                 if fileType == .typeDirectory {
-                    urlBookmarks.append(contentsOf: expandFolderRecursively(url, for: fileTypes))
+                    urlBookmarks.append(contentsOf: expandFolderRecursively(url, for: await Prax.fileTypes))
                     
                 }
                 else {
@@ -91,8 +95,9 @@ actor PersistenceController: Observable {
                         await prax.presentError(praxError)
                         return
                     }
-                    let fileSize = fileAttributes[.size]
-                    urlBookmarks.append((url: url, bookmark: data, size: fileSize) as! (url: URL, bookmark: Data, size: Int))
+                  
+                    
+                    urlBookmarks.append(ImportInfo(url: url, bookmark: data, size: fileAttributes[.size] as! Int))
                 } }
             catch {let praxError = PraxError.fileImportFailed( fileName: url.lastPathComponent, underlyingError: error )
                 await prax.presentError(praxError)
@@ -116,11 +121,19 @@ actor PersistenceController: Observable {
         for duplicateURL in duplicateURLs { await PraxLogger.shared.logInfo("Duplicate URL: \(duplicateURL.url.path)", category: .import) }
         
         urlBookmarks = urlBookmarks.filter { !existingSourceFileURLs.contains($0.url) }
+        
+        await addSourceFilesForURLBookmarks(urlBookmarks)
+
+     }
     
+    
+    func addSourceFilesForURLBookmarks(_ urlBookmarks: [ImportInfo]) async {
+        
+        
         do {
-            for urlBookmark in urlBookmarks {
-                await PraxLogger.shared.logInfo("Adding new SourceFile for: \(urlBookmark.url.path)  -  Size: \(urlBookmark.size)", category: .import)
-                let url = urlBookmark.url
+            for importInfo in urlBookmarks {
+                await PraxLogger.shared.logInfo("Adding new SourceFile for: \(importInfo.url.path)  -  Size: \(importInfo.size)", category: .import)
+                let url = importInfo.url
                 var sourceFile: SourceFile?
                 switch url.pathExtension.lowercased() {
                     
@@ -161,28 +174,28 @@ actor PersistenceController: Observable {
                     
                     let mainFileGroup = try await sourceFileGroup("Main File Group")
                     
-                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: urlBookmark.bookmark, pageCount: pdfDocument.pageCount)
+                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: importInfo.bookmark, pageCount: pdfDocument.pageCount, fileType: .pdf, fileSize: importInfo.size)
                     
                     sourceFile?.dataFields = dataFields
                     
                     
                     
- 
+                    
                     
                 case "png", "jpeg", "jpg", "gif", "heic":
                     
                     let mainFileGroup = try await sourceFileGroup("Main File Group")
                     
-                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: urlBookmark.bookmark, pageCount: 0)
+                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: importInfo.bookmark, pageCount: 0, fileType: .image, fileSize: importInfo.size)
                     
-                   
+                    
                     
                     
                 default:
                     break
                     
                 }
-
+                
                 guard let sourceFile else {
                     let message = "Could not create Source File for \(url.path)"
                     await PraxLogger.shared.logError(message, category: .import)
@@ -190,8 +203,8 @@ actor PersistenceController: Observable {
                     await prax.presentError(error)
                     return
                 }
-                    modelContext.insert(sourceFile)
-                    try modelContext.save()
+                modelContext.insert(sourceFile)
+                try modelContext.save()
                 
                 
                 
@@ -199,11 +212,12 @@ actor PersistenceController: Observable {
             
         }
         catch {
-            let message = "Error Importing URLs: \(urls)"
+            let message = "Error Importing URLs: \(urlBookmarks)"
             await PraxLogger.shared.logError(message, category: .import)
             let error = PraxError.generic(title: "Import Error", message: message)
             await prax.presentError(error) }
-     }
+        
+    }
     
     
     
@@ -229,15 +243,15 @@ actor PersistenceController: Observable {
         return collected
     }
     
-    func expandFolderRecursively(_ url: URL, for types:[String]) -> [(url: URL, bookmark: Data, size: Int)] {
-        var urlBookmarks: [(url: URL, bookmark: Data, size: Int)] = []
+    func expandFolderRecursively(_ url: URL, for types:[String]) -> [ImportInfo] {
+        var urlBookmarks: [ImportInfo] = []
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
         let folderFiles = filesRecursively(in: url)
         for file in folderFiles {
             guard types.contains(file.url.pathExtension.lowercased()) else { continue }
             if let data = try? file.url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                urlBookmarks.append((url: file.url, bookmark: data, size: file.size)) } }
+                urlBookmarks.append(ImportInfo(url: file.url, bookmark: data, size: file.size)) } }
         return urlBookmarks
     }
 
