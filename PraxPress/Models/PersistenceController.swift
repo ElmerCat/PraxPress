@@ -35,6 +35,19 @@ actor PersistenceController: Observable {
         return group
     }
     
+    func sourceFile(id: UUID) async throws -> SourceFile? {
+        let predicate = #Predicate<SourceFile> { $0.id == id }
+        var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        if let item = try modelContext.fetch(descriptor).first {
+            return item
+        }
+        else {
+            print("sourceFile(id: not found", id)
+            return nil
+        }
+    }
+    
     func deleteSourceFiles(_ ids: Set<UUID>) throws {
         print("deleteSourceFiles(_ ids: ", ids)
         guard !ids.isEmpty else { return }
@@ -132,6 +145,10 @@ actor PersistenceController: Observable {
         
         do {
             for importInfo in urlBookmarks {
+                
+                let needsStop = importInfo.url.startAccessingSecurityScopedResource()
+                defer { if needsStop { importInfo.url.stopAccessingSecurityScopedResource() } }
+                
                 await PraxLogger.shared.logInfo("Adding new SourceFile for: \(importInfo.url.path)  -  Size: \(importInfo.size)", category: .import)
                 let url = importInfo.url
                 var sourceFile: SourceFile?

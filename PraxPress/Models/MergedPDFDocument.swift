@@ -128,27 +128,39 @@ import OSLog
     
     
     func mergedPagefrom(_ url: URL, at indexPath: IndexPath? = nil, title: String? = nil) -> MergedPage  {
-        if indexPath == nil || indexPath?.section ?? -1 < 0 {
+        var mergedPageIndex = indexPath?.section ?? 0
+        if mergedPageIndex < 0 { mergedPageIndex = mergedPages.count }
+        
+        if prax.optionKeyPressed || indexPath == nil || indexPath?.section ?? -1 < 0 {
             let mergedPage = MergedPage(prax: prax, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
-            mergedPages.append(mergedPage)
+            
+            
+            mergedPages.insert(mergedPage, at: mergedPageIndex)
             return mergedPage
         }
-        else {
-            let index = max(indexPath!.section, mergedPages.count - 1)
-            return mergedPages[index]
+        
+
+        else { // return existing page
+            if mergedPageIndex < mergedPages.count {
+                return mergedPages[mergedPageIndex]
+            }
+            else {
+                return mergedPages[mergedPages.count - 1]
+
+            }
         }
     }
     
   
     func addPagesFromSourceFile(_ sourceFile: SourceFile, at indexPath: IndexPath? = nil, title: String? = nil) {
-        let payload = SourceFileTransfer.Payload(fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, imageOptions: sourceFile.imageOptions)
+        let payload = SourceFilePayload(id: sourceFile.id, fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, imageOptions: sourceFile.imageOptions)
         addPagesFromSourceFilePayload(payload, at: indexPath, title: title)
         
         
     }
         
         
-    func addPagesFromSourceFilePayload(_ payload: SourceFileTransfer.Payload, at indexPath: IndexPath? = nil, title: String? = nil) {
+    func addPagesFromSourceFilePayload(_ payload: SourceFilePayload, at indexPath: IndexPath? = nil, title: String? = nil, toMergedPage: MergedPage? = nil) {
         var url = payload.fileURL
         var isStale = false
         guard let fileURL = try? URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
@@ -157,7 +169,7 @@ import OSLog
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
 
-        let mergedPage = mergedPagefrom(url, at: indexPath)
+        let mergedPage: MergedPage = toMergedPage ?? mergedPagefrom(url, at: indexPath)
         let location = (indexPath?.item ?? 0) + 1
         var pageInsertIndex = normalizedInsertionIndex(count: mergedPage.pageItems.count, location: location)
         
@@ -302,8 +314,6 @@ import OSLog
         return nil
     }
     
-    
-    
     func pageItem(for pdfPage: PDFPage) -> PageItem? {
         for piSection in mergedPages.indices {
             let section = mergedPages[piSection]
@@ -311,6 +321,19 @@ import OSLog
                 let item = section.pageItems[piItem]
                 if item.pdfPage.hashValue == pdfPage.hashValue {  // match found - return
                     return item } }
+        }
+        return nil
+    }
+    
+    func indexPath(for pageItemID: UUID) -> IndexPath? {
+        var section = 0
+        for aSection in self.mergedPages {
+            var item = 0
+            for anItem in aSection.pageItems {
+                if anItem.id == pageItemID {  // match found - return
+                    return IndexPath(item: item, section: section) }
+                item += 1 }
+            section += 1
         }
         return nil
     }
@@ -369,6 +392,19 @@ import OSLog
         }
         mergedPage.pageItems.insert(contentsOf: pageItems, at: insertIndex)
  
+    }
+    
+    
+    
+    func movePageItems(itemIDs: [UUID], to destination: IndexPath) {
+        guard !itemIDs.isEmpty else { return }
+        var items: [IndexPath] = []
+        for itemID in itemIDs {
+            if let indexPath = indexPath(for: itemID) {
+                items.append(indexPath)
+            }
+        }
+        if !items.isEmpty { movePDFPageItems(items, to: destination) }
     }
     
     

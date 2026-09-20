@@ -169,43 +169,108 @@ final class SourceFile {
     }
 }
 
+extension NSPasteboard.PasteboardType {
+    static let pageItemType = NSPasteboard.PasteboardType("com.praxpress.page-item")
+    static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
+    static let sourceFileType = NSPasteboard.PasteboardType("com.praxpress.source-file-item")
+}
+
+extension UTType {
+    static let pageItemType = UTType(exportedAs: "com.praxpress.page-item")
+    static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
+    static let sourceFileType = UTType(exportedAs: "com.praxpress.source-file-item")
+}
+
+extension UUID: @retroactive Transferable, @retroactive Identifiable {
+    public var id: UUID { self }
+    
+    public static var transferRepresentation: some TransferRepresentation {
+        ProxyRepresentation(exporting: \.uuidString)
+    }
+}
+
+nonisolated struct PageItemPayload: Codable {
+    let id: UUID
+    let name: String
+}
+
+struct PageItemTransfer: Transferable, Identifiable, @unchecked Sendable {
+    let id = UUID()
+    var pageItem: PageItem?
+    var payload: PageItemPayload
+    
+    init(payload: PageItemPayload) {
+        self.payload = payload
+    }
+    
+    @MainActor init(pageItem: PageItem) {
+        self.payload = PageItemPayload(
+            id: pageItem.id,
+            name: pageItem.name
+        )
+    }
+    
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .pageItemType) { item in
+            let payload = PageItemPayload(
+                id: item.payload.id,
+                name: item.payload.name)
+            return try JSONEncoder().encode(payload) }
+        importing: { data in
+            let payload = try JSONDecoder().decode(PageItemPayload.self, from: data)
+            return PageItemTransfer(payload: payload)
+        }
+        
+        ProxyRepresentation(exporting: \.payload.name)
+    }
+}
+
+
+nonisolated struct SourceFilePayload: Codable {
+    let id: UUID
+    let fileURL: URL
+    let bookmarkData: Data
+    let fileType: SourceFileType
+    var fileSize: Int
+    let imageOptions: ImageImportOptions?
+}
+
 struct SourceFileTransfer: Transferable, Identifiable, @unchecked Sendable {
     let id = UUID()
-    let sourceFile: SourceFile
+    var sourceFile: SourceFile?
+    var payload: SourceFilePayload
     
-     struct Payload: Codable {
-        let fileURL: URL
-        let bookmarkData: Data
-        let fileType: SourceFileType
-        var fileSize: Int
-        let imageOptions: ImageImportOptions?
+    init(payload: SourceFilePayload) {
+        self.payload = payload
+    }
+    
+    init(sourceFile: SourceFile) {
+        self.payload = SourceFilePayload(
+            id: sourceFile.id,
+            fileURL: sourceFile.url,
+            bookmarkData: sourceFile.bookmarkData,
+            fileType: sourceFile.fileType,
+            fileSize: sourceFile.fileSize,
+            imageOptions: sourceFile.imageOptions
+        )
     }
 
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(contentType: .sourceFileType) { item in
-            // Encode a small payload containing the file's name and bookmark data
-            
-            let payload = Payload(
-                fileURL: item.sourceFile.url,
-                bookmarkData: item.sourceFile.bookmarkData,
-                fileType: item.sourceFile.fileType,
-                fileSize: item.sourceFile.fileSize,
-                imageOptions: item.sourceFile.imageOptions
-            )
-            return try JSONEncoder().encode(payload)
-        } importing: { data in
-            // Decode the payload and reconstruct a minimal SourceFile via its bookmark
-            let payload = try JSONDecoder().decode(Payload.self, from: data)
-            // Resolve the URL from the bookmark to rebuild a SourceFile
-   //         var isStale = false
-   //         let url = try URL(resolvingBookmarkData: payload.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-     //       var options: [String:FieldValue]?
-            
-            
-            let fileGroup = SourceFileGroup(name: "Imported")
-            let sourceFile = SourceFile(fileGroup: fileGroup, url: payload.fileURL, bookmarkData: payload.bookmarkData, pageCount: 0, fileType: payload.fileType, fileSize: payload.fileSize, imageOptions: payload.imageOptions)
-            return SourceFileTransfer(sourceFile: sourceFile)
+            let payload = SourceFilePayload(
+                id: item.payload.id,
+                fileURL: item.payload.fileURL,
+                bookmarkData: item.payload.bookmarkData,
+                fileType: item.payload.fileType,
+                fileSize: item.payload.fileSize,
+                imageOptions: item.payload.imageOptions)
+            return try JSONEncoder().encode(payload) }
+        importing: { data in
+            let payload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
+            return SourceFileTransfer(payload: payload)
         }
+ 
+        ProxyRepresentation(exporting: \.payload.fileURL)
     }
 }
 

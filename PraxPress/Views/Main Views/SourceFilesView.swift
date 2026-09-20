@@ -16,10 +16,7 @@ private let DEBUG_LOGS = true
 struct SourceFilesListRow: View {
     @Environment(PersistenceController.self) private var persistence
     
-        
-   
-    
-    let document: MergedPDFDocument
+      let document: MergedPDFDocument
     let sourceFile: SourceFile
     func backgroundColor() -> Color {
         switch sourceFile.status {
@@ -59,7 +56,6 @@ struct SourceFilesView: View {
     @Environment(\.modelContext) private var modelContext
     
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    //   @State private var prax = PraxModel.shared
     @Environment(PersistenceController.self) private var persistence
     @Environment(PraxModel.self) private var praxModel
     @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
@@ -376,7 +372,10 @@ struct SourceFilesList: View {
                         
                     }
                 }
-                } else {
+                }
+            
+            
+            else {
                 ZStack {
                     Color.pink.ignoresSafeArea()
 

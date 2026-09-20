@@ -180,7 +180,7 @@ final class CollectionSupplementaryView: NSView, NSCollectionViewElement, Collec
     var containerView: NSView { self }
     
     func configure(kind: CollectionElementKind, isSelected: Bool) {
-        print("CollectionSupplementaryView - configure")
+        print("CollectionViewItem - configure - \(String(describing: kind))")
         self.kind = kind
         self.isSelected = isSelected
         updateRootView()

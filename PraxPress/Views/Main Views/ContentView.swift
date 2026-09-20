@@ -13,50 +13,86 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     
     @Environment(\.modelContext) private var modelContext           // Global context (from app)
- //   @Environment(\.perWindowModelContext) private var perWindowContext // The one-and-only editor context
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     @Environment(\.undoManager) var undoManager
     
     var body: some View {
         @Bindable var prax = praxModel
-
-  //      let _ = Self._printChanges()
+ //      let _ = Self._printChanges()
 
         GeometryReader { proxy in
             HStack(spacing: 0) {
-                
-                if prax.praxPressMode == .data {
-                    SourceFilesView()
-                }
+                if prax.praxPressMode == .data { SourceFilesView() }
                 else {
                     NavigationSplitView(columnVisibility: $prax.columnVisibility) {
                         SourceFilesView()
-                        
-                        
-                            .inspector(isPresented: $prax.isLarge) {
-                                ImageImportEditor()
-                                    .frame(minWidth: 400, maxWidth: 1000)
-                            }
-                        
-                            .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: .infinity)
+                             .navigationSplitViewColumnWidth(min: 200, ideal: prax.windowSize.width / 4, max: prax.windowSize.width / 4)
                     }
                     detail: {
-                        HStack(spacing: 0) {
-                            DocumentEditingLeadingEdge().frame(minWidth: 20, maxWidth: 30)
-                            ContentDetailView().frame(minWidth: 500, maxWidth: .infinity)
-                   
+                        VStack {
+                            HStack(spacing: 0) {
+                                DocumentEditingLeadingEdge().frame(minWidth: 20, maxWidth: 30)
+                                
+                                if document.mergedPages.count >= 0 {
+                                    HSplitView {
+                                        
+                                        GroupBox {
+                                            VStack {
+                                                PageItemToolbar()
+                                                MergedPagesView()
+                                                PageItemFooter()
+                                                
+                                            }
+                                        }
+                                        .frame(minWidth: 100, idealWidth: 150, maxWidth: 300)
+                                        
+                                        GroupBox {
+                                            VStack {
+                                                EditingDocumentToolbar()
+                                                EditingPDFDocumentView()
+                                            }
+                                        }
+                                        .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
+                                        
+                                        GroupBox {
+                                            VStack {
+                                                DocumentEditingToolbar()
+                                                MergedPDFDocumentView()
+                                            }
+                                        }
+                                        .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
+                                    }
+                                    .overlay(content: {
+                                        if document.mergedPages.isEmpty {
+                                            GroupBox {
+                                                Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                    .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                                            }
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            .background(PraxGradient())
+                                            .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
+                                        } })
+                                }
+                                else {
+                                    Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                                        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
+                                }
+                                
+                                
+                                
+                            }
+                            DocumentEditingFooter()
                         }
                         
                         .navigationSplitViewColumnWidth(min: 500, ideal: 1500, max: .infinity)
                     }
                 }
             }
-  //          .background(PraxGradient(2))
-//            .background(Color.indigo.opacity(0.5))
-            
         }
-       // .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
         .onGeometryChange(for: CGSize.self) {  windowGeometry in
       //      print("onGeometryChange - windowGeometry.size.width: ", windowGeometry.size.width)
             return windowGeometry.size
@@ -65,7 +101,6 @@ struct ContentView: View {
    //         print ("windowGeometry.size.width:  old: ", oldValue.width, "  new: ", newValue.width )
    //         print ("windowGeometry.size.height:  old: ", oldValue.height, "  new: ", newValue.height )
             prax.windowSize = newValue
-
         }
         
         .alert(
@@ -155,7 +190,7 @@ struct ContentView: View {
             prax.undoManager = undoManager!
 
         }
-        .background(PraxGradient())
+      //  .background(PraxGradient())
         
         
     }
@@ -181,67 +216,42 @@ struct ContentDetailView: View {
                 else {
                     HSplitView {
                         
-         /*               GroupBox {
-                            Rectangle()
-                                .fill(Color.clear)
-                                .frame(width: 1, height: prax.windowSize.height)
-                                .inspector(isPresented: $prax.isLarge) {
-                                    ImageImportEditor()
-                                        .frame(minWidth: 400, maxWidth: 1000)
-                                    //      }
-                                    
-                                    //      if prax.showingImportEditor {
-                                    //                         GroupBox {
-                                    
-                                    //        AnyOldView()
-                                    //                          ImageImportEditor()
-                                    
-                                    //          }
-                                    //                      else {
-                                    //
-                                    //
-                                    //                       }
-                                    //   .frame(minWidth: prax.importEditorMinWidth, idealWidth: prax.importEditorMaxWidth, maxWidth: prax.importEditorMaxWidth, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
-                                     //   .animation(.easeIn(duration: 1.25), value: prax.importEditorMinWidth)
-                                     //   .animation(.easeIn(duration: 1.25), value: prax.importEditorMaxWidth)
-                                }
+                        GroupBox {
+                            VStack {
+                                PageItemToolbar()
+                                MergedPagesView()
+                                PageItemFooter()
+                                
+                            }
                         }
-        */
+                        .frame(minWidth: 100, idealWidth: 150, maxWidth: 300)
            
                         GroupBox {
                             VStack {
                                 PageItemToolbar()
                                 PageItemCollectionView()
-                                
                             }
                         }
                         .frame(minWidth: 100, idealWidth: 150, maxWidth: 300)
                         
                         GroupBox {
                             VStack {
-                          //      let toolbarHeight = prax.selectedPageItem != nil ? 100 : 20.0
                                 EditingDocumentToolbar()
-                         //           .frame(maxWidth: .infinity, minHeight: toolbarHeight, maxHeight: toolbarHeight, alignment: .center)
-                         //           .animation(.snappy(duration: 0.25), value: toolbarHeight)
-                       //            .zIndex(258)
                                 EditingPDFDocumentView()
-                                
                             }
                         }
                         .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
                         
                         GroupBox {
                             VStack {
-                               // EditingDocumentToolbar()
                                 DocumentEditingToolbar()
                                 MergedPDFDocumentView()
-                                
                             }
                         }
                         .frame(minWidth: 300, idealWidth: 350, maxWidth: 1200)
                         
                     }
-                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(prax.document, prax))
+            //        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax.document, prax))
                     .overlay(content: {
                        
                         if document.mergedPages.isEmpty {
@@ -249,15 +259,14 @@ struct ContentDetailView: View {
                                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
-                                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+                                    
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(PraxGradient())
-                            
+                            .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
                         }
                     })
                     
-//                    .animation(.easeIn(duration: 1.25), value: prax.showingImportEditor)
                 }
                 
             }
@@ -265,29 +274,14 @@ struct ContentDetailView: View {
                 Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
-                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
             }
             
             DocumentEditingFooter()
         }
-        
-        
-        
-/*        .inspectorPanel(isPresented: $prax.showingPDFPageItemInspector) {
-            VStack {
-                Text("Julie D'Prax")
-                VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .followsWindowActiveState, emphasized: true)
-                }
-            //                 Example()
-        }
-*/
-//        .inspectorPanel(isPresented: $prax.showDataFields) { DataFieldsEditor().environment(prax) }
 
         .padding(0)
     }
 }
 
 
-#Preview {
-    ContentView()
-}

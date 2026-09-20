@@ -17,132 +17,113 @@ struct PageItemView: View {
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
-    
-    
-    
     @State var showSettings = false
     @State private var hoveredButton: Int? = nil
-    
-    
-    
+    @State private var dropTargeted: Bool = false
+    @State private var hovering: Bool = false
 
-
-    
-    var body: some View {
+   var body: some View {
         
-        
-        let imageSize = CGSize(width: 85, height: 110)
+       let imageSize = prax.thumbnailSize
         let backgroundColor: Color = {
-            switch highlightState {
-            case .forSelection:
-                Color.orange
-            case .forDeselection:
-                Color.green
-            case .asDropTarget:
-                Color.purple
-            default:
-                if isSelected {
-                    Color.blue
-                }
-                else {
-                    Color.clear
-                }
-            }
-        }()
+            if dropTargeted { Color.purple }
+            else { switch highlightState {
+                case .forSelection: Color.orange
+                case .forDeselection: Color.green
+                case .asDropTarget: Color.purple
+                default:
+                    if isSelected { Color.blue }
+                    else {Color.clear }
+                } }}()
         
-        let foregroundColor: Color = {
-            switch highlightState {
-            case .forSelection:
-                Color.green
-            case .forDeselection:
-                Color.orange
-            case .asDropTarget:
-                Color.orange
+        let foregroundColor: Color = { switch highlightState {
+            case .forSelection: Color.green
+            case .forDeselection: Color.orange
+            case .asDropTarget: Color.orange
             default:
-                if isSelected {
-                    Color.white
-                }
-                else {
-                    Color.blue
-                }
-            }
-        }()
+                if isSelected {Color.white }
+                else {Color.blue}
+            }}()
         
         if let pageItem {
-            GeometryReader { proxy in
+            GroupBox {
                 ZStack {
-                    GroupBox {
-                        Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                          //  .cornerRadius(6)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                            .padding(3)
-                            .opacity(pageItem.skipped ? 0.25 : 1.0)
-                    }
-                                            
+                    Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                    //  .cornerRadius(6)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                        .padding(3)
+                        .opacity(pageItem.skipped ? 0.25 : 1.0)
+                    
+                    Spacer()
                     GroupBox {
                         VStack {
-
+                            HStack {
+                                Spacer()
                             
-                            Button { document.clickedSkipPageButton(pageItem) }
-                            label: { Image(systemName: pageItem.skipped ? "text.page.slash" : "text.page") }
-                                .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
-                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
-                                .onHover { hovering in hoveredButton = hovering ? 126 : nil }
-                                .position(x: proxy.size.width - 30, y: 20)
-                            
-                            Button {
-                                pageItem.editImageOptions()
+                                Button { document.clickedGuidePageButton(pageItem) }
+                                label: { if pageItem.skipped { Image(systemName: "ruler.fill") } else { Image(systemName: "ruler") }}
+                                .buttonStyle(PageItemButtonStyle(isHovering: hoveredButton == 235, isOn: document.widthGuidePageID != nil))
+                                .onHover { hovering in hoveredButton = hovering ? 235 : nil }
+                                .help("Set Width Guide")
+                          
                             }
-                            label: { Image(systemName: "gear") }
-                                .help("Options")
-                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
-                                .onHover { hovering in hoveredButton = hovering ? 124 : nil }
-                                .position(x: proxy.size.width - 30, y: 10)
+                            Spacer()
+                            HStack {
+                                
+                                Button { document.clickedSkipPageButton(pageItem) }
+                                label: { Image(systemName: pageItem.skipped ? "eye.slash.fill" : "eye.slash") }
+                                .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
+                                .buttonStyle(PageItemButtonStyle(isHovering: hoveredButton == 126, isOn: pageItem.skipped))
+                                .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                                
+
+                                Spacer()
+                                
+                                Button { document.clickedDeletePageButton(pageItem) }
+                                label: { Image(systemName: "trash") }
+                                    .help("Discard This Page")
+                                    .buttonStyle(PageItemButtonStyle(isHovering: hoveredButton == 150))
+                                    .onHover { hovering in hoveredButton = hovering ? 150 : nil }
+                                
+                            }
                             
 
-                            Divider()
-                            
-                            Button { document.clickedDeletePageButton(pageItem) }
-                            label: { Image(systemName: "trash") }
-                                .help("Discard This Page")
-                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
-                                .onHover { hovering in hoveredButton = hovering ? 150 : nil }
-                                .position(x: proxy.size.width - 30, y: 0)
-                            
                         }
-                        
                     }
-                    
-                    
+                    .opacity(hovering ? 1 : 0.3)
+                    .animation(.easeIn(duration: 0.25), value: hovering)
                 }
-                
-                .padding(proxy.size.width * 0.01)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(foregroundColor, lineWidth: 3) )
-                .foregroundColor(foregroundColor)
-                .background(backgroundColor)
-                
             }
- //           .padding(EdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)) // proxy.size.width * 0.01))
-            //     .frame(width: proxy.size.width * 0.58)
-            //     .position(x: proxy.size.width * 0.72, y: proxy.size.height * 0.5)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             
-            //                .inspector(isPresented: $showInspector) {
-            //                    PDFPageItemInspector()
-            //                }
-        }
-    
+            .onHover { isHovering in
+                hovering = isHovering
+            }
             
-//            .background(backgroundColor)
-         else {
-            EmptyView()
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(foregroundColor, lineWidth: 3) )
+
+            .dropDestination(
+                for: PageItemTransfer.self,
+                action: {items, location in
+                    var itemIDs: Array<UUID> = []
+                    for item in items {
+                        print("PageItemTransfer - item: ", item)
+                        let itemID = item.payload.id
+                        itemIDs.append(itemID)
+                    }
+                    if let indexPath = prax.document.indexPath(for: pageItem) {
+                        print("PageItemTransfer itemIDs: ", itemIDs, " - to indexPath: ", indexPath)
+                        prax.document.movePageItems(itemIDs: itemIDs, to: indexPath)
+                    }
+                    return true },
+                isTargeted: { targeted in dropTargeted = targeted })
+
+            .foregroundColor(foregroundColor)
+            .background(backgroundColor)
         }
-        
+         else { EmptyView() }
     }
 }
-
-
 

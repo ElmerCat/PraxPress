@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:PraxPress.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Prax.swift">
+   </FileRef>
+   <FileRef
+      location = "group:Prax.txt">
+   </FileRef>
+   <Group
+      location = "group:PraxPress"
+      name = "PraxPress">
+      <Group
+         location = "group:Resources"
+         name = "Resources">
+         <FileRef
+            location = "group:PraxPress.pdf">
+         </FileRef>
+         <FileRef
+            location = "group:Assets.xcassets">
+         </FileRef>
+         <FileRef
+            location = "group:PraxPress.icon">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:Models"
+         name = "Models">
+         <FileRef
+            location = "group:FilesModel.swift">
+         </FileRef>
+         <FileRef
+            location = "group:Prax.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PDFData.swift">
+         </FileRef>
+         <FileRef
+            location = "group:MergedPDFDocument.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PagesModel.swift">
+         </FileRef>
+         <FileRef
+            location = "group:FlexibleFields.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PraxError.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PraxModel.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PersistenceController.swift">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:00_REPO_MAP.md">
+      </FileRef>
+      <Group
+         location = "group:Utilities"
+         name = "Utilities">
+         <FileRef
+            location = "group:ErrorHandlingTemplate.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PraxLogger.swift">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:Application"
+         name = "Application">
+         <FileRef
+            location = "group:PraxTheme.swift">
+         </FileRef>
+         <FileRef
+            location = "group:MainSceneRoot.swift">
+         </FileRef>
+         <FileRef
+            location = "group:MainToolbar.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PraxPressApp.swift">
+         </FileRef>
+         <FileRef
+            location = "group:OtherToolbars.swift">
+         </FileRef>
+         <FileRef
+            location = "group:PraxDropDelegate.swift">
+         </FileRef>
+         <FileRef
+            location = "group:SplitViewDelegate.swift">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:Views"
+         name = "Views">
+         <Group
+            location = "group:Main Views"
+            name = "Main Views">
+            <FileRef
+               location = "group:MergedPagesView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:SettingsView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:EditingDocumentView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:SettingsModel.swift">
+            </FileRef>
+            <FileRef
+               location = "group:DocumentEditingView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:MergedDocumentView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:ContentView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:DataImportEditor.swift">
+            </FileRef>
+            <FileRef
+               location = "group:SourceFilesView.swift">
+            </FileRef>
+         </Group>
+         <Group
+            location = "group:Auxilliary Views"
+            name = "Auxilliary Views">
+            <FileRef
+               location = "group:Tips.swift">
+            </FileRef>
+            <FileRef
+               location = "group:PDFPageOverlayView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:InspectorPanel.swift">
+            </FileRef>
+            <FileRef
+               location = "group:ImageImportEditor.swift">
+            </FileRef>
+            <FileRef
+               location = "group:CollectionSupplementaryViews.swift">
+            </FileRef>
+            <FileRef
+               location = "group:AuxilliaryViews.swift">
+            </FileRef>
+            <FileRef
+               location = "group:Popovers.swift">
+            </FileRef>
+            <FileRef
+               location = "group:HostingViewContainer.swift">
+            </FileRef>
+            <FileRef
+               location = "group:DataFieldsEditor.swift">
+            </FileRef>
+            <FileRef
+               location = "group:PageItemView.swift">
+            </FileRef>
+            <FileRef
+               location = "group:CollectionViewItems.swift">
+            </FileRef>
+         </Group>
+      </Group>
+      <FileRef
+         location = "group:AI Handoff.md">
+      </FileRef>
+      <FileRef
+         location = "group:Info.plist">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:PraxPress.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:README_ARCH.md">
+   </FileRef>
+</Workspace>

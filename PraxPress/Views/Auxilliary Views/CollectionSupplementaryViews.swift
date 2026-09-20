@@ -153,7 +153,7 @@ class CollectionViewBackground: NSView, HostingViewContainer {
       
    /*     self.registerForDraggedTypes([
             .fileURL,
-            .pdfPageDragType,
+            .pageItemType,
             .mergedPageType,
             .sourceFileType
         ])
@@ -305,7 +305,7 @@ struct SectionHeaderView: View {
                         })
                     Spacer()
                 }
-                .background(Color.black.opacity(0.5))
+                .background(self.isSelected ?  Color.blue.opacity(0.7) : Color.black.opacity(0.5))
                 .overlay(RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.accentColor : Color.cyan, lineWidth: 2))
                 .gesture(clickGesture)

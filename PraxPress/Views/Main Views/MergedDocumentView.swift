@@ -53,8 +53,8 @@ class MergedPDFDocumentNSView: NSView, HostingViewContainer {
 struct MergedPDFDocumentView: View {
     @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
-    @State private var pdfViewRef = WeakPDFViewRef()
-    @State private var hoveredButton: Int? = nil
+  //  @State private var pdfViewRef = WeakPDFViewRef()
+  //  @State private var hoveredButton: Int? = nil
     
     
     var body: some View {
@@ -64,82 +64,13 @@ struct MergedPDFDocumentView: View {
         
         GroupBox {
             GeometryReader { proxy in
-                
                 VSplitView {
+
                     
                     GroupBox {
-                        VStack {
-                            
-   
-                            GroupBox {
-                                PDFViewRepresentable(
-                                    document: document,
-                                    onPDFViewReady: { pdfView in
-                                        // Store a weak reference so buttons can use it
-                                        pdfViewRef.view = pdfView
-                                        
-                                    }
-                                )
-                                .opacity(document.refreshingMergedDocument ? 0.75 : 1)
-                                .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
-                                .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-                            }
-                            
-                            HStack {
-                                
-                                Button("", systemImage: "arrow.up.and.down.circle", action: {
-                                    if let pdfView =  pdfViewRef.view {
-                                        MergedPDFDocumentView.scalePDFViewToFit(pdfView: pdfView)
-                                        
-                                    }
-                                })
-                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 0))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 0 : nil
-                                }
-                                
-                                
-                                Button("", systemImage: "plus.circle", action: {
-                                    pdfViewRef.view?.zoomIn(self)
-                                })
-                                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
-                                .onHover { hovering in
-                                    hoveredButton = hovering ? 1 : nil
-                                }
-                                
-                                
-                                
-                                Button("", systemImage: "minus.circle", action: {
-                                    pdfViewRef.view?.zoomOut(self)
-                                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
-                                    .onHover { hovering in
-                                        hoveredButton = hovering ? 2 : nil
-                                    }
-                                
-                                Button("", systemImage: "arrow.left.and.right.circle", action: {
-                                    pdfViewRef.view?.autoScales = true
-                                })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 3))
-                                    .onHover { hovering in
-                                        hoveredButton = hovering ? 3 : nil
-                                    }
-                                Spacer()
-                                Text(String(format: "Merged size:  %u KB", document.mergedDocumentSizeKB))
-                                Spacer()
-                                
-                            }
-                            
-                            
-                        }
-                        
-                    }
-                    .frame(minWidth: 100, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
-                    
-                    GroupBox {
-                        
                         VStack {
                             Spacer()
                             HStack {
-                                
                                 Text("PraxPress - ")
                                     .font(Font.custom("BrushScriptMT", size: 30))
                                     .foregroundColor(.white)
@@ -150,19 +81,32 @@ struct MergedPDFDocumentView: View {
                                     .frame(maxWidth: .infinity, alignment: .center)
                                 Spacer()
                             }
-                                
-                                
                         }
-                        
-                        
                     }
+                    .overlay(Rectangle().frame(height: 2).foregroundColor(.cyan),alignment: .top)
+
+//                    .border(Color.yellow.opacity(0.25), width: 5)
+                    .frame(minWidth: 100, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
+                    
+                    GroupBox {
+                        PDFViewRepresentable(
+                            document: document,
+                            onPDFViewReady: { pdfView in
+                                print("Philip Maria Coffey")
+                            }
+                        )
+                        .opacity(document.refreshingMergedDocument ? 0.55 : 1)
+                        .animation(.easeOut(duration: 1.25), value: document.refreshingMergedDocument)
+                        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
+                    }
+                    .overlay(Rectangle().frame(height: 2).foregroundColor(.cyan),alignment: .bottom)
+                    //                    .border(Color.white.opacity(0.25), width: 5)
+                    
                     .frame(minWidth: 100, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
                     
                 }
-                
-           
-                
-                //  .position(x: 0, y: 16)
+                .onGeometryChange(for: CGSize.self) { windowGeometry in return windowGeometry.size }
+                action: { oldValue, newValue in prax.mergedViewSize = newValue }
             }
         }
         
@@ -170,18 +114,6 @@ struct MergedPDFDocumentView: View {
         .padding(0)
         .background(PraxGradient(prax.hoverSection.contains(.mergedDocument) ? 0 : 1))
 
- //       .overlay(
- //
- //           RoundedRectangle(cornerRadius: 5)
- //               .stroke(Color.blue, lineWidth: 5).opacity(0.5)
- //       )
- //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
- //           PraxModel.shared.acceptDrop(providers)
- //       }
- //       .onDropSessionUpdated({ dropSession in
- //           print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
-//        })
-        
 
     }
     
@@ -234,7 +166,7 @@ struct MergedPDFDocumentView: View {
             document.prax.mergedDocumentPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
             
             document.prax.mergedDocumentPDFView.displayDirection = .vertical
-            document.prax.mergedDocumentPDFView.backgroundColor = .green
+            document.prax.mergedDocumentPDFView.backgroundColor = NSColor(Color.buttonDestructiveBackground)
             context.coordinator.pdfView = document.prax.mergedDocumentPDFView
             onPDFViewReady(document.prax.mergedDocumentPDFView)
             return document.prax.mergedDocumentPDFView

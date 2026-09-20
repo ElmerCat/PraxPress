@@ -11,17 +11,6 @@ import PDFKit
 
 
 
-extension NSPasteboard.PasteboardType {
-    static let pdfPageDragType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-item")
-    static let mergedPageType = NSPasteboard.PasteboardType("com.praxpress.pdf-page-section")
-    static let sourceFileType = NSPasteboard.PasteboardType("com.praxpress.source-file-item")
-}
-
-extension UTType {
-    static let pdfPageDragType = UTType(exportedAs: "com.praxpress.pdf-page-item")
-    static let mergedPageType = UTType(exportedAs: "com.praxpress.pdf-page-section")
-    static let sourceFileType = UTType(exportedAs: "com.praxpress.source-file-item")
-}
 
 final class PraxDropDelegate: DropDelegate {
     var document: MergedPDFDocument
@@ -39,8 +28,8 @@ final class PraxDropDelegate: DropDelegate {
     func validateDrop(info: DropInfo) -> Bool {
         print("DropTargetControl - validateDrop")
         
-        if info.hasItemsConforming(to: [.pdfPageDragType, .mergedPageType]) {
-            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType, .mergedPageType])")
+        if info.hasItemsConforming(to: [.pageItemType, .mergedPageType]) {
+            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pageItemType, .mergedPageType])")
             return false
         }
         else {
@@ -57,7 +46,7 @@ final class PraxDropDelegate: DropDelegate {
            for provider in info.itemProviders(for: [UTType.sourceFileType]) {
                 provider.loadDataRepresentation(forTypeIdentifier: UTType.sourceFileType.identifier) { [self] (data, error) in
                     if let data = data {  Task { do {
-                            let payload = try JSONDecoder().decode(SourceFileTransfer.Payload.self, from: data)
+                            let payload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
                             await prax.receiveDroppedSourceFile(payload) }
                         catch {
                             print("failed to decode Payload ") } }}
@@ -84,8 +73,8 @@ final class PraxDropDelegate: DropDelegate {
     func dropUpdated(info: DropInfo) -> DropProposal? {
   //      print("DropTargetControl - dropUpdated - phase: ")
         
-        if info.hasItemsConforming(to: [.pdfPageDragType]) {
-  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pdfPageDragType])")
+        if info.hasItemsConforming(to: [.pageItemType]) {
+  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pageItemType])")
             return DropProposal(operation: .forbidden)
             
         }
@@ -113,77 +102,7 @@ final class PraxDropDelegate: DropDelegate {
         print("DropTargetControl - dropExited")
         prax.dropTargeted = false
     }
-    
-
-
-
 }
-
-
-
-
-
-
-class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
-    
-    var pdfDocument: PDFDocument?
-    var fileName: String = "PraxPress-Prax.pdf"
-    
-    struct UserInfoKeys {
-        static let indexPathKey = "indexPath"
-        static let urlKey = "url"
-    }
-    
-    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
-        var types = super.writableTypes(for: pasteboard)
-        types.append(.pdfPageDragType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.mergedPageType) // Add our own internal drag type (row drag and drop reordering).
-        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
-        return types
-    }
-    
-    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
-        print ("pasteboardPropertyList(forType type: ", )
-        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
-        switch type {
-        case .fileURL:
-            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
-            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
-                return url.pasteboardPropertyList(forType: type)
-            }
-        case .mergedPageType:
-            print ("mergedPageType")
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-
-        case .pdfPageDragType:
-            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
-            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
-            return indexPathData
-        default:
-            break
-        }
-        return super.pasteboardPropertyList(forType: type)
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
-        
-        print("filePromiseProvider fileNameForType: ", fileType)
-        return fileName
-    }
-    
-    
-    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
-        
-        print("filePromiseProvider writePromiseTo url:  ", url)
-        pdfDocument?.write(to: url)
-        
-    }
-    
-}
-
 
 struct DropTargetControl: View {
     @Environment(MergedPDFDocument.self) var document
@@ -198,11 +117,8 @@ struct DropTargetControl: View {
                 Text("   Drop Files Here   ")
                     .font(.headline)
                     .padding(.vertical, 10)
-                
                     .foregroundStyle(.white)
-                
                     .contentShape(.rect)
-                
                 Button {
                     prax.showingFileImportOptions.toggle()
                 } label: {
@@ -210,14 +126,11 @@ struct DropTargetControl: View {
                 }
                 .sheet(isPresented: $prax.showingFileImportOptions) {
                     ImportOptionsInspector()
-                    
                         .presentationDetents(
                             [.height(120), .medium, .large])
                         .presentationBackgroundInteraction(
                             .enabled(upThrough: .height(120)))
                         .presentationSizing(.form)
-                    
-                    
                 }
                 Spacer(minLength: 25)
             }.background {
@@ -227,7 +140,7 @@ struct DropTargetControl: View {
         }
   //      .popover(isPresented: $prax.showingImageDropInspector) { ImageInspectingPopover() }
         
-        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pdfPageDragType], delegate: PraxDropDelegate(document, prax))
+        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
         
         
     }
@@ -368,6 +281,68 @@ struct PraxDragPreview: View {
         }
     }
 }
+
+
+class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDelegate {
+    
+    var pdfDocument: PDFDocument?
+    var fileName: String = "PraxPress-Prax.pdf"
+    
+    struct UserInfoKeys {
+        static let indexPathKey = "indexPath"
+        static let urlKey = "url"
+    }
+    
+    override func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
+        var types = super.writableTypes(for: pasteboard)
+        types.append(.pageItemType) // Add our own internal drag type (row drag and drop reordering).
+        types.append(.mergedPageType) // Add our own internal drag type (row drag and drop reordering).
+        types.append(.fileURL) // Add the .fileURL drag type (to promise files to other apps).
+        return types
+    }
+    
+    override func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
+        print ("pasteboardPropertyList(forType type: ", )
+        guard let userInfoDict = userInfo as? [String: Any] else { return nil }
+        switch type {
+        case .fileURL:
+            // Incoming type is "public.file-url", return (from our userInfo) the item's URL.
+            if let url = userInfoDict[FilePromiseProvider.UserInfoKeys.urlKey] as? NSURL {
+                return url.pasteboardPropertyList(forType: type)
+            }
+        case .mergedPageType:
+            print ("mergedPageType")
+            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
+            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
+            return indexPathData
+            
+        case .pageItemType:
+            // Incoming type is "com.mycompany.mydragdrop", return (from our userInfo) the item's indexPath.
+            let indexPathData = userInfoDict[FilePromiseProvider.UserInfoKeys.indexPathKey]
+            return indexPathData
+        default:
+            break
+        }
+        return super.pasteboardPropertyList(forType: type)
+    }
+    
+    
+    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
+        
+        print("filePromiseProvider fileNameForType: ", fileType)
+        return fileName
+    }
+    
+    
+    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
+        
+        print("filePromiseProvider writePromiseTo url:  ", url)
+        pdfDocument?.write(to: url)
+        
+    }
+    
+}
+
 
 #Preview {
     PraxDragPreview()

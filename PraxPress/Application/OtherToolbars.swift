@@ -242,6 +242,8 @@ struct DocumentEditingFooter: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
+    @State private var hoveredButton: Int? = nil
+    
     let filenameStyle = URL.FormatStyle(scheme: .never,
                                         user: .never,
                                         password: .never,
@@ -253,21 +255,79 @@ struct DocumentEditingFooter: View {
     var body: some View {
         @Bindable var prax = praxModel
         HStack {
-            switch (prax.selectedFiles.count) {
-            case 0:
-                Text("No files selected")
-            case 1:
-                Text("Source file: \(document.exportFilenameBody)")
-            default:
-                Text("\(prax.selectedFiles.count) Source files selected")
-            }
+            Text(String(format: "Merged size:  %u KB", document.mergedDocumentSizeKB))
+            GroupBox {
+                switch (prax.selectedFiles.count) {
+                case 0:
+                    Text("No files selected")
+                case 1:
+                    Text("Source file: \(document.exportFilenameBody)")
+                default:
+                    Text("\(prax.selectedFiles.count) Source files selected")
+                }}
+            
+            Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
+            
+            Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
+            label: { Image(systemName: "arrowtriangle.up")  }
+                .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
+                .onHover { hovering in hoveredButton = hovering ? 11 : nil }
+            
+            Button { prax.editingDocumentPDFView.goToNextPage(self) }
+            label: {  Image(systemName: "arrowtriangle.down")}
+                .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
+                .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
+            
             Spacer()
-   //         Text(String(format: "Window size: \(prax.windowSize.width) x \(prax.windowSize.height) -- -- SplitView width: \(prax.splitViewFrameWidth) -  divZero@:  \(prax.dividerZeroPos) -  divOne@:   \(prax.dividerOnePos)"))
+            
+            
+            Button("", systemImage: "arrow.up.and.down.circle", action: {
+                MergedPDFDocumentView.scalePDFViewToFit(pdfView: prax.mergedDocumentPDFView)})
+            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 0))
+            .onHover { hovering in hoveredButton = hovering ? 0 : nil }
+            
+            Button("", systemImage: "plus.circle", action: {
+                prax.mergedDocumentPDFView.zoomIn(self) })
+            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
+            .onHover { hovering in hoveredButton = hovering ? 1 : nil }
+            
+            Button("", systemImage: "minus.circle", action: {
+                prax.mergedDocumentPDFView.zoomOut(self) })
+            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
+            .onHover { hovering in hoveredButton = hovering ? 2 : nil }
+            
+            Button("", systemImage: "arrow.left.and.right.circle", action: {
+                prax.mergedDocumentPDFView.autoScales = true })
+            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 3))
+            .onHover { hovering in hoveredButton = hovering ? 3 : nil }
+
         }
-        .frame(maxWidth: .infinity, maxHeight: 20, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: 40, alignment: .leading)
         .padding(8)
     }
 }
+
+struct PageItemFooter: View {
+    @Environment(PraxModel.self) private var prax
+    
+    
+    var body: some View {
+        @Bindable var prax = prax
+        GroupBox {
+            
+            VStack {
+                Text("\(prax.selectedPages.count)  of \(prax.allItemIDs.count)  Pages Selected")
+                    .font(.subheadline)
+                Slider(value: $prax.pageItemHeight, in: 100...300, step: 10)
+                    .padding(.horizontal, 5)
+            }
+            
+        }
+    }
+}
+
 
 struct PageItemToolbar: View {
     @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
@@ -280,7 +340,7 @@ struct PageItemToolbar: View {
     var body: some View {
         @Bindable var prax = prax
         GroupBox {
-
+            
             HStack {
                 
                 Button(role: .destructive, action: { document.mergedPages.removeAll() }, label: {
@@ -293,7 +353,7 @@ struct PageItemToolbar: View {
                 .onHover { hovering in hoveredButton = hovering ? 40 : nil }
                 
                 Spacer()
-             
+                
                 Button(role: .confirm, action: { prax.showingImportEditor.toggle() }, label: {
                     HStack {
                         if !prax.document.mergedPages.isEmpty && hoveredButton == 41 { Text("Options") }
@@ -301,9 +361,9 @@ struct PageItemToolbar: View {
                 .disabled(prax.document.mergedPages.isEmpty)
                 .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 41, hoverWidth: 200))
                 .onHover { hovering in hoveredButton = hovering ? 41 : nil }
-
+                
             }
-
+            
         }
     }
 }
@@ -345,90 +405,8 @@ struct EditingDocumentToolbar: View {
                     
                     
                     VStack {
-                        HStack {
-                            
-                            GroupBox {
-                                HStack {
-                                    GroupBox() {
-                                        VStack {
-                                            Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
-                                            
-                                            HStack {
-                                                Text(String("\(currentPageIndex + 1)")).monospaced()
-                                                VStack(spacing: 0) {
-                                                    Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
-                                                    label: { Image(systemName: "arrowtriangle.up")  }
-                                                        .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
-                                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 11, isFocused: false))
-                                                        .onHover { hovering in hoveredButton = hovering ? 11 : nil }
-                                                    
-                                                    Button { prax.editingDocumentPDFView.goToNextPage(self) }
-                                                    label: {  Image(systemName: "arrowtriangle.down")}
-                                                        .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
-                                                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 12, isFocused: false))
-                                                        .onHover { hovering in  hoveredButton = hovering ? 12 : nil }
-                                                }
-                                                
-                                            }
-                                            
-                                            
-                                        }
-                                        
-                                        
-                                        
-                                    }
-                                    .background(Color.clear, in: .containerRelative)
-                                    .overlay( RoundedRectangle(cornerRadius: 5).stroke(Color.white, lineWidth: 1) )
-                                    .padding(2)
-                                    Divider().foregroundStyle(.white).background(.white)
-                                    
-                                    GroupBox {
-                                        Image(nsImage: pageItem.pdfPage.thumbnail(of: imageSize, for: .cropBox))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                        //  .cornerRadius(6)
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                                            .padding(3)
-                                            .opacity(pageItem.skipped ? 0.25 : 1.0)
-                                    }
-                                    
-                                    Divider().foregroundStyle(.white).background(.white)
-                                    
-                                    Button {undoManager.undo() }
-                                    label: {
-                                        Text(String("\(undoManager.undoCount)")) // .font(.system(size: 8))
-                                        Image(systemName: undoManager.undoCount > 0 ? "arrow.uturn.backward.circle.fill" : "arrow.uturn.backward.circle" )                                    }
-                                    .disabled(undoManager.undoCount < 1)
-                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 274))
-                                    .onHover { hovering in hoveredButton = hovering ? 274 : nil }
-                                    
-                                    //         Text(String("\(undoManager.undoCount)"))
-                                    
-                                    //               Text("\(pageItem.name)  Redo").font(.system(size: 8))
-                                    Button {undoManager.redo() }
-                                    label: { if undoManager.redoCount > 0 {
-                                        Image(systemName: "arrow.uturn.forward.circle.fill") } else {
-                                            Image(systemName: "arrow.uturn.forward.circle") }
-                                        Text(String("\(undoManager.redoCount)")).font(.system(size: 8)) }
-                                    .disabled(undoManager.redoCount < 1)
-                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 276))
-                                    .onHover { hovering in hoveredButton = hovering ? 276 : nil }
-                                    
-                                    Spacer()
-                                    
-                                    Divider().foregroundStyle(.white).background(.white)
-                                    
-                                    PageItemTrimsView()
-                                    
-                                    
-                                    
-                                }
-                            }
-                            
-                            
-                            
-                            
-                        }
+                        Text("Julie d'Prax")
+                        
                         if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
                             
                             HStack (spacing: 0) {

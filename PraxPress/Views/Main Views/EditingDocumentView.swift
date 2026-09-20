@@ -72,74 +72,29 @@ struct EditingPDFDocumentView: View {
         
     //    let _ = Self._printChanges()
         let hovering = prax.hoverSection.contains(.editingDocument)
-        
-        GroupBox {
-            EditingPDFViewRepresentable(
-                document: document,
-                onPDFViewReady: { pdfView in
-                    // Store a weak reference so buttons can use it
-                    pdfViewRef.view = pdfView
-                }
-            )
-        }
-        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
-        .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
-        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-
-        
-        
-   //     let pdfPage = prax.currentEditingMergedPage?.pdfPage
-  /*
-        GroupBox {
-            GeometryReader { proxy in
-                VStack {
-                    let toolbarHeight = prax.selectedPageItem != nil ? 100 : 20.0
-                    EditingDocumentToolbar()
-                        .frame(maxWidth: .infinity, minHeight: toolbarHeight, maxHeight: toolbarHeight, alignment: .center)
-                        .animation(.snappy(duration: 0.25), value: toolbarHeight)
-                        .zIndex(258)
-                    
-                    GroupBox {
-                            EditingPDFViewRepresentable(
-                                document: document,
-                                onPDFViewReady: { pdfView in
-                                    // Store a weak reference so buttons can use it
-                                    pdfViewRef.view = pdfView
-                                }
-                            )
-                       }
-                        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
-                        .animation(.easeOut(duration: 0.25), value: document.refreshingMergedDocument)
-                        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
-                    
-                    EditingDocumentFooter()
-                    
-                }
+        GeometryReader { proxy in
+            GroupBox {
+                EditingPDFViewRepresentable(
+                    document: document,
+                    onPDFViewReady: { pdfView in
+                        // Store a weak reference so buttons can use it
+                        pdfViewRef.view = pdfView
+                    }
+                )
             }
         }
-        */
+        .onGeometryChange(for: CGSize.self) { windowGeometry in return windowGeometry.size }
+        action: { oldValue, newValue in prax.editorViewSize = newValue }
+        .opacity(document.refreshingMergedDocument ? 0.75 : 1)
+        
+        .animation(.easeOut(duration: 1.25), value: document.refreshingMergedDocument)
+        
+        .overlay(ProgressView().progressViewStyle(.circular).opacity(document.refreshingMergedDocument ? 1 : 0)).zIndex(4)
+
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(0)
         .background(PraxGradient(hovering ? 0 : 1)).animation(.easeInOut(duration: 1.5), value: praxModel.hoverSection)
-        
-        
-        
-     //   .background(PraxGradient())
-      //  .overlay(
-      //      RoundedRectangle(cornerRadius: 5)
-      //          .stroke(Color.blue, lineWidth: 5).opacity(0.5)
-      //  )
-        
-        
-        
-        //       .onDrop(of: [.fileURL], isTargeted: $prax.dropTargeted) { providers in
-        //           PraxModel.shared.acceptDrop(providers)
-        //       }
-        //       .onDropSessionUpdated({ dropSession in
-        //           print("CollectionViewBackgroundView - dropSessionUpdated phase: ", dropSession.phase)
-        //        })
-        
-        
+         
     }
     
     

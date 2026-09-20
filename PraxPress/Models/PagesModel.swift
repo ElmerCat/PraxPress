@@ -40,6 +40,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     
     var pdfPage: PDFPage? = nil
     var editingPDFDocument = PDFDocument()
+    var selectedPages = Set<PageItem.ID>()
     var aspectRatio: CGFloat {
         guard mergedHeightPts != 0 else { return 0 }
         return mergedWidthPts / mergedHeightPts

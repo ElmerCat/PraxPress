@@ -98,7 +98,7 @@ struct PageItemCollectionView: NSViewRepresentable {
             // Drag & drop (optional)
             collectionView.registerForDraggedTypes([
                 .fileURL,
-                .pdfPageDragType,
+                .pageItemType,
                 .mergedPageType,
                 .sourceFileType
             ])
@@ -366,8 +366,8 @@ struct PageItemCollectionView: NSViewRepresentable {
             let propsedIndexPath = proposedDropIndexPath.pointee
             let dropOperation = proposedDropOperation.pointee
             
-            if draggingTypes.contains(.pdfPageDragType) {
- //               print("collectionView validateDrop .pdfPageDragType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
+            if draggingTypes.contains(.pageItemType) {
+ //               print("collectionView validateDrop .pageItemType - proposedIndexPath: ", propsedIndexPath, " - dropOperation: ", dropOperation.rawValue)
                 validatedDropOperation = prax.optionKeyPressed ? [.copy] : [.move] }
             
             else if draggingTypes.contains(.mergedPageType) {
@@ -393,8 +393,8 @@ struct PageItemCollectionView: NSViewRepresentable {
 
             guard let draggingTypes = draggingInfo.draggingPasteboard.types else { return false }
 
-            if draggingTypes.contains(.pdfPageDragType) {
-                print("collectionView acceptDrop .pdfPageDragType")
+            if draggingTypes.contains(.pageItemType) {
+                print("collectionView acceptDrop .pageItemType")
                 dropInternalPages(collectionView, draggingInfo: draggingInfo, indexPath: indexPath, copy: validatedDropOperation == [.copy])  }
   
             else if draggingTypes.contains(.mergedPageType) {
@@ -522,7 +522,7 @@ struct PageItemCollectionView: NSViewRepresentable {
         
         func dropSourceFiles(_ collectionView: NSCollectionView, draggingInfo: NSDraggingInfo, indexPath: IndexPath) {
             print("dropSourceFiles to: ", indexPath)
-            var sourceFilePayloads: [SourceFileTransfer.Payload] = []
+            var sourceFilePayloads: [SourceFilePayload] = []
             draggingInfo.enumerateDraggingItems(
                 options: NSDraggingItemEnumerationOptions.concurrent,
                 for: collectionView,
@@ -531,7 +531,7 @@ struct PageItemCollectionView: NSViewRepresentable {
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
                         do { if let data = pasteboardItem.data(forType: .sourceFileType) {
-                            let sourceFilePayload = try JSONDecoder().decode(SourceFileTransfer.Payload.self, from: data)
+                            let sourceFilePayload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
                             sourceFilePayloads.append(sourceFilePayload)
                             print ("dropSourceFile: ", sourceFilePayload.fileURL.lastPathComponent, " idx-", idx, " to indexPath: ", indexPath)  }  }
                         catch { print(" -- Failed to unarchive indexPath for dropped item.") }
@@ -561,7 +561,7 @@ struct PageItemCollectionView: NSViewRepresentable {
                 using: {(draggingItem, idx, stop) in
                     if let pasteboardItem = draggingItem.item as? NSPasteboardItem {
                         do {
-                            if let data = pasteboardItem.data(forType: .pdfPageDragType) {
+                            if let data = pasteboardItem.data(forType: .pageItemType) {
                                 let nsIndexPath = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSIndexPath.self, from: data)
                                 if let nsIndexPath {
                                     let pageIndexPath = nsIndexPath as IndexPath

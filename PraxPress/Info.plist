@@ -24,6 +24,8 @@
 		<dict>
 			<key>UTTypeDescription</key>
 			<string>PraxPress SourceFile Item</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.source-file-item</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -31,8 +33,6 @@
 					<string>praxpress</string>
 				</array>
 			</dict>
-			<key>UTTypeIdentifier</key>
-			<string>com.praxpress.source-file-item</string>
 		</dict>
 		<dict>
 			<key>UTTypeDescription</key>
@@ -60,8 +60,25 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>PraxPress PageItem</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.praxpress.page-item</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>praxpress</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
+	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 </dict>
 </plist>

@@ -148,6 +148,42 @@ struct PrefixButtonStyle: ButtonStyle {
 }
 
 
+struct PageItemButtonStyle: ButtonStyle {
+    @Environment(PraxModel.self) private var prax
+    @Environment(\.isEnabled) private var isEnabled
+    var isHovering = false
+    var isOn = false
+    
+    func buttonForegroundColor() -> Color {
+        if isHovering {
+            if isOn { return Color.yellow }
+            return Color.white
+        }
+        if isOn { return Color.red }
+        return Color.blue
+    }
+    
+    func buttonBackgroundColor() -> Color {
+        if isHovering {
+            if isOn { return Color.red }
+            return Color.blue
+        }
+        if isOn { return Color.red }
+        return Color.blue.opacity(0.5)
+    }
+
+    func makeBody(configuration: Self.Configuration) -> some View {
+        return configuration.label
+            .buttonStyle(.glassProminent)
+            .imageScale(.large)
+            .font(.system(size: prax.mergedPagesSize.width * 0.10))
+            .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
+            .foregroundColor(buttonForegroundColor())
+            .background(buttonBackgroundColor(), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+
 struct PraxButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
     @Environment(\.isEnabled) private var isEnabled
