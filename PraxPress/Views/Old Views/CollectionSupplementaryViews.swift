@@ -17,9 +17,98 @@ import PDFKit
 import UniformTypeIdentifiers
 
 
+struct EditingDocumentFooter: View {
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    @Environment(PraxModel.self) private var praxModel
+    
+    
+    
+    var body: some View {
+        @Bindable var prax = praxModel
+        
+        if let pageItem = prax.selectedPageItem {
+            let pageCount = pageItem.mergedPage?.pageItems.count
+            let curentPageIndex = pageItem.mergedPage?.pageItems.firstIndex(of: pageItem) ?? -1
+            
+            
+            let mergedSizeText = {
+                let wIn = pageItem.trimmedPageSize().width / 72.0
+                let hIn = pageItem.trimmedPageSize().height / 72.0
+                return String(format: "%.1f\" × %.1f\"", wIn, hIn)
+            }
+            
+            HStack {
+                
+                Button("", systemImage: "arrow.up.and.down.circle", action: {
+                    EditingDocumentView.scalePDFViewToFit(pdfView: prax.editingDocumentPDFView)
+                })
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 0))
+                .onHover { hovering in
+                    prax.hoveredButton = hovering ? 0 : nil
+                }
+                
+                Button("", systemImage: "minus.circle", action: {
+                    prax.editingDocumentPDFView.zoomOut(self)
+                })                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 2))
+                    .onHover { hovering in
+                        prax.hoveredButton = hovering ? 2 : nil
+                    }
+                
+                Button("", systemImage: "plus.circle", action: {
+                    prax.editingDocumentPDFView.zoomIn(self)
+                })
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1))
+                .onHover { hovering in
+                    prax.hoveredButton = hovering ? 1 : nil
+                }
+                
+                Button("", systemImage: "arrow.left.and.right.circle", action: {
+                    prax.editingDocumentPDFView.autoScales = true
+                })                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 3))
+                    .onHover { hovering in
+                        prax.hoveredButton = hovering ? 3 : nil
+                    }
+                
+                Spacer()
+                Text((prax.selectedPageItem?.name  ?? "No Current Page") + mergedSizeText() )
+                Spacer()
+                GroupBox {
+                    HStack {
+                        Button("", systemImage: "arrowshape.left.circle", action: {
+                            prax.editingDocumentPDFView.goToPreviousPage(self)
+                        })
+                        .disabled(!prax.editingDocumentPDFView.canGoToPreviousPage)
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 11))
+                        .onHover { hovering in
+                            prax.hoveredButton = hovering ? 11 : nil
+                        }
+                        
+                        Text(String("Page \(curentPageIndex + 1) of \(pageCount)"))
+                            .background {
+                                Capsule()
+                                    .foregroundStyle(Color.blue.gradient)
+                            }
+                        
+                        Button("", systemImage: "arrowshape.right.circle", action: {
+                            prax.editingDocumentPDFView.goToNextPage(self)
+                        })
+                        .disabled(!prax.editingDocumentPDFView.canGoToNextPage)
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 12))
+                        .onHover { hovering in
+                            prax.hoveredButton = hovering ? 12 : nil
+                        }
+                    }
+                }
+            }
+            .background(PraxGradient(1))
+        }
+        else { EmptyView() }
+    }
+}
+
 struct PageItemSectionBackgroundView: View {
     let indexPath: IndexPath
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     
     var body: some View {
@@ -75,7 +164,7 @@ struct PageItemSectionBackgroundView: View {
 }
 
 struct EditPageSectionBackgroundView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
     let indexPath: IndexPath
@@ -85,8 +174,8 @@ struct EditPageSectionBackgroundView: View {
     var body: some View {
         @Bindable var prax = praxModel
         
-        if document.mergedPages.count > indexPath.section {
-            let mergedPage = document.mergedPages[indexPath.section]
+        if prax.document.mergedPages.count > indexPath.section {
+            let mergedPage = prax.document.mergedPages[indexPath.section]
  //           let imageSize = CGSize(width: 1200, height: 1600)
  //           let sectionHeaderHeight = CGFloat(40)
             
@@ -215,7 +304,7 @@ class CollectionViewBackground: NSView, HostingViewContainer {
 }
 
 struct CollectionViewBackgroundView: View {
-//    @Environment(MergedPDFDocument.self) var document
+//    //  @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     var body: some View {
         @Bindable var prax = praxModel
@@ -249,13 +338,12 @@ struct CollectionViewBackgroundView: View {
 }
 
 struct SectionHeaderView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
    
     
     @State var showSettings = false
-    @State private var hoveredButton: Int? = nil
     
     let mergedPage: MergedPage?
     let isSelected: Bool
@@ -277,9 +365,9 @@ struct SectionHeaderView: View {
                         showSettings = !showSettings
                     }
                     label: { Image(systemName: "gear")}
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 2))
                     .onHover { hovering in
-                        hoveredButton = hovering ? 2 : nil
+                        prax.hoveredButton = hovering ? 2 : nil
                     }
                     
                     .popover(isPresented: $showSettings, arrowEdge: .leading) {
@@ -298,8 +386,8 @@ struct SectionHeaderView: View {
                         .lineLimit(1)
                         .padding(.horizontal, 5)
                         .draggable({ () -> MergedPDFTransfer? in
-                            guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                            return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                            guard let data = prax.document.mergedPDFDocument.dataRepresentation() else { return nil }
+                            return MergedPDFTransfer(data: data, filename: prax.document.exportFilename)
                         }()!, preview: {
                             PraxDragPreview()
                         })
@@ -336,7 +424,7 @@ struct SectionHeaderView: View {
 
 
 struct SectionFooterView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     let mergedPage: MergedPage?
     let isSelected: Bool
@@ -363,7 +451,7 @@ struct SectionFooterView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-            if mergedPage == document.mergedPages.last {
+            if mergedPage == prax.document.mergedPages.last {
           //      DropTargetControl()
             }
         }
@@ -399,13 +487,12 @@ struct SectionFooterView: View {
 }
 
 struct MergedPageFooterView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     let mergedPage: MergedPage?
     let isSelected: Bool
     let highlightState: NSCollectionViewItem.HighlightState
     
-    @State private var hoveredButton: Int? = nil
     
     func mergedSizeText() -> String {
         if mergedPage != nil {
@@ -413,7 +500,7 @@ struct MergedPageFooterView: View {
             let h = mergedPage!.mergedHeightPts
             let wIn = w / 72.0
             let hIn = h / 72.0
-            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in) %.0f KB", w, h, wIn, hIn, document.mergedDocumentSizeKB)
+            return String(format: "Merged size: %.0f × %.0f pts (%.2f × %.2f in) %.0f KB", w, h, wIn, hIn, prax.document.mergedDocumentSizeKB)
         }
         else {
             return "No Merged Page"
@@ -452,15 +539,15 @@ struct MergedPageFooterView: View {
             Button("", systemImage: "plus.circle", action: {
                 pdfViewMode(.zoomIn)
             })
-            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1))
+            .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1))
             
             Button("", systemImage: "minus.circle", action: {
                 pdfViewMode(.zoomOut)
-            })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
+            })                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 2))
             
             Button("", systemImage: "equal.circle", action: {
                 pdfViewMode(.zoomFit)
-            })                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2))
+            })                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 2))
             
             Spacer()
 
@@ -523,7 +610,7 @@ struct MergedPageFooterView: View {
 
 
 struct MergedPageHeaderView: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     let mergedPage: MergedPage?
     let isSelected: Bool
@@ -550,8 +637,8 @@ struct MergedPageHeaderView: View {
                     Text("Julie d'Prax - \(section.title)") }
                 
                 .draggable({ () -> MergedPDFTransfer? in
-                    guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                    return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                    guard let data = prax.document.mergedPDFDocument.dataRepresentation() else { return nil }
+                    return MergedPDFTransfer(data: data, filename: prax.document.exportFilename)
                 }()!, preview: {
                     PraxDragPreview()
                 })
@@ -617,7 +704,7 @@ struct MergedPageHeaderView: View {
         else {
             print("Plain Click detected")
  //       fatalError()
-            //     document.mergedPDFView.go(to: mergedPage.pdfPage!)
+            //     prax.document.mergedPDFView.go(to: mergedPage.pdfPage!)
         }
         
    //     if PraxModel.shared.selectedSections.contains(indexPath.section) {

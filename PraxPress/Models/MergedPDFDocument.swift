@@ -28,21 +28,40 @@ import OSLog
         set {
             guard newValue != _mergedPages else { return }
             print("MergedPDFDocument - mergedPages: didSet ")
-            
             let oldValue = _mergedPages
-            prax.undoManager.registerUndo(withTarget: self, handler: {
-                $0.mergedPages = oldValue
-            })
+            prax.undoManager.registerUndo(withTarget: self, handler: {$0.mergedPages = oldValue })
             prax.undoManager.setActionName(oldValue.count < newValue.count ? "Add Merged Pages" : "Delete Merged Pages")
-            if newValue.isEmpty {
-
-                clearMergedDocument()
-            }
+            if newValue.isEmpty { clearMergedDocument() }
             _mergedPages = newValue
+            
          }
     }
 
  
+    func selectPageItem() {
+        if prax.selectedPageItem == nil {
+            if let mergedPage = mergedPages.first {
+                if let pageItem = mergedPage.pageItems.first(where: {!$0.skipped}) {
+                    DispatchQueue.main.async { self.prax.selectedPageItem = pageItem } } } }
+    }
+    
+    
+    func clearMergedDocument() {
+        print("Clear Merged Document")
+        prax.selectedPageItem = nil
+        mergedPDFDocument = defaultPDFDocument
+        prax.editingDocumentPDFView.document = PDFDocument()
+        
+        exportFolderURL = nil
+        exportFilenameBody = ""
+        
+        widthGuidePageID = nil
+        widthGuideLeftX = nil
+        widthGuideRightX = nil
+        
+        
+}
+    
     var widthGuidePageID: UUID? = nil
     var widthGuideLeftX: CGFloat? = nil
     var widthGuideRightX: CGFloat? = nil
@@ -58,11 +77,6 @@ import OSLog
     var exportFilenameExtension: String = "pdf"
     var exportFilename: String { exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix }
     
-    
-    
-    
-    
-    
     var exportFileURL: URL? {
         if exportFolderURL == nil { exportFolderURL = sourceFolderURL }
         guard let folder = exportFolderURL else { return nil }
@@ -71,7 +85,10 @@ import OSLog
     let mergedPDFURL: URL = { FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf") }()
     let defaultPDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
  
+    
     var mergedDocumentVersion = UUID()
+    var editingDocumentVersion = UUID()
+    var dataFieldPage: PageItem? = nil
     var mergedDocumentPages = 0
     var mergedDocumentSizeKB = 0
     var readyToExport: Bool {
@@ -81,6 +98,38 @@ import OSLog
         return true
     }
     
+    
+    
+    
+    var editingPDFDocument = PDFDocument()
+    var refreshingEditingDocument = false
+    func refreshEditingDocument() {
+        refreshingEditingDocument = true
+        Task {
+            
+            prax.document.dataFieldPage = nil
+            var insertIndex = 0
+            prax.editingPDFPages.removeAll()
+            let pdfDocument = PDFDocument()
+            for mergedPage in prax.document.mergedPages {
+                for pageItem in mergedPage.pageItems {
+                    if !pageItem.skipped {
+                        prax.editingPDFPages.append(pageItem.pdfPage)
+                        pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
+                        insertIndex += 1
+                        if !pageItem.dataFields.isEmpty {
+                            if prax.document.dataFieldPage == nil { prax.document.dataFieldPage = pageItem }
+                            //  else { prax.moreThanOneDataPageError() }
+                        } } }
+            }
+            editingPDFDocument = pdfDocument
+            editingDocumentVersion = UUID()
+            refreshingEditingDocument = false
+            refreshMergedDocument()
+        }
+    }
+  
+    
     private var _mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
     var mergedPDFDocument: PDFDocument { get { _mergedPDFDocument }
         set { guard newValue != _mergedPDFDocument else { return }
@@ -89,35 +138,48 @@ import OSLog
             if let pdfData = newValue.dataRepresentation() {
                 let sizeInBytes = pdfData.count
                 mergedDocumentSizeKB = sizeInBytes / (1000)
-                print("mergedDocumentSizeKB: \(mergedDocumentSizeKB) KB")
             }
-            
             mergedDocumentVersion = UUID()
             prax.mergedDocumentPDFView.document = mergedPDFDocument
         }
     }
-        
-        
+    
     var refreshingMergedDocument: Bool = false
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
         refreshingMergedDocument = true
         Task {
-            try? await Task.sleep(for:.milliseconds(100))
+          //  try? await Task.sleep(for:.milliseconds(1000))
+            pageImages.removeAll()
+            totalHeight = 0
+            maxWidth = 0
             mergedDocumentPages = 0
+            
             let pdfDocument = PDFDocument()
             for mergedPage in mergedPages {
+                if mergedPage.mergeModePages() < 1 { continue }
                 if let pdfPage = mergedPage.pdfPage {
                     pdfDocument.insert(pdfPage, at: mergedDocumentPages)
-                    mergedDocumentPages += 1 }
+                    mergedDocumentPages += 1
+                    var imageSize = pdfPage.bounds(for: .cropBox).size
+                    imageSize.width = imageSize.width * 2
+                    imageSize.height = imageSize.height * 2
+                    totalHeight += imageSize.height
+                    maxWidth = max(imageSize.width, maxWidth)
+                    pageImages.append(pdfPage.thumbnail(of: imageSize, for: .cropBox))
+                }
             }
-            
             mergedPDFDocument = pdfDocument
-           
+            selectPageItem()
             self.refreshingMergedDocument = false
-            print("refreshMergedDocument — done") }
+        }
     }
 
+    var pageImages: [NSImage] = []
+    var totalHeight: CGFloat = 0
+    var maxWidth: CGFloat = 0
+    
+    
     
     func setExportURL(from pageItem: PageItem) {
         if let url = URL(string: pageItem.sourceURLString) {
@@ -131,7 +193,7 @@ import OSLog
         var mergedPageIndex = indexPath?.section ?? 0
         if mergedPageIndex < 0 { mergedPageIndex = mergedPages.count }
         
-        if prax.optionKeyPressed || indexPath == nil || indexPath?.section ?? -1 < 0 {
+        if prax.optionKeyPressed || indexPath == nil || indexPath?.section ?? -1 < 0 || mergedPages.isEmpty {
             let mergedPage = MergedPage(prax: prax, title: (title ?? (url.deletingPathExtension().lastPathComponent)))
             
             
@@ -153,7 +215,7 @@ import OSLog
     
   
     func addPagesFromSourceFile(_ sourceFile: SourceFile, at indexPath: IndexPath? = nil, title: String? = nil) {
-        let payload = SourceFilePayload(id: sourceFile.id, fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, imageOptions: sourceFile.imageOptions)
+        let payload = SourceFilePayload(id: sourceFile.id, fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, isLibraryFile: sourceFile.isLibraryFile, imageOptions: sourceFile.imageOptions)
         addPagesFromSourceFilePayload(payload, at: indexPath, title: title)
         
         
@@ -204,10 +266,11 @@ import OSLog
                 name: title ?? url.deletingPathExtension().lastPathComponent,
                 sourceBookmark: payload.bookmarkData,
                 sourceURL: url,
-                pdfPage: pdfPage,
+                isLibraryFile: payload.isLibraryFile,
                 imageOptions: imageOptions,
                 dataFields: [:]
             )
+            pageItem.pdfPage = pdfPage
             
             mergedPage.pageItems.insert(pageItem, at: pageInsertIndex)
         
@@ -227,10 +290,11 @@ import OSLog
                     name: displayName,
                     sourceBookmark: payload.bookmarkData,
                     sourceURL: url,
+                    isLibraryFile: payload.isLibraryFile,
                     sourcePageIndex: index,
-                    pdfPage: pdfDocument.page(at: index)!,
                     dataFields: SourceFile.dataFieldsFromPDFDocument(pdfDocument)
                 )
+                item.pdfPage = pdfDocument.page(at: index)!
                 mergedPage.pageItems.insert(item, at: pageInsertIndex)
                 pageInsertIndex += 1
             }
@@ -338,6 +402,8 @@ import OSLog
         return nil
     }
     
+    func section(forMergedPage mergedPage: MergedPage) -> Int? { mergedPages.firstIndex(of: mergedPage) }
+    
     func indexPath(for pageItem: PageItem) -> IndexPath? {
         var section = 0
         for aSection in self.mergedPages {
@@ -360,15 +426,15 @@ import OSLog
         return nil
     }
 
-    func copyPDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
-        guard !items.isEmpty else { return }
+    func copyPageItems(itemIDs: [UUID], to destination: IndexPath) {
+        guard !itemIDs.isEmpty else { return }
         // Ensure destination section exists
         guard mergedPages.indices.contains(destination.section) else { return }
         let mergedPage = mergedPages[destination.section]
         let insertIndex = destination.item
         var pageItems: [PageItem] = []
-        for item in items {
-            if let pageItem = pageItem(indexPath: item) {
+        for itemID in itemIDs {
+            if let pageItem = pageItem(id: itemID) {
                 guard let pageData = pageItem.pdfPage.dataRepresentation else {continue}
                 let pdfDocument = PDFDocument(data: pageData)
                 guard let pdfPage = pdfDocument?.page(at: 0) else {continue}
@@ -378,11 +444,12 @@ import OSLog
                     name: pageItem.name + "-copy",
                     sourceBookmark: pageItem.sourceBookmark,
                     sourceURL: URL(string: pageItem.sourceURLString)!,
+                    isLibraryFile: pageItem.isLibraryFile,
                     sourcePageIndex: pageItem.sourcePageIndex,
-                    pdfPage: pdfPage,
                     imageOptions: pageItem.imageOptions,
                     dataFields: pageItem.dataFields
                 )
+                copiedPageItem.pdfPage = pdfPage
                 copiedPageItem.trims = pageItem.trims
                 copiedPageItem.merge = pageItem.merge
                 copiedPageItem.skipped = pageItem.skipped
@@ -404,12 +471,7 @@ import OSLog
                 items.append(indexPath)
             }
         }
-        if !items.isEmpty { movePDFPageItems(items, to: destination) }
-    }
-    
-    
-    
-    func movePDFPageItems(_ items: [IndexPath], to destination: IndexPath) {
+        
         guard !items.isEmpty else { return }
         // Ensure destination section exists
         guard mergedPages.indices.contains(destination.section) else { return }
@@ -452,32 +514,9 @@ import OSLog
             pageItem.mergedPage  = destSection
         }
         
-        // 4) Update selection to the new positions of the moved items
-        //    We map the moved items to their new indices in the destination section.
-        var newSelection: Set<IndexPath> = prax.selectedPageItems
-        // Remove the old selection indices for moved items
-        for source in uniqueItems {
-            newSelection.remove(source)
-        }
-        // Add new selection indices for the inserted range
-        for offset in 0..<movedItems.count {
-            newSelection.insert(IndexPath(item: insertIndex + offset, section: destination.section))
-        }
-        prax.selectedPageItems = newSelection
+       
     }
     
-    func beginMergedDocument() {
-        print("Clear Merged Document")
-
-    }
-    
-    func clearMergedDocument() {
-            print("Clear Merged Document")
-            prax.selectedPageItems.removeAll()
-            mergedPDFDocument = defaultPDFDocument
-            prax.editingDocumentPDFView.document = nil
-            exportFilenameBody = ""
-    }
     
     func clickedDeletePageButton(_ pageItem: PageItem) {
         

@@ -10,57 +10,131 @@ import TipKit
 import UniformTypeIdentifiers
 import PDFKit
 
-struct PageItemTrimsView: View {
-    @Environment(MergedPDFDocument.self) var document
+
+struct InspectorView: View {
+    @Environment(PraxModel.self) private var prax
+    @State private var hovering: Bool = false
+    var body: some View {
+        @Bindable var prax = prax
+        VStack {
+            
+            
+            Text("Julie d'Prax")
+                .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
+            
+            
+        }
+        .padding(20)
+        
+        
+    }
+}
+
+
+
+struct DocumentEditingLeadingEdge: View {
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
-    @State private var hoveredButton: Int? = nil
+    
+    @State private var viewWidth: CGFloat = 20
+    @State private var auxilliaryOpacity: CGFloat = 0.0
+    
+    @State private var hoverLocation: CGPoint = .zero
+    @State private var isHovering = false
+    @State private var paddingTop = 20.0
+    @State private var imageAngle = 0.0
+    
     var body: some View {
         @Bindable var prax = praxModel
-        if let pageItem = prax.selectedPageItem {
-            @Bindable var pageItem = pageItem
-            GroupBox {
-                HStack {
-                    VStack {
-                        Text("Top: \(pageItem.trims.top, specifier: "%.0f")")
-                        Text("Left: \(pageItem.trims.left, specifier: "%.0f")")
-                        Text("Right: \(pageItem.trims.right, specifier: "%.0f")")
-                        Text("Bottom: \(pageItem.trims.bottom, specifier: "%.0f")")
-                    }.font(.system(size: 8, weight: .ultraLight))
-                    VStack {
-                        Text("Set Width Guide").font(.system(size: 12, weight: .black))
-                        Button { document.clickedGuidePageButton(pageItem) }
-                        label: { if pageItem.skipped {
-                            Image(systemName: "ruler.fill")  }  else {
-                                Image(systemName: "ruler") }
-                        }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 235, isOn: document.widthGuidePageID != nil))
-                        .onHover { hovering in hoveredButton = hovering ? 235 : nil }
-                        .help("Set Width Guide")
+        
+        GeometryReader { geometry in
+            
+            
+            ZStack {
+                
+                
+                VStack {
+                    
+                    
+                    GroupBox {
+                        
+                        
+                        Image(systemName: prax.columnVisibility == .detailOnly ?  "building.columns" : "building.columns.fill")
+                        
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .padding(0)
+                            .padding(.top, 5)
+                            .padding(.leading, 5)
+                            .frame(width: viewWidth, height: viewWidth)
+                            .symbolEffect(.bounce.up.byLayer, options: .nonRepeating)
+                            .foregroundColor(prax.columnVisibility == .detailOnly ? .blue : .white)
+                        Spacer()
+                        
+                        Image("PraxPress").resizable().aspectRatio(contentMode: .fit)
+                            .rotationEffect(Angle(degrees: imageAngle))
+                            .padding(.leading, 5)
+                        //   .padding(.top, hoverOffset)
+                        //.zIndex(997)
+                            .frame(width: viewWidth, height: viewWidth)
                     }
+                    
+                    
+                    Spacer()
+                    
                 }
-                
-                .padding(.vertical, 10)
-                .foregroundStyle(.white)
-                .contentShape(.rect)
-                .background {
-                    RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                        .foregroundStyle(Color.prax)
-                }
-                
-
-                }
-
-                
+                Rectangle().background(Color.blue).opacity(auxilliaryOpacity)
+                    .onTapGesture {
+                        withAnimation {
+                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                        }
+                    }.zIndex(998)
+            }
+            .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity)
             
             
-
+            .onHover { hovering in
+                withAnimation {
+                    viewWidth = hovering ? 30 : 20
+                    
+                    imageAngle = hovering ? -3000 : 0
+                    paddingTop = hovering ? geometry.size.width / 2 : 20
+                    
+                    auxilliaryOpacity = hovering ? 0.01 : 0.0
+                    
+                }
+            }
+            
+            /*           .onContinuousHover { phase in
+             switch phase {
+             case .active(let location):
+             hoverLocation = location
+             
+             isHovering = true
+             case .ended:
+             isHovering = false
+             }
+             }
+             .overlay {
+             Rectangle()
+             .frame(width: 50, height: 50)
+             .foregroundColor(isHovering ? .green : .blue)
+             .offset(x: hoverLocation.x, y: hoverLocation.y)
+             }
+             
+             */
+            
         }
-        else { EmptyView() }
+        
+        
+        
+        
+        
     }
 }
 
 struct AnyOldView: View {
-    @Environment(MergedPDFDocument.self) var document
+    //  @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     var body: some View {
         @Bindable var prax = praxModel
@@ -83,427 +157,6 @@ struct AnyOldView: View {
 }
 
 
-/// Bridge AppKit's NSVisualEffectView into SwiftUI
-struct VisualEffectView: NSViewRepresentable {
-    var material: NSVisualEffectView.Material
-    var blendingMode: NSVisualEffectView.BlendingMode
-    var state: NSVisualEffectView.State
-    var emphasized: Bool
- 
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        context.coordinator.visualEffectView
-    }
- 
-    func updateNSView(_ view: NSVisualEffectView, context: Context) {
-        context.coordinator.update(
-            material: material,
-            blendingMode: blendingMode,
-            state: state,
-            emphasized: emphasized
-        )
-    }
- 
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
- 
-    class Coordinator {
-        let visualEffectView = NSVisualEffectView()
- 
-        init() {
-            visualEffectView.blendingMode = .withinWindow
-        }
- 
-        func update(material: NSVisualEffectView.Material,
-                        blendingMode: NSVisualEffectView.BlendingMode,
-                        state: NSVisualEffectView.State,
-                        emphasized: Bool) {
-            visualEffectView.material = material
-        }
-    }
-  }
-
-
-struct Example: View {
-    @State var dict: [String: String] = ["A": "Alpha", "B": "Beta"]
-
-    var body: some View {
-        List {
-            ForEach(Array(dict.keys), id: \.self) { key in
-                HStack {
-                    Text(key)
-                    TextField("Value", text: Binding(
-                        get: { dict[key] ?? "" },
-                        set: { dict[key] = $0 }
-                    ))
-                }
-            }
-        }
-    }
-}
-
-struct FlagControlView: View {
-    // Available flag colors like Mail
-    let flagColors: [(name: String, color: Color)] = [
-        ("Red", .red),
-        ("Orange", .orange),
-        ("Yellow", .yellow),
-        ("Green", .green),
-        ("Blue", .blue),
-        ("Purple", .purple),
-        ("Gray", .gray)
-    ]
-    
-    @State private var selectedFlagColor: Color = .gray // Default
-    @State private var isFlagged: Bool = false
-    
-    var body: some View {
-        VStack {
-            Text(isFlagged ? "Item Flagged" : "No Flag")
-                .foregroundColor(isFlagged ? selectedFlagColor : .primary)
-                .font(.headline)
-            
-            // The Flag Control Button (Mac Mail Style)
-            Menu {
-                Button(action: { isFlagged = false }) {
-                    Label("No Flag", systemImage: "flag.slash")
-                }
-                
-                Divider()
-                
-                ForEach(flagColors, id: \.name) { item in
-                    Button(action: {
-                        selectedFlagColor = item.color
-                        isFlagged = true
-                    }) {
-                        Label(item.name, systemImage: "flag").background(selectedFlagColor)
-                    }
-                }
-            } label: {
-                Image(systemName: "flag.fill")
-                    .symbolEffect(.rotate.byLayer, options: .repeat(.continuous))
-                    .foregroundStyle(selectedFlagColor, .yellow, .green)
-                
-//                Label("Flag", systemImage: isFlagged ? "flag.fill" : "flag")
-//                    .foregroundColor(isFlagged ? selectedFlagColor : .secondary)
-            }
-            .foregroundStyle(selectedFlagColor)
-        }
-        .padding()
-    }
-}
-
-
-
-
-
-struct EditSettingsPanel: View {
-    @Environment(\.dismiss) private var dismiss
-    @AppStorage("import-width") var importWidth: Int = 0
-    @AppStorage("import-height") var importHeight: Int = 0
-    @FocusState var widthFocused: Bool
-    var theTip = ImportOptionsTip()
-    
-    var body: some View {
-        
-        VStack {
-            GroupBox {
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Ok", systemImage: ("checkmark"))
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                
-                
-                Grid {
-                    GridRow {
-                        Text("Import Width:")
-                        TextField("",
-                                  value: $importWidth,
-                                  format: .number
-                        ).border(Color("PraxColor"))
-                            .onSubmit({
-                                dismiss()
-                            })
-                            .focused($widthFocused)
-                            .textContentType(.postalCode)
-                    }
-                    
-                    GridRow {
-                        Text("Import Height:")
-                        TextField("",
-                                  value: $importHeight,
-                                  format: .number
-                        ).border(Color("PraxColor"))
-                        
-                        
-                    }
-                }
-                
-                
-                
-                
-                Text("\(importWidth)")
-                //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
-                
-                Text("Image Import Size")
-                    .frame(minWidth: 100, maxWidth: 200, maxHeight: 50)
-                    .background(Color("AccentColor"))
-            }
-            .padding(20)
-            
-        }
-        .background(PraxGradient(0).edgesIgnoringSafeArea(.all))
-        .popoverTip(theTip)
-    }
-}
-
-
-
-
-struct ImportOptionsInspector: View {
-    @Environment(\.dismiss) private var dismiss
-    @AppStorage("import-width") var importWidth: Int = 0
-    @AppStorage("import-height") var importHeight: Int = 0
-    @Environment(PraxModel.self) private var prax
-    @FocusState var widthFocused: Bool
-    var theTip = ImportOptionsTip()
-    
-    var body: some View {
-        @Bindable var prax = prax
-        VStack {
-            GroupBox {
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Ok", systemImage: ("checkmark"))
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                
-                
-                Grid {
-                    GridRow {
-                        Text("Maximum Width:")
-                        TextField("",
-                                  value: $importWidth,
-                                  format: .number
-                        ).border(Color("PraxColor"))
-                            .onSubmit({
-                                dismiss()
-                            })
-                            .focused($widthFocused)
-                            .textContentType(.postalCode)
-                    }
-                    
-                    GridRow {
-                        Text("Maximum Height:")
-                        TextField("",
-                                  value: $importHeight,
-                                  format: .number
-                        ).border(Color("PraxColor"))
-                        
-                        
-                    }
-                }
-                
-                
-                
-                
-                Text("\(importWidth)")
-                //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
-
-                Toggle(isOn: $prax.inspectNextImageDrop, label: {
-                        Text("Test on Next Drop")
-                })
-                Text("Image Import Size")
-                    .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
-                    .background(Color("PraxColor"))
-            }
-            .padding(20)
-            
-        }
-        .background(PraxGradient(0).edgesIgnoringSafeArea(.all))
-        .popoverTip(theTip)
-    }
-}
-
-
-
-
-
-struct ImportOptionsTip: Tip {
-    var title: Text {
-        Text("Image Import Options")
-    }
-    var message: Text? {
-        Text("Imported images are resampled to reduce the size of the resulting PDF file. Use these options to control the quality of the output.")
-    }
-    var image: Image? {
-        Image(systemName: "photo.badge.arrow.down")
-    }
-}
-
-
-
-public struct ASlideableDivider: View {
-    @Binding var dimension: Double
-    @Binding var otherDimension: Double
-    let position: Int
-    let isShowingOtherPane: Bool
-    let minDimension: Double
-    let maxDimension: Double
-    let windowWidth: Double
-    //   @Binding var collapse: Bool?
-    
-    @State private var dimensionStart: Double?
-    
-    public var body: some View {
-        Rectangle()
-            .fill(.orange)
-            .frame(width: 10)
-            .onHover { inside in
-                if inside {
-                    NSCursor.resizeLeftRight.push()
-                } else {
-                    NSCursor.pop()
-                }
-            }
-            .gesture(drag)
-    }
-    
-    var drag: some Gesture {
-        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
-            .onChanged { val in
-                if dimensionStart == nil {
-                    if position == 0 {
-                        dimensionStart = dimension
-                    }
-                    else {
-                        dimensionStart = otherDimension
-                    }
-                    dimensionStart = dimension
-                }
-                let delta = val.location.x - val.startLocation.x
-                let newDimension = dimensionStart! + Double(delta)
-                
-                
-                let difference = newDimension - dimension
-                
-                if difference > 0 {
-                    
-                    
-                    
-                }
-                else if difference < 0 {
-                    if position == 0 {
-                        if newDimension < minDimension {
-                            print("Julie d'Prax")
-                            //  collapse = false
-                        }
-                        else {
-                            dimension = newDimension
-                        }
-                    }
-                    else {
-                        if newDimension > maxDimension {
-                            print("Juliette M. Belanger")
-                            //  collapse = false
-                        }
-                        else {
-                            dimension = newDimension
-                        }
-                        
-                    }
-                    
-                }
-                
-                if position == 0 {
-                    if newDimension < minDimension {
-                        print("Julie d'Prax")
-                        //  collapse = false
-                        return
-                    }
-                    
-                    if newDimension < windowWidth - maxDimension {
-                        dimension = newDimension
-                        return
-                    }
-                }
-                
-                if newDimension + dimension < minDimension {
-                    
-                    print("Julie d'Prax")
-                    //  collapse = false
-                    return
-                }
-                else if isShowingOtherPane {
-                    
-                    if newDimension < windowWidth - dimension - otherDimension - maxDimension {
-                        dimension += difference / 2
-                        otherDimension += difference / 2
-                    }
-                    
-                    
-                }
-                else {
-                    
-                    if newDimension < windowWidth - maxDimension {
-                        dimension += difference
-                        otherDimension += difference
-                    }
-                    
-                    
-                }
-                
-                
-                print("dimension: ", dimension)
-                
-            }
-            .onEnded { val in
-                dimensionStart = nil
-            }
-    }
-}
-
-public struct SlideableDivider: View {
-    let dimension: Double
-    let position: Int
-    let onChangedDivider: (Double, Int) -> Void
-    
-    @State private var dimensionStart: Double?
-    
-    public var body: some View {
-        Rectangle()
-            .fill(.orange)
-            .frame(width: 10)
-            .onHover { inside in
-                if inside {
-                    NSCursor.resizeLeftRight.push()
-                } else {
-                    NSCursor.pop()
-                }
-            }
-            .gesture(drag)
-    }
-    
-    var drag: some Gesture {
-        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
-            .onChanged { val in
-                if dimensionStart == nil {
-                    dimensionStart = dimension
-                }
-                let delta = val.location.x - val.startLocation.x
-                let newDimension = dimensionStart! + Double(delta)
-                
-                onChangedDivider(newDimension, position)
-            }
-            .onEnded { val in
-                dimensionStart = nil
-            }
-    }
-}
-
 struct PraxSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: View where T.RawValue == String {
     
     // The selection is now a @Binding so it can be changed from the parent view
@@ -516,31 +169,29 @@ struct PraxSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: View
     let iconProvider: (T) -> String
     
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 0) {
             ForEach(items, id: \.self) { item in
-                Label(item.rawValue, systemImage: iconProvider(item))
-             //   Image(iconProvider(item))
-             //   Text(item.rawValue)
-                    .font(.caption)
-                    .padding(10)
-                    .foregroundStyle(selection == item ? .white : .primary.opacity(0.7))
-                    .background {
-                        if selection == item {
-                            
-                            Capsule()
-                                .foregroundStyle(colorProvider(item).gradient)
-                                .matchedGeometryEffect(id: "reusable_tab", in: animation)
-                        }
+                HStack {
+                    Image(systemName: iconProvider(item)).font(.default).padding(5)
+                    Text(item.rawValue).font(.caption)
+                }
+                .padding(.horizontal, 5)
+                .foregroundStyle(selection == item ? .white : .primary.opacity(0.7))
+                .background {
+                    if selection == item {
+                        RoundedRectangle(cornerRadius: 5)
                     }
-                    .contentShape(.rect)
-                    .onTapGesture {
-                        withAnimation(.bouncy) {
-                            selection = item
-                        }
+                }
+                .onTapGesture {
+                    withAnimation(.bouncy) {
+                        selection = item
                     }
-            }
+                }
+            }.padding(2)
         }
-        .background(.primary.opacity(0.08), in: .capsule)
+        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.cyan, lineWidth: 2))
+        
+      //  .background(.primary.opacity(0.08), in: .capsule)
         //    .padding(.horizontal, 10)
     }
 }
@@ -586,7 +237,7 @@ struct ReusableSegmentedControl<T: Hashable & CaseIterable & RawRepresentable>: 
 
 
 struct OptionKeyPressedToolbarItem: View {
-    @Environment(MergedPDFDocument.self) var document
+    //  @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     var body: some View {
         @Bindable var prax = praxModel
@@ -610,40 +261,6 @@ struct OptionKeyPressedToolbarItem: View {
     }
 }
 
-
-
-
-class praxListItem: NSCollectionViewItem {
-    
-    static let reuseIdentifier = NSUserInterfaceItemIdentifier("list-item-reuse-identifier")
-    
-    override var highlightState: NSCollectionViewItem.HighlightState {
-        didSet {
-            updateSelectionHighlighting()
-        }
-    }
-    
-    override var isSelected: Bool {
-        didSet {
-            updateSelectionHighlighting()
-        }
-    }
-    
-    private func updateSelectionHighlighting() {
-        if !isViewLoaded {
-            return
-        }
-        
-        let showAsHighlighted = (highlightState == .forSelection) ||
-        (isSelected && highlightState != .forDeselection) ||
-        (highlightState == .asDropTarget)
-        
-        textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
-        view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
-    }
-}
-
-
 #Preview {
-    OptionKeyPressedToolbarItem()
+    PraxGradient(3)
 }

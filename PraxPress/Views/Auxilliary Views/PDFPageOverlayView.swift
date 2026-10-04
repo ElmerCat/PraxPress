@@ -14,7 +14,7 @@ final class PDFPageOverlayView: NSView {
     let prax: PraxModel
     init(pageItem: PageItem) {
         self.pageItem = pageItem
-        self.prax = pageItem.prax
+        self.prax = pageItem.prax!
         super.init(frame: .zero)
         
         trimsObserver = NotificationCenter.default.addObserver(
@@ -108,8 +108,8 @@ final class PDFPageOverlayView: NSView {
     override func hitTest(_ point: NSPoint) -> NSView? { self }
     
     private var isSelectedOverlay: Bool { prax.selectedPageItem == pageItem }
-    private let activeOutsideMaskAlpha: CGFloat = 0.22
-    private let inactiveOutsideMaskAlpha: CGFloat = 0.42
+    private let activeOutsideMaskAlpha: CGFloat = 0.42
+    private let inactiveOutsideMaskAlpha: CGFloat = 0.62
     
     
     override func draw(_ dirtyRect: NSRect) {
@@ -153,7 +153,7 @@ final class PDFPageOverlayView: NSView {
 
         if isActive {
             // Handles only for selected page item
-            NSColor.white.setFill()
+            NSColor(white: 1.0, alpha: 0.5).setFill()
             NSColor.systemBlue.setStroke()
             for handleRect in handleRects(for: inner).values {
                 let handlePath = NSBezierPath(rect: handleRect)
@@ -971,7 +971,6 @@ class OverlayControlNSView: NSView, HostingViewContainer {
 
 
 struct OverlayControlView: View {
-    @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     let pageItem: PageItem
     
@@ -981,8 +980,7 @@ struct OverlayControlView: View {
     
     var body: some View {
         @Bindable var prax = praxModel
-        @Bindable var document = document
-        
+ 
         GroupBox {
             GeometryReader { proxy in
                 VStack {

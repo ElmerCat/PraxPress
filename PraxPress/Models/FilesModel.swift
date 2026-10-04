@@ -27,10 +27,14 @@ struct PDFDataFields: Codable {
     var justification: String?
 }
 
-enum SourceFileStatus: String, Codable {
-    case okay
-    case stale
-    case bad
+enum SourceFileStatus: String, Codable, Hashable, Comparable {
+    static func < (lhs: SourceFileStatus, rhs: SourceFileStatus) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+    
+    case okay = "Source Files"
+    case trashed = "Files in the Trash"
+    case bad = "Files that can't be found"
 }
 
 enum SourceFileType: String, Codable, Hashable, Comparable {
@@ -49,38 +53,6 @@ enum SourceFileType: String, Codable, Hashable, Comparable {
 @Model
 final class SourceFile {
     
-    static let defaultFieldNames = ["Date", "PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
-    
-    static func dataFieldsFromPDFDocument(_ pdfDocument: PDFDocument) -> [String: FieldValue] {
-        var dataFields: [String: FieldValue] = [:]
-        let fieldNames = SourceFile.defaultFieldNames
-        
-        func value(from annot: PDFAnnotation) -> String? {
-            if let v = annot.widgetStringValue, !v.isEmpty { return v }
-            if let v = annot.contents, !v.isEmpty { return v }
-            return nil
-        }
-        
-        for pageIndex in 0..<pdfDocument.pageCount {
-            guard let page = pdfDocument.page(at: pageIndex) else { continue }
-            print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
-            for annot in page.annotations {
-                let key = annot.fieldName ?? ""
-                if key.isEmpty { continue }
-                let widgetType = String(describing: annot.widgetFieldType)
-                let extracted = value(from: annot) ?? "(nil)"
-                print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
-                
-                if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                    if fieldNames.contains(key) {
-                        dataFields[key] = .string(v)
-                    }
-                }
-            }
-        }
-        return dataFields
-    }
-    
     var id: UUID
     var url: URL
     var bookmarkData: Data
@@ -89,10 +61,10 @@ final class SourceFile {
     var fileType: SourceFileType
     var fileSize: Int
     var fileGroup: SourceFileGroup
-    // Persisted as Data
     var imageOptionsData: Data?
     var dataFieldsData: Data?
-    var status = SourceFileStatus.okay
+    var status: SourceFileStatus = SourceFileStatus.okay
+    var isLibraryFile: Bool = false
     
     init(fileGroup: SourceFileGroup, url: URL, bookmarkData: Data, pageCount: Int, fileType: SourceFileType, fileSize: Int, imageOptions: ImageImportOptions? = nil, dataFields: [String: FieldValue]? = nil) {
         self.id = UUID()
@@ -128,22 +100,56 @@ final class SourceFile {
             else { dataFieldsData = nil } }
     }
     
+    static let defaultFieldNames = ["Date", "PcardHolderName", "DocumentNumber", "Amount", "Vendor", "GLAccount", "CostObject", "Description"]
+    
+    static func dataFieldsFromPDFDocument(_ pdfDocument: PDFDocument) -> [String: FieldValue] {
+        var dataFields: [String: FieldValue] = [:]
+        let fieldNames = SourceFile.defaultFieldNames
+        
+        func value(from annot: PDFAnnotation) -> String? {
+            if let v = annot.widgetStringValue, !v.isEmpty { return v }
+            if let v = annot.contents, !v.isEmpty { return v }
+            return nil
+        }
+        
+        for pageIndex in 0..<pdfDocument.pageCount {
+            guard let page = pdfDocument.page(at: pageIndex) else { continue }
+            //     print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
+            for annot in page.annotations {
+                let key = annot.fieldName ?? ""
+                if key.isEmpty { continue }
+                let widgetType = String(describing: annot.widgetFieldType)
+                let extracted = value(from: annot) ?? "(nil)"
+                print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
+                
+                if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                    if fieldNames.contains(key) {
+                        dataFields[key] = .string(v)
+                    }
+                }
+            }
+        }
+        return dataFields
+    }
+    
+    
+    
     func testBookmark() {
         var isStale = false
         
         if let testURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
             if testURL.absoluteString.contains("/.Trash/") || testURL.absoluteString.contains("/.Trashes/") {
                 print(testURL, " - BookmarkData for URL: ", url, " - File is in Trash ***")
-                status = .bad
+                status = .trashed
             }
             else if isStale {
-                print("BookmarkData for URL: ", url, " - File is Stale ***")
+                print("BookmarkData for URL: ", url, " - File is Stale *** \n", testURL, "\n")
                 
-      //          refreshBookmark()
-                status = .stale
+                refreshBookmark(testURL)
+               
             }
             else {
-                print("Resolved BookmarkData for URL: ", url)
+            //    print("Resolved BookmarkData for URL: ", url)
                 status = .okay
             }
         }
@@ -156,10 +162,11 @@ final class SourceFile {
         
     }
     
-    func refreshBookmark() {
+    func refreshBookmark(_ url: URL) {
         let needsStop = url.startAccessingSecurityScopedResource()
         defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
         if let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+            self.url = url
             bookmarkData = data
             status = .okay
         }
@@ -167,6 +174,24 @@ final class SourceFile {
             status = .bad
         }
     }
+    
+    func displayValue(for key: String) -> String {
+        guard let fields = dataFields else {return "No Data Fields"}
+        guard let field = fields[key] else { return "No Field: " + key }
+        
+        //    print (field)
+        
+        if let s = field.stringValue { return s }
+        if let i = field.intValue { return String(i) }
+        if let d = field.doubleValue { return String(d) }
+        if let b = field.boolValue { return String(b) }
+        if let date = field.dateValue {
+            return ISO8601DateFormatter().string(from: date)
+        }
+        return "No Data: " + key
+    }
+
+    
 }
 
 extension NSPasteboard.PasteboardType {
@@ -189,41 +214,6 @@ extension UUID: @retroactive Transferable, @retroactive Identifiable {
     }
 }
 
-nonisolated struct PageItemPayload: Codable {
-    let id: UUID
-    let name: String
-}
-
-struct PageItemTransfer: Transferable, Identifiable, @unchecked Sendable {
-    let id = UUID()
-    var pageItem: PageItem?
-    var payload: PageItemPayload
-    
-    init(payload: PageItemPayload) {
-        self.payload = payload
-    }
-    
-    @MainActor init(pageItem: PageItem) {
-        self.payload = PageItemPayload(
-            id: pageItem.id,
-            name: pageItem.name
-        )
-    }
-    
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(contentType: .pageItemType) { item in
-            let payload = PageItemPayload(
-                id: item.payload.id,
-                name: item.payload.name)
-            return try JSONEncoder().encode(payload) }
-        importing: { data in
-            let payload = try JSONDecoder().decode(PageItemPayload.self, from: data)
-            return PageItemTransfer(payload: payload)
-        }
-        
-        ProxyRepresentation(exporting: \.payload.name)
-    }
-}
 
 
 nonisolated struct SourceFilePayload: Codable {
@@ -232,6 +222,7 @@ nonisolated struct SourceFilePayload: Codable {
     let bookmarkData: Data
     let fileType: SourceFileType
     var fileSize: Int
+    var isLibraryFile: Bool
     let imageOptions: ImageImportOptions?
 }
 
@@ -251,11 +242,13 @@ struct SourceFileTransfer: Transferable, Identifiable, @unchecked Sendable {
             bookmarkData: sourceFile.bookmarkData,
             fileType: sourceFile.fileType,
             fileSize: sourceFile.fileSize,
+            isLibraryFile: sourceFile.isLibraryFile,
             imageOptions: sourceFile.imageOptions
         )
     }
 
     static var transferRepresentation: some TransferRepresentation {
+        
         DataRepresentation(contentType: .sourceFileType) { item in
             let payload = SourceFilePayload(
                 id: item.payload.id,
@@ -263,14 +256,15 @@ struct SourceFileTransfer: Transferable, Identifiable, @unchecked Sendable {
                 bookmarkData: item.payload.bookmarkData,
                 fileType: item.payload.fileType,
                 fileSize: item.payload.fileSize,
+                isLibraryFile: item.payload.isLibraryFile,
                 imageOptions: item.payload.imageOptions)
             return try JSONEncoder().encode(payload) }
         importing: { data in
             let payload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
             return SourceFileTransfer(payload: payload)
         }
- 
-        ProxyRepresentation(exporting: \.payload.fileURL)
+        
+        ProxyRepresentation(exporting: \.payload.fileURL.absoluteString)
     }
 }
 

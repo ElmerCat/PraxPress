@@ -17,7 +17,7 @@ struct Stub_PageItemPopover: View {
     var body: some View {
         @Bindable var prax = prax
         
- //       if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+ //       if let pageItem = prax.document.dataFieldPage {
         if let pageItem = prax.selectedPageItem {
             Text(pageItem.name)
         }
@@ -48,7 +48,7 @@ struct DatePopover: View {
         @Bindable var prax = prax
         
         
-        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+        if let pageItem = prax.document.dataFieldPage {
             GroupBox {
                 DatePicker("", selection: $selectedDate, displayedComponents: .date)
                 .onChange(of: selectedDate) {
@@ -74,7 +74,7 @@ struct DatePopover: View {
             
             
             .onAppear(perform: {
-                if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+                if let pageItem = prax.document.dataFieldPage {
                     selectedDate = dateFromPageItemDataField(pageItem) ?? Date()
                 }
             })
@@ -93,7 +93,7 @@ struct VendorAccountsPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+        if let pageItem = prax.document.dataFieldPage {
 
             GroupBox {
                 
@@ -176,7 +176,7 @@ struct DescriptionPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+        if let pageItem = prax.document.dataFieldPage {
 
             GroupBox {
                 TextEditor(text: Binding<String>(
@@ -218,11 +218,10 @@ struct DocumentNumberPopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
     @FocusState private var isFocused: Bool
-    @State private var hoveredButton: Int?
-   
+    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+        if let pageItem = prax.document.dataFieldPage {
 
             HStack {
                 Button { if let string = NSPasteboard.general.string(forType: .string){
@@ -230,8 +229,8 @@ struct DocumentNumberPopover: View {
                  label: {
                      Image(systemName: "arrow.right.page.on.clipboard").padding(0)
                 }
-                 .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 422))
-                 .onHover { hovering in hoveredButton = hovering ? 422: nil }
+                 .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 422))
+                 .onHover { hovering in prax.hoveredButton = hovering ? 422: nil }
                 TextField("DocumentNumber", text: Binding<String>(
                     get: { pageItem.dataFields["DocumentNumber"]?.stringValue ?? "" },
                     set: { newValue in
@@ -272,7 +271,7 @@ struct AmountPopover: View {
    
     var body: some View {
         @Bindable var prax = prax
-        if let pageItem = prax.selectedPageItem?.mergedPage.dataFieldPage {
+        if let pageItem = prax.document.dataFieldPage {
             
             VStack {
                 GroupBox {
@@ -335,7 +334,6 @@ struct DeletePopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
     
-    @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
     
   //  var theTip = FilenamePrefixTip()
@@ -372,8 +370,8 @@ struct DeletePopover: View {
                             }
                                 
                        }
-                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 427))
-                        .onHover { hovering in hoveredButton = hovering ? 427 : nil }
+                        .buttonStyle(PrefixButtonStyle(isHovering: prax.hoveredButton == 427))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 427 : nil }
 
                         
                         Button {
@@ -387,8 +385,8 @@ struct DeletePopover: View {
                             }
                                 
                        }
-                        .buttonStyle(PrefixButtonStyle(isHovering: hoveredButton == 426))
-                        .onHover { hovering in hoveredButton = hovering ? 426 : nil }
+                        .buttonStyle(PrefixButtonStyle(isHovering: prax.hoveredButton == 426))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 426 : nil }
                     }
                 
             }
@@ -412,7 +410,6 @@ struct FilenamePrefixPopover: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
     
-    @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
     
     var theTip = FilenamePrefixTip()
@@ -461,7 +458,7 @@ struct FilenamePrefixPopover: View {
                     ForEach(savedPrefixes, id: \.self, content: { savedPrefix in
                         
                         Button {
-                            document.exportFilenamePrefix = savedPrefix
+                            prax.document.exportFilenamePrefix = savedPrefix
                             dismiss()
                         } label: {
                             Text(savedPrefix)
@@ -486,7 +483,7 @@ struct FilenamePrefixPopover: View {
                         .overlay(alignment: .trailing) {
                             if !document.exportFilenamePrefix.isEmpty {
                                 Button {
-                                    document.exportFilenamePrefix = ""
+                                    prax.document.exportFilenamePrefix = ""
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundStyle(.secondary)
@@ -507,17 +504,17 @@ struct FilenamePrefixPopover: View {
                     } label: {
                         Image(systemName: "checkmark")
                     }
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 427))
-                    .onHover { hovering in hoveredButton = hovering ? 427 : nil }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 427))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 427 : nil }
                 }
                 
-                if document.exportFilenamePrefix != "" {
+                if prax.document.exportFilenamePrefix != "" {
                     
                     HStack {
                         Spacer()
                         Text("Clear Prefix")
                         Button {
-                            document.exportFilenamePrefix = ""
+                            prax.document.exportFilenamePrefix = ""
                             dismiss()
                             }
                         label: {
@@ -526,8 +523,8 @@ struct FilenamePrefixPopover: View {
 
                             
                         }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 426))
-                        .onHover { hovering in hoveredButton = hovering ? 426 : nil }
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 426))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 426 : nil }
                     }
 
                 }
@@ -551,12 +548,11 @@ struct FilenamePrefixPopover: View {
 struct SectionHeaderPopover: View {
     let mergedPage: MergedPage
     @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     let praxTheme = PraxTheme()
     let deleteTheme = PraxTheme()
     
-    @State private var hoveredButton: Int? = nil
     @State private var imageAngle = 0.0
     
     var theTip = PageItemTip()
@@ -581,8 +577,8 @@ struct SectionHeaderPopover: View {
                             }
                         }
 
-                    if document.mergedPages.count > 1 {
-                        Text("\(document.mergedPages.count) Merged Pages from \(document.totalPageItems) Page Items")
+                    if prax.document.mergedPages.count > 1 {
+                        Text("\(prax.document.mergedPages.count) Merged Pages from \(prax.document.totalPageItems) Page Items")
                     }
                     else {
                         Text("Merged Page")
@@ -628,8 +624,8 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 153))
-                    .onHover { hovering in hoveredButton = hovering ? 153 : nil }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 153))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 153 : nil }
                     
                 }
                 .disabled(mergedPage.skippedPages == 0)
@@ -655,8 +651,8 @@ struct SectionHeaderPopover: View {
                         Image(systemName: "rectangle.portrait.slash")
                         
                     }
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 156))
-                    .onHover { hovering in hoveredButton = hovering ? 156 : nil }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 156))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 156 : nil }
                     
                 }
                 .disabled(mergedPage.pageItems.count <= mergedPage.skippedPages)
@@ -670,15 +666,15 @@ struct SectionHeaderPopover: View {
                         Text("Delete This Merged Page")
                     }
                     Button {
-                        document.mergedPages.removeAll(where: { mergedPage in
+                        prax.document.mergedPages.removeAll(where: { mergedPage in
                             mergedPage == self.mergedPage
                         })
                       
                         dismiss() }
                     label: { Image(systemName: "trash")   }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 150))
                         .onHover { hovering in
-                            hoveredButton = hovering ? 150 : nil
+                            prax.hoveredButton = hovering ? 150 : nil
                         }
                         .help("Delete page")
                     
@@ -695,84 +691,84 @@ struct SectionHeaderPopover: View {
                         .stroke(.blue, lineWidth: 3) )
             
             
-            if document.mergedPages.count > 1 {
+            if prax.document.mergedPages.count > 1 {
                 Divider()
                 
                 GroupBox {
                 
-                    if document.mergedPages.count == 2 {
+                    if prax.document.mergedPages.count == 2 {
                         Text("Other Merged Page")
                     }
                     else {
-                        Text("\(document.mergedPages.count - 1 ) other Merged Pages")
+                        Text("\(prax.document.mergedPages.count - 1 ) other Merged Pages")
                     }
                     
                     Grid(alignment: .trailing) {
                         
                         GridRow {
                             
-                            if document.totalPageItems == 2 {
+                            if prax.document.totalPageItems == 2 {
                                 Text("Include Both Page Items")
                             }
                             else {
-                                Text("Include All \(document.totalPageItems) Page Items")
+                                Text("Include All \(prax.document.totalPageItems) Page Items")
                             }
                             
                             
                             Button {
-                                document.includeAllPages()
+                                prax.document.includeAllPages()
                                 dismiss() }
                             label: {
                                 
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 153))
-                            .onHover { hovering in hoveredButton = hovering ? 153 : nil }
+                            .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 153))
+                            .onHover { hovering in prax.hoveredButton = hovering ? 153 : nil }
                             
                         }
                         .disabled(mergedPage.skippedPages == 0)
                         .opacity(mergedPage.skippedPages == 0 ? 0.25 : 1)
                         
                         GridRow {
-                            if document.totalPageItems == 2 {
+                            if prax.document.totalPageItems == 2 {
                                 Text("Skip Both Page Items")
                             }
                             else {
-                                Text("Skip All \(document.totalPageItems) Page Items")
+                                Text("Skip All \(prax.document.totalPageItems) Page Items")
                             }
                             
                             Button {
                                 
-                                document.skipAllPages()
+                                prax.document.skipAllPages()
                                 dismiss() }
                             label: {
                                 
                                 Image(systemName: "rectangle.portrait.slash")
                                 
                             }
-                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 176))
-                            .onHover { hovering in hoveredButton = hovering ? 176 : nil }
+                            .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 176))
+                            .onHover { hovering in prax.hoveredButton = hovering ? 176 : nil }
                             
                         }
                         .disabled(mergedPage.pageItems.count <= mergedPage.skippedPages)
                         .opacity(mergedPage.pageItems.count <= mergedPage.skippedPages ? 0.25 : 1)
                         
                     GridRow {
-                        if document.mergedPages.count == 2 {
+                        if prax.document.mergedPages.count == 2 {
                             Text("Delete Both Merged Pages")
                         }
                         else {
-                            Text("Delete All \(document.totalPageItems) Merged Pages")
+                            Text("Delete All \(prax.document.totalPageItems) Merged Pages")
                         }
                         Button {
-                            document.mergedPages.removeAll()
-                            document.refreshMergedDocument()
+                            prax.document.mergedPages.removeAll()
+                            prax.document.refreshMergedDocument()
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 150))
+                            .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 150))
                             .onHover { hovering in
-                                hoveredButton = hovering ? 150 : nil
+                                prax.hoveredButton = hovering ? 150 : nil
                             }
                             .help("Delete page")
                         
@@ -802,10 +798,9 @@ struct SectionHeaderPopover: View {
 struct PageItemPopover: View {
     let pageItem: PageItem
     @Environment(\.dismiss) private var dismiss
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
      
-    @State private var hoveredButton: Int? = nil
     
     var theTip = PageItemTip()
     
@@ -827,7 +822,7 @@ struct PageItemPopover: View {
                         }
 
                         Button {
-                            document.clickedSkipPageButton(pageItem)
+                            prax.document.clickedSkipPageButton(pageItem)
                             dismiss() }
                         label: {
                             if pageItem.skipped {
@@ -837,14 +832,14 @@ struct PageItemPopover: View {
                                 Image(systemName: "rectangle.portrait.slash")
                             }
                         }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
-                        .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 126))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 126 : nil }
                         
                     }
                     
                     GridRow {
                         Text("Merge Mode")
-                        Button { document.clickedMergeModeButton(pageItem)
+                        Button { prax.document.clickedMergeModeButton(pageItem)
                             dismiss() }
                         label: {
                             switch(pageItem.merge) {
@@ -856,20 +851,20 @@ struct PageItemPopover: View {
                                 Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle")
                             }
                         }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 121))
-                        .onHover { hovering in hoveredButton = hovering ? 121 : nil }
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 121))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 121 : nil }
                         .help("Merge page mode")
                     }
                     
                     GridRow {
                         Text("Set Width Guide")
                         Button {
-                            document.clickedGuidePageButton(pageItem)
+                            prax.document.clickedGuidePageButton(pageItem)
                             //    dismiss()
                         }
                         label: { Image(systemName: "ruler") }
-                            .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
-                        .onHover { hovering in hoveredButton = hovering ? 124 : nil }
+                            .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 124))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 124 : nil }
                         .help("Set width guide")
                         
                         
@@ -877,12 +872,12 @@ struct PageItemPopover: View {
                     GridRow {
                         Text("Delete page")
                         Button {
-                            document.clickedDeletePageButton(pageItem)
+                            prax.document.clickedDeletePageButton(pageItem)
                             dismiss() }
                         label: { Image(systemName: "trash")   }
-                        .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 120))
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 120))
                         .onHover { hovering in
-                            hoveredButton = hovering ? 120 : nil
+                            prax.hoveredButton = hovering ? 120 : nil
                         }
                         .help("Delete page")
                         
@@ -909,8 +904,7 @@ struct EditPagePopover: View {
     let pageItem: PageItem
     @Environment(\.dismiss) private var dismiss
     @Environment(PraxModel.self) private var prax
-    @State private var hoveredButton: Int? = nil
-  
+    
     var body: some View {
             HStack {
                 Button { prax.document.clickedSkipPageButton(pageItem) }
@@ -918,8 +912,8 @@ struct EditPagePopover: View {
                     if pageItem.skipped { Image(systemName: "rectangle.portrait.slash.fill") }
                     else {  Image(systemName: "rectangle.portrait.slash")  }
                 }
-                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 126))
-                .onHover { hovering in hoveredButton = hovering ? 126 : nil }
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 126))
+                .onHover { hovering in prax.hoveredButton = hovering ? 126 : nil }
                 
                 Button { prax.document.clickedMergeModeButton(pageItem) }
                 label: { switch(pageItem.merge) {
@@ -930,18 +924,18 @@ struct EditPagePopover: View {
                 case .mergeRight:
                     Image(systemName: "inset.filled.trailinghalf.arrow.trailing.rectangle") }
                 }
-                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 121))
-                .onHover { hovering in hoveredButton = hovering ? 121 : nil }
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 121))
+                .onHover { hovering in prax.hoveredButton = hovering ? 121 : nil }
                 
                 Button { prax.document.clickedGuidePageButton(pageItem) }
                 label: { Image(systemName: "ruler") }
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 124))
-                    .onHover { hovering in hoveredButton = hovering ? 124 : nil }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 124))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 124 : nil }
                 
                 Button { prax.document.clickedDeletePageButton(pageItem) }
                 label: { Image(systemName: "trash")   }
-                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 120))
-                    .onHover { hovering in hoveredButton = hovering ? 120 : nil  }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 120))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 120 : nil  }
                     .help("Delete page")
                 
         }

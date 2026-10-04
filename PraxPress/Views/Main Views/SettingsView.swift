@@ -31,8 +31,7 @@ struct SettingsView: View {
     @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
 
     var praxLady = "Julie d'Prax"
-    @State private var hoveredButton: Int? = nil
-
+    
     @State private var selectedFileType = Set<UUID>()
     @State private var importFileTypes: [FileType] = [
         FileType(fileType: "PDF"),

@@ -8,25 +8,23 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import PDFKit
-
-
+import TipKit
 
 
 final class PraxDropDelegate: DropDelegate {
-    var document: MergedPDFDocument
     var prax: PraxModel
     
-    init(_ document: MergedPDFDocument, _ praxModel: PraxModel) {
-        self.document = document
-        self.prax = praxModel
+    init(_ prax: PraxModel) {
+        self.prax = prax
     }
     
     func dropEntered(info: DropInfo) {
-        print("DropTargetControl - dropEntered")    }
+        //   print("DropTargetControl - dropEntered")
+    }
 
     
     func validateDrop(info: DropInfo) -> Bool {
-        print("DropTargetControl - validateDrop")
+    //    print("DropTargetControl - validateDrop")
         
         if info.hasItemsConforming(to: [.pageItemType, .mergedPageType]) {
             print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pageItemType, .mergedPageType])")
@@ -46,8 +44,11 @@ final class PraxDropDelegate: DropDelegate {
            for provider in info.itemProviders(for: [UTType.sourceFileType]) {
                 provider.loadDataRepresentation(forTypeIdentifier: UTType.sourceFileType.identifier) { [self] (data, error) in
                     if let data = data {  Task { do {
-                            let payload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
-                            await prax.receiveDroppedSourceFile(payload) }
+                        let payload = try JSONDecoder().decode(SourceFilePayload.self, from: data)
+                        
+                        await prax.document.addPagesFromSourceFilePayload(payload, at: IndexPath(item: -1, section: 0), toMergedPage: nil)
+                    //    await prax.receiveDroppedSourceFile(payload)
+                    }
                         catch {
                             print("failed to decode Payload ") } }}
                     else { print("no data for forTypeIdentifier: UTType.sourceFileType.identifier")}}}}
@@ -60,7 +61,7 @@ final class PraxDropDelegate: DropDelegate {
                        let url = URL(string: path) {
                         print("Julie Belanger path = ", path, "  URL: ", url)
                         Task {
-                            do { try await document.persistence.importURLs([url]) }
+                            do { try await prax.document.persistence.importURLs([url]) }
                             catch { print("Failed to importURLs: \(error)") }
                         }
                         
@@ -99,13 +100,13 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     func dropExited(info: DropInfo) {
-        print("DropTargetControl - dropExited")
+      //  print("DropTargetControl - dropExited")
         prax.dropTargeted = false
     }
 }
 
 struct DropTargetControl: View {
-    @Environment(MergedPDFDocument.self) var document
+  //  //  @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     
     var body: some View {
@@ -120,11 +121,11 @@ struct DropTargetControl: View {
                     .foregroundStyle(.white)
                     .contentShape(.rect)
                 Button {
-                    prax.showingFileImportOptions.toggle()
+                    prax.showFileImportOptions.toggle()
                 } label: {
-                    Label("Import Options", systemImage: (prax.showingMergedDocumentInspector ? "gearshape.fill" : "gearshape"))
+                    Label("Import Options", systemImage: (prax.showMergedDocumentInspector ? "gearshape.fill" : "gearshape"))
                 }
-                .sheet(isPresented: $prax.showingFileImportOptions) {
+                .sheet(isPresented: $prax.showFileImportOptions) {
                     ImportOptionsInspector()
                         .presentationDetents(
                             [.height(120), .medium, .large])
@@ -138,11 +139,89 @@ struct DropTargetControl: View {
                     .foregroundStyle(prax.dropTargeted ? Color.green.gradient : Color.blue.gradient )
             }
         }
-  //      .popover(isPresented: $prax.showingImageDropInspector) { ImageInspectingPopover() }
+  //      .popover(isPresented: $prax.showImageDropInspector) { ImageInspectingPopover() }
         
-        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(document, prax))
+        .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax))
         
         
+    }
+}
+struct ImportOptionsTip: Tip {
+    var title: Text {
+        Text("Image Import Options")
+    }
+    var message: Text? {
+        Text("Imported images are resampled to reduce the size of the resulting PDF file. Use these options to control the quality of the output.")
+    }
+    var image: Image? {
+        Image(systemName: "photo.badge.arrow.down")
+    }
+}
+
+
+struct ImportOptionsInspector: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("import-width") var importWidth: Int = 0
+    @AppStorage("import-height") var importHeight: Int = 0
+    @Environment(PraxModel.self) private var prax
+    @FocusState var widthFocused: Bool
+    var theTip = ImportOptionsTip()
+    
+    var body: some View {
+        @Bindable var prax = prax
+        VStack {
+            GroupBox {
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Ok", systemImage: ("checkmark"))
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                
+                
+                Grid {
+                    GridRow {
+                        Text("Maximum Width:")
+                        TextField("",
+                                  value: $importWidth,
+                                  format: .number
+                        ).border(Color("PraxColor"))
+                            .onSubmit({
+                                dismiss()
+                            })
+                            .focused($widthFocused)
+                            .textContentType(.postalCode)
+                    }
+                    
+                    GridRow {
+                        Text("Maximum Height:")
+                        TextField("",
+                                  value: $importHeight,
+                                  format: .number
+                        ).border(Color("PraxColor"))
+                        
+                        
+                    }
+                }
+                
+                
+                
+                
+                Text("\(importWidth)")
+                //    .foregroundColor(emailFieldIsFocused ? .red : .blue)
+                
+             //   Toggle(isOn: $prax.inspectNextImageDrop, label: {
+             //       Text("Test on Next Drop")
+             //   })
+                Text("Image Import Size")
+                    .frame(minWidth: 100, maxWidth: 300, maxHeight: .infinity)
+                    .background(Color("PraxColor"))
+            }
+            .padding(20)
+            
+        }
+        .background(PraxGradient(0).edgesIgnoringSafeArea(.all))
+        .popoverTip(theTip)
     }
 }
 
@@ -150,8 +229,10 @@ struct DropTargetControl: View {
 
 
 
+
+
 struct DragOutControl: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     @FocusState private var isFocused: Bool
     // 2. Track the text selection
@@ -175,7 +256,7 @@ struct DragOutControl: View {
                 Image(systemName: "arrow.right.doc.on.clipboard")
                 
                 Spacer(minLength: 5)
-                Text(String("\(document.exportFilename).pdf"))
+                Text(String("\(prax.document.exportFilename).pdf"))
                     .font(.system(size: 10, weight: .ultraLight, design: .monospaced))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .init(horizontal: .center, vertical: .center))
@@ -183,8 +264,8 @@ struct DragOutControl: View {
                 Spacer(minLength: 25)
             }
             .draggable({ () -> MergedPDFTransfer? in
-                guard let data = document.mergedPDFDocument.dataRepresentation() else { return nil }
-                return MergedPDFTransfer(data: data, filename: document.exportFilename)
+                guard let data = prax.document.mergedPDFDocument.dataRepresentation() else { return nil }
+                return MergedPDFTransfer(data: data, filename: prax.document.exportFilename)
             }()!, preview: {
                 PraxDragPreview()
             })
@@ -208,7 +289,7 @@ struct DragOutControl: View {
 
 struct PraxDragPreview: View {
     @Environment(PraxModel.self) var prax: PraxModel
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @State private var rotate = false
     
     let frameSize = CGSize(width: 120, height: 160)
@@ -217,11 +298,11 @@ struct PraxDragPreview: View {
         
 
         
-        if document.mergedPDFDocument.pageCount > 0 {
+        if prax.document.mergedPDFDocument.pageCount > 0 {
             GroupBox {
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(prax.annotationSaveMode.color.opacity(0.75))
+                        .fill(prax.burnInAnnotations ? Color.orange.opacity(0.75) : Color.green.opacity(0.75))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.yellow, lineWidth: 2)
@@ -229,7 +310,7 @@ struct PraxDragPreview: View {
                         .frame(width: frameSize.width, height: frameSize.height - 30)
                     
 
-                    Image(nsImage: document.mergedPDFDocument.page(at: 0)!.thumbnail(of: frameSize, for: .cropBox))
+                    Image(nsImage: prax.document.mergedPDFDocument.page(at: 0)!.thumbnail(of: frameSize, for: .cropBox))
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .cornerRadius(6)
@@ -244,34 +325,19 @@ struct PraxDragPreview: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: frameSize.width - 60, height: frameSize.height - 80, alignment: .leading)
                                 .rotationEffect(.degrees(180))
-        //                        .font(.system(size: 28, weight: .medium))
-                                .foregroundStyle(prax.annotationSaveMode.color)
-                        //        .animation(.easeInOut(duration: 1), value: rotate)
-                        //        .onAppear {
-                        //            rotate = true
-                        //        }
-                            
+                                .foregroundStyle(prax.burnInAnnotations ? Color.orange.opacity(0.75) : Color.green.opacity(0.75))
                             Spacer()
                         }
                         
-                        
-                        
                        Spacer()
                         
-                        Text("\(document.exportFilename).pdf")
+                        Text("\(prax.document.exportFilename).pdf")
                             .font(.footnote)
                             .foregroundStyle(Color.white)
                             .lineLimit(1)
                             .padding(.horizontal, 8)
-                          //  .frame(maxWidth: .infinity, alignment: .bottom)
-                            .background {
-                                Capsule()
-                                    .foregroundStyle(Color.blue.gradient)
-                            }
-                        
+                            .background { Capsule().foregroundStyle(Color.blue.gradient) }
                     }
-                    
-                    
                 }
             }
             .frame(width: frameSize.width, height: frameSize.height)

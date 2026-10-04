@@ -131,7 +131,9 @@ actor PersistenceController: Observable {
         let existingSourceFileURLs = Set<URL>(existingSourceFiles.map { $0.url })
         
         let duplicateURLs = urlBookmarks.filter { existingSourceFileURLs.contains($0.url) }
-        for duplicateURL in duplicateURLs { await PraxLogger.shared.logInfo("Duplicate URL: \(duplicateURL.url.path)", category: .import) }
+        for duplicateURL in duplicateURLs {
+            await PraxLogger.shared.logInfo("Duplicate URL: \(duplicateURL.url.path)", category: .import)
+        }
         
         urlBookmarks = urlBookmarks.filter { !existingSourceFileURLs.contains($0.url) }
         

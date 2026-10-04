@@ -8,38 +8,189 @@
 import PDFKit
 import SwiftUI
 
-extension PDFDisplayMode {
-    var color: Color {
-        switch self {
+
+extension EnvironmentValues {
+    @Entry var selectedPageItem: PageItem?
+    @Entry var groupHovering = false
+    @Entry var viewSize = CGSize(.zero)
+    @Entry var scaleFactor = CGFloat(1)
+}
+
+
+extension View {
+    func groupHovering(_ groupHovering: Bool) -> some View {
+        environment(\.groupHovering, groupHovering)
+    }
+}
+
+
+
+
+enum ButtonState {
+    case enabled
+    case on
+    case groupHovering
+    case hovering
+    case focused
+    case groupHoveringOn
+    case hoveringOn
+    case focusedOn
+    case groupHoveringFocusedOn
+    case hoveringFocusedOn
+    case disabled
+}
+enum ThemeStyle {
+    case standard
+    case delete
+    case burn
+    case special
+}
+
+struct ButtonThemeColors {
+    let buttonState: ButtonState
+    var theme: ThemeStyle = .standard
+    var colors: [Color] { switch self.buttonState {
+    case .enabled: [.cyan, .cyan, .cyan, .cyan]
+    case .on: { switch theme {
+        case .standard:  return [.green, .green, .green, .green]
+        case .delete: return [.yellow, .yellow, .yellow, .yellow]
+        case .burn: return [.orange, .orange, .orange, .orange]
+        case .special: return [.mint, .mint, .mint, .mint] } }()
+        
+    case .hovering: [.blue, .blue, .blue, .blue]
+    case .focused: [.mint, .mint, .mint, .mint]
+    case .groupHovering: [.yellow, .yellow, .yellow, .yellow]
+    case .focusedOn: [.orange, .orange, .orange, .orange]
+    case .hoveringFocusedOn: [.pink, .pink, .pink, .pink]
+    case .groupHoveringFocusedOn: [.pink, .pink, .pink, .pink]
+    case .disabled: [.gray, .gray, .gray, .gray]
+    case .groupHoveringOn: [.pink, .pink, .pink, .pink]
+    case .hoveringOn: [.orange, .orange, .orange, .orange] }}
+}
+
+func PraxButtonState(theme: ThemeStyle = .standard, enabled: Bool = true, groupHovering: Bool = false, hovering: Bool = false, on: Bool = false, focused: Bool = false) -> ButtonState {
+    var buttonState: ButtonState = .disabled
+    if groupHovering && focused && on { buttonState = .groupHoveringFocusedOn }
+    if hovering && focused && on { buttonState = .hoveringFocusedOn }
+    if focused && on { buttonState = .focusedOn } else
+    if groupHovering && on { buttonState = .groupHoveringOn } else
+    if hovering && on { buttonState = .hoveringOn } else
+    if focused { buttonState = .focused } else
+    if groupHovering { buttonState = .hovering } else
+    if hovering { buttonState = .hovering } else
+    if on { buttonState = .on } else
+    if enabled { buttonState = .enabled }
+    return buttonState
+}
+
+struct PraxButton: View {
+    @Environment(PraxModel.self) private var prax
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.groupHovering) private var groupHovering
+    var action: () -> Void = {}
+    var symbol: String = ""
+    var symbol2: String = ""
+    var label: String = ""
+    var help: String = "Julie d'Prax"
+    var isOn = false
+    var theme: ThemeStyle = .standard
+    var size: CGSize = CGSize(width: 30, height: 30)
+    @State private var hovering = false
+    
+    var body: some View {
+        let buttonState = PraxButtonState(enabled: isEnabled, groupHovering: groupHovering, hovering: hovering, on: isOn)
+        ZStack {
+            RoundedRectangle(cornerSize: CGSize(width: 5, height: 5))
+                .fill(PraxButtonBackground(buttonState: buttonState))
+            HStack {
+                if !label.isEmpty {
+                    Text(label)
+
+                }
+                Image(systemName: symbol ).resizable().frame(width: 20, height: 20)}
+
+            }
+        .frame(maxWidth: size.width, maxHeight: size.height, alignment: .center)
+        //     .padding(2)
+        //        .background(PraxButtonBackground(theme: theme, isHovering: hovering, isOn: isOn))
+        //        .border(hovering ? .red : Color.cyan, width: hovering ? 2 : 1)
+        .overlay(RoundedRectangle(cornerRadius: 5).stroke(hovering ? .red : Color.cyan, lineWidth: 2))
+        .onTapGesture { action() }
+        .onHover { hovering in self.hovering = hovering }
+        .help(help)
+        
+    }
+}
+
+func PraxButtonBackground(buttonState: ButtonState, theme: ThemeStyle = .standard)
+-> MeshGradient {
+    let colors = ButtonThemeColors(buttonState: buttonState, theme: theme).colors
+    return MeshGradient(
+        width: 2,
+        height: 2,
+        points: [[0.0, 0.0], [1.0, 0.0],[0.0, 1.0], [1.0, 1.0]],
+        colors: colors)
+}
+
+
+struct PraxGroupBoxStyle: GroupBoxStyle {
+    
+    var isHovering = false
+    
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Check if there is a label to prevent empty space
+                configuration.label
+                    .font(.headline)
+                    .foregroundStyle(.purple)
+                
+                Divider()
             
+            // The main content of the GroupBox
+            configuration.content
+        }
+        
+        .border(Color.gray, width: isHovering ? 1 : 0)
+        .background(PraxGradient(4))
+        
+        
+    }
+}
+
+// 2. Create an extension for cleaner modifier syntax
+extension GroupBoxStyle where Self == PraxGroupBoxStyle {
+    static var prax: PraxGroupBoxStyle { PraxGroupBoxStyle() }
+}
+
+
+
+
+extension PDFDisplayMode {
+    var color: Color { switch self {
         case .singlePage: return .pink
         case .singlePageContinuous: return .blue
         case .twoUp: return .orange
         case .twoUpContinuous: return .yellow
-        default: return .black
-        }
-    }
+        default: return .black } }
     
-    var icon: String {
-        switch self {
+    var icon: String { switch self {
         case .singlePage: return "inset.filled.center.rectangle.portrait"
         case .singlePageContinuous: return "inset.filled.center.rectangle.portrait"
         case .twoUp: return "inset.filled.center.rectangle.portrait"
         case .twoUpContinuous: return "inset.filled.center.rectangle.portrait"
-        default: return "inset.filled.center.rectangle.portrait"
-         }
-    }
+        default: return "inset.filled.center.rectangle.portrait" } }
     
+    var title: String { switch self {
+        case .singlePage: return "Single"
+        case .singlePageContinuous: return "Continuous"
+        case .twoUp: return "Two Up"
+        case .twoUpContinuous: return "Two Up Cont."
+        default: return "Unknown"  } }
 }
 
 
 
 struct PraxTheme {
-/*    enum PraxThemeVariant {
-        case julie
-        case erika
-    }
-*/
     
     let fontFeature = Font.custom("BrushScriptMT", size: 20)
     
@@ -148,9 +299,11 @@ struct PrefixButtonStyle: ButtonStyle {
 }
 
 
+
 struct PageItemButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.groupHovering) private var groupHovering
     var isHovering = false
     var isOn = false
     
@@ -163,12 +316,20 @@ struct PageItemButtonStyle: ButtonStyle {
         return Color.blue
     }
     
-    func buttonBackgroundColor() -> Color {
+    func buttonBackgroundColor(role: ButtonRole?) -> Color {
+
+        if groupHovering { return Color.orange } 
+        
         if isHovering {
-            if isOn { return Color.red }
-            return Color.blue
+            switch role {
+            case .destructive: return Color.red
+                
+            default:
+                if isOn { return Color.green }
+                return Color.blue
+            }
         }
-        if isOn { return Color.red }
+        if isOn { return Color.green }
         return Color.blue.opacity(0.5)
     }
 
@@ -176,10 +337,11 @@ struct PageItemButtonStyle: ButtonStyle {
         return configuration.label
             .buttonStyle(.glassProminent)
             .imageScale(.large)
-            .font(.system(size: prax.mergedPagesSize.width * 0.10))
-            .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
+            .font(.system(size: 20, weight: .medium))
+         //   .font(.system(size: prax.mergedPagesSize.width * 0.10))
+        //    .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
             .foregroundColor(buttonForegroundColor())
-            .background(buttonBackgroundColor(), in: RoundedRectangle(cornerRadius: 8))
+            .background(buttonBackgroundColor(role: configuration.role), in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -190,27 +352,35 @@ struct PraxButtonStyle: ButtonStyle {
     var isHovering = false
     var isOn = false
     var isFocused = false
-    var width = 35.0
-    var height = 25.0
-    var hoverWidth = 35.0
-    var hoverHeight = 30.0
+    var width = 30.0
+    var height = 30.0
+    var hoverWidth: CGFloat?
+    var hoverHeight: CGFloat?
 
-    
+    func frameHeight(isHovering: Bool) -> CGFloat {
+        if isHovering, let height = hoverHeight { return height }
+        return height
+    }
+    func frameWidth(isHovering: Bool) -> CGFloat {
+        if isHovering, let width = hoverWidth { return width }
+        return width
+    }
     
     func makeBody(configuration: Self.Configuration) -> some View {
        
         return configuration.label
             .buttonStyle(.glassProminent)
             .imageScale(.large)
-            .frame(width: isHovering && isEnabled ? hoverWidth: width, height:  isHovering && isEnabled ? hoverHeight: height, alignment: .center )
-            .zIndex(23)
-            .padding(.horizontal, 4)
+            .frame(width: frameWidth(isHovering: isHovering), height: frameHeight(isHovering: isHovering), alignment: .center)
+          //  .zIndex(23)
+            .padding(.horizontal, 8)
           //  .buttonBorderShape(.roundedRectangle(radius: 8) )
           //  .border(Color.black, width: 3)
             .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
         
-            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 8))
-            .animation(.bouncy(duration: 0.5), value: isHovering)
+            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
+            
+            .animation(.easeInOut(duration: 0.3), value: isHovering)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
 }
 
@@ -372,14 +542,15 @@ func ButtonBackground(configuration: ButtonStyle.Configuration, isEnabled: Bool 
             
         ],
         colors: colors
-        )
+    )
 }
-    
 
 
 
 
-func PraxGradient(_ style: Int? = nil) -> MeshGradient {
+
+
+func PraxGradient(_ style: Int? = nil, opacity: CGFloat = 1) -> MeshGradient {
     
     switch style {
     case 0:
@@ -454,70 +625,11 @@ func PraxGradient(_ style: Int? = nil) -> MeshGradient {
                 .white, .green, .white
             ])
     }
-    
-
 }
 
-struct PraxThemeView: View {
-    
-    enum PraxFocus: Hashable {
-        case firstButton
-        case secondButton
-        case textField
-        // add more if needed
-    }
-    
-    @FocusState private var focusedField: Int?
-    @State var prax = false
-    @State var praxText = "Prax Text"
-    @State private var hoveredButton: Int? = nil
-   
-    
-    var body: some View {
-       
-        HStack {
-            Button("", systemImage: prax ?  "circle.inset.filled" : "inset.filled.center.rectangle.portrait", action: { prax = true })
-                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 1, isOn: prax, isFocused: focusedField == 1))
-                .onHover { hovering in
-                    hoveredButton = hovering ? 1 : nil
-                }
-               .focusable(true)
-                .focused($focusedField, equals: 1)
-                .keyboardShortcut(.space, modifiers: [])
-            
-              
-            Button("", systemImage: !prax ?  "rectangle.portrait.inset.filled" : "inset.filled.center.rectangle.portrait", action: { prax = false })
-                .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == 2, isOn: !prax, isFocused: focusedField == 2))
-                .onHover { hovering in
-                    hoveredButton = hovering ? 2 : nil
-                }
-                .focusable(true)
-                .focused($focusedField, equals: 2)
-                .keyboardShortcut(.space, modifiers: [])
-            
-            TextField("Prax", text: $praxText)
-                .frame(width: 150)
-                .focused($focusedField, equals: 3)
-                .submitLabel(.next)
-                .onSubmit {
-                    focusedField = 2
-                }
-                .keyboardShortcut(.space, modifiers: [])
-            
-            Text(praxText)
-        }
-        .frame(width: 400)
-        .padding()
-    }
-}
 
 #Preview {
     
-    PraxThemeView()
-}
-
-#Preview {
-    PraxThemeView()
     PraxGradient(0)
     PraxGradient(1)
 }

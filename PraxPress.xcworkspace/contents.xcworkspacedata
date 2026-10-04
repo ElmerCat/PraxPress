@@ -5,10 +5,7 @@
       location = "group:PraxPress.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Prax.swift">
-   </FileRef>
-   <FileRef
-      location = "group:Prax.txt">
+      location = "group:Removed Code.swift">
    </FileRef>
    <Group
       location = "group:PraxPress"
@@ -133,6 +130,9 @@
             location = "group:Auxilliary Views"
             name = "Auxilliary Views">
             <FileRef
+               location = "group:DataFieldsView.swift">
+            </FileRef>
+            <FileRef
                location = "group:Tips.swift">
             </FileRef>
             <FileRef
@@ -176,8 +176,5 @@
    </Group>
    <FileRef
       location = "group:PraxPress.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:README_ARCH.md">
    </FileRef>
 </Workspace>

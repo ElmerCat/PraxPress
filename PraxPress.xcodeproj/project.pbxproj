@@ -6,14 +6,7 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		46B5D5512FB7C792005F3306 /* README_ARCH.md in Resources */ = {isa = PBXBuildFile; fileRef = 46B5D5502FB7C78C005F3306 /* README_ARCH.md */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
-		46B5D5502FB7C78C005F3306 /* README_ARCH.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_ARCH.md; sourceTree = "<group>"; };
-		DA35D3222F228EA500A76867 /* Prax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prax.swift; sourceTree = "<group>"; };
-		DA3968332F030930000A7354 /* Prax.txt */ = {isa = PBXFileReference; explicitFileType = text; path = Prax.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
 		DACA214D2EF8DB9400E38A38 /* PraxPress.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PraxPress.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -22,6 +15,13 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				"Views/Old Views/CollectionSupplementaryViews.swift",
+				"Views/Old Views/CollectionViewItems.swift",
+				"Views/Old Views/DataFieldsEditor.swift",
+				"Views/Old Views/DocumentEditingView.swift",
+				"Views/Old Views/InspectorPanel.swift",
+				"Views/Old Views/MainToolbar.swift",
+				"Views/Old Views/Removed Code.swift",
 			);
 			target = DACA214C2EF8DB9400E38A38 /* PraxPress */;
 		};
@@ -52,9 +52,6 @@
 		DACA21442EF8DB9400E38A38 = {
 			isa = PBXGroup;
 			children = (
-				46B5D5502FB7C78C005F3306 /* README_ARCH.md */,
-				DA35D3222F228EA500A76867 /* Prax.swift */,
-				DA3968332F030930000A7354 /* Prax.txt */,
 				DACA214F2EF8DB9400E38A38 /* PraxPress */,
 				DACA214E2EF8DB9400E38A38 /* Products */,
 			);
@@ -132,7 +129,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46B5D5512FB7C792005F3306 /* README_ARCH.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +281,10 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 49335V5QV4;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_MOVIES_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_MUSIC_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_PICTURE_FOLDER = readwrite;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
@@ -302,6 +302,7 @@
 				INFOPLIST_FILE = PraxPress/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PraxPress;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Allow PraxPress to read and write files on your Desktop.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -333,6 +334,10 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 49335V5QV4;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_MOVIES_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_MUSIC_FOLDER = readwrite;
+				ENABLE_FILE_ACCESS_PICTURE_FOLDER = readwrite;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
@@ -350,6 +355,7 @@
 				INFOPLIST_FILE = PraxPress/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PraxPress;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Allow PraxPress to read and write files on your Desktop.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

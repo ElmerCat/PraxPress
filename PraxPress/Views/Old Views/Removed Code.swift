@@ -5,10 +5,365 @@
 //  Created by Elmer Cat on 5/29/26.
 //
 
+
+
+/// <#Description#>
+
+public struct ASlideableDivider: View {
+    @Binding var dimension: Double
+    @Binding var otherDimension: Double
+    let position: Int
+    let isShowingOtherPane: Bool
+    let minDimension: Double
+    let maxDimension: Double
+    let windowWidth: Double
+    //   @Binding var collapse: Bool?
+    
+    @State private var dimensionStart: Double?
+    
+    public var body: some View {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 10)
+            .onHover { inside in
+                if inside {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(drag)
+    }
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
+            .onChanged { val in
+                if dimensionStart == nil {
+                    if position == 0 {
+                        dimensionStart = dimension
+                    }
+                    else {
+                        dimensionStart = otherDimension
+                    }
+                    dimensionStart = dimension
+                }
+                let delta = val.location.x - val.startLocation.x
+                let newDimension = dimensionStart! + Double(delta)
+                
+                
+                let difference = newDimension - dimension
+                
+                if difference > 0 {
+                    
+                    
+                    
+                }
+                else if difference < 0 {
+                    if position == 0 {
+                        if newDimension < minDimension {
+                            print("Julie d'Prax")
+                            //  collapse = false
+                        }
+                        else {
+                            dimension = newDimension
+                        }
+                    }
+                    else {
+                        if newDimension > maxDimension {
+                            print("Juliette M. Belanger")
+                            //  collapse = false
+                        }
+                        else {
+                            dimension = newDimension
+                        }
+                        
+                    }
+                    
+                }
+                
+                if position == 0 {
+                    if newDimension < minDimension {
+                        print("Julie d'Prax")
+                        //  collapse = false
+                        return
+                    }
+                    
+                    if newDimension < windowWidth - maxDimension {
+                        dimension = newDimension
+                        return
+                    }
+                }
+                
+                if newDimension + dimension < minDimension {
+                    
+                    print("Julie d'Prax")
+                    //  collapse = false
+                    return
+                }
+                else if isShowingOtherPane {
+                    
+                    if newDimension < windowWidth - dimension - otherDimension - maxDimension {
+                        dimension += difference / 2
+                        otherDimension += difference / 2
+                    }
+                    
+                    
+                }
+                else {
+                    
+                    if newDimension < windowWidth - maxDimension {
+                        dimension += difference
+                        otherDimension += difference
+                    }
+                    
+                    
+                }
+                
+                
+                print("dimension: ", dimension)
+                
+            }
+            .onEnded { val in
+                dimensionStart = nil
+            }
+    }
+}
+
+public struct SlideableDivider: View {
+    let dimension: Double
+    let position: Int
+    let onChangedDivider: (Double, Int) -> Void
+    
+    @State private var dimensionStart: Double?
+    
+    public var body: some View {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 10)
+            .onHover { inside in
+                if inside {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(drag)
+    }
+    
+    var drag: some Gesture {
+        DragGesture(minimumDistance: 10, coordinateSpace: CoordinateSpace.global)
+            .onChanged { val in
+                if dimensionStart == nil {
+                    dimensionStart = dimension
+                }
+                let delta = val.location.x - val.startLocation.x
+                let newDimension = dimensionStart! + Double(delta)
+                
+                onChangedDivider(newDimension, position)
+            }
+            .onEnded { val in
+                dimensionStart = nil
+            }
+    }
+}
+
+
+
 import SwiftUI
 //import UniformTypeIdentifiers
 import PDFKit
 
+
+
+
+class praxListItem: NSCollectionViewItem {
+    
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("list-item-reuse-identifier")
+    
+    override var highlightState: NSCollectionViewItem.HighlightState {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            updateSelectionHighlighting()
+        }
+    }
+    
+    private func updateSelectionHighlighting() {
+        if !isViewLoaded {
+            return
+        }
+        
+        let showAsHighlighted = (highlightState == .forSelection) ||
+        (isSelected && highlightState != .forDeselection) ||
+        (highlightState == .asDropTarget)
+        
+        textField?.textColor = showAsHighlighted ? .selectedControlTextColor : .labelColor
+        view.layer?.backgroundColor = showAsHighlighted ? NSColor.selectedControlColor.cgColor : nil
+    }
+}
+
+
+#Preview {
+    OptionKeyPressedToolbarItem()
+}
+
+
+func editImageOptions() {
+    print("PageItem editImageOptions")
+    prax?.importEditingURLBookmark = (URL(string: sourceURLString)!, sourceBookmark)
+    prax?.showingImportEditor = true
+    
+}
+
+// MARK: - Drop routing
+
+func receiveDroppedSourceFile(_ payload: SourceFilePayload, at indexPath: IndexPath? = nil) {
+    let needsStop = payload.fileURL.startAccessingSecurityScopedResource()
+    defer { if needsStop { payload.fileURL.stopAccessingSecurityScopedResource() } }
+    
+    
+    do { importSourceAttributes = try FileManager.default.attributesOfItem(atPath: payload.fileURL.path) }
+    catch { PraxLogger.shared.logError("Import Source Error", category: .import)
+        let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file attributes" ])
+        let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
+        prax.document.prax.presentError(praxError)}
+    
+    
+    let fileType = importSourceAttributes[.type] as! FileAttributeType
+    
+    guard fileType == .typeDirectory || fileType == .typeRegular else {
+        PraxLogger.shared.logError("Import Source Alert", category: .import)
+        let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+        let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
+        prax.document.prax.presentError(praxError)
+        return
+    }
+    
+    
+    if fileType == .typeDirectory {
+        PraxLogger.shared.logWarning("Import Source Alert", category: .import)
+        let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Import Source is a Folder" ])
+        let praxError = PraxError.fileImportFailed(fileName: payload.fileURL.absoluteString, underlyingError: error)
+        prax.document.prax.presentError(praxError)
+        
+        PraxLogger.shared.logInfo("Importing Folder: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+        
+        Task {
+            do {
+                PraxLogger.shared.logInfo(
+                    "Starting PDF persistence: \(payload.fileURL.lastPathComponent)",
+                    category: .import
+                )
+                //                 try await prax.document.persistence.importURLs([payload.fileURL])
+                PraxLogger.shared.logInfo(
+                    "PDF persistence completed: \(payload.fileURL.lastPathComponent)",
+                    category: .import
+                )
+            } catch {
+                // Create user-facing error with recovery suggestions
+                let praxError = PraxError.fileImportFailed(
+                    fileName: payload.fileURL.lastPathComponent,
+                    underlyingError: error
+                )
+                self.presentError(praxError)
+            }
+        }
+        
+    }
+    
+    
+    
+    importSourceURL = payload.fileURL
+    importDropIndexPath = indexPath
+    
+    
+    let ext = payload.fileURL.pathExtension.lowercased()
+    switch ext {
+        
+    case "pdf":
+        
+        
+        PraxLogger.shared.logInfo("Importing PDF: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+        
+        
+        
+        DispatchQueue.main.async { [self] in
+            //              prax.document.addPagesFromPDFURL(payload.fileURL, bookmark: payload.bookmarkData, at: indexPath)
+        }
+        
+        /*            Task {
+         do {
+         PraxLogger.shared.logInfo(
+         "Starting PDF persistence: \(payload.fileURL.lastPathComponent)",
+         category: .import
+         )
+         try await prax.document.persistence.importURLs([payload.fileURL])
+         PraxLogger.shared.logInfo(
+         "PDF persistence completed: \(payload.fileURL.lastPathComponent)",
+         category: .import
+         )
+         } catch {
+         // Create user-facing error with recovery suggestions
+         let praxError = PraxError.fileImportFailed(
+         fileName: payload.fileURL.lastPathComponent,
+         underlyingError: error
+         )
+         self.presentError(praxError)
+         }
+         }
+         */
+    case "png", "jpeg", "jpg", "gif", "heic":
+        
+        PraxLogger.shared.logInfo("Importing Image File: \(payload.fileURL.lastPathComponent) - size: \(importSourceAttributes[.size] ?? 0) - type: \(importSourceAttributes[.type] ?? "unknown")", category: .import)
+        
+        
+        
+        if inspectNextImageDrop {
+            
+            let praxError = PraxError.generic(
+                title: "Operation Failed",
+                message: "inspectNextImageDrop - Something unexpected happened. Please try again."
+            )
+            self.presentError(praxError)
+            
+            //            showingImageDropInspector = true
+        } else {
+            
+            showingImportEditor = true
+            
+            // IMPORTANT: default size limit is applied inside addPageFromImageURL
+            //          DispatchQueue.main.async { [self] in addPageFromImageURL(payload.fileURL, at: indexPath, imageOptions: .neutral) }
+        }
+        
+    default:
+        break
+    }
+}
+
+
+func clearImageInspectorState() {
+    importSourceURL = nil
+    importDropIndexPath = nil
+    showingImportEditor = false
+    //        showingImageDropInspector = false
+}
+
+var showingImportEditor: Bool = false {
+    didSet {
+        print("showingImportEditor: ", windowSize)
+        importEditorMinWidth = showingImportEditor ? 400 : 20
+        importEditorMaxWidth = showingImportEditor ? 1200 : 50
+    }
+}
+var importEditorMinWidth: CGFloat = 0
+var importEditorMaxWidth: CGFloat = 0
+var inspectNextImageDrop: Bool = false
+
+var importDropIndexPath: IndexPath?
 
 
 struct ImageImportEditor: View {
@@ -317,8 +672,8 @@ struct ImageImportEditor: View {
                 }
                 refreshPreview() }
             .onChange(of: pageItem) { refreshPreview() }
-            .onChange(of: prax.showingImportEditor ) {
-                if prax.showingImportEditor {
+            .onChange(of: prax.showImportEditor ) {
+                if prax.showImportEditor {
                     refreshPreview()
                 }
                 

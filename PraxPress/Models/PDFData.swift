@@ -42,7 +42,7 @@ final class PDFPageItem: Identifiable, Equatable, Hashable {
         didSet {
             print(oldValue)
             print("PraxModel.trims didSet")
-            document.refreshMergedDocument()
+            prax.document.refreshMergedDocument()
         }
     }
     private var _merge: MergeMode = .mergeDown
@@ -52,7 +52,7 @@ final class PDFPageItem: Identifiable, Equatable, Hashable {
             if _merge == newValue { return }
             _merge = newValue
             print("PraxModel.mergeModedidSet")
-            document.refreshMergedDocument()
+            prax.document.refreshMergedDocument()
         }
     }
 }

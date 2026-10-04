@@ -12,7 +12,7 @@ struct DataFieldsEditor: View {
     @Environment(PraxModel.self) private var prax
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: String?
-    @State private var hoveredButton: String?
+    @State private var prax.hoveredButton: String?
     @State private var setTitleKey = ""
     
     var body: some View {
@@ -32,7 +32,7 @@ struct DataFieldsEditor: View {
                     }
                 }
                 
-                if let dataFieldPage = pageItem.mergedPage.dataFieldPage {
+                if let dataFieldPage = prax.document.dataFieldPage {
                     
                     GroupBox {
                        
@@ -64,9 +64,9 @@ struct DataFieldsEditor: View {
                                             pasteboard.clearContents()
                                             pasteboard.setString(value.stringValue ?? "", forType: .string)
                                     }
-                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == key))
+                                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == key))
                                     .onHover { hovering in
-                                        hoveredButton = hovering ? key : nil
+                                        prax.hoveredButton = hovering ? key : nil
                                     }
                                     .frame(minWidth: 40)
                                     
@@ -74,9 +74,9 @@ struct DataFieldsEditor: View {
                                         if setTitleKey == key { setTitleKey = "" }
                                         else { setTitleKey = key }
                                     }
-                                    .buttonStyle(PraxButtonStyle(isHovering: hoveredButton == key, isOn: setTitleKey == key, isFocused: false))
+                                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == key, isOn: setTitleKey == key, isFocused: false))
                                     .onHover { hovering in
-                                        hoveredButton = hovering ? key : nil
+                                        prax.hoveredButton = hovering ? key : nil
                                     }
                                     .frame(minWidth: 40)
                                     

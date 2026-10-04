@@ -18,10 +18,10 @@ import Foundation
 /// prax.presentError(error)
 /// ```
 enum PraxError: Error, Identifiable {
-    case fileImportFailed(fileName: String, underlyingError: Error)
+    case fileImportFailed(fileName: String, underlyingError: Error?)
     case imageProcessingFailed(fileName: String, reason: String)
     case persistenceFailed(operation: String, underlyingError: Error)
-    case bookmarkResolutionFailed(underlyingError: Error)
+    case bookmarkResolutionFailed(underlyingError: Error?)
     case fileAccessDenied(filePath: String)
     case saveFailed(reason: String, underlyingError: Error?)
     case generic(title: String, message: String)
@@ -66,7 +66,7 @@ enum PraxError: Error, Identifiable {
     var userMessage: String {
         switch self {
         case .fileImportFailed(let fileName, let error):
-            return "\nCould not import\n\n  \(fileName)\n\n\n\(error.localizedDescription)"
+            return "\nCould not import\n\(fileName)\n\n\(error?.localizedDescription ?? "File Import failed")\n\n\nSomething went wrong."
         
         case .imageProcessingFailed(let fileName, let reason):
             return "\nCould not process image\n\n \(fileName)\n\n\n\(reason)"
@@ -75,7 +75,7 @@ enum PraxError: Error, Identifiable {
             return "\nStorage operation \n\n\(operation)\n\nfailed\n\n\n\(error.localizedDescription)"
         
         case .bookmarkResolutionFailed(let error):
-            return "\nCould not access file\n\n\n\(error.localizedDescription)\n\n\nThe file may have been moved or deleted."
+            return "\nCould not access file\n\n\n\(error?.localizedDescription ?? "Bookmark resolution failed")\n\n\nThe file may have been moved or deleted."
         
         case .fileAccessDenied(let filePath):
             return "\nAccess denied to file\n\n\(filePath)\n\n\nCheck file permissions or try copying to Documents."

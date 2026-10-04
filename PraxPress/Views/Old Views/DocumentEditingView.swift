@@ -13,8 +13,77 @@ import UniformTypeIdentifiers
 
 
 
+
+/*struct DocumentEditingTrailingEdge: View {
+ //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+ @Environment(PraxModel.self) private var praxModel
+ let praxTheme = PraxTheme()
+ 
+ @State private var prax.hoveredButton: Int? = nil
+ @State private var viewWidth: CGFloat = 50
+ @State private var spacerWidth: CGFloat = 50
+ @State private var auxilliaryOpacity: CGFloat = 0
+ @State private var imageAlignment: Alignment = .center
+ 
+ 
+ @State private var hoverLocation: CGPoint = .zero
+ @State private var isHovering = false
+ 
+ var body: some View {
+ @Bindable var prax = praxModel
+ VStack {
+ Spacer(minLength: spacerWidth)
+ GroupBox {
+ Image(systemName: "building.columns").resizable().aspectRatio(contentMode: .fit)
+ }
+ Spacer()
+ }
+ 
+ .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity, alignment: imageAlignment)
+ .background(PraxGradient()).opacity(auxilliaryOpacity)
+ .onTapGesture {
+ withAnimation {
+ prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+ }
+ }
+ 
+ /*
+  .onContinuousHover { phase in
+  switch phase {
+  case .active(let location):
+  hoverLocation = location
+  isHovering = true
+  case .ended:
+  isHovering = false
+  }
+  }
+  .overlay {
+  Rectangle()
+  .frame(width: 50, height: 50)
+  .foregroundColor(isHovering ? .green : .blue)
+  .offset(x: hoverLocation.x, y: hoverLocation.y)
+  }
+  */
+ .onHover { hovering in
+ withAnimation {
+ viewWidth = hovering ? 50 : 30
+ spacerWidth = hovering ? 100 : 50
+ auxilliaryOpacity = hovering ? 1 : 0.1
+ imageAlignment = hovering ? .top : .center
+ }
+ }
+ 
+ 
+ 
+ }
+ }
+ 
+
+
+
+
 struct PageItemCollectionView: NSViewRepresentable {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var prax
     
     
@@ -45,7 +114,7 @@ struct PageItemCollectionView: NSViewRepresentable {
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-        scrollView.isHidden = document.mergedPages.isEmpty
+        scrollView.isHidden = prax.document.mergedPages.isEmpty
         print("PageItemCollectionView - uupdateNSView(_ scrollView: NSScrollView, context: Context)- ", prax.selectedPageItem?.mergedPage.title ?? "No selectedPageItem")
         context.coordinator.applySnapshot(animated: true)
     }
@@ -289,7 +358,7 @@ struct PageItemCollectionView: NSViewRepresentable {
 
         func applySnapshot(animated: Bool) {
             var pageItemSnapshot = NSDiffableDataSourceSnapshot<MergedPage, PageItem>()
-            for mergedPage in document.mergedPages {
+            for mergedPage in prax.document.mergedPages {
                 pageItemSnapshot.appendSections([mergedPage])
                 pageItemSnapshot.appendItems(mergedPage.pageItems)
             }
@@ -341,14 +410,14 @@ struct PageItemCollectionView: NSViewRepresentable {
             let typeIdentifier = UTType(filenameExtension: "pdf")
             
             let provider = FilePromiseProvider()
-            provider.pdfDocument = document.mergedPDFDocument
+            provider.pdfDocument = prax.document.mergedPDFDocument
             provider.fileName = "PraxPress-Page.pdf"
             provider.fileType = typeIdentifier!.identifier
             provider.delegate = provider
             // Send out the indexPath and photo's url dictionary.
             do {
                 let data = try NSKeyedArchiver.archivedData(withRootObject: indexPath, requiringSecureCoding: false)
-                provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: document.mergedPDFURL as Any,
+                provider.userInfo = [FilePromiseProvider.UserInfoKeys.urlKey: prax.document.mergedPDFURL as Any,
                                       FilePromiseProvider.UserInfoKeys.indexPathKey: data]
             } catch {
                 fatalError("failed to archive indexPath to pasteboard")
@@ -537,7 +606,7 @@ struct PageItemCollectionView: NSViewRepresentable {
                         catch { print(" -- Failed to unarchive indexPath for dropped item.") }
                     } else { print( " -- No NSPasteboardItem")} })
             for payload in sourceFilePayloads {
-                document.addPagesFromSourceFilePayload(payload, at: indexPath)
+                prax.document.addPagesFromSourceFilePayload(payload, at: indexPath)
             }
         }
             
@@ -590,179 +659,4 @@ struct PageItemCollectionView: NSViewRepresentable {
 
 }
 
-
-
-struct DocumentEditingLeadingEdge: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
-    
-    @State private var hoveredButton: Int? = nil
-    @State private var viewWidth: CGFloat = 20
-    @State private var auxilliaryOpacity: CGFloat = 0.0
-    
-    @State private var hoverLocation: CGPoint = .zero
-    @State private var isHovering = false
-    @State private var paddingTop = 20.0
-    @State private var imageAngle = 0.0
-    
-    var body: some View {
-        @Bindable var prax = praxModel
-        
-        GeometryReader { geometry in
-           
-            
-            ZStack {
-                
-                
-                VStack {
-                    
-                    
-                GroupBox {
-                    
-                    
-                    Image(systemName: prax.columnVisibility == .detailOnly ?  "building.columns" : "building.columns.fill")
-                    
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .padding(0)
-                        .padding(.top, 5)
-                        .padding(.leading, 5)
-                        .frame(width: viewWidth, height: viewWidth)
-                        .symbolEffect(.bounce.up.byLayer, options: .nonRepeating)
-                        .foregroundColor(prax.columnVisibility == .detailOnly ? .blue : .white)
-                    Spacer()
-                    
-                    Image("PraxPress").resizable().aspectRatio(contentMode: .fit)
-                        .rotationEffect(Angle(degrees: imageAngle))
-                        .padding(.leading, 5)
-                     //   .padding(.top, hoverOffset)
-                        //.zIndex(997)
-                        .frame(width: viewWidth, height: viewWidth)
-                    }
-                    
-                    
-                    Spacer()
-                    
-                }
-                Rectangle().background(Color.blue).opacity(auxilliaryOpacity)
-                    .onTapGesture {
-                        withAnimation {
-                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
-                        }
-                    }.zIndex(998)
-            }
-            .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity)
-            
-
-            .onHover { hovering in
-                 withAnimation {
-                     viewWidth = hovering ? 30 : 20
-                     
-                     imageAngle = hovering ? -3000 : 0
-                     paddingTop = hovering ? geometry.size.width / 2 : 20
-                     
-                     auxilliaryOpacity = hovering ? 0.01 : 0.0
-                     
-                 }
-             }
-     
- /*           .onContinuousHover { phase in
-                switch phase {
-                case .active(let location):
-                    hoverLocation = location
-                    
-                    isHovering = true
-                case .ended:
-                    isHovering = false
-                }
-            }
-            .overlay {
-                Rectangle()
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(isHovering ? .green : .blue)
-                    .offset(x: hoverLocation.x, y: hoverLocation.y)
-            }
-
 */
-            
-        }
-        
-
-
-        
-        
-    }
-}
-
-/*struct DocumentEditingTrailingEdge: View {
-    @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-    @Environment(PraxModel.self) private var praxModel
-    let praxTheme = PraxTheme()
-    
-    @State private var hoveredButton: Int? = nil
-    @State private var viewWidth: CGFloat = 50
-    @State private var spacerWidth: CGFloat = 50
-    @State private var auxilliaryOpacity: CGFloat = 0
-    @State private var imageAlignment: Alignment = .center
-    
-    
-    @State private var hoverLocation: CGPoint = .zero
-    @State private var isHovering = false
-   
-    var body: some View {
-        @Bindable var prax = praxModel
-        VStack {
-            Spacer(minLength: spacerWidth)
-            GroupBox {
-                Image(systemName: "building.columns").resizable().aspectRatio(contentMode: .fit)
-            }
-            Spacer()
-        }
-        
-        .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity, alignment: imageAlignment)
-        .background(PraxGradient()).opacity(auxilliaryOpacity)
-        .onTapGesture {
-            withAnimation {
-                prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
-            }
-        }
-
- /*
-        .onContinuousHover { phase in
-            switch phase {
-            case .active(let location):
-                hoverLocation = location
-                isHovering = true
-            case .ended:
-                isHovering = false
-            }
-        }
-        .overlay {
-            Rectangle()
-                .frame(width: 50, height: 50)
-                .foregroundColor(isHovering ? .green : .blue)
-                .offset(x: hoverLocation.x, y: hoverLocation.y)
-        }
-*/
-       .onHover { hovering in
-            withAnimation {
-                viewWidth = hovering ? 50 : 30
-                spacerWidth = hovering ? 100 : 50
-                auxilliaryOpacity = hovering ? 1 : 0.1
-                imageAlignment = hovering ? .top : .center
-            }
-        }
-
-        
-        
-    }
-}
-*/
-
-#Preview {
-    
-    DocumentEditingToolbar()
-    PageItemCollectionView()
-    DocumentEditingFooter()
-}
-

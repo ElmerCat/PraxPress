@@ -13,10 +13,9 @@ struct MainToolbar: ToolbarContent {
     
     @Environment(PraxModel.self) private var praxModel
     @SceneStorage("ContentView.showFilesPanel") var showFilesPanel: Bool = true
-    @Environment(PersistenceController.self) private var persistence
+ //   @Environment(PersistenceController.self) private var persistence
     
     @State var showDelete = false
-    @State private var hoveredButton: Int? = nil
     
     var body: some ToolbarContent {
         @Bindable var prax = praxModel
@@ -71,7 +70,7 @@ struct MainToolbar: ToolbarContent {
                     
 //                        NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
                 }
-                prax.showingImporter = true
+                prax.showImporter = true
             } label: {
                 Label("Select Files", systemImage: "folder.badge.plus")
             }
@@ -104,14 +103,14 @@ struct MainToolbar: ToolbarContent {
         
         ToolbarItemGroup(placement: .status) {
             Button {
-                prax.showingMergedDocumentInspector.toggle()
+                prax.showMergedDocumentInspector.toggle()
             } label: {
-                Label((prax.showingMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showingMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                Label((prax.showMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
             }
             Button {
-                prax.showingPDFPageItemInspector.toggle()
+                prax.showPDFPageItemInspector.toggle()
             } label: {
-                Label((prax.showingPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showingPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                Label((prax.showPDFPageItemInspector ? "Hide PDFPageItem" : "Show PDFPageItem"), systemImage: (prax.showPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
             }
             Button {
                 prax.isLarge.toggle()
