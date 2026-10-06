@@ -49,30 +49,24 @@ struct SourceFilesView: View {
                             Button { prax.showFileImporter = true} label: { Label("Add Files", systemImage: "folder.badge.plus") }
                             Button { deleteSelectedFilesFromDatabase() } label: { Label("Remove Files", systemImage: "folder.badge.minus") } .disabled(prax.selectedFiles.isEmpty)
                         }
-                     //   .background(.accent)
                     }
                     VSplitView {
-                        
+
                         GroupBox {
                             SourceFilesList(showLibraryFiles: false)
-                       //         .background(Color.prax)
                             
                             Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
-                  //      .background(.mergedPDFViewBackground)
                         
                         GroupBox {
                             SourceFilesList(showLibraryFiles: true)
-                //                .background(Color.prax)
                             
                             Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
                                 .font(.subheadline)
                         }
                         .frame(minHeight: 200)
-                  //      .background(.mergedPDFViewBackground)
-                        
                     }
                     
                     
@@ -157,7 +151,7 @@ struct SourceFilesView: View {
         let filesToDelete = prax.selectedFiles
         Task {
             do {
-                try await prax.persistence.deleteSourceFiles(filesToDelete)
+                try await prax.persistence?.deleteSourceFiles(filesToDelete)
             } catch {
                 // Handle or present the error appropriately
                 print("Failed to delete files: \(error)")
@@ -285,19 +279,16 @@ struct SourceFilesView: View {
         let document: MergedPDFDocument
         let sourceFile: SourceFile
         func backgroundColor() -> Color {
-            if sourceFile.isLibraryFile { return .orange }
+            if sourceFile.isLibraryFile { return .cyan }
             switch sourceFile.status {
-            case .bad: return .red
-            case .trashed: return .orange
+            case .bad: return .black
+            case .trashed: return .red
             case .okay: switch sourceFile.fileType {
             case .pdf: return .blue
             case .image: return .brown
             case .text: return .green
                 case .other: return .gray } }
         }
-        
-        
-        
         
         var body: some View {
             @Bindable var prax = prax
@@ -312,7 +303,7 @@ struct SourceFilesView: View {
                             }
                             else {
                                 Text(String(sourceFile.pageCount))
-                                    .font(.system(size: 10, weight: .heavy)).bold() //.font(.caption2)
+                                 //   .font(.system(size: 10, weight: .heavy)).bold() //.font(.caption2)
                                     .foregroundColor(.black)
                                     .padding(4)
                                     .background(Color.red, in: Circle())
@@ -321,22 +312,23 @@ struct SourceFilesView: View {
 
                             }
                         }
+                    if sourceFile.dataFields != nil {
+                        Image(systemName: "list.bullet.rectangle").resizable(capInsets: EdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1), resizingMode: .stretch).frame(maxWidth:20).foregroundStyle(.buttonDefaultBackground) }
                     Text(sourceFile.fileName)
-                        .font(.system(size: 12, weight: .black)).layoutPriority(2)
+                        //.font(.system(size: 12, weight: .black)).layoutPriority(2)
                     Spacer()
+                        
+                    if sourceFile.status == .bad { Text("This file cannot be found").foregroundColor(.red); Spacer() } else {
+                        if sourceFile.status == .trashed { Text("In Trash").foregroundColor(.red); Spacer() }
+                        PraxButton(action: { prax.document.addPagesFromSourceFile(sourceFile) }, symbol: "inset.filled.trailinghalf.arrow.trailing.rectangle", help: "Trim and Merge File Pages")
+                    }
                     
                     
-                    PraxButton(action: { prax.document.addPagesFromSourceFile(sourceFile) }, symbol: "inset.filled.trailinghalf.arrow.trailing.rectangle", help: "Trim and Merge File Pages")
-                      //  .frame(maxWidth: 30, alignment: .center)
-                       // .padding(.horizontal, 20)
-                    
-                   // if sourceFile.pageCount > 1 { Text("\(sourceFile.pageCount) Pages  ") }
-                    
-                    
-                 //   Text("\(sourceFile.fileSize/1000) KB")
+                   
+
                 }
             }
-            .lineLimit(1).font(.system(size: 12))
+            .lineLimit(1) //.font(.system(size: 12))
             .background(backgroundColor())
             .padding(0)
             .draggable {
@@ -360,47 +352,81 @@ struct SourceFilesView: View {
         @Environment(PraxModel.self) private var prax
         let sourceFile: SourceFile
         var body: some View {
+            
+            let sourceFileString = ("\(sourceFile.url.deletingLastPathComponent().formatted(Prax.filenameStyle).split(separator: ".").first ?? "")").suffix(40)
+            
+            let labelString = (sourceFile.pageCount < 2 ? "One Page" : "\(sourceFile.pageCount) Pages") + "  -  \(sourceFile.fileSize / 1000) KB"
+            
             GroupBox {
-               
                 
-                Button(sourceFile.fileName, image: .pdfMenuIcon, action: {}).labelStyle(.titleAndIcon)
-                   
-
-                Divider()
+               Divider()
                 
-                Button(action: {
-                    if prax.selectedSourceFile == sourceFile { prax.showPreview.toggle() }
-                    else { prax.selectedSourceFile = sourceFile
-                        prax.showPreview = true
-                    }}){
-                        Label(prax.showPreview && sourceFile == prax.selectedSourceFile ? "Hide Preview" : "Show Preview", systemImage: prax.showPreview && sourceFile == prax.selectedSourceFile ? "eye.fill" : "eye")
-                    }.labelStyle(.titleAndIcon)
-                    .disabled(prax.sourceFiles.isEmpty)
-               
-                    Divider()
+                Section("Source File") {
+                    Button(action: {
+                        if prax.selectedSourceFile != sourceFile { prax.selectedSourceFile = sourceFile;  prax.showPreview = true }
+                        else { prax.showPreview.toggle() } }) {
+                            Label(sourceFile.fileName, image: .pdfMenuIcon)
+                            Text(labelString)
+                        }
+                        .labelStyle(.titleAndIcon).disabled(sourceFile.status == .bad)
                 
-                Text(sourceFile.fileName)
-                    .font(.system(size: 12, weight: .black)).layoutPriority(2)
-                Divider()
-                
-                Button(action: { sourceFile.isLibraryFile.toggle() }) {
-                    Label(sourceFile.isLibraryFile ? "Make Source File" : "Make Library File", systemImage: sourceFile.isLibraryFile ? "building.classical.columns.fill" : "building.classical.columns")
-                }.labelStyle(.titleAndIcon)
+                    Spacer()
                     
+                    Button(action: {
+                        if prax.selectedSourceFile == sourceFile { prax.showPreview.toggle() }
+                        else { prax.selectedSourceFile = sourceFile; prax.showPreview = true }}){
+                            Label(prax.showPreview && sourceFile == prax.selectedSourceFile ? "Close Preview" : "Show Preview", systemImage: "")}
+                        .labelStyle(.titleAndIcon)
+                        .disabled(sourceFile.status == .bad)
+                }
                 
-                Button {
-                    // Add this item to a list of favorites.
-                } label: {
-                    PreviewView()
-                    Label("Add to Favorites", systemImage: "heart")
+           
+
+                Section("PraxPress Editor") {
+                    
+                    Button(action: { prax.document.addPagesFromSourceFile(sourceFile) }) {
+                        Label("Open as Merged Page", systemImage: "inset.filled.trailinghalf.arrow.trailing.rectangle")
+                        Text("")
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .disabled(sourceFile.status == .bad)
+                    
+                    Spacer()
                 }
-                Button {
-                    // Open Maps and center it on this item.
-                } label: {
-                    Label("Show in Maps", systemImage: "mappin")
+                
+               
+                
+                Section("File") {
+                    
+                    Button(action: {prax.deleteSouurceFileFromDatabase(sourceFile)}) {
+                        Label("Delete from PraxPress Library", systemImage: "trash")}
+                    .labelStyle(.titleAndIcon)
+                    .disabled(sourceFile.isLibraryFile)
+                    
+                    Divider()
+                    
+                    Button(action: { withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {  sourceFile.isLibraryFile.toggle() }}) {
+                        Label(sourceFile.isLibraryFile ? "Unlock File" : "Lock File", systemImage: sourceFile.isLibraryFile ? "lock" : "lock.open")}
+                    .labelStyle(.titleAndIcon)
+                    .disabled(sourceFile.status == .bad)
+                    
+                    
+
+                    Button(action: {  NSWorkspace.shared.selectFile(sourceFile.url.path, inFileViewerRootedAtPath: "") }) {
+                        Label("Show in Finder", systemImage: "finder")
+                        Text(sourceFileString)
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .disabled(sourceFile.status == .bad)
+                    
                 }
+                
+     //           Spacer()
+     //           Text("          PraxPress").font(Font.custom("BrushScriptMT", size: 20)).foregroundStyle(Color.blue).italic(true).bold(true)
+                
+
             }
-            .background(PraxGradient())
+            
         }
     }
     

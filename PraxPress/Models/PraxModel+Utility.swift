@@ -10,6 +10,52 @@ import PDFKit
 
 extension PraxModel {
     
+    
+    func scrollViewParameters() -> (axes: Axis.Set, margin: CGFloat) {
+        let viewWidth = mergedViewSize.width
+        let documentWidth = document.maxWidth
+        let scaledWidth = documentWidth * mergedViewScaleFactor
+        let axes: Axis.Set
+        let margin: CGFloat
+        
+        if viewWidth > scaledWidth {
+            axes = [.vertical]
+            margin = (viewWidth - scaledWidth) / 2
+        }
+        else {
+            axes = [.horizontal, .vertical]
+            margin = 0
+        }
+        return (axes, margin)
+    }
+    
+    
+    func scaleMergedView(_ direction: PDFDisplayDirection? = nil) {
+        guard document.totalHeight > 0, document.maxWidth > 0 else { mergedViewScaleFactor = 1.0; return }
+        let verticalScale = mergedViewSize.height / document.totalHeight
+        let horizontalScale = mergedViewSize.width / document.maxWidth
+        let scaleFactor: CGFloat
+        switch direction {
+        case .vertical?: scaleFactor = verticalScale
+        case .horizontal?: scaleFactor = horizontalScale
+        default:  scaleFactor = min(verticalScale, horizontalScale) }
+        mergedViewScaleFactor = scaleFactor
+    }
+    
+    func deleteSouurceFileFromDatabase(_ sourceFile: SourceFile) {
+        print("deleteSouurceFileFromDatabase()")
+        Task {
+            do {
+                try await document.persistence?.deleteSourceFiles([sourceFile.id])
+            } catch {
+                // Handle or present the error appropriately
+                print("Failed to delete files: \(error)")
+            }
+        }
+        selectedFiles.remove(sourceFile.id)
+    }
+    
+    
 /*
     func showSourceFilePreview(_ sourceFile: SourceFile) {
         var isStale = false

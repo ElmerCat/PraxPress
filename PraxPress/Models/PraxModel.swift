@@ -13,18 +13,13 @@ import SwiftData
 import UniformTypeIdentifiers
 import OSLog
 
-
-
 @Observable
 final class PraxModel {
-    let persistence: PersistenceController
-    init (_ persistence: PersistenceController) {
-        self.persistence = persistence
-    }
+    let persistence: PersistenceController?
+    init (_ persistence: PersistenceController?) { self.persistence = persistence }
+   
     @ObservationIgnored
-    lazy var document: MergedPDFDocument = {
-        return MergedPDFDocument(prax: self, persistence: self.persistence)
-    }()
+    lazy var document: MergedPDFDocument = { return MergedPDFDocument(prax: self, persistence: self.persistence) }()
 
     var praxPressMode: PraxPressMode = .merge
     var editMode: EditMode = .merge
@@ -32,15 +27,16 @@ final class PraxModel {
     let theme = PraxTheme()
     var undoManager = UndoManager()
     
-    
     var dropTargeted = false
     var optionKeyPressed = false
     var hoveredButton: Int? = nil
     
+   // @FocusState.Binding var focused: FieldName?
+
     var isOn = false
     var isLarge: Bool = false
     
-    // MARK - View Presentation Flags
+    //  MARK: - View Presentation Flags
     
     var columnVisibility: NavigationSplitViewVisibility = .all
     var showDataFields = false

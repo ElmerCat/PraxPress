@@ -24,37 +24,49 @@ struct MergedPagesView: View {
     @State private var dragRect: CGRect? = nil
     @State private var dragBaseSelection: Set<UUID> = []
     @State private var dragAnchor: UUID? = nil
+    @State private var dropTargeted: Bool = false
     
     var body: some View {
         
         @Bindable var prax = prax
         
-            VStack{
-                Text("Page Items")
-                    
-                MergedPagesList()
-                    .background(
-                        DragSelectionOverlay(
-                            dragRect: $dragRect,
-                            rowFrames: rowFrames,
-                            allIDs: prax.allItemIDs,
-                            idToUUID: { $0 },
-                            onSetSelection: { ids in
-                                let combined = dragBaseSelection.union(ids)
-                                prax.selectionModel.setSelected(combined, keepAnchor: dragAnchor)
-                                prax.selectedPages = combined }
-                        ) )
-                    .frame(minHeight: 200, maxHeight: .infinity)
-                    .background(.mergedPDFViewBackground)
-                    .coordinateSpace(name: "ScrollSpace")
-                    .onPreferenceChange(RowFramePreferenceKey.self) { frames in rowFrames = frames }
-                    .gesture(dragSelectionGesture(selection: prax.selectionModel))
-                
-
-                MergedPagesFooter()
-            }
-//        .onGeometryChange(for: CGSize.self) { viewGeometry in return viewGeometry.size }
-//        action: { oldValue, newValue in prax.mergedPagesSize = newValue }
+        VStack{
+            Text("Merged Pages")
+            
+            MergedPagesList()
+                .background(
+                    DragSelectionOverlay(
+                        dragRect: $dragRect,
+                        rowFrames: rowFrames,
+                        allIDs: prax.allItemIDs,
+                        idToUUID: { $0 },
+                        onSetSelection: { ids in
+                            let combined = dragBaseSelection.union(ids)
+                            prax.selectionModel.setSelected(combined, keepAnchor: dragAnchor)
+                            prax.selectedPages = combined }
+                    ) )
+                .frame(minHeight: 200, maxHeight: .infinity)
+               // .background(.mergedPDFViewBackground)
+                .background(dropTargeted ? Color.yellow : Color.clear)
+                .coordinateSpace(name: "ScrollSpace")
+                .onPreferenceChange(RowFramePreferenceKey.self) { frames in rowFrames = frames }
+                .gesture(dragSelectionGesture(selection: prax.selectionModel))
+            
+            
+            MergedPagesFooter()
+        }
+        .background(dropTargeted ? PraxGradient(4) : PraxGradient(0))
+        
+        .dropDestination(
+            for: SourceFileTransfer.self,
+            action: {
+                items, location in
+                for item in items {
+                    prax.document.addPagesFromSourceFilePayload(item.payload, at: IndexPath(item: 0, section: -1) )
+                }
+                return true},
+            isTargeted: { targeted in dropTargeted = targeted })
+       
         
         .task { DispatchQueue.main.async { print ("MergedPagesView .task Anita") } }
         .onAppear() { print ("MergedPagesView .onAppear() Geraldine") }
@@ -86,7 +98,38 @@ struct MergedPagesView: View {
         CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(a.x - b.x), height: abs(a.y - b.y))
     }
     
-    
+    struct MergedPagesList: View {
+        //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
+        //  @Environment(PersistenceController.self) private var persistence
+        
+        @Environment(PraxModel.self) private var praxModel
+        
+        @State private var dropTargeted: Bool = false
+        
+        var body: some View {
+            //   @Bindable var document = document
+            @Bindable var prax = praxModel
+            
+            
+            ScrollView {
+                
+                Grid(verticalSpacing: 20) {
+                    ForEach(prax.document.mergedPages) { mergedPage in
+                        MergedPageView(mergedPage: mergedPage)
+                            .reportRowFrame(id: mergedPage.id)
+                        
+                    }
+                    
+                }
+                
+            }
+            .padding(.top, 20)
+            
+            
+            
+            .onChange(of: prax.selectedMergedPages) { print(".onChange(of: prax.selectedMergedPages) {")  }
+        }
+    }
     
 }
 
@@ -103,31 +146,11 @@ struct MergedPageView: View {
         GroupBox {
             VStack {
                 SectionHeaderView(mergedPage: mergedPage, isSelected: prax.selectedPages.contains(mergedPage.id), highlightState: .none)
-                    .dropDestination(
-                        for: PageItem.self,
-                        action: {items, location in
-                            var itemIDs: Array<UUID> = []
-                            for item in items {
-                                itemIDs.append(item.id)
-                            }
-                            if let section = prax.document.section(forMergedPage: mergedPage) {
-                                let indexPath = IndexPath(item: 0, section: section)
-                                if dropOperation == .move {
-                                    prax.document.movePageItems(itemIDs: itemIDs, to: indexPath)
-                                }
-                                else if dropOperation == .copy {
-                                    prax.document.copyPageItems(itemIDs: itemIDs, to: indexPath)
-                                }
-                            }
-                            return true },
-                        isTargeted: { targeted in dropTargeted = targeted })
-                
-                    .dropConfiguration { dropSession in dropOperation = prax.optionKeyPressed ? .copy : .move
-                        return DropConfiguration(operation: dropOperation) }
-                
+
+ 
                 ForEach(mergedPage.pageItems) { pageItem in
                     PageItemView(pageItem: pageItem, isSelected: prax.selectedPages.contains(pageItem.id), highlightState: .none)
-                     //   .frame(height: prax.pageItemHeight)
+                    //   .frame(height: prax.pageItemHeight)
                         .aspectRatio(1, contentMode: .fit)
                         .reportRowFrame(id: pageItem.id)
                         .onTapGesture {
@@ -158,74 +181,62 @@ struct MergedPageView: View {
                 Divider()
             }
             .dragContainer(for: PageItem.self, itemID: \.id) { itemIDs in
-         //       print("Drag: \(itemIDs)")
+                //       print("Drag: \(itemIDs)")
                 return mergedPage.pageItems.filter { itemIDs.contains($0.id) }
             }
             .dragPreviewsFormation(.list)
             .dragContainerSelection(prax.selectedPages.sorted())
- 
+            
+            
+            .dropDestination(
+                for: SourceFileTransfer.self, action: {
+                    droppedItems, location in
+                    //          print("MergedPageView.dropDestination(for: SourceFileTransfer - Height: \(viewSize.height) Location: \(location.y)")
+                    guard let section = prax.document.mergedPages.firstIndex(of: mergedPage) else {return false}
+                    let currentItemCount = mergedPage.pageItems.count
+                    let itemSpace = viewSize.height / CGFloat(currentItemCount)
+                    let item = Int(location.y / itemSpace)
+                    for droppedItem in droppedItems {
+                        prax.document.addPagesFromSourceFilePayload(droppedItem.payload, at: IndexPath(item: item, section: section), toMergedPage: mergedPage) }
+                    return true },
+                isTargeted: { targeted in dropTargeted = targeted })
+            .dropConfiguration { dropSession in dropOperation = .copy
+                return DropConfiguration(operation: dropOperation) }
+            
+
+            
         }
         .onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { newSize in viewSize = newSize }
         .onHover { isHovering in hovering = isHovering }
-
-        .background(dropTargeted ? Color.blue : Color.cyan)
+        
+        .background(dropTargeted ? Color.green : Color.clear)
         .dropDestination(
-            for: SourceFileTransfer.self, action: {
-                droppedItems, location in
-      //          print("MergedPageView.dropDestination(for: SourceFileTransfer - Height: \(viewSize.height) Location: \(location.y)")
-                guard let section = prax.document.mergedPages.firstIndex(of: mergedPage) else {return false}
-                let currentItemCount = mergedPage.pageItems.count
-                let itemSpace = viewSize.height / CGFloat(currentItemCount)
-                let item = Int(location.y / itemSpace)
-                for droppedItem in droppedItems {
-                    prax.document.addPagesFromSourceFilePayload(droppedItem.payload, at: IndexPath(item: item, section: section), toMergedPage: mergedPage) }
+            for: PageItem.self,
+            action: {items, location in
+                var itemIDs: Array<UUID> = []
+                for item in items {
+                    itemIDs.append(item.id)
+                }
+                if let section = prax.document.section(forMergedPage: mergedPage) {
+                    let indexPath = IndexPath(item: 0, section: section)
+                    if dropOperation == .move {
+                        prax.document.movePageItems(itemIDs: itemIDs, to: indexPath)
+                    }
+                    else if dropOperation == .copy {
+                        prax.document.copyPageItems(itemIDs: itemIDs, to: indexPath)
+                    }
+                }
                 return true },
             isTargeted: { targeted in dropTargeted = targeted })
         
+        .dropConfiguration { dropSession in dropOperation = prax.optionKeyPressed ? .copy : .move
+            return DropConfiguration(operation: dropOperation) }
         
-
+        
     }
 }
 
-struct MergedPagesList: View {
-    //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
-  //  @Environment(PersistenceController.self) private var persistence
-    
-    @Environment(PraxModel.self) private var praxModel
-    
-    @State private var dropTargeted: Bool = false
-    
-    var body: some View {
-     //   @Bindable var document = document
-        @Bindable var prax = praxModel
 
-        ScrollView {
-            
-            Grid(verticalSpacing: 20) {
-                ForEach(prax.document.mergedPages) { mergedPage in
-                    MergedPageView(mergedPage: mergedPage)
-                        .reportRowFrame(id: mergedPage.id)
-
-                }
-                
-            }
-            
-        }
-        .background(dropTargeted ? PraxGradient(3) : PraxGradient(2))
-        
-        .dropDestination(
-            for: SourceFileTransfer.self,
-            action: {
-                items, location in
-                for item in items {
-                    prax.document.addPagesFromSourceFilePayload(item.payload, at: IndexPath(item: 0, section: -1) )
-                }
-               return true},
-            isTargeted: { targeted in dropTargeted = targeted })
-
-        .onChange(of: prax.selectedMergedPages) { print(".onChange(of: prax.selectedMergedPages) {")  }
-    }
-}
 
 struct SectionHeaderView: View {
     //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument

@@ -8,6 +8,25 @@
 import SwiftUI
 import PDFKit
 
+
+enum FieldName: Hashable {
+    case exportFilenamePrefix
+    case exportFilenameBody
+    case exportFilenameSuffix
+}
+
+struct FocusedField: FocusedValueKey {
+    // We store a closure that your view will provide
+    typealias Value = () -> Void
+}
+
+extension FocusedValues {
+    var setExportFilenameBody: (() -> Void)? {
+        get { self[FocusedField.self] }
+        set { self[FocusedField.self] = newValue }
+    }
+}
+
 extension CGSize {
     static func + (lhs: CGSize, rhs: CGSize) -> CGSize { return CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height) }
     static func - (lhs: CGSize, rhs: CGSize) -> CGSize { return CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height) }

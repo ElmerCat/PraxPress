@@ -10,11 +10,12 @@ import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
 
+
+
 struct ContentView: View {
  //   @Environment(PersistenceController.self) private var persistence
 
     @Environment(\.modelContext) private var modelContext           // Global context (from app)
-//    //  @Environment(MergedPDFDocument.self) var document
     @Environment(PraxModel.self) private var praxModel
     @Environment(\.undoManager) var undoManager
     @State private var importError: String?
@@ -38,20 +39,15 @@ struct ContentView: View {
                                         HSplitView {
                                             MergedPagesView()
                                                 .frame(minWidth: 100, idealWidth: 120, maxWidth: 300).layoutPriority(1)
-                                             
+                                            
                                             EditingDocumentView()
-                                            .frame(minWidth: 300, idealWidth: 500, maxWidth: 1200).layoutPriority(2)
-                                            .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
+                                                .frame(minWidth: 300, idealWidth: 500, maxWidth: 1200).layoutPriority(2)
+                                                .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
                                             
                                             MergedPDFDocumentView()
                                             .frame(minWidth: 300, idealWidth: 500, maxWidth: 1200).layoutPriority(2)
                                             .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
-                                            
-                                          /*InspectorView()
-                                            .frame(minWidth: prax.showInspector ? 200 : 0, idealWidth: prax.showInspector ? 500 : 0, maxWidth: prax.showInspector ? 1200 : 0, maxHeight: .infinity)
-                                            .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
-                                            .animation(.easeIn(duration: 0.25), value: prax.showInspector)
-                                          */
+
                                         }
                                         .overlay(content: {
                                             if prax.document.mergedPages.isEmpty {
@@ -77,6 +73,7 @@ struct ContentView: View {
                 }
             }
         }
+ 
         .onGeometryChange(for: CGSize.self) {  viewGeometry in return viewGeometry.size }
         action: {oldValue, newValue in prax.windowSize = newValue }
 
@@ -102,7 +99,7 @@ struct ContentView: View {
                 
                 switch result {
                 case .success(let urls):
-                    Task { do { try await prax.persistence.importURLs(urls) }
+                    Task { do { try await prax.persistence?.importURLs(urls) }
                         catch { print("Failed to importURLs(urls)", urls) } }
           
                 case .failure(let error):

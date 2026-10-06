@@ -55,7 +55,7 @@ struct PageItemView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                     //  .cornerRadius(6)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        
                        // .padding(3)
                         .opacity(pageItem.skipped ? 0.25 : 1.0)
                     
@@ -96,7 +96,8 @@ struct PageItemView: View {
 
                         }
                     }
-                    .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
+                    .zIndex(1)
+//                    .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
                     
                     .environment(\.groupHovering, hovering)
                     .opacity(hovering ? 1 : 0.3)
@@ -104,34 +105,46 @@ struct PageItemView: View {
                 }
             
                 
-                .dropDestination(
-                    for: PageItem.self,
-                    action: {items, location in
-                        var itemIDs: Array<UUID> = []
-                        for item in items {
-                            itemIDs.append(item.id)
-                        }
-                        if var indexPath = prax.document.indexPath(for: pageItem) {
-                            if location.y > viewSize.height * 0.5 {
-
-                                indexPath.item += 1
-                                
-                            }
-                            if dropOperation == .move {
-                                prax.document.movePageItems(itemIDs: itemIDs, to: indexPath)
-                            }
-                            else if dropOperation == .copy {
-                                prax.document.copyPageItems(itemIDs: itemIDs, to: indexPath)
-
-                            }
-                        }
-                        return true },
-                    isTargeted: { targeted in dropTargeted = targeted })
-
-                .dropConfiguration { dropSession in dropOperation = prax.optionKeyPressed ? .copy : .move
-                    return DropConfiguration(operation: dropOperation) }
-                
+          
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .zIndex(11)
+            .dropDestination(
+                for: PageItem.self,
+                action: {items, location in
+                    let firstItem = items.first!
+                    guard let firstItemIndexPath = prax.document.indexPath(for: firstItem) else { return false}
+                    
+                    
+                    var itemIDs: Array<UUID> = []
+                    for item in items {
+                        itemIDs.append(item.id)
+                    }
+                    if var indexPath = prax.document.indexPath(for: pageItem) {
+                        if indexPath.section == firstItemIndexPath.section {
+                            if indexPath.item == firstItemIndexPath.item + 1 {
+                                indexPath.item += 1
+                            }
+                        }
+                        else if location.y > viewSize.height * 0.5 {
+                            
+                            indexPath.item += 1
+                            
+                        }
+                        if dropOperation == .move {
+                            prax.document.movePageItems(itemIDs: itemIDs, to: indexPath)
+                        }
+                        else if dropOperation == .copy {
+                            prax.document.copyPageItems(itemIDs: itemIDs, to: indexPath)
+                            
+                        }
+                    }
+                    return true },
+                isTargeted: { targeted in dropTargeted = targeted })
+            
+            .dropConfiguration { dropSession in dropOperation = prax.optionKeyPressed ? .copy : .move
+                return DropConfiguration(operation: dropOperation) }
+            
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { newSize in viewSize = newSize }
             

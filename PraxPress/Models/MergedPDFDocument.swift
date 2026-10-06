@@ -15,9 +15,9 @@ import OSLog
 
 @Observable @MainActor class MergedPDFDocument {
     unowned let prax: PraxModel
-    unowned let persistence: PersistenceController
+    unowned let persistence: PersistenceController?
     
-    init(prax: PraxModel, persistence: PersistenceController) {
+    init(prax: PraxModel, persistence: PersistenceController?) {
         self.prax = prax
         self.persistence = persistence
     }
@@ -389,7 +389,7 @@ import OSLog
         return nil
     }
     
-    func indexPath(for pageItemID: UUID) -> IndexPath? {
+    func indexPath(id pageItemID: UUID) -> IndexPath? {
         var section = 0
         for aSection in self.mergedPages {
             var item = 0
@@ -467,7 +467,7 @@ import OSLog
         guard !itemIDs.isEmpty else { return }
         var items: [IndexPath] = []
         for itemID in itemIDs {
-            if let indexPath = indexPath(for: itemID) {
+            if let indexPath = indexPath(id: itemID) {
                 items.append(indexPath)
             }
         }

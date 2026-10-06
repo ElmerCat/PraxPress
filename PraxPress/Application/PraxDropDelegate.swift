@@ -61,7 +61,7 @@ final class PraxDropDelegate: DropDelegate {
                        let url = URL(string: path) {
                         print("Julie Belanger path = ", path, "  URL: ", url)
                         Task {
-                            do { try await prax.document.persistence.importURLs([url]) }
+                            do { try await prax.document.persistence?.importURLs([url]) }
                             catch { print("Failed to importURLs: \(error)") }
                         }
                         

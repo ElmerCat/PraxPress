@@ -12,9 +12,10 @@ import TipKit
 import Carbon.HIToolbox
 import OSLog
 
+
+
 @main
 struct PraxPressApp: App {
-    
     private let persistence: PersistenceController
 
     init() { self.persistence = PersistenceController(modelContainer: modelContainer)
@@ -65,14 +66,24 @@ struct PraxPressApp: App {
 struct MainCommands: Commands {
     @Environment(\.openWindow) private var openWindow
     @FocusedValue(PraxModel.self) private var prax: PraxModel?
+ //   @FocusedBinding(\.setExportFilenameBody) var viewAction: (() -> Void)?
+
+    
+ //   @FocusState.Binding var focusBinding: MyField?
+    
+    
     var body: some Commands {
         
         CommandMenu("Prax") {
            
-                Button("Prax Test") { prax?.praxTest() }
+            Button("Set Export Filename") { } //setFocusedBinding focusBinding = .exportFilenameBody }
+                .keyboardShortcut("s", modifiers: [.command])
+                .disabled(prax?.document.totalHeight == 0)
+            
+            Divider()
+            
+            Button("Prax Test") { prax?.praxTest() }
                 .keyboardShortcut("p", modifiers: [.command])
-            
-            
             
             Button("Run", systemImage: "play.fill") {
                  }

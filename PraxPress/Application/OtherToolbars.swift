@@ -99,115 +99,107 @@ struct ExportFilenameView: View {
 
 struct ContentHeader: View {
     @Environment(PraxModel.self) private var prax
- //   @Environment(PersistenceController.self) private var persistence
-    
-    
+
     @State private var showingOptions: Bool = false
     var body: some View {
         @Bindable var prax = prax
-        HStack {
-            GroupBox {
-                
-                HStack {
+        VStack {
+            HStack {
+                GroupBox {
                     
-                    Button(role: .destructive, action: { prax.document.mergedPages.removeAll() }, label: {
-                        HStack {
-                            if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 40 { Text("Clear Merged Document") }
-                            Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
-                        .padding(.horizontal, 5)})
-                    .disabled(prax.document.mergedPages.isEmpty)
-                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 40, hoverWidth: 200))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 40 : nil }
-                    
-          //          Spacer()
-                    //  DropTargetControl()
-                    if prax.document.readyToExport {
+                    HStack {
+                        
+                        Button(role: .destructive, action: { prax.document.mergedPages.removeAll() }, label: {
+                            HStack {
+                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 40 { Text("Clear Merged Document") }
+                                Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
+                            .padding(.horizontal, 5)})
+                        .disabled(prax.document.mergedPages.isEmpty)
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 40, hoverWidth: 200))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 40 : nil }
+                        
                         Spacer()
-                        ExportFilenameView()
-                            .padding(.trailing, 40)
+                            ExportFilenameView()
+                            .frame(minWidth: 200, maxWidth: 400)
+                        
+                        Spacer()
+                        Button(role: .confirm, action: { showingOptions.toggle() }, label: {
+                            HStack {
+                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 41 { Text("Options") }
+                                Image(systemName: prax.document.mergedPages.isEmpty ? "gear" : "gear.circle") }})
+                        //   .disabled(prax.document.mergedPages.isEmpty)
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 41))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 41 : nil }
+                        
+                        .padding(.trailing, 20)
+                        
+                       
+                    }
+                    
+                }
+                .popover(isPresented: $showingOptions, content: {
+                    VStack {
+                        Text("Julie d'Prax")
+                        
+                        Button {
+                            withAnimation {
+                                prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
+                            }
+                            //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+                            
+                        } label: {
+                            Label("Sidebar", systemImage: "sidebar.left")
+                        }
+                        
+                        
+                        Button("🧪 Open Log") {
+                            PraxLogger.shared.openLogFile()
+                        }
+                        
+                        Button("🧪 Test Error") {
+                            prax.praxTest()
+                        }
+                        
+                        ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
+                        
+                        
+                        Button {
+                            prax.showMergedDocumentInspector.toggle()
+                        } label: {
+                            Label((prax.showMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                        }
+                        Button {
+                            prax.showPDFPageItemInspector.toggle()
+                        } label: {
+                            Label((prax.showPDFPageItemInspector ? "Hide PDFPageItemInspector" : "Show PDFPageItemInspector"), systemImage: (prax.showPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                        }
+                        Button {
+                            prax.isLarge.toggle()
+                            Task {
+                                do {
+                                    await prax.persistence?.praxTest()
+                                }
+                            }
+                            
+                            
+                        } label: {
+                            Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
+                        }
                         
                     }
                     
                     
-                    Spacer()
-                    Button(role: .confirm, action: { showingOptions.toggle() }, label: {
-                        HStack {
-                            if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 41 { Text("Options") }
-                            Image(systemName: prax.document.mergedPages.isEmpty ? "gear" : "gear.circle") }})
-                    //   .disabled(prax.document.mergedPages.isEmpty)
-                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 41))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 41 : nil }
                     
-                    .padding(.trailing, 20)
-                    
-                    Button(role: .confirm, action: { prax.showInspector.toggle() }, label: {
-                        HStack {
-                            if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 42 { Text("Options") }
-                            Image(systemName: "tray.2") }})
-                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 42))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 42 : nil }
-                    
-                }
+                })
                 
             }
-            .popover(isPresented: $showingOptions, content: {
-                VStack {
-                    Text("Julie d'Prax")
-                    
-                    Button {
-                        withAnimation {
-                            prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
-                        }
-                        //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
-                        
-                    } label: {
-                        Label("Sidebar", systemImage: "sidebar.left")
-                    }
-                    
-                    
-                    Button("🧪 Open Log") {
-                        PraxLogger.shared.openLogFile()
-                    }
-                    
-                    Button("🧪 Test Error") {
-                        prax.praxTest()
-                    }
-                    
-                    ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
-                    
-                    
-                    Button {
-                        prax.showMergedDocumentInspector.toggle()
-                    } label: {
-                        Label((prax.showMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                    }
-                    Button {
-                        prax.showPDFPageItemInspector.toggle()
-                    } label: {
-                        Label((prax.showPDFPageItemInspector ? "Hide PDFPageItemInspector" : "Show PDFPageItemInspector"), systemImage: (prax.showPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                    }
-                    Button {
-                        prax.isLarge.toggle()
-                        Task {
-                            do {
-                                await prax.persistence.praxTest()
-                            }
-                        }
-                        
-                        
-                    } label: {
-                        Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                    }
-                    
-                }
-                
-                
-                
-            })
-            
+            .frame(maxHeight: 40)
+        
+
         }
-        .frame(maxWidth: .infinity, maxHeight: 40, alignment: .leading)
-        .padding(8)
+        .frame(maxWidth: .infinity)
+        
+
     }
 }
 
@@ -359,4 +351,35 @@ struct MergedPagesFooter: View {
 }
 
 
+
+
+#Preview {
+    @Previewable @State var prax = PraxModel(nil)
+    VStack {
+        ContentHeader()
+        ExportFilenameView()
+        MergedDocumentToolbarView()
+        EditingToolbarView()
+        
+    }
+    .environment(prax)
+    .frame(width: 1500)
+
+}
+
+#Preview {
+    @Previewable @State var prax = PraxModel(nil)
+    
+    ContentHeader()
+        .environment(prax)
+        .frame(width: 1500)
+}
+
+#Preview {
+    @Previewable @State var prax = PraxModel(nil)
+    
+    ContentView()
+        .environment(prax)
+        .frame(width: 1500, height: 800)
+}
 

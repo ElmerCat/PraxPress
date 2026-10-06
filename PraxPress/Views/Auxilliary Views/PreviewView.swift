@@ -15,28 +15,8 @@ struct PreviewView: View {
     @Environment(PraxModel.self) private var prax
     @Environment(\.dismiss) private var dismiss
      
-    let filenameStyle = URL.FormatStyle(scheme: .never,
-                                        user: .never,
-                                        password: .never,
-                                        host: .always,
-                                        port: .never,
-                                        path: .always,
-                                        query: .never,
-                                        fragment: .never)
     
-    func deleteSouurceFileFromDatabase(_ sourceFile: SourceFile) {
-        print("deleteSouurceFileFromDatabase()")
-        Task {
-            do {
-                try await prax.document.persistence.deleteSourceFiles([sourceFile.id])
-            } catch {
-                // Handle or present the error appropriately
-                print("Failed to delete files: \(error)")
-            }
-        }
-        prax.selectedFiles.remove(sourceFile.id)
-    }
-    
+   
     
     var body: some View {
         let _ = Self._printChanges()
@@ -62,7 +42,7 @@ struct PreviewView: View {
                 GroupBox {
                     HStack {
                          
-                        PraxButton(action: { deleteSouurceFileFromDatabase(sourceFile); dismiss() }, symbol: "document.on.trash", help: "Remove from PraxPress Library")
+                        PraxButton(action: { prax.deleteSouurceFileFromDatabase(sourceFile); dismiss() }, symbol: "document.on.trash", help: "Remove from PraxPress Library")
                             .frame(maxWidth: 40)
                             .padding(.horizontal, 20).padding(.vertical, 5)
                         Text("\(sourceFile.fileSize / 1000) KB")
@@ -88,7 +68,9 @@ struct PreviewView: View {
                 GroupBox {
                     HStack {
                         Image(systemName: sourceFile.isLibraryFile ? "lock" : "lock.open").font(.system(size: 20, weight: .medium))
-                            .onTapGesture {sourceFile.isLibraryFile.toggle() }
+                            .contentTransition(.symbolEffect(.replace))
+                            .onTapGesture {withAnimation(.spring(response: 0.4, dampingFraction: 0.6))  {sourceFile.isLibraryFile.toggle() } }
+                        
                             .padding(.leading, 30).padding(.vertical, 10).padding(.trailing, 10)
                         Divider().frame(height: 20)
                         
@@ -97,7 +79,7 @@ struct PreviewView: View {
                                 NSWorkspace.shared.selectFile(sourceFile.url.path, inFileViewerRootedAtPath: "")
                             }
                         
-                        Text("\(sourceFile.url.deletingLastPathComponent().formatted(filenameStyle).split(separator: ".").first ?? "")")
+                        Text("\(sourceFile.url.deletingLastPathComponent().formatted(Prax.filenameStyle).split(separator: ".").first ?? "")")
                         Spacer()
                        
                     }.padding(0)
