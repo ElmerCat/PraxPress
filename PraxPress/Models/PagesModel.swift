@@ -70,6 +70,7 @@ final class PageItem: @preconcurrency Transferable, Identifiable, Equatable, Has
     
     unowned let prax: PraxModel?
     
+    var editPageIndex: Int = 0
     var mergedPage: MergedPage?
     var name: String = ""
     var sourceBookmark: Data = Data()

@@ -13,7 +13,10 @@ import PDFKit
 
 
 class Prax {
-    static let pdfPageBreakMargins = NSEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+    static let editingPDFPageBreakMargins = NSEdgeInsets(top: 0, left: 0, bottom: 30, right: 0)
+    static let mergedPDFPageBreakMargins = NSEdgeInsets(top: 0, left: 0, bottom: 30, right: 0)
+    
+    
     static let filechars = Set(",./?;:'\"[{]}!@#$%^&*()|\\")
     static let decimals = Set("0123456789.-+")
     static let fileTypes = ["pdf", "png", "jpeg", "jpg", "gif", "heic"]
@@ -28,26 +31,31 @@ class Prax {
                                                fragment: .never)
 }
 
+enum ViewScaleMode: Int {
+    case vertical
+    case horizontal
+    case fit
+    case user
+}
 
-func scalePDFViewToFitViewSize(_ pdfView: PDFView, _ viewSize: CGSize, _ direction: PDFDisplayDirection, forPDFDocument pdfDocument: PDFDocument, pageMargin: CGSize = .zero, viewMargin: CGSize = .zero) {
+func scalePDFViewToFitViewSize(_ pdfView: PDFView, _ viewSize: CGSize, _ direction: PDFDisplayDirection? = nil, forPDFDocument pdfDocument: PDFDocument, pageMargin: CGSize = .zero, viewMargin: CGSize = CGSize(width: 30, height: 10)) {
     guard let pdfDocument = pdfView.document else { return }
     
     let documentSize = pdfDocumentSize(pdfDocument)
-    let viewSize = viewSize + viewMargin
+    let viewSize = viewSize - viewMargin
     
+    let verticalScale = viewSize.height / documentSize.height
+    let horizontalScale = viewSize.width / documentSize.width
+    var scaleFactor: CGFloat
     switch direction {
-    case .horizontal:
-        pdfView.scaleFactor = viewSize.width  / documentSize.width
-        
-    case .vertical:
-        var documentHeight = pageMargin.height
-        documentHeight += documentHeight * Double(pdfDocument.pageCount)
-        documentHeight += documentSize.height
-        
-        pdfView.scaleFactor = (viewSize.height) / documentHeight
-    @unknown default:
-        return
-    }
+   
+    
+    case .vertical?: scaleFactor = verticalScale
+    case .horizontal?: scaleFactor = horizontalScale
+        default:  scaleFactor = min(verticalScale, horizontalScale) }
+ //   scaleFactor = scaleFactor * 0.5
+    pdfView.scaleFactor = scaleFactor
+    
 }
 
 func pdfDocumentSize(_ pdfDocument: PDFDocument) -> CGSize {

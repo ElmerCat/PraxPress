@@ -27,6 +27,69 @@ extension FocusedValues {
     }
 }
 
+
+extension NSImage {
+    func resize(to newSize: NSSize, interpolation: NSImageInterpolation = .high) -> NSImage? {
+        guard let tiffData = self.tiffRepresentation,
+              let bitmapImageRep = NSBitmapImageRep(data: tiffData) else { return nil }
+        
+        let newRep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: Int(newSize.width),
+            pixelsHigh: Int(newSize.height),
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .calibratedRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        )
+        
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: newRep!)
+        bitmapImageRep.draw(in: NSRect(origin: .zero, size: newSize))
+        NSGraphicsContext.restoreGraphicsState()
+        
+        let resizedImage = NSImage(size: newSize)
+        resizedImage.addRepresentation(newRep!)
+        
+        resizedImage.lockFocus()
+        
+        // Apply resize quality
+        if let currentContext = NSGraphicsContext.current {
+            currentContext.imageInterpolation = interpolation
+        }
+        
+        // Draw the source image into the new rect
+        self.draw(in: NSRect(origin: .zero, size: newSize),
+                  from: NSRect(origin: .zero, size: self.size),
+                  operation: .copy,
+                  fraction: 1.0)
+        
+        resizedImage.unlockFocus()
+        
+        
+        return resizedImage
+    }
+}
+
+extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        min(max(self, limits.lowerBound), limits.upperBound)
+    }
+}
+
+
+extension Notification.Name {
+    static let praxWidthGuideChanged = Notification.Name("PraxWidthGuideChanged")
+    static let praxPageItemTrimsChanged = Notification.Name("PraxPageItemTrimsChanged")
+    static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
+}
+
+
+
+
 extension CGSize {
     static func + (lhs: CGSize, rhs: CGSize) -> CGSize { return CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height) }
     static func - (lhs: CGSize, rhs: CGSize) -> CGSize { return CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height) }

@@ -106,10 +106,10 @@ struct MainCommands: Commands {
                 openWindow(id: "main") }
             .keyboardShortcut("t", modifiers: [.command]) }
   */
-        CommandGroup(after: .sidebar) {
-            Button("Show/Hide Sidebar") {
+        CommandGroup(replacing: .sidebar) {
+            Button("Show/Hide Library") {
                 NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil) }
-            .keyboardShortcut("s", modifiers: [.command, .control]) }
+            .keyboardShortcut("1", modifiers: [.command]) }
     }
 }
 

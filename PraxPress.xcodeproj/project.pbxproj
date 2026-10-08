@@ -15,6 +15,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				"Views/Auxilliary Views/Popovers.swift",
 				"Views/Old Views/CollectionSupplementaryViews.swift",
 				"Views/Old Views/CollectionViewItems.swift",
 				"Views/Old Views/DataFieldsEditor.swift",

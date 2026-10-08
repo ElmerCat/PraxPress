@@ -41,7 +41,6 @@ final class PDFPageOverlayView: NSView {
     
     private var trimsObserver: NSObjectProtocol?
     
-    // --- PATCH 1: replace pdfView property with stale-async guard + size clamping ---
     var pdfView: PDFView? {
         didSet {
             let assignedPDFView = pdfView
@@ -151,7 +150,7 @@ final class PDFPageOverlayView: NSView {
         border.lineWidth = isActive ? 2 : 1
         border.stroke()
 
-        if isActive {
+//        if isActive {
             // Handles only for selected page item
             NSColor(white: 1.0, alpha: 0.5).setFill()
             NSColor.systemBlue.setStroke()
@@ -197,13 +196,13 @@ final class PDFPageOverlayView: NSView {
                 p.lineWidth = 4
                 p.stroke()
             }
-        } else {
+//        } else {
             // Clear cached guides so stale lines can't reappear
             guideXLeft = nil
             guideXRight = nil
             guideXWidthFromLeft = nil
             guideXWidthFromRight = nil
-        }
+ //       }
     }
     
     
@@ -936,6 +935,9 @@ final class PDFPageOverlayView: NSView {
     }
 }
 
+
+
+/*
 class OverlayControlNSView: NSView, HostingViewContainer {
     let pageItem: PageItem
     var hostingView: NSHostingView<OverlayControlView>?
@@ -1018,3 +1020,4 @@ struct OverlayControlView: View {
         
 }
 
+*/

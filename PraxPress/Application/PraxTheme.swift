@@ -95,6 +95,9 @@ struct PraxButton: View {
     var isOn = false
     var theme: ThemeStyle = .standard
     var size: CGSize = CGSize(width: 30, height: 30)
+ //   var notHoveringOpacity: Double = 0.1
+ //   var notGroupHoveringOpacity: Double = 0.1
+    
     @State private var hovering = false
     
     var body: some View {
@@ -118,6 +121,7 @@ struct PraxButton: View {
         .onTapGesture { action() }
         .onHover { hovering in self.hovering = hovering }
         .help(help)
+  //      .opacity(groupHovering ? 1.0  : 0.0)
         
     }
 }
@@ -337,9 +341,10 @@ struct PageItemButtonStyle: ButtonStyle {
         return configuration.label
             .buttonStyle(.glassProminent)
             .imageScale(.large)
-            .font(.system(size: 20, weight: .medium))
+         //   .font(.system(size: 20, weight: .medium))
          //   .font(.system(size: prax.mergedPagesSize.width * 0.10))
         //    .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
+            .frame(width: 30, height: 30)
             .foregroundColor(buttonForegroundColor())
             .background(buttonBackgroundColor(role: configuration.role), in: RoundedRectangle(cornerRadius: 8))
     }

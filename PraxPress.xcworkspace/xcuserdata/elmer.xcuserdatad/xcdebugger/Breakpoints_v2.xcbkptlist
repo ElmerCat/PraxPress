@@ -37,22 +37,6 @@
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "872EFF2F-A63D-40E5-A4C0-34898D97C282"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PraxPress/Models/PraxModel+Utility.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "83"
-            endingLineNumber = "83"
-            landmarkName = "PraxModel"
-            landmarkType = "21">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
          <BreakpointContent
             uuid = "47BFD57E-7561-494E-B9A1-707AB2D5CB62"
@@ -96,9 +80,9 @@
             filePath = "PraxPress/Models/PraxModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
-            landmarkName = "editingDocumentPDFViewScaleFactor"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "editorViewScaleFactor"
             landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>

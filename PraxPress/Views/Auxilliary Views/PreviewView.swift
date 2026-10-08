@@ -120,7 +120,7 @@ struct PreviewView: View {
             prax.previewPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
             prax.previewPDFView.displayDirection = .vertical
             prax.previewPDFView.backgroundColor = NSColor(Color.buttonDestructiveBackground)
-            prax.mergedDocumentPDFView.delegate = context.coordinator
+            prax.previewPDFView.delegate = context.coordinator
             return prax.previewPDFView
         }
         

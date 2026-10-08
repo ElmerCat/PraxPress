@@ -68,7 +68,7 @@ struct PageItemView: View {
                                 Button { prax.document.clickedGuidePageButton(pageItem) }
                                 label: { if pageItem.skipped { Image(systemName: "ruler.fill") } else { Image(systemName: "ruler") }}
                                 
-                                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 235, isOn: prax.document.widthGuidePageID != nil))
+                                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 235, isOn: prax.document.widthGuidePageID == pageItem.id))
                                 .onHover { hovering in prax.hoveredButton = hovering ? 235 : nil }
                                 .help("Set Width Guide")
                           

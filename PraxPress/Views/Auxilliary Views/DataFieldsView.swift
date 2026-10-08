@@ -9,8 +9,59 @@ import SwiftUI
 
 
 
-struct DataFieldsView: View {
+
+struct TrimsEditorView: View {
+    @Environment(PraxModel.self) private var prax
     var body: some View {
+        if let pageItem = prax.selectedPageItem {
+            @Bindable var prax = prax
+            
+            Grid {
+                GridRow {
+                    
+                    Text("Page \((pageItem.editPageIndex) + 1) of \(prax.editingPageItems.count)")
+                    
+                    Button { prax.document.clickedGuidePageButton(pageItem) }
+                    label: { Image(systemName: pageItem.skipped ? "ruler.fill" : "ruler") }
+                    
+                        .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 435, isOn: prax.document.widthGuidePageID != nil))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 435 : nil }
+                        .help("Set Width Guide")
+                    
+                    Button { prax.editMode = .data }
+                    label: { Image(systemName: "gear") }
+                        .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 436))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 436 : nil }
+                        .help("Edit Data")
+                    
+                }
+                .frame(maxWidth: .infinity)
+                GridRow {
+                    
+                    let outputInches = CGSize(width: pageItem.bounds.width / 72.0, height: pageItem.bounds.height / 72.0)
+
+                    Text(inchesText(outputInches))
+                    Text(inchesText(outputInches))
+                    Text(inchesText(outputInches))
+                }
+                
+            }
+            
+            
+        }
+    }
+}
+private func inchesText(_ size: CGSize) -> String {
+    guard size.width > 0, size.height > 0 else { return "—" }
+    return String(format: "%.2f × %.2f in", size.width, size.height)
+}
+
+struct DataFieldsView: View {
+    @Environment(PraxModel.self) private var prax
+    var body: some View {
+        @Bindable var prax = prax
+        
+        PraxSegmentedControl(selection: $prax.editMode, colorProvider: { $0.color }, iconProvider: {$0.icon} )
         
         GroupBox {
             Grid {
@@ -329,3 +380,10 @@ struct AmountFieldView: View {
 
 
 
+#Preview {
+    @Previewable @State var prax = PraxModel(nil)
+    
+    TrimsEditorView()
+        .environment(prax)
+        .frame(width: 1500)
+}

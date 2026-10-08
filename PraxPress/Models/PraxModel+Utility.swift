@@ -30,15 +30,66 @@ extension PraxModel {
     }
     
     
-    func scaleMergedView(_ direction: PDFDisplayDirection? = nil) {
-        guard document.totalHeight > 0, document.maxWidth > 0 else { mergedViewScaleFactor = 1.0; return }
-        let verticalScale = mergedViewSize.height / document.totalHeight
-        let horizontalScale = mergedViewSize.width / document.maxWidth
-        let scaleFactor: CGFloat
+    func scaleFactorFor(documentSize: CGSize, inViewSize viewSize: CGSize, direction: ViewScaleMode = .fit, viewMargin: CGSize = CGSize(width: 30, height: 10)) -> CGFloat {
+        
+        let viewSize = viewSize - viewMargin
+        let verticalScale = viewSize.height / documentSize.height
+        let horizontalScale = viewSize.width / documentSize.width
+        
         switch direction {
-        case .vertical?: scaleFactor = verticalScale
-        case .horizontal?: scaleFactor = horizontalScale
-        default:  scaleFactor = min(verticalScale, horizontalScale) }
+        case .vertical: return verticalScale
+        case .horizontal: return horizontalScale
+        default: return min(verticalScale, horizontalScale)
+            
+        }
+    }
+
+    func scaleEditorView(_ direction: ViewScaleMode = .fit, viewMargin: CGSize = CGSize(width: 30, height: 10)) {
+
+        let documentSize = pdfDocumentSize(document.editingPDFDocument)
+        guard documentSize.width > 0, documentSize.height > 0 else { return }
+        
+        editorViewScaleMode = direction
+        
+        let viewSize = editorViewSize - viewMargin
+        let verticalScale = viewSize.height / documentSize.height
+        let horizontalScale = viewSize.width / documentSize.width
+        
+        if direction == .fit {
+            editorViewFitMode = verticalScale < horizontalScale ? .vertical : .horizontal
+        }
+        else {
+            editorViewFitMode = direction
+        }
+        
+
+        let scaleFactor: CGFloat; switch direction {
+            case .vertical: scaleFactor = verticalScale
+            case .horizontal: scaleFactor = horizontalScale
+            default: scaleFactor = min(verticalScale, horizontalScale) }
+        
+        editingDocumentPDFView.scaleFactor = scaleFactor
+    }
+
+    
+    func scaleMergedView(_ direction: ViewScaleMode = .fit, viewMargin: CGSize = CGSize(width: 30, height: 10)) {
+        
+        let documentSize = CGSize(width: document.maxWidth, height: document.totalHeight)
+        guard documentSize.width > 0, documentSize.height > 0 else { return }
+        
+        mergedViewScaleMode = direction
+        let viewSize = mergedViewSize - viewMargin
+        let verticalScale = viewSize.height / documentSize.height
+        let horizontalScale = viewSize.width / documentSize.width
+
+        mergedViewFitMode = verticalScale < horizontalScale ? .vertical : .horizontal
+
+        
+        let scaleFactor: CGFloat; switch direction {
+        case .vertical: scaleFactor = verticalScale
+        case .horizontal: scaleFactor = horizontalScale
+            default: scaleFactor = min(verticalScale, horizontalScale) }
+    
         mergedViewScaleFactor = scaleFactor
     }
     
@@ -55,56 +106,7 @@ extension PraxModel {
         selectedFiles.remove(sourceFile.id)
     }
     
-    
-/*
-    func showSourceFilePreview(_ sourceFile: SourceFile) {
-        var isStale = false
-        guard let url = try? URL(resolvingBookmarkData: sourceFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-        else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); presentError(praxError); return }
-   //     previewURL = url
-        showPreview = true
-    }
-
-    func showSelectedSourceFilePreview() {
-        guard let sourceFile = selectedSourceFile  else { return }
-        var isStale = false
-        guard let url = try? URL(resolvingBookmarkData: sourceFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-        else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); presentError(praxError); return }
-  //      previewURL = url
-        showPreview = true
-    }
- */
-  
- /*
-    func updateEditingPDFDocumentViewSize() {
-        var pdfSize: CGSize  = .zero
-        
-        for pdfPage in editingPDFPages {
-            let crop = pdfPage.bounds(for: .cropBox)
-            pdfSize.height += crop.height
-            pdfSize.width = max(pdfSize.width, crop.width)
-        }
-        editingDocumentPDFSize = pdfSize
-    }
-    
-    func scaleEditingPDFDocumentToFit(_ direction: PDFDisplayDirection) {
-        switch direction {
-        case .horizontal:
-            editingDocumentPDFView.scaleFactor = editingDocumentPDFViewSize.width / editingDocumentPDFSize.width
-            
-        case .vertical:
-            var height = Prax.pdfPageBreakMargins.top + Prax.pdfPageBreakMargins.bottom
-            height += height * Double(prax.document.editingPDFDocument.pageCount)
-            height += editingDocumentPDFSize.height
-            
-            editingDocumentPDFView.scaleFactor = (editingDocumentPDFViewSize.height - editingToolbarSize.height) / height
-        @unknown default:
-            return
-        }
-    }
-    */
-    
-    func addPageFromImageURL(
+ func addPageFromImageURL(
         _ url: URL,
         at indexPath: IndexPath? = nil,
         title: String? = nil,
@@ -387,6 +389,19 @@ extension PraxModel {
         
         return best ?? image
     }
+    
+    
+    func moreThanOneDataPageError() {
+        print("\nJulie d'Prax")
+        PraxLogger.shared.logWarning("More than one data page", category: .general)
+        
+        let praxError = PraxError.generic(
+            title: "More Than One Data Page",
+            message: "Only one Page Item should contain Data Fields.\n\nThe first Page Item will be used for the data source and it's fields will be filled on export.\n\nHowever, unless you use the Burn option, the form fields on other pages will blank and no longer editable.\n\nRemove the extra Data Page Item(s) if you don't wish for this behavior."
+        )
+        presentError(praxError)
+    }
+
 }
 
 

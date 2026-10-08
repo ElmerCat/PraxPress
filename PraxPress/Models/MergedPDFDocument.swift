@@ -49,7 +49,7 @@ import OSLog
     func clearMergedDocument() {
         print("Clear Merged Document")
         prax.selectedPageItem = nil
-        mergedPDFDocument = defaultPDFDocument
+        mergedPDFDocument = PDFDocument()
         prax.editingDocumentPDFView.document = PDFDocument()
         
         exportFolderURL = nil
@@ -109,13 +109,14 @@ import OSLog
             
             prax.document.dataFieldPage = nil
             var insertIndex = 0
-            prax.editingPDFPages.removeAll()
+            prax.editingPageItems.removeAll()
             let pdfDocument = PDFDocument()
             for mergedPage in prax.document.mergedPages {
                 for pageItem in mergedPage.pageItems {
                     if !pageItem.skipped {
-                        prax.editingPDFPages.append(pageItem.pdfPage)
+                        prax.editingPageItems.append(pageItem)
                         pdfDocument.insert(pageItem.pdfPage, at: insertIndex)
+                        pageItem.editPageIndex = insertIndex
                         insertIndex += 1
                         if !pageItem.dataFields.isEmpty {
                             if prax.document.dataFieldPage == nil { prax.document.dataFieldPage = pageItem }
@@ -140,7 +141,6 @@ import OSLog
                 mergedDocumentSizeKB = sizeInBytes / (1000)
             }
             mergedDocumentVersion = UUID()
-            prax.mergedDocumentPDFView.document = mergedPDFDocument
         }
     }
     
@@ -657,8 +657,9 @@ import OSLog
     }
     
     
-    func clickedGuidePageButton(_ clickedPageItem: PageItem) {
+    func clickedGuidePageButton(_ clickedPageItem: PageItem?) {
         
+        guard let clickedPageItem else { return }
         print("PageItem - clickedGuidePageButton pageItem: \(clickedPageItem.name) PageEditView")
         
         if widthGuidePageID == clickedPageItem.id {

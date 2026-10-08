@@ -312,12 +312,15 @@ struct SourceFilesView: View {
 
                             }
                         }
-                    if sourceFile.dataFields != nil {
-                        Image(systemName: "list.bullet.rectangle").resizable(capInsets: EdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1), resizingMode: .stretch).frame(maxWidth:20).foregroundStyle(.buttonDefaultBackground) }
+                   
                     Text(sourceFile.fileName)
                         //.font(.system(size: 12, weight: .black)).layoutPriority(2)
+
                     Spacer()
                         
+                    if sourceFile.dataFields?.isEmpty == false {
+                        Image(systemName: "list.bullet.rectangle").resizable(capInsets: EdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1), resizingMode: .stretch).frame(maxWidth:20).foregroundStyle(.buttonDefaultBackground) }
+                    
                     if sourceFile.status == .bad { Text("This file cannot be found").foregroundColor(.red); Spacer() } else {
                         if sourceFile.status == .trashed { Text("In Trash").foregroundColor(.red); Spacer() }
                         PraxButton(action: { prax.document.addPagesFromSourceFile(sourceFile) }, symbol: "inset.filled.trailinghalf.arrow.trailing.rectangle", help: "Trim and Merge File Pages")

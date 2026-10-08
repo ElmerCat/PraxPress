@@ -17,16 +17,16 @@ struct MergedPDFDocumentView: View {
 
     var body: some View {
         @Bindable var prax = prax
-        ZStack {
+        VStack {
             MergedDocumentToolbarView()
-                .zIndex(2)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+              //  .zIndex(2)
+                .frame(maxWidth: .infinity)
             
-            DocumentView().zIndex(1)
-                .padding(.top, 70)
-                .background(PraxGradient(3))
+            DocumentView() //.zIndex(1)
+         //       .padding(10)
+             //   .padding(.top, 70)
+                .background(PraxGradient(4))
         }
-        .animation(.easeInOut(duration: 0.50), value: prax.editingToolbarSize.height)
         .onHover { isHovering in hovering = isHovering }
         .environment(\.groupHovering, hovering)
     }
@@ -40,15 +40,11 @@ struct MergedPDFDocumentView: View {
         
         
         var body: some View {
-            let parameters = prax.scrollViewParameters()
-            
-            let axs: Axis.Set = [.horizontal, .vertical]
-            let _ = print("axes: ", parameters.axes.rawValue, "  axs: ", axs.rawValue, "  margin: ", parameters.margin)
             HStack {
                 Spacer()
-                ScrollView(parameters.axes, showsIndicators: true) {
+                ScrollView(prax.scrollViewParameters().axes, showsIndicators: true) {
                     
-                    VStack(spacing: 20) {
+                    VStack(spacing: 30) {
                         ForEach(0..<prax.document.pageImages.count, id: \.self) { index in
                             let img = prax.document.pageImages[index]
                             let size = img.size
@@ -89,8 +85,8 @@ struct MergedDocumentToolbarView: View {
         VStack {
             Text("Merged PDF Document")
             
-            
             Divider()
+            
             HStack {
                 GroupBox {
                     VStack {
@@ -138,19 +134,21 @@ struct MergedDocumentToolbarView: View {
                 .onHover { hovering in prax.hoveredButton = hovering ? 447 : nil }
                 
             }
+
+// MARK: - Zoom Controls
             
             HStack {
                 
                 Button {
                     focusedField = .exportFilenamePrefix
                     prax.scaleMergedView() }
-                label: {  Image(systemName: "gear") }
+                label: {  Image(systemName: "arrow.up.and.down.and.arrow.left.and.right") }
                     .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
                     .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
                     .help("Scale to Fit")
                 
                 Button { prax.scaleMergedView(.vertical) }
-                label: {  Image(systemName: "arrow.up.and.down.square") }
+                label: {  Image(systemName: "arrow.up.and.down") }
                     .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
                     .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
                     .help("Fit Horizontally")
@@ -181,7 +179,7 @@ struct MergedDocumentToolbarView: View {
                 
                 
                 Button { prax.scaleMergedView(.horizontal) }
-                label: {  Image(systemName: "arrow.left.and.right.square") }
+                label: {  Image(systemName: "arrow.left.and.right") }
                     .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
                     .onHover { hovering in prax.hoveredButton = hovering ? 34 : nil }
                     .help("Fit Horizontally")
