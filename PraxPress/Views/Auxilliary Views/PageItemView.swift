@@ -109,6 +109,7 @@ struct PageItemView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .zIndex(11)
+            
             .dropDestination(
                 for: PageItem.self,
                 action: {items, location in

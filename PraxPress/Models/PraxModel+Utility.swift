@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import PDFKit
 
 extension PraxModel {
@@ -338,6 +339,42 @@ extension PraxModel {
      }
      */
     
+    func setExportFolder(_ urls: [URL]) {
+        for url in urls {
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
+            do {
+                let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+                let fileType = fileAttributes[.type] as! FileAttributeType
+                guard fileType == .typeDirectory else {
+                    PraxLogger.shared.logError("Import Source Alert", category: .import)
+                    let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+                    let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                    presentError(praxError)
+                    return
+                }
+                guard let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) else {
+                    PraxLogger.shared.logError("Import Source Error", category: .import)
+                    let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file bookmark data" ])
+                    let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                    presentError(praxError)
+                    return
+                }
+                exportFolderURL = url
+                exportFolderBookmark = data
+                
+            }
+            catch {let praxError = PraxError.fileImportFailed( fileName: url.lastPathComponent, underlyingError: error )
+                presentError(praxError)
+            }
+        }
+        
+        
+        
+    }
+    
+    
     private func pixelSize(of image: NSImage) -> CGSize {
         if let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first {
             return CGSize(width: rep.pixelsWide, height: rep.pixelsHigh)
@@ -390,6 +427,14 @@ extension PraxModel {
         return best ?? image
     }
     
+    func presentError(_ error: PraxError) {
+        DispatchQueue.main.async { [self] in
+            self.presentedError = error
+            PraxLogger.shared.logError(
+                error.userMessage,
+                error: error.underlyingError,
+                category: .general )  } }
+    func dismissError() {  presentedError = nil }
     
     func moreThanOneDataPageError() {
         print("\nJulie d'Prax")
@@ -400,6 +445,55 @@ extension PraxModel {
             message: "Only one Page Item should contain Data Fields.\n\nThe first Page Item will be used for the data source and it's fields will be filled on export.\n\nHowever, unless you use the Burn option, the form fields on other pages will blank and no longer editable.\n\nRemove the extra Data Page Item(s) if you don't wish for this behavior."
         )
         presentError(praxError)
+    }
+
+    
+    func praxTest() {
+        print("\nJulie d'Prax")
+        
+        // MARK: - Test Error Alert (Add this section)
+        
+        // Test 1: PDF Import Error
+        PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
+        let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
+            NSLocalizedDescriptionKey: "File not found or corrupted"
+        ])
+        let praxError1 = PraxError.fileImportFailed(
+            fileName: "test-document.pdf",
+            underlyingError: testError1
+        )
+        presentError(praxError1)
+        
+        // Uncomment below to test other error types:
+        
+        /*
+         // Test 2: Image Processing Error
+         let praxError2 = PraxError.imageProcessingFailed(
+         fileName: "test-image.png",
+         reason: "Image format not supported or file corrupted"
+         )
+         document.prax.presentError(praxError2)
+         
+         // Test 3: File Access Error
+         let praxError3 = PraxError.fileAccessDenied(
+         filePath: "/Volumes/NetworkDrive/restricted-folder/file.pdf"
+         )
+         document.prax.presentError(praxError3)
+         
+         // Test 4: Bookmark Error
+         let testError4 = NSError(domain: "BookmarkDomain", code: -2, userInfo: [
+         NSLocalizedDescriptionKey: "Bookmark data is invalid or stale"
+         ])
+         let praxError4 = PraxError.bookmarkResolutionFailed(underlyingError: testError4)
+         document.prax.presentError(praxError4)
+         
+         // Test 5: Generic Error
+         let praxError5 = PraxError.generic(
+         title: "Operation Failed",
+         message: "Something unexpected happened. Please try again."
+         )
+         document.prax.presentError(praxError5)
+         */
     }
 
 }

@@ -96,7 +96,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
         }
     }
 
-    let undoManager = UndoManager()
+ //   let undoManager = UndoManager()
     
     var optionKeyPressed = false
     var loadingPatterns = false
@@ -109,7 +109,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
         set {
             guard newValue != _importPatternTypes else { return }
             
-            
+       /*
             if !loadingPatterns {
                 let oldValue = importPatternTypes
                 undoManager.registerUndo(withTarget: self, handler: {
@@ -117,6 +117,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
                 })
                 undoManager.setActionName("Set Pattern Types")
             }
+     */
             _importPatternTypes = newValue
             newValue.forEach { $0.delegate = self }
         }
@@ -169,7 +170,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
     
     func importPatternTypeDidChange(_ patternType: ImportPatternType, property: String, oldValue: Any?) {
         if !loadingPatterns {
-            undoManager.registerUndo(withTarget: patternType) { target in
+      /*      undoManager.registerUndo(withTarget: patternType) { target in
                 switch property {
                 case "name":
                     if let old = oldValue as? String { target.name = old }
@@ -184,6 +185,7 @@ final class SettingsModel: ImportPatternTypeDelegate {
                 }
             }
             undoManager.setActionName("Edit Pattern Type")
+       */
             savePatternTypes()
             
         }

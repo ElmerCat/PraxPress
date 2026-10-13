@@ -162,14 +162,14 @@ final class PageItem: @preconcurrency Transferable, Identifiable, Equatable, Has
             if _trims == newValue { return }
             
             let oldValue = trims
-            prax?.undoManager.registerUndo(withTarget: self, handler: {
+            prax?.undoManager?.registerUndo(withTarget: self, handler: {
                 $0.trims = oldValue
             })
             _trims = newValue
             
             NotificationCenter.default.post(name: .praxPageItemTrimsChanged, object: self)
             
-            prax?.undoManager.setActionName("Set Trims for Page \(name)")
+            prax?.undoManager?.setActionName("Set Trims for Page \(name)")
             //     print("PageItem trims didSet")
             mergedPage?.refreshMergedPage(refreshEditingDocument: false)
             
@@ -183,11 +183,11 @@ final class PageItem: @preconcurrency Transferable, Identifiable, Equatable, Has
             if _skipped == newValue { return }
             
             let oldValue = skipped
-            prax?.undoManager.registerUndo(withTarget: self, handler: {
+            prax?.undoManager?.registerUndo(withTarget: self, handler: {
                 $0.skipped = oldValue
             })
             _skipped = newValue
-            prax?.undoManager.setActionName("Skip Page \(name)")
+            prax?.undoManager?.setActionName("Skip Page \(name)")
             //     print("PageItem skipped didSet")
             mergedPage?.refreshMergedPage(refreshEditingDocument: true)
             
@@ -201,12 +201,12 @@ final class PageItem: @preconcurrency Transferable, Identifiable, Equatable, Has
         set {
             if _merge == newValue { return }
             let oldValue = merge
-            prax?.undoManager.registerUndo(withTarget: self, handler: {
+            prax?.undoManager?.registerUndo(withTarget: self, handler: {
                 $0.merge = oldValue
             })
             
             _merge = newValue
-            prax?.undoManager.setActionName("Set Merge Mode for Page \(name)")
+            prax?.undoManager?.setActionName("Set Merge Mode for Page \(name)")
             //     print("PageItem merge didSet")
             mergedPage?.refreshMergedPage(refreshEditingDocument: true)
             
@@ -236,27 +236,13 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     
     var pdfPage: PDFPage? = nil
     
-    var selectedPages = Set<PageItem.ID>()
-    var aspectRatio: CGFloat {
-        guard mergedHeightPts != 0 else { return 0 }
-        return mergedWidthPts / mergedHeightPts
-    }
-    var minWidthPts: CGFloat = 0
-    var mergedWidthPts: CGFloat = 0
-    var mergedHeightPts: CGFloat = 0
-    func mergeModePages() -> Int {
-        var count = 0
-        for pageItem in pageItems { if !pageItem.skipped { count += 1 } }
-        return count
-    }
-    
     private var _pageItems: [PageItem] = []
     var pageItems: [PageItem] {
         get { _pageItems }
         set { guard newValue != _pageItems else { return }
             let oldValue = pageItems
-            prax.undoManager.registerUndo(withTarget: self, handler: { $0.pageItems = oldValue })
-            prax.undoManager.setActionName(oldValue.count < newValue.count ? "Add Page Items to Merged Page \(title)" : "Remove Page Items from Merged Page \(title)")
+            prax.undoManager?.registerUndo(withTarget: self, handler: { $0.pageItems = oldValue })
+            prax.undoManager?.setActionName(oldValue.count < newValue.count ? "Add Page Items to Merged Page \(title)" : "Remove Page Items from Merged Page \(title)")
             _pageItems = newValue
             refreshMergedPage(refreshEditingDocument: true)
         }
@@ -266,35 +252,34 @@ final class MergedPage: Identifiable, Equatable, Hashable {
     var skipped: Bool {  get { _skipped }
         set { if _skipped == newValue { return }
             let oldValue = skipped
-            prax.undoManager.registerUndo(withTarget: self, handler: { $0.skipped = oldValue })
+            prax.undoManager?.registerUndo(withTarget: self, handler: { $0.skipped = oldValue })
             _skipped = newValue
-            prax.undoManager.setActionName("Skip Merged Page \(title)")
+            prax.undoManager?.setActionName("Skip Merged Page \(title)")
             print("MergedPage skipped didSet")
             refreshMergedPage(refreshEditingDocument: true)
         }
     }
     
-    var skippedPages: Int { get { var count = 0
-            for pageItem in pageItems { if pageItem.skipped {count += 1} }
-            return count } }
-    
-    func skipAllPages() { for pageItem in pageItems {
-                    if !pageItem.skipped { pageItem.skipped = true } }
-    }
-    
-    func includeAllPages() { for pageItem in pageItems {
-                    if pageItem.skipped { pageItem.skipped = false } }
-    }
-    
     var refreshingMergedPage = false
+}
+
+
+extension MergedPage {
+    
+    func mergeModePages() -> Int { var count = 0; for pageItem in pageItems { if !pageItem.skipped { count += 1 } }; return count }
+
+    var skippedPages: Int { get { var count = 0; for pageItem in pageItems { if pageItem.skipped {count += 1} }; return count } }
+
+    func skipAllPages() { for pageItem in pageItems { if !pageItem.skipped { pageItem.skipped = true } } }
+
+    func includeAllPages() { for pageItem in pageItems { if pageItem.skipped { pageItem.skipped = false } } }
+    
     func refreshMergedPage(refreshEditingDocument: Bool) {
         if refreshingMergedPage {return}
-
+        
         refreshingMergedPage = true
         print("refreshMergedPage - starting")
-
         Task {
-            
             var maxVisibleWidth: CGFloat = 0
             var minVisibleWidth: CGFloat = .greatestFiniteMagnitude
             var totalVisibleHeight: CGFloat = 0
@@ -305,12 +290,8 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                 minVisibleWidth = min(minVisibleWidth, vis.width)
                 totalVisibleHeight += vis.height
             }
-            
-            minWidthPts = minVisibleWidth
-            mergedWidthPts = maxVisibleWidth
-            mergedHeightPts = totalVisibleHeight
-            
-            var mediaBox = CGRect(x: 0, y: 0, width: mergedWidthPts, height: mergedHeightPts)
+ 
+            var mediaBox = CGRect(x: 0, y: 0, width: maxVisibleWidth, height: totalVisibleHeight)
             
             let tmpOut = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
             guard let consumer = CGDataConsumer(url: tmpOut as CFURL) else { fatalError("CGDataConsumer failed") }
@@ -320,7 +301,7 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             
             
             // Stack pages from top to bottom. Track the Y origin of each placed slice for annotation mapping.
-            var currentTop = mergedHeightPts
+            var currentTop = totalVisibleHeight
             var placedOriginsY: [CGFloat] = Array(repeating: 0, count: pageItems.count)
             
             
@@ -395,12 +376,12 @@ final class MergedPage: Identifiable, Equatable, Hashable {
                     // Translate annotation bounds from source page space into merged page space
                     let translatedBounds = annotation.bounds.offsetBy(dx: dx, dy: dy)
                     copiedAnnotation.bounds = translatedBounds
-/*
-                    switch prax.annotationSaveMode {
-                    case .locked: copiedAnnotation.isReadOnly = true
-                    default:  copiedAnnotation.isReadOnly = false
-                    }
- */
+                    /*
+                     switch prax.annotationSaveMode {
+                     case .locked: copiedAnnotation.isReadOnly = true
+                     default:  copiedAnnotation.isReadOnly = false
+                     }
+                     */
                     mergedPDFPage.addAnnotation(copiedAnnotation)
                     
                     // Preserve text values for text widgets
@@ -413,6 +394,8 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             }
             pdfPage = mergedPDFPage
             
+         //   print("tmlOut: ", tmpOut.absoluteString)
+            
             do { try FileManager.default.removeItem(at: tmpOut) }
             catch {  print("FileManager.default.removeItem(at: tmpOut) failed", error.localizedDescription) }
             
@@ -421,7 +404,6 @@ final class MergedPage: Identifiable, Equatable, Hashable {
             else { prax.document.refreshMergedDocument() }
         }
     }
+
+  
 }
-
-
-

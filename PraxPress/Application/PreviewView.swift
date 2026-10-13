@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import PDFKit
 
 
@@ -16,13 +17,16 @@ struct PreviewView: View {
     @Environment(\.dismiss) private var dismiss
      
     
-   
+//   @State private var fileSize: Int64 = 0
+//    @State private var creationDate: Date = .distantPast
+//    @State private var modificationDate: Date = .distantPast
     
     var body: some View {
         let _ = Self._printChanges()
         @Bindable var prax = prax
         if let sourceFile = prax.selectedSourceFile {
             VStack(spacing: 0) {
+                
                 
                 
                 GroupBox {
@@ -32,13 +36,15 @@ struct PreviewView: View {
                             .font(.system(size: 20, weight: .medium))
                             .onTapGesture {dismiss()}
                         
-                        Spacer()
-                        Image(.pdfMenuIcon)
-                        Text(sourceFile.url.lastPathComponent).font(.system(size: 20, weight: .medium))
-                        Spacer()
-                    }
+                        Text("\(sourceFile.fileAttributes.count)")
+                   
+                        SourceFilesListRow(sourceFile).padding(10)
+                        
+                        
+                    }.frame(height: 40)
                 }.background(PraxGradient(3))
-                
+             //   SourceFilesListRow(sourceFile)
+             //       .frame(maxHeight: 30)
                 GroupBox {
                     HStack {
                          
@@ -67,9 +73,25 @@ struct PreviewView: View {
                 
                 GroupBox {
                     HStack {
-                        Image(systemName: sourceFile.isLibraryFile ? "lock" : "lock.open").font(.system(size: 20, weight: .medium))
+                        Image(systemName: sourceFile.fileGroup.name == FileGroup.locked.rawValue ? "lock" : "lock.open").font(.system(size: 20, weight: .medium))
                             .contentTransition(.symbolEffect(.replace))
-                            .onTapGesture {withAnimation(.spring(response: 0.4, dampingFraction: 0.6))  {sourceFile.isLibraryFile.toggle() } }
+                            .onTapGesture  {
+                                let fileGroup: FileGroup
+                                let _ = print(sourceFile.fileGroup.name)
+                                if sourceFile.fileGroup.name == FileGroup.locked.rawValue {fileGroup = .imported
+                                }
+                                else { fileGroup = .locked }
+                                Task { do {
+                                    print ("Moving \(sourceFile.url.lastPathComponent) to \(fileGroup.rawValue)")
+                                    try await prax.persistence?.move(sourceFile, to: fileGroup)  }
+                                catch {
+                                    let message = "Error moving SourceFile to \(fileGroup.rawValue) -  \(error.localizedDescription)"
+                                    PraxLogger.shared.logError(message, category: .import)
+                                    let error = PraxError.generic(title: "Move Error", message: message)
+                                    prax.presentError(error)
+                                    }
+                                }
+                            }
                         
                             .padding(.leading, 30).padding(.vertical, 10).padding(.trailing, 10)
                         Divider().frame(height: 20)
@@ -78,8 +100,16 @@ struct PreviewView: View {
                             .onTapGesture {
                                 NSWorkspace.shared.selectFile(sourceFile.url.path, inFileViewerRootedAtPath: "")
                             }
-                        
-                        Text("\(sourceFile.url.deletingLastPathComponent().formatted(Prax.filenameStyle).split(separator: ".").first ?? "")")
+                        VStack {
+                            HStack {
+                                Text("size: \(String(sourceFile.fileSize))  ")
+                                Text("creationDate: \(sourceFile.creationDate.formatted())  ")
+                                Text("modificationDate: \(sourceFile.modificationDate.formatted())  ")
+                            }
+                            Text(sourceFile.fileGroup.name)
+                            Text("\(sourceFile.url.formatted(Prax.filenameStyle).split(separator: ".").first ?? "")")
+
+                        }
                         Spacer()
                        
                     }.padding(0)
@@ -100,6 +130,8 @@ struct PreviewView: View {
             case .space: dismiss(); return .handled
                 default: print("PreviewView - keyPress.key: ", keyPress.key); return .ignored } }
 
+   //         .onAppear() {  sourceFile.refreshTransientProperties() }
+   //         .onChange(of: prax.selectedSourceFile) { sourceFile.refreshTransientProperties()  }
             
         }
         

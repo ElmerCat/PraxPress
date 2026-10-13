@@ -21,16 +21,59 @@ import OSLog
         self.prax = prax
         self.persistence = persistence
     }
-
+    
     private var _mergedPages: [MergedPage] = []
+    
+    
+    var widthGuidePageID: UUID? = nil
+    var widthGuideLeftX: CGFloat? = nil
+    var widthGuideRightX: CGFloat? = nil
+    
+    
+    var sourceFolderURL: URL?
+    var exportFolderURL: URL?
+    //   var exportFolderBookmark: Data?
+    //   var exportFileURLBookmark: Data?
+    var exportFilenamePrefix: String = ""
+    var exportFilenameBody: String = ""
+    var exportFilenameSuffix: String = ""
+    var exportFilenameExtension: String = "pdf"
+    
+    let mergedPDFURL: URL = { FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf") }()
+    let defaultPDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+    
+    
+    var mergedDocumentVersion = UUID()
+    var editingDocumentVersion = UUID()
+    var dataFieldPage: PageItem? = nil
+    var mergedDocumentPages = 0
+    var mergedDocumentSizeKB = 0
+    
+    var editingPDFDocument = PDFDocument()
+    var refreshingEditingDocument = false
+
+    private var _mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+    var refreshingMergedDocument: Bool = false
+    
+    
+    var pageImages: [NSImage] = []
+    var totalHeight: CGFloat = 0
+    var maxWidth: CGFloat = 0
+    
+    
+    
+}
+
+extension MergedPDFDocument {
+    
     var mergedPages: [MergedPage] {
         get { _mergedPages }
         set {
             guard newValue != _mergedPages else { return }
             print("MergedPDFDocument - mergedPages: didSet ")
             let oldValue = _mergedPages
-            prax.undoManager.registerUndo(withTarget: self, handler: {$0.mergedPages = oldValue })
-            prax.undoManager.setActionName(oldValue.count < newValue.count ? "Add Merged Pages" : "Delete Merged Pages")
+            prax.undoManager?.registerUndo(withTarget: self, handler: {$0.mergedPages = oldValue })
+            prax.undoManager?.setActionName(oldValue.count < newValue.count ? "Add Merged Pages" : "Delete Merged Pages")
             if newValue.isEmpty { clearMergedDocument() }
             _mergedPages = newValue
             
@@ -42,7 +85,10 @@ import OSLog
         if prax.selectedPageItem == nil {
             if let mergedPage = mergedPages.first {
                 if let pageItem = mergedPage.pageItems.first(where: {!$0.skipped}) {
-                    DispatchQueue.main.async { self.prax.selectedPageItem = pageItem } } } }
+                //    DispatchQueue.main.async {
+                        self.prax.selectedPageItem = pageItem
+                //    }
+                } } }
     }
     
     
@@ -62,19 +108,7 @@ import OSLog
         
 }
     
-    var widthGuidePageID: UUID? = nil
-    var widthGuideLeftX: CGFloat? = nil
-    var widthGuideRightX: CGFloat? = nil
-    
 
-    var sourceFolderURL: URL?
-    var exportFolderURL: URL?
-    //  var exportFolderURLBookmark: Data?
-    var exportFileURLBookmark: Data?
-    var exportFilenamePrefix: String = ""
-    var exportFilenameBody: String = ""
-    var exportFilenameSuffix: String = ""
-    var exportFilenameExtension: String = "pdf"
     var exportFilename: String { exportFilenamePrefix + exportFilenameBody + exportFilenameSuffix }
     
     var exportFileURL: URL? {
@@ -82,15 +116,6 @@ import OSLog
         guard let folder = exportFolderURL else { return nil }
         return folder.appending(component: exportFilename).appendingPathExtension(exportFilenameExtension) }
 
-    let mergedPDFURL: URL = { FileManager.default.temporaryDirectory.appendingPathComponent("praxpress-merged").appendingPathExtension("pdf") }()
-    let defaultPDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
- 
-    
-    var mergedDocumentVersion = UUID()
-    var editingDocumentVersion = UUID()
-    var dataFieldPage: PageItem? = nil
-    var mergedDocumentPages = 0
-    var mergedDocumentSizeKB = 0
     var readyToExport: Bool {
         if mergedDocumentPages == 0 { return false }
         if exportFilenameBody == ""  { return false }
@@ -101,8 +126,6 @@ import OSLog
     
     
     
-    var editingPDFDocument = PDFDocument()
-    var refreshingEditingDocument = false
     func refreshEditingDocument() {
         refreshingEditingDocument = true
         Task {
@@ -131,7 +154,6 @@ import OSLog
     }
   
     
-    private var _mergedPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
     var mergedPDFDocument: PDFDocument { get { _mergedPDFDocument }
         set { guard newValue != _mergedPDFDocument else { return }
             _mergedPDFDocument = newValue
@@ -144,7 +166,6 @@ import OSLog
         }
     }
     
-    var refreshingMergedDocument: Bool = false
     func refreshMergedDocument() {
         if refreshingMergedDocument { return }
         refreshingMergedDocument = true
@@ -169,17 +190,35 @@ import OSLog
                     pageImages.append(pdfPage.thumbnail(of: imageSize, for: .cropBox))
                 }
             }
+            
+            var documentAttributes = [AnyHashable : Any]()
+            documentAttributes.updateValue(Date(), forKey: PDFDocumentAttribute.creationDateAttribute)
+            documentAttributes.updateValue(Date(), forKey: PDFDocumentAttribute.modificationDateAttribute)
+            documentAttributes.updateValue("PraxPress", forKey: PDFDocumentAttribute.producerAttribute)
+            documentAttributes.updateValue("Elmer Cat", forKey: PDFDocumentAttribute.authorAttribute)
+            documentAttributes.updateValue("PraxPress Merged PDF", forKey: PDFDocumentAttribute.titleAttribute.rawValue)
+            documentAttributes.updateValue("PraxPress praxolates your PDF documents", forKey: PDFDocumentAttribute.subjectAttribute)
+            documentAttributes.updateValue(["PraxPress", "PDF", "Merge", "Prax"], forKey: PDFDocumentAttribute.keywordsAttribute)
+
+             pdfDocument.documentAttributes = documentAttributes
+            
             mergedPDFDocument = pdfDocument
+            
             selectPageItem()
+            
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent(exportFilenameBody).appendingPathExtension(exportFilenameExtension)
+            
+            
+            Task {do {
+                pdfDocument.write(to: url)
+                await persistence?.addExportedSourceFile(url)
+            }}
+            
+            
             self.refreshingMergedDocument = false
         }
     }
-
-    var pageImages: [NSImage] = []
-    var totalHeight: CGFloat = 0
-    var maxWidth: CGFloat = 0
-    
-    
+  
     
     func setExportURL(from pageItem: PageItem) {
         if let url = URL(string: pageItem.sourceURLString) {
@@ -215,7 +254,7 @@ import OSLog
     
   
     func addPagesFromSourceFile(_ sourceFile: SourceFile, at indexPath: IndexPath? = nil, title: String? = nil) {
-        let payload = SourceFilePayload(id: sourceFile.id, fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, fileSize: sourceFile.fileSize, isLibraryFile: sourceFile.isLibraryFile, imageOptions: sourceFile.imageOptions)
+        let payload = SourceFilePayload(id: sourceFile.id, fileURL: sourceFile.url, bookmarkData: sourceFile.bookmarkData, fileType: sourceFile.fileType, isLibraryFile: sourceFile.isLibraryFile, imageOptions: sourceFile.imageOptions)
         addPagesFromSourceFilePayload(payload, at: indexPath, title: title)
         
         

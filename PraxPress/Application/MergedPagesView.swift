@@ -176,7 +176,7 @@ struct MergedPageView: View {
                         )
                         .contentShape(Rectangle())
                         .draggable(containerItemID: pageItem.id)
-                    
+                        
                 }
                 Divider()
             }

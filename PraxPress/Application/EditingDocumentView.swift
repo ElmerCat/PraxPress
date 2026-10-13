@@ -74,7 +74,10 @@ struct EditingDocumentView: View {
                         //                        pdfView.autoScales = true
                         
                         //     scalePDFViewToFit(pdfView: context.coordinator.prax.editingDocumentPDFView)
-                        scalePDFViewToFitViewSize(prax.editingDocumentPDFView, prax.editorViewSize, .vertical, forPDFDocument: prax.document.editingPDFDocument)
+                        
+                        prax.scaleEditorView()
+                        
+//                        scalePDFViewToFitViewSize(prax.editingDocumentPDFView, prax.editorViewSize, .vertical, forPDFDocument: prax.document.editingPDFDocument)
                         
                         if !pdfView.visiblePages.contains(pageItem.pdfPage) { pdfView.go(to: pageItem.pdfPage) }
                     }

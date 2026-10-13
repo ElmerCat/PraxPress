@@ -31,12 +31,90 @@ class Prax {
                                                fragment: .never)
 }
 
+
+enum SourceFileStatus: String, Codable, Hashable, Comparable {
+    static func < (lhs: SourceFileStatus, rhs: SourceFileStatus) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+    
+    case okay = "Source Files"
+    case trashed = "Files in the Trash"
+    case bad = "Files that can't be found"
+}
+
+enum SourceFileType: String, Codable, Hashable, Comparable {
+    static func < (lhs: SourceFileType, rhs: SourceFileType) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+    
+    case pdf = "pdf"
+    case image = "image"
+    case text = "text"
+    case other = "other"
+}
+
+
 enum ViewScaleMode: Int {
     case vertical
     case horizontal
     case fit
     case user
 }
+
+
+nonisolated func fileAttributesForBookmark(_ bookmark: Data) async throws -> [FileAttributeKey: Any] {
+    var isStale = false
+    guard let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+            else {  print("fileAttributesForBookmark - Error resolvingBookmarkData") ; return [:] }
+    let needsStop = url.startAccessingSecurityScopedResource()
+    defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+    let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+    return attributes
+    
+}
+
+
+
+
+
+func formatFileSize(_ size: Int) -> String {
+    if size < 1000 { return "\(size) bytes"}
+    else if size < 1000000 { return "\(size / 1000) KB"}
+    else if size < 1000000000 { return "\(size / 1000000) MB"}
+    else if size < 1000000000000 { return "\(size / 1000000000) GB"}
+    else  { return "\(size / 1000000000000) TB"}
+    
+}
+
+func formatSmartDate(_ date: Date) -> String {
+    let calendar = Calendar.current
+    let now = Date()
+    
+    // 1. If the date is today: 7:45 PM
+    if calendar.isDateInToday(date) {
+        return date.formatted(
+            .dateTime
+                .hour(.conversationalDefaultDigits(amPM: .abbreviated))
+                .minute(.twoDigits)
+        )
+    }
+    
+    // 2. If within the last 12 months: Apr 7
+    // Calculate the difference in months between the date and now
+    let monthDifference = calendar.dateComponents([.month], from: date, to: now).month ?? 0
+    
+    if date < now && monthDifference < 12 {
+        return date.formatted(
+            .dateTime
+                .month(.abbreviated)
+                .day(.defaultDigits)
+        )
+    }
+    
+    // 3. Earlier still (or fallback for future dates): 2026
+    return date.formatted(.dateTime.year(.defaultDigits))
+}
+
 
 func scalePDFViewToFitViewSize(_ pdfView: PDFView, _ viewSize: CGSize, _ direction: PDFDisplayDirection? = nil, forPDFDocument pdfDocument: PDFDocument, pageMargin: CGSize = .zero, viewMargin: CGSize = CGSize(width: 30, height: 10)) {
     guard let pdfDocument = pdfView.document else { return }
@@ -69,6 +147,35 @@ func pdfDocumentSize(_ pdfDocument: PDFDocument) -> CGSize {
     }
     return pdfSize
 }
+
+
+
+enum FileGroup: String, CaseIterable, Identifiable {
+    var id: String { self.rawValue }
+    
+    case imported = "Main File Group"
+    case exported = "Exported File Group"
+    case locked = "Locked File Group"
+    
+    var color: Color { switch self {
+    case .imported:
+        return .pink
+    case .exported:
+        return .blue
+    case .locked:
+        return .orange } }
+    
+    var icon: String { switch self {
+    case .imported:
+        return "text.document.fill"
+    case .exported:
+        return "document.badge.gearshape.fill"
+    case .locked:
+        return "lock.document.fill" }}
+}
+
+
+
 
 enum EditMode: String, CaseIterable {
     case merge = "Edit Merge"

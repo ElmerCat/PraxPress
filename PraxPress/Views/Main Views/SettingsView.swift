@@ -28,7 +28,7 @@ struct SettingsView: View {
     @FocusState private var focusedField: PraxFocus?
     
     @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
-    @Query(sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
+    @Query() private var sourceFiles: [SourceFile]
 
     var praxLady = "Julie d'Prax"
     
@@ -125,7 +125,7 @@ struct SettingsView: View {
             }
             
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
-      
+ /*
             .onKeyPress { event in
                 print("KeyPress - ", event.modifiers, event.characters)
                 
@@ -144,7 +144,7 @@ struct SettingsView: View {
                 }
                 return .ignored
             }
-
+*/
 
 
 

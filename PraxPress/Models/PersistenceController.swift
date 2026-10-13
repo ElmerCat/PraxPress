@@ -16,12 +16,47 @@ actor PersistenceController: Observable {
     
     var praxModel: PraxModel?
     var prax: PraxModel { praxModel! }
+    
     func attach(prax: PraxModel) { self.praxModel = prax }
     
     func sourceFiles() -> [SourceFile] {
         do { return try modelContext.fetch(FetchDescriptor<SourceFile>()) }
         catch { print("Failed to load sourceFiles: \(error)"); return [] }
     }
+    
+    
+    func initializeFileGroups() {
+        print("PersistenceController - initializeFileGroups")
+        
+        do {
+            
+            for fileGroup in FileGroup.allCases {
+                
+                print(fileGroup.rawValue)
+                let name = fileGroup.rawValue
+                let predicate = #Predicate<SourceFileGroup> { $0.name == name }
+                var descriptor = FetchDescriptor<SourceFileGroup>(predicate: predicate)
+                descriptor.fetchLimit = 1
+                
+                do {
+                    if let existing = try modelContext.fetch(descriptor).first {
+                        print("Existing SourceFileGroup: ", existing.name)
+                    }
+                    else {
+                        print("Adding SourceFileGroup: ", fileGroup.rawValue)
+                        let group = SourceFileGroup(name: fileGroup.rawValue)
+                        modelContext.insert(group)
+                        try modelContext.save()
+                        
+                    }
+                }
+            }
+        }
+        catch {let praxError = PraxError.generic(title: "Filr Group Error", message: "Error: initializeFileGroups")
+            Task { await prax.presentError(praxError) }
+        }
+    }
+    
     
     func sourceFileGroup(_ name: String) async throws -> SourceFileGroup {  // Try fetch by name
         let predicate = #Predicate<SourceFileGroup> { $0.name == name }
@@ -35,7 +70,7 @@ actor PersistenceController: Observable {
         return group
     }
     
-    func sourceFile(id: UUID) async throws -> SourceFile? {
+    func sourceFile(id: PersistentIdentifier) async throws -> SourceFile? {
         let predicate = #Predicate<SourceFile> { $0.id == id }
         var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -48,7 +83,7 @@ actor PersistenceController: Observable {
         }
     }
     
-    func deleteSourceFiles(_ ids: Set<UUID>) throws {
+    func deleteSourceFiles(_ ids: Set<PersistentIdentifier>) throws {
         print("deleteSourceFiles(_ ids: ", ids)
         guard !ids.isEmpty else { return }
         // Build a predicate that matches any of the provided IDs
@@ -63,13 +98,27 @@ actor PersistenceController: Observable {
         try modelContext.save()
     }
     
- 
- 
+    func move(_ sourceFile: SourceFile, to groupName: FileGroup) async throws {
+        let fileID = sourceFile.id
+        do {
+            let sourceFileGroup = try await sourceFileGroup(groupName.rawValue)
+            guard let localSourceFile = modelContext.model(for: fileID) as? SourceFile
+            else {throw NSError(domain: "SwiftDataError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Source file not found in current context."])  }
+            
+            localSourceFile.fileGroup = sourceFileGroup
+            try modelContext.save()
+        }
+        catch {
+            throw error
+        }
+    }
+
+    
     var importFileCountLimit: Int {
         get { Int(UserDefaults.standard.integer(forKey: "importFileCountLimit")) }
         set { UserDefaults.standard.set(newValue, forKey: "importFileCountLimit") }
     }
-
+    
     struct ImportInfo {
         let url: URL
         let bookmark: Data
@@ -108,7 +157,7 @@ actor PersistenceController: Observable {
                         await prax.presentError(praxError)
                         return
                     }
-                  
+                    
                     
                     urlBookmarks.append(ImportInfo(url: url, bookmark: data, size: fileAttributes[.size] as! Int))
                 } }
@@ -116,7 +165,7 @@ actor PersistenceController: Observable {
                 await prax.presentError(praxError)
             }
         }
-
+        
         
         
         if urlBookmarks.count > importFileCountLimit {
@@ -126,7 +175,7 @@ actor PersistenceController: Observable {
             await prax.presentError(error)
             return
         }
-              
+        
         let existingSourceFiles = sourceFiles()
         let existingSourceFileURLs = Set<URL>(existingSourceFiles.map { $0.url })
         
@@ -138,24 +187,25 @@ actor PersistenceController: Observable {
         urlBookmarks = urlBookmarks.filter { !existingSourceFileURLs.contains($0.url) }
         
         await addSourceFilesForURLBookmarks(urlBookmarks)
-
-     }
+    }
+    
     
     
     func addSourceFilesForURLBookmarks(_ urlBookmarks: [ImportInfo]) async {
         
-        
         do {
             for importInfo in urlBookmarks {
                 
+                await PraxLogger.shared.logInfo("Adding new SourceFile for: \(importInfo.url.path)  -  Size: \(importInfo.size)", category: .import)
+                
+                var isStale = false
+                guard let url = try? URL(resolvingBookmarkData: importInfo.bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+                else {  print("addSourceFilesForURLBookmarks - Error resolvingBookmarkData for URL: ", importInfo.url.path, "  isStale: \(isStale)") ; return  }
                 let needsStop = importInfo.url.startAccessingSecurityScopedResource()
                 defer { if needsStop { importInfo.url.stopAccessingSecurityScopedResource() } }
                 
-                await PraxLogger.shared.logInfo("Adding new SourceFile for: \(importInfo.url.path)  -  Size: \(importInfo.size)", category: .import)
-                let url = importInfo.url
                 var sourceFile: SourceFile?
                 switch url.pathExtension.lowercased() {
-                    
                 case "pdf":
                     
                     guard let pdfDocument = PDFDocument(url: url) else {
@@ -193,7 +243,7 @@ actor PersistenceController: Observable {
                     
                     let mainFileGroup = try await sourceFileGroup("Main File Group")
                     
-                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: importInfo.bookmark, pageCount: pdfDocument.pageCount, fileType: .pdf, fileSize: importInfo.size)
+                    sourceFile = SourceFile(fileGroup: mainFileGroup, bookmarkData: importInfo.bookmark, pageCount: pdfDocument.pageCount, fileType: .pdf)
                     
                     sourceFile?.dataFields = dataFields
                     
@@ -205,7 +255,7 @@ actor PersistenceController: Observable {
                     
                     let mainFileGroup = try await sourceFileGroup("Main File Group")
                     
-                    sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: importInfo.bookmark, pageCount: 0, fileType: .image, fileSize: importInfo.size)
+                    sourceFile = SourceFile(fileGroup: mainFileGroup, bookmarkData: importInfo.bookmark, pageCount: 0, fileType: .image)
                     
                     
                     
@@ -234,11 +284,83 @@ actor PersistenceController: Observable {
             let message = "Error Importing URLs: \(urlBookmarks)"
             await PraxLogger.shared.logError(message, category: .import)
             let error = PraxError.generic(title: "Import Error", message: message)
-            await prax.presentError(error) }
+            await prax.presentError(error)
+        }
         
     }
     
-    
+    func addExportedSourceFile(_ url: URL) async  {
+        
+        
+        let predicate = #Predicate<SourceFile> { $0.url == url }
+        var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        
+        
+        
+        do {
+            if (try sourceFiles().filter(#Predicate<SourceFile> { $0.url == url }).first) != nil {
+                print("Duplicate URL: ", url)
+                return
+            }}catch {}
+        
+          
+        
+        do { await PraxLogger.shared.logInfo("Adding new Exported SourceFile at: \(url.path)", category: .import)
+            
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            let fileType = fileAttributes[.type] as! FileAttributeType
+            guard fileType != .typeDirectory else {
+                await PraxLogger.shared.logError("Import Source Alert", category: .import)
+                let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+                let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                await prax.presentError(praxError); return }
+            
+            guard let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) else {
+                await PraxLogger.shared.logError("Import Source Error", category: .import)
+                let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file bookmark data" ])
+                let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                await prax.presentError(praxError); return }
+            
+            var sourceFile: SourceFile?
+            
+            guard let pdfDocument = PDFDocument(url: url) else {
+                await PraxLogger.shared.logError("Failed to open PDF: \(url.path)", category: .pdf)
+                throw PraxError.fileImportFailed( fileName: url.lastPathComponent, underlyingError: NSError(domain: "PDFDocument", code: -2, userInfo: [NSLocalizedDescriptionKey: "Could not load PDF file. File may be corrupted or an unsupported PDF format." ]))}
+            
+            print("Opened PDF. Page count: \(pdfDocument.pageCount)")
+            
+            let dataFields = pdfDocument.dataFields()
+            
+            let mainFileGroup = try await sourceFileGroup("Exported File Group")
+            
+            sourceFile = SourceFile(fileGroup: mainFileGroup, bookmarkData: data, pageCount: pdfDocument.pageCount, fileType: .pdf)
+            
+            sourceFile?.exported = true
+            sourceFile?.dataFields = dataFields
+            
+            
+            guard let sourceFile else {
+                let message = "Could not create Source File for \(url.path)"
+                await PraxLogger.shared.logError(message, category: .import)
+                let error = PraxError.generic(title: "Import Error", message: message)
+                await prax.presentError(error)
+                return
+            }
+            modelContext.insert(sourceFile)
+            try modelContext.save()
+            
+        }
+        catch {
+            let message = "Error Importing URL: \(url)"
+            await PraxLogger.shared.logError(message, category: .import)
+            let error = PraxError.generic(title: "Import Error", message: message)
+            await prax.presentError(error)
+        }
+        
+    }
     
     
     func filesRecursively(in folderURL: URL) -> [(url: URL, size: Int)] {
@@ -251,7 +373,7 @@ actor PersistenceController: Observable {
                     if resourceValues.isDirectory == true {
                         continue
                     } else {
-       //                 PraxLogger.shared.logInfo("Discovered file in folder: \(url.path)", category: .import)
+                        //                 PraxLogger.shared.logInfo("Discovered file in folder: \(url.path)", category: .import)
                         collected.append((url: url, size: resourceValues.fileSize ?? 0))
                     }
                 } catch {
@@ -273,8 +395,8 @@ actor PersistenceController: Observable {
                 urlBookmarks.append(ImportInfo(url: file.url, bookmark: data, size: file.size)) } }
         return urlBookmarks
     }
-
-
+    
+    
     
     func praxTest() {
         
@@ -309,8 +431,8 @@ actor PersistenceController: Observable {
 
 
 /*
-
-
+ 
+ 
  
  func isPDF(_ url: URL) -> Bool {
  if let type = UTType(filenameExtension: url.pathExtension) {
@@ -320,121 +442,121 @@ actor PersistenceController: Observable {
  }
  
  
-
  
-func newSourceFileFromURLBookmark(url: URL, bookmarkData: Data) async throws -> SourceFile? {
-    
-    var isStale = false
-    
-    
-    guard let resolvedURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
-        await PraxLogger.shared.logError(
-            "Failed to resolve bookmark for url: \(url.lastPathComponent)",
-            category: .bookmarks
-        )
-        throw PraxError.bookmarkResolutionFailed(
-            underlyingError: NSError(domain: "BookmarkResolution", code: -1, userInfo: [
-                NSLocalizedDescriptionKey: "Could not resolve bookmark data. File may have been moved or deleted."
-            ])
-        )
-    }
-    
-    let needsStop = resolvedURL.startAccessingSecurityScopedResource()
-    defer { if needsStop { resolvedURL.stopAccessingSecurityScopedResource() } }
-    
-    
-    
-    
-    print("\n--- Parsing PDF: \(resolvedURL.absoluteString) ---")
-    guard let pdfDocument = PDFDocument(url: resolvedURL) else {
-        await PraxLogger.shared.logError(
-            "Failed to open PDF: \(resolvedURL.path)",
-            category: .pdf
-        )
-        throw PraxError.fileImportFailed(
-            fileName: url.lastPathComponent,
-            underlyingError: NSError(domain: "PDFDocument", code: -2, userInfo: [
-                NSLocalizedDescriptionKey: "Could not load PDF file. File may be corrupted or an unsupported PDF format."
-            ])
-        )
-    }
-    print("Opened PDF. Page count: \(pdfDocument.pageCount)")
-    
-    let predicate = #Predicate<SourceFile> { $0.url == url }
-    var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
-    descriptor.fetchLimit = 1
-    do {
-        let existing = try modelContext.fetch(descriptor)
-        if !existing.isEmpty {
-            print("newSourceFileFromURLBookmark - SourceFile already exists with same url: ", url)
-            return nil
-        }
-    }
-    catch {
-        await PraxLogger.shared.logError(
-            "Failed to check for existing PDF file",
-            error: error,
-            category: .persistence
-        )
-        throw PraxError.persistenceFailed(
-            operation: "Check existing PDF file",
-            underlyingError: error
-        )
-    }
-    do {
-        let mainFileGroup = try await sourceFileGroup("Main File Group")
-        
-        
-        let sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: bookmarkData, pageCount: pdfDocument.pageCount)
-        
-        var dataFields: [String: FieldValue] = [:]
-        let fieldNames = SourceFile.defaultFieldNames
-        
-        func value(from annot: PDFAnnotation) -> String? {
-            if let v = annot.widgetStringValue, !v.isEmpty { return v }
-            if let v = annot.contents, !v.isEmpty { return v }
-            return nil
-        }
-        
-        for pageIndex in 0..<pdfDocument.pageCount {
-            guard let page = pdfDocument.page(at: pageIndex) else { continue }
-            print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
-            for annot in page.annotations {
-                let key = annot.fieldName ?? ""
-                if key.isEmpty { continue }
-                let widgetType = String(describing: annot.widgetFieldType)
-                let extracted = value(from: annot) ?? "(nil)"
-                print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
-                
-                if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                    if fieldNames.contains(key) {
-                        dataFields[key] = .string(v)
-                    }
-                }
-            }
-        }
-        sourceFile.dataFields = dataFields
-        
-        modelContext.insert(sourceFile)
-        try modelContext.save()
-        
-        return sourceFile
-    }
-    catch {
-        await PraxLogger.shared.logError(
-            "Failed to create PDF file entry",
-            error: error,
-            category: .persistence
-        )
-        throw PraxError.persistenceFailed(
-            operation: "Create PDF file entry",
-            underlyingError: error
-        )
-    }
-    
-}
-
-*/
+ 
+ func newSourceFileFromURLBookmark(url: URL, bookmarkData: Data) async throws -> SourceFile? {
+ 
+ var isStale = false
+ 
+ 
+ guard let resolvedURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) else {
+ await PraxLogger.shared.logError(
+ "Failed to resolve bookmark for url: \(url.lastPathComponent)",
+ category: .bookmarks
+ )
+ throw PraxError.bookmarkResolutionFailed(
+ underlyingError: NSError(domain: "BookmarkResolution", code: -1, userInfo: [
+ NSLocalizedDescriptionKey: "Could not resolve bookmark data. File may have been moved or deleted."
+ ])
+ )
+ }
+ 
+ let needsStop = resolvedURL.startAccessingSecurityScopedResource()
+ defer { if needsStop { resolvedURL.stopAccessingSecurityScopedResource() } }
+ 
+ 
+ 
+ 
+ print("\n--- Parsing PDF: \(resolvedURL.absoluteString) ---")
+ guard let pdfDocument = PDFDocument(url: resolvedURL) else {
+ await PraxLogger.shared.logError(
+ "Failed to open PDF: \(resolvedURL.path)",
+ category: .pdf
+ )
+ throw PraxError.fileImportFailed(
+ fileName: url.lastPathComponent,
+ underlyingError: NSError(domain: "PDFDocument", code: -2, userInfo: [
+ NSLocalizedDescriptionKey: "Could not load PDF file. File may be corrupted or an unsupported PDF format."
+ ])
+ )
+ }
+ print("Opened PDF. Page count: \(pdfDocument.pageCount)")
+ 
+ let predicate = #Predicate<SourceFile> { $0.url == url }
+ var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
+ descriptor.fetchLimit = 1
+ do {
+ let existing = try modelContext.fetch(descriptor)
+ if !existing.isEmpty {
+ print("newSourceFileFromURLBookmark - SourceFile already exists with same url: ", url)
+ return nil
+ }
+ }
+ catch {
+ await PraxLogger.shared.logError(
+ "Failed to check for existing PDF file",
+ error: error,
+ category: .persistence
+ )
+ throw PraxError.persistenceFailed(
+ operation: "Check existing PDF file",
+ underlyingError: error
+ )
+ }
+ do {
+ let mainFileGroup = try await sourceFileGroup("Main File Group")
+ 
+ 
+ let sourceFile = SourceFile(fileGroup: mainFileGroup, url: url, bookmarkData: bookmarkData, pageCount: pdfDocument.pageCount)
+ 
+ var dataFields: [String: FieldValue] = [:]
+ let fieldNames = SourceFile.defaultFieldNames
+ 
+ func value(from annot: PDFAnnotation) -> String? {
+ if let v = annot.widgetStringValue, !v.isEmpty { return v }
+ if let v = annot.contents, !v.isEmpty { return v }
+ return nil
+ }
+ 
+ for pageIndex in 0..<pdfDocument.pageCount {
+ guard let page = pdfDocument.page(at: pageIndex) else { continue }
+ print("Page #\(pageIndex + 1): annotations=\(page.annotations.count)")
+ for annot in page.annotations {
+ let key = annot.fieldName ?? ""
+ if key.isEmpty { continue }
+ let widgetType = String(describing: annot.widgetFieldType)
+ let extracted = value(from: annot) ?? "(nil)"
+ print("  Annotation field=\(key) type=\(widgetType) value=\(extracted)")
+ 
+ if let v = value(from: annot), !(v.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+ if fieldNames.contains(key) {
+ dataFields[key] = .string(v)
+ }
+ }
+ }
+ }
+ sourceFile.dataFields = dataFields
+ 
+ modelContext.insert(sourceFile)
+ try modelContext.save()
+ 
+ return sourceFile
+ }
+ catch {
+ await PraxLogger.shared.logError(
+ "Failed to create PDF file entry",
+ error: error,
+ category: .persistence
+ )
+ throw PraxError.persistenceFailed(
+ operation: "Create PDF file entry",
+ underlyingError: error
+ )
+ }
+ 
+ }
+ 
+ */
 
 
 

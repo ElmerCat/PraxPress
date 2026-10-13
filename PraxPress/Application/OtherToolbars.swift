@@ -26,11 +26,15 @@ struct ExportFilenameView: View {
                 save()} }
    }
     
+
     private func save() {
         if let pageItem = prax.selectedPageItem {
+            
             var isStale = false
             guard let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
             else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); prax.presentError(praxError); return }
+            
+            
             if url == prax.document.exportFileURL {
                 let needsStop = url.startAccessingSecurityScopedResource(); defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
                 if !prax.document.mergedPDFDocument.write(to: url) {
@@ -38,7 +42,7 @@ struct ExportFilenameView: View {
             else {prax.showFileExporter = true} }
     }
     
-    
+
     var body: some View {
         @Bindable var prax = prax
         HStack{
@@ -53,7 +57,7 @@ struct ExportFilenameView: View {
             
             Spacer()
             
-            Image("PDFFileIcon").resizable().aspectRatio(contentMode: .fill).frame(width: 30)
+            Image("pdfFileIcon").resizable().aspectRatio(contentMode: .fill).frame(width: 30)
             Text("\(prax.document.exportFilename).pdf").padding(.trailing, 20)
             
             Spacer()
@@ -61,10 +65,12 @@ struct ExportFilenameView: View {
             if prax.document.dataFieldPage != nil {
                 PraxButton(action: {prax.burnInAnnotations.toggle()}, symbol: "burn", help: "Burn in annotations", isOn: prax.burnInAnnotations, theme: .burn)}
             
+            
+
             PraxButton(action: {self.clickedSaveButton()}, symbol: "square.and.arrow.down.fill", help: "Save")
                 .padding(.horizontal, 10)
             Spacer()
-          
+
         }
         .disabled(!prax.document.readyToExport)
         .font(.system(size: 20, weight: .medium))
@@ -92,6 +98,8 @@ struct ExportFilenameView: View {
                 }
             )
         }
+        
+        
 
     }
 }
@@ -111,25 +119,33 @@ struct ContentHeader: View {
                         
                         Button(role: .destructive, action: { prax.document.mergedPages.removeAll() }, label: {
                             HStack {
-                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 40 { Text("Clear Merged Document") }
+                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 1040 { Text("Clear Merged Document") }
                                 Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
                             .padding(.horizontal, 5)})
                         .disabled(prax.document.mergedPages.isEmpty)
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 40, hoverWidth: 200))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 40 : nil }
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1040, hoverWidth: 200))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 1040 : nil }
                         
                         Spacer()
-                            ExportFilenameView()
-                            .frame(minWidth: 200, maxWidth: 400)
+                        ExportFilenameView()
+                            .frame(minWidth: 200, maxWidth: 600)
                         
                         Spacer()
+                        Button(role: .confirm, action: { withAnimation() { prax.showExportedFiles.toggle() }}, label: {
+                            Image(systemName: "folder") })
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1041))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 1041 : nil }
+                        
+                  
+                        Button(role: .confirm, action: { PraxLogger.shared.openLogFile() }, label: {
+                            Image(systemName: "exclamationmark.triangle.text.page") })
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1048))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 1048 : nil }
+                        
                         Button(role: .confirm, action: { showingOptions.toggle() }, label: {
-                            HStack {
-                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 41 { Text("Options") }
-                                Image(systemName: prax.document.mergedPages.isEmpty ? "gear" : "gear.circle") }})
-                        //   .disabled(prax.document.mergedPages.isEmpty)
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 41))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 41 : nil }
+                            Image(systemName: "gear") })
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1042))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 1042 : nil }
                         
                         .padding(.trailing, 20)
                         
@@ -137,6 +153,10 @@ struct ContentHeader: View {
                     }
                     
                 }
+                
+                
+
+                
                 .popover(isPresented: $showingOptions, content: {
                     VStack {
                         Text("Julie d'Prax")

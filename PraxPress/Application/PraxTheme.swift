@@ -24,8 +24,6 @@ extension View {
 }
 
 
-
-
 enum ButtonState {
     case enabled
     case on
@@ -310,8 +308,9 @@ struct PageItemButtonStyle: ButtonStyle {
     @Environment(\.groupHovering) private var groupHovering
     var isHovering = false
     var isOn = false
+    var isFocused = false
     
-    func buttonForegroundColor() -> Color {
+/*    func buttonForegroundColor() -> Color {
         if isHovering {
             if isOn { return Color.yellow }
             return Color.white
@@ -336,6 +335,8 @@ struct PageItemButtonStyle: ButtonStyle {
         if isOn { return Color.green }
         return Color.blue.opacity(0.5)
     }
+    
+ */
 
     func makeBody(configuration: Self.Configuration) -> some View {
         return configuration.label
@@ -345,9 +346,14 @@ struct PageItemButtonStyle: ButtonStyle {
          //   .font(.system(size: prax.mergedPagesSize.width * 0.10))
         //    .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
             .frame(width: 30, height: 30)
-            .foregroundColor(buttonForegroundColor())
-            .background(buttonBackgroundColor(role: configuration.role), in: RoundedRectangle(cornerRadius: 8))
-    }
+        
+            .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
+        
+            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
+        
+            .animation(.easeInOut(duration: 0.3), value: isHovering)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )
+       }
 }
 
 

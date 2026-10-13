@@ -1,4 +1,36 @@
-//
+import SwiftUI
+import SwiftData
+import PDFKit
+import UniformTypeIdentifiers
+
+
+
+struct ContentView: View {
+    
+    @Environment(\.modelContext) private var modelContext
+    @Environment(PraxModel.self) private var prax
+    @Environment(\.undoManager) var undoManager
+    
+    var body: some View {
+        @Bindable var prax = prax
+        GroupBox {
+            AnyOldView()
+        }
+
+        .onAppear {
+            print("ContentView .onAppear")
+            
+            if let undoManager {
+                modelContext.undoManager = undoManager
+                prax.undoManager = undoManager
+            
+        }
+    }
+}
+
+
+
+
 //  CollectionSupplementaryViews.swift
 //  PraxPress
 //
