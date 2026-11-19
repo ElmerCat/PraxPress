@@ -278,6 +278,21 @@ func buttonForegroundColor(configuration: ButtonStyle.Configuration, isEnabled: 
 
 
 
+func buttonBorderColor(configuration: ButtonStyle.Configuration, isEnabled: Bool = true, isHovering: Bool = false, isOn: Bool = false, isFocused: Bool = false) -> Color {
+    if !isEnabled { return Color.buttonDisabledForeground } else
+    if configuration.isPressed {switch configuration.role {
+        case .destructive: return Color.buttonDestructiveForegroundPressed
+        default:  return Color.buttonDefaultForegroundPressed } }
+    else if isHovering {  switch configuration.role {
+        case .destructive: return Color.buttonDestructiveForegroundHover
+        default:  return Color.buttonDefaultForegroundHover} }
+    else { switch configuration.role {
+        case .destructive: return Color.buttonDestructiveForeground
+        default:  return Color.buttonDefaultForeground} }
+}
+
+
+
 struct PrefixButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
     @Environment(\.isEnabled) private var isEnabled
@@ -302,97 +317,64 @@ struct PrefixButtonStyle: ButtonStyle {
 
 
 
-struct PageItemButtonStyle: ButtonStyle {
-    @Environment(PraxModel.self) private var prax
-    @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.groupHovering) private var groupHovering
-    var isHovering = false
-    var isOn = false
-    var isFocused = false
-    
-/*    func buttonForegroundColor() -> Color {
-        if isHovering {
-            if isOn { return Color.yellow }
-            return Color.white
-        }
-        if isOn { return Color.red }
-        return Color.blue
-    }
-    
-    func buttonBackgroundColor(role: ButtonRole?) -> Color {
-
-        if groupHovering { return Color.orange } 
-        
-        if isHovering {
-            switch role {
-            case .destructive: return Color.red
-                
-            default:
-                if isOn { return Color.green }
-                return Color.blue
-            }
-        }
-        if isOn { return Color.green }
-        return Color.blue.opacity(0.5)
-    }
-    
- */
-
-    func makeBody(configuration: Self.Configuration) -> some View {
-        return configuration.label
-            .buttonStyle(.glassProminent)
-            .imageScale(.large)
-         //   .font(.system(size: 20, weight: .medium))
-         //   .font(.system(size: prax.mergedPagesSize.width * 0.10))
-        //    .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
-            .frame(width: 30, height: 30)
-        
-            .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
-        
-            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
-        
-            .animation(.easeInOut(duration: 0.3), value: isHovering)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )
-       }
-}
-
-
 struct PraxButtonStyle: ButtonStyle {
     @Environment(PraxModel.self) private var prax
     @Environment(\.isEnabled) private var isEnabled
     var isHovering = false
     var isOn = false
     var isFocused = false
-    var width = 30.0
-    var height = 30.0
+    var width: CGFloat?// = 30.0
+    var height: CGFloat?// = 30.0
     var hoverWidth: CGFloat?
     var hoverHeight: CGFloat?
 
-    func frameHeight(isHovering: Bool) -> CGFloat {
-        if isHovering, let height = hoverHeight { return height }
-        return height
+    func frameHeight(isHovering: Bool) -> CGFloat? {
+        if height == hoverHeight && hoverHeight == nil { return nil }
+        if isHovering && hoverHeight != nil { return hoverHeight }
+        else { return hoverHeight }
+
     }
-    func frameWidth(isHovering: Bool) -> CGFloat {
-        if isHovering, let width = hoverWidth { return width }
-        return width
+    func frameWidth(isHovering: Bool) -> CGFloat? {
+        
+        if width == hoverWidth && hoverWidth == nil { return nil }
+        if isHovering && hoverWidth != nil { return hoverWidth }
+        else { return width }
     }
     
+    
     func makeBody(configuration: Self.Configuration) -> some View {
-       
+    
+        var foregroundColor: Color { buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused) }
+        var background: MeshGradient { ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused) } //, in: RoundedRectangle(cornerRadius: 5) }
+        var borderColor: Color { buttonBorderColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused) }
+        
         return configuration.label
             .buttonStyle(.glassProminent)
             .imageScale(.large)
-            .frame(width: frameWidth(isHovering: isHovering), height: frameHeight(isHovering: isHovering), alignment: .center)
+            .frame(maxWidth: frameWidth(isHovering: isHovering), maxHeight: frameHeight(isHovering: isHovering), alignment: .center)
           //  .zIndex(23)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 0)
           //  .buttonBorderShape(.roundedRectangle(radius: 8) )
           //  .border(Color.black, width: 3)
-            .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
         
-            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
+            .foregroundColor(foregroundColor)
+            .background(background, in: RoundedRectangle(cornerRadius: 5))
+//            .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
+        
+//            .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
             
             .animation(.easeInOut(duration: 0.3), value: isHovering)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )    }
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )
+        
+            .overlay(RoundedRectangle(cornerRadius: 3).stroke(borderColor, lineWidth: isHovering ? 2 : 1))
+        
+                   
+        
+       //     .overlay(alignment: .topTrailing) {
+       //             Text("Julie d'Prax")
+      //              .foregroundColor(.black).padding(4).background(PraxGradient(4), in: RoundedRectangle(cornerRadius: 5)) }
+    
+    }
 }
 
 
@@ -526,7 +508,7 @@ import SwiftUI
 
 func ButtonBackground(configuration: ButtonStyle.Configuration, isEnabled: Bool = true, isHovering: Bool = false, isOn: Bool = false, isFocused: Bool = false) -> MeshGradient {
     let colors: [Color]
-    if !isEnabled { colors = [.gray, .gray, .gray, .gray] } else
+    if !isEnabled { colors = [.clear, .clear, .clear, .clear] } else
     
     if configuration.isPressed { switch configuration.role {
     case .destructive: colors = [.buttonDestructiveBackgroundPressed.opacity(0.9), .buttonDestructiveBackgroundPressed.opacity(0.5), .buttonDestructiveBackgroundPressed.opacity(0.9), .buttonDestructiveBackgroundPressed.opacity(0.5)]
@@ -620,6 +602,20 @@ func PraxGradient(_ style: Int? = nil, opacity: CGFloat = 1) -> MeshGradient {
                 Color("GradientDarkTwo").opacity(0.15), Color("GradientLightTwo").opacity(0.25),
                 Color("GradientLightTwo").opacity(0.25), Color("GradientDarkTwo").opacity(0.15)
             ])
+
+    case 41:
+        MeshGradient(
+            width: 2,
+            height: 2,
+            points: [
+                [0.0, 0.0], [1.0, 0.0],
+                [0.0, 1.0], [1.0, 1.0]
+                
+            ],
+            colors: [
+                Color("GradientDarkTwo").opacity(0.85), Color("GradientLightTwo").opacity(0.95),
+                Color("GradientLightTwo").opacity(0.95), Color("GradientDarkTwo").opacity(0.85)
+            ])
         
     default:
         MeshGradient(
@@ -644,3 +640,33 @@ func PraxGradient(_ style: Int? = nil, opacity: CGFloat = 1) -> MeshGradient {
     PraxGradient(0)
     PraxGradient(1)
 }
+
+
+
+/*struct PageItemButtonStyle: ButtonStyle {
+ @Environment(PraxModel.self) private var prax
+ @Environment(\.isEnabled) private var isEnabled
+ @Environment(\.groupHovering) private var groupHovering
+ var isHovering = false
+ var isOn = false
+ var isFocused = false
+ 
+ func makeBody(configuration: Self.Configuration) -> some View {
+ return configuration.label
+ .buttonStyle(.glassProminent)
+ .imageScale(.large)
+ //   .font(.system(size: 20, weight: .medium))
+ //   .font(.system(size: prax.mergedPagesSize.width * 0.10))
+ //    .frame(width: prax.mergedPagesSize.width * 0.25, height: prax.mergedPagesSize.width * 0.25)
+ .frame(width: 30, height: 30)
+ 
+ .foregroundColor(buttonForegroundColor(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused))
+ 
+ .background(ButtonBackground(configuration: configuration, isEnabled: isEnabled, isHovering: isHovering, isOn: isOn, isFocused: isFocused), in: RoundedRectangle(cornerRadius: 5))
+ 
+ .animation(.easeInOut(duration: 0.3), value: isHovering)
+ .animation(.easeInOut(duration: 0.1), value: configuration.isPressed )
+ }
+ }
+ */
+

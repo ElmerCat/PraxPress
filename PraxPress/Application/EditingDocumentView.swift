@@ -18,24 +18,41 @@ import PDFKit
 
 struct EditingDocumentView: View {
     @Environment(PraxModel.self) private var prax
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+
+    
     @State private var hovering: Bool = false
     var body: some View {
         
         VStack{
-            Text("Editor")
-            EditingToolbarView().frame(maxWidth: .infinity)
+            Text("Editor").padding(.top, 5)
+            Divider()
+            EditingToolbarView() //.frame(maxWidth: .infinity, maxHeight: 250)
             
-            ZStack(alignment: .topTrailing) {
+            ZStack (alignment: .topTrailing) {
                 EditingPDFViewRepresentable(prax).zIndex(1)
-                EditingOverlayView().zIndex(2)
+                
+                    EditingZoomOverlayView().zIndex(2)
+                    
+//                .frame(maxWidth: .infinity).zIndex(2) //.offset(x: 0, y: 150).zIndex(2)
             }
-            .onGeometryChange(for: CGSize.self) { viewGeometry in return viewGeometry.size }
-            action: { oldValue, newValue in prax.editorViewSize = newValue }
+            
+            .onGeometryChange(for: CGRect.self) {  viewGeometry in return viewGeometry.frame(in: .named("MainWindow")) }
+            action: { _, newValue in prax.editorViewFrame = newValue }
+
         }
-        .onHover { isHovering in withAnimation { hovering = isHovering  } }
+        .onHover { isHovering in withAnimation {
+            hovering = isHovering
+            prax.editorHovering = isHovering
+        } }
         .environment(\.groupHovering, hovering)
-       
         
+        
+        
+   //     .onChange(of: prax.document.mergedPages) {
+   //         prax.showTrimsEditor = !prax.document.mergedPages.isEmpty
+   //     }
         
     }
     
@@ -75,7 +92,7 @@ struct EditingDocumentView: View {
                         
                         //     scalePDFViewToFit(pdfView: context.coordinator.prax.editingDocumentPDFView)
                         
-                        prax.scaleEditorView()
+                //        prax.scaleEditorView()
                         
 //                        scalePDFViewToFitViewSize(prax.editingDocumentPDFView, prax.editorViewSize, .vertical, forPDFDocument: prax.document.editingPDFDocument)
                         
@@ -156,13 +173,13 @@ struct EditingDocumentView: View {
  Spacer()
  Button { scalePDFViewToFitViewSize(prax.editingDocumentPDFView, prax.editorViewSize, .vertical, forPDFDocument: prax.document.editingPDFDocument) }
  label: {  Image(systemName: "arrow.up.and.down.square") }
- .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
+ .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 31))
  .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
  .help("Fit Horizontally")
  
  Button { prax.editingDocumentPDFView.zoomOut(self) }
  label: {  Image(systemName: "minus.circle") }
- .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
+ .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 32))
  .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
  .help("Zoom Out")
  
@@ -179,13 +196,13 @@ struct EditingDocumentView: View {
  
  Button { prax.editingDocumentPDFView.zoomIn(self) }
  label: {  Image(systemName: "plus.circle") }
- .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
+ .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 32))
  .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
  .help("Zoom In")
  
  Button { scalePDFViewToFitViewSize(prax.editingDocumentPDFView, prax.editorViewSize, .horizontal, forPDFDocument: prax.document.editingPDFDocument) }
  label: {  Image(systemName: "arrow.left.and.right.square") }
- .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 3))
+ .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 3))
  .onHover { hovering in prax.hoveredButton = hovering ? 3 : nil }
  .help("Fit Horizontally")
  

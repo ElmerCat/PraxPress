@@ -13,7 +13,7 @@ struct DataFieldsView: View {
     var body: some View {
         @Bindable var prax = prax
         
-        PraxSegmentedControl(selection: $prax.editMode, colorProvider: { $0.color }, iconProvider: {$0.icon} )
+  //      PraxSegmentedControl(selection: $prax.editMode, colorProvider: { $0.color }, iconProvider: {$0.icon} )
         
         GroupBox {
             Grid {
@@ -332,10 +332,3 @@ struct AmountFieldView: View {
 
 
 
-#Preview {
-    @Previewable @State var prax = PraxModel(nil)
-    
-    TrimsEditorView()
-        .environment(prax)
-        .frame(width: 1500)
-}

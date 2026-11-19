@@ -15,11 +15,9 @@ import OSLog
 
 @Observable @MainActor class MergedPDFDocument {
     unowned let prax: PraxModel
-    unowned let persistence: PersistenceController?
     
-    init(prax: PraxModel, persistence: PersistenceController?) {
+    init(prax: PraxModel) {
         self.prax = prax
-        self.persistence = persistence
     }
     
     private var _mergedPages: [MergedPage] = []
@@ -96,6 +94,7 @@ extension MergedPDFDocument {
         print("Clear Merged Document")
         prax.selectedPageItem = nil
         mergedPDFDocument = PDFDocument()
+        pageImages = []
         prax.editingDocumentPDFView.document = PDFDocument()
         
         exportFolderURL = nil
@@ -104,6 +103,7 @@ extension MergedPDFDocument {
         widthGuidePageID = nil
         widthGuideLeftX = nil
         widthGuideRightX = nil
+        
         
         
 }
@@ -196,9 +196,9 @@ extension MergedPDFDocument {
             documentAttributes.updateValue(Date(), forKey: PDFDocumentAttribute.modificationDateAttribute)
             documentAttributes.updateValue("PraxPress", forKey: PDFDocumentAttribute.producerAttribute)
             documentAttributes.updateValue("Elmer Cat", forKey: PDFDocumentAttribute.authorAttribute)
-            documentAttributes.updateValue("PraxPress Merged PDF", forKey: PDFDocumentAttribute.titleAttribute.rawValue)
-            documentAttributes.updateValue("PraxPress praxolates your PDF documents", forKey: PDFDocumentAttribute.subjectAttribute)
-            documentAttributes.updateValue(["PraxPress", "PDF", "Merge", "Prax"], forKey: PDFDocumentAttribute.keywordsAttribute)
+            documentAttributes.updateValue(exportFilenameBody, forKey: PDFDocumentAttribute.titleAttribute.rawValue)
+            documentAttributes.updateValue("PraxPress PDF Document", forKey: PDFDocumentAttribute.subjectAttribute)
+            documentAttributes.updateValue(["PraxPress", "PDF", "ElmerCat", "Prax"], forKey: PDFDocumentAttribute.keywordsAttribute)
 
              pdfDocument.documentAttributes = documentAttributes
             
@@ -211,7 +211,7 @@ extension MergedPDFDocument {
             
             Task {do {
                 pdfDocument.write(to: url)
-                await persistence?.addExportedSourceFile(url)
+                await prax.addExportedSourceFile(url)
             }}
             
             
@@ -348,7 +348,7 @@ extension MergedPDFDocument {
         
     }
 
-    
+
     private func nameForPage(url: URL, index: Int) -> String {
         let base = url.deletingPathExtension().lastPathComponent
         return "\(base) [\(index + 1)]"
@@ -742,7 +742,7 @@ extension MergedPDFDocument {
   //      if pageItem.id == widthGuidePageID { clearWidthGuide() }
         let media = pageItem.pdfPage.bounds(for: .cropBox)
         let per = pageItem.trims
-        let vis = PDFGeometry.visibleRect(media: media, trims: per, seamTop: 0, seamBottom: 0)
+        let vis = media.trimmed(per, seamTop: 0, seamBottom: 0)
         widthGuidePageID = pageItem.id
         widthGuideLeftX = vis.minX
         widthGuideRightX = vis.maxX

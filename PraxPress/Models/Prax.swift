@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import SwiftData
 import PDFKit
+import UniformTypeIdentifiers
 
 // MARK: - The Prax class has static values which can be used used anywhere.
 
@@ -30,6 +32,51 @@ class Prax {
                                                query: .never,
                                                fragment: .never)
 }
+
+
+struct MergedPDFTransfer: Transferable, Identifiable {
+    let id = UUID()
+    let data: Data
+    let filename: String
+    
+    static var transferRepresentation: some TransferRepresentation {
+        // Provide PDF data so other apps (Mail, Notes, Finder) can accept the drop
+        DataRepresentation(exportedContentType: .pdf) { pdf in
+            pdf.data
+        }
+        .suggestedFileName { value in
+            value.filename
+        }
+    }
+}
+
+enum MergeMode: String, Codable { case mergeDown, mergeRight, mergeSkip }
+
+struct EdgeTrims: Codable, Hashable {
+    var left: CGFloat
+    var right: CGFloat
+    var top: CGFloat
+    var bottom: CGFloat
+    
+    nonisolated static let zero = EdgeTrims(left: 0, right: 0, top: 0, bottom: 0)
+}
+
+
+/*
+struct PDFGeometry {
+    /// Compute the visible rect in page space given media box and trims.
+    static func visibleRect(media: CGRect, trims: EdgeTrims, seamTop: CGFloat, seamBottom: CGFloat) -> CGRect {
+        let minX = media.minX + trims.left
+        let maxX = media.maxX - trims.right
+        let minY = media.minY + trims.bottom + seamBottom
+        let maxY = media.maxY - trims.top - seamTop
+        let w = max(0, maxX - minX)
+        let h = max(0, maxY - minY)
+        return CGRect(x: minX, y: minY, width: w, height: h)
+    }
+    
+}
+*/
 
 
 enum SourceFileStatus: String, Codable, Hashable, Comparable {
@@ -75,6 +122,15 @@ nonisolated func fileAttributesForBookmark(_ bookmark: Data) async throws -> [Fi
 
 
 
+func pageSizeText(_ bounds: CGRect) -> String {
+    return "\(Int(bounds.width)) × \(Int(bounds.height))\n" + String(format: "%.2f × %.2f in", bounds.width / 72.0, bounds.height / 72.0)
+}
+
+
+func inchesText(_ size: CGSize) -> String {
+    guard size.width > 0, size.height > 0 else { return "—" }
+    return String(format: "%.2f × %.2f in", size.width, size.height)
+}
 
 
 func formatFileSize(_ size: Int) -> String {
@@ -154,13 +210,13 @@ enum FileGroup: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
     
     case imported = "Main File Group"
-    case exported = "Exported File Group"
+    case merged = "Merged File Group"
     case locked = "Locked File Group"
     
     var color: Color { switch self {
     case .imported:
         return .pink
-    case .exported:
+    case .merged:
         return .blue
     case .locked:
         return .orange } }
@@ -168,7 +224,7 @@ enum FileGroup: String, CaseIterable, Identifiable {
     var icon: String { switch self {
     case .imported:
         return "text.document.fill"
-    case .exported:
+    case .merged:
         return "document.badge.gearshape.fill"
     case .locked:
         return "lock.document.fill" }}
@@ -319,3 +375,59 @@ public extension StorageValue {
         jsonString
     }
 }
+
+struct UmbrellaIcon: View {
+    var tint: Color
+    
+    var body: some View {
+        Image("PraxPress")
+            .resizable()
+            .scaledToFit()
+            .colorMultiply(tint)
+    }
+}
+
+#Preview("UmbrellaIcon") {
+    HStack {
+        UmbrellaIcon(tint: .mint)
+        UmbrellaIcon(tint: .red)
+        UmbrellaIcon(tint: .cyan)
+    }
+    .frame(width: 400)
+    .padding()
+}
+
+#Preview("OptionKeyPressedToolbarItem") {
+    
+    let modelContainer: ModelContainer = {
+        let schema = Schema([SourceFile.self, SourceFileGroup.self])
+        let config = ModelConfiguration() // customize if needed
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        container.mainContext.undoManager = UndoManager()
+        return container
+    }()
+    let prax = PraxModel(modelContainer)
+    
+    
+    OptionKeyPressedToolbarItem()
+        .environment(prax)
+    
+}
+
+#Preview("ExportFilenamePopover") {
+    
+    let modelContainer: ModelContainer = {
+        let schema = Schema([SourceFile.self, SourceFileGroup.self])
+        let config = ModelConfiguration() // customize if needed
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        container.mainContext.undoManager = UndoManager()
+        return container
+    }()
+    let prax = PraxModel(modelContainer)
+    
+    
+    ExportFilenamePopover()
+        .environment(prax)
+    
+}
+

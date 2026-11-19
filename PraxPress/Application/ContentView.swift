@@ -13,56 +13,13 @@ import UniformTypeIdentifiers
 
 
 struct ContentView: View {
-    //   @Environment(PersistenceController.self) private var persistence
     
-    @Environment(\.modelContext) private var modelContext           // Global context (from app)
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(PraxModel.self) private var prax
     @Environment(\.undoManager) var undoManager
     
-    struct ContentBody: View {
-        @Environment(PraxModel.self) private var prax
-        var body: some View {
-            @Bindable var prax = prax
-            
-            HSplitView {
-                @Bindable var prax = prax
-                MergedPagesView()
-                    .frame(minWidth: 80, idealWidth: 200, maxWidth: 300).layoutPriority(1)
-                //                                                .frame(minWidth: prax.showExportedFiles ? 80 : 100, idealWidth: prax.showExportedFiles ? 200 : 300, maxWidth: prax.showExportedFiles ? 500 : 600).layoutPriority(1)
-                
-                EditingDocumentView()
-                    .frame(minWidth: 200, idealWidth: 500, maxWidth: 1200).layoutPriority(4)
-                //                                              .frame(minWidth: prax.showExportedFiles ? 200 : 300, idealWidth: prax.showExportedFiles ? 400 : 500, maxWidth: prax.showExportedFiles ? 1000 : 1200).layoutPriority(1)
-                    .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
-                    .overlay(content: {
-                        if prax.document.mergedPages.isEmpty { //} && true == false {
-                            ZStack {
-                                Image("PraxPress").resizable().aspectRatio(contentMode: .fit).frame(width: prax.dropTargeted ? 500 : 200)
-                                    .rotationEffect(Angle(degrees: prax.dropTargeted ? 800 : 0))
-                                    .padding(.leading, 30)
-                                Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
-                                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax))
-                            }
-                            .animation(.easeIn(duration: 0.25), value: prax.dropTargeted)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(PraxGradient().opacity(0.85))
-                            .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax))
-                        } })
-                
-                MergedPDFDocumentView()
-                    .frame(minWidth: 200, idealWidth: 500, maxWidth: 1200).layoutPriority(4)
-                //                                            .frame(minWidth: prax.showExportedFiles ? 200 : 300, idealWidth: prax.showExportedFiles ? 400 : 500, maxWidth: prax.showExportedFiles ? 1000 : 1200).layoutPriority(1)
-                    .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
-                
-                ExportedFilesView()
-                    .frame(minWidth: prax.showExportedFiles ? 100 : 0, idealWidth: prax.showExportedFiles ? 400 : 0, maxWidth: prax.showExportedFiles ? 1000 : 0).layoutPriority(4)
-                    .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
-                
-            }
-        }
-    }
+
     
     var body: some View {
         @Bindable var prax = prax
@@ -73,15 +30,18 @@ struct ContentView: View {
                 if prax.praxPressMode == .data { SourceFilesView() }
                 else {
                     NavigationSplitView(columnVisibility: $prax.columnVisibility) {
-                        SourceFilesView() }
+                        SourceFilesView()
+                            
+                        
+                    }
                     detail: {
                         HStack {
                             DocumentEditingLeadingEdge().frame(minWidth: 20, maxWidth: 30)
                             VStack {
-                                ContentHeader()
+                           //     ContentHeader()
                                 ContentBody()
                                 
-                                    
+                                
                                 
                                 
                                 
@@ -93,8 +53,9 @@ struct ContentView: View {
             }
         }
         
-        .onGeometryChange(for: CGSize.self) {  viewGeometry in return viewGeometry.size }
-        action: {oldValue, newValue in prax.windowSize = newValue }
+        
+        .onGeometryChange(for: CGRect.self) {  viewGeometry in return viewGeometry.frame(in: .named("MainWindow")) }
+        action: {oldValue, newValue in prax.windowFrame = newValue }
         
             .alert( prax.presentedError?.title ?? "Error",
                     isPresented: Binding( get: { prax.presentedError != nil }, set: { if !$0 { prax.dismissError() } } ),
@@ -111,7 +72,10 @@ struct ContentView: View {
                         } } }.padding(.top, 8) } } }
         
         
-        
+        .inspector(isPresented: $prax.showInspector, content: {
+            InspectorView()
+                .inspectorColumnWidth(min: 250, ideal: 300, max: 1000)
+        })
         
         .fileImporter(
             isPresented: $prax.showFileImporter,
@@ -120,7 +84,7 @@ struct ContentView: View {
                 
                 switch result {
                 case .success(let urls):
-                    Task { do { try await prax.persistence?.importURLs(urls) }
+                    Task { do { try await prax.importURLs(urls) }
                         catch { print("Failed to importURLs(urls)", urls) } }
                     
                 case .failure(let error):
@@ -153,22 +117,78 @@ struct ContentView: View {
             .task {
                 
                 print ("Moo Bells - ContentView .task")
-                await prax.persistence?.initializeFileGroups()
-                
+                prax.initializeFileGroups()
+                DispatchQueue.main.async {
+                     dismissWindow(id: "preview")
+                     dismissWindow(id: "trims-editor")
+                }
             }
+            .onChange(of: prax.showTrimsEditor, { if prax.showTrimsEditor {
+                openWindow(id: "trims-editor") } else {
+                    dismissWindow(id: "trims-editor") } })
+        
+            .onChange(of: prax.showFileViewer, { if prax.showFileViewer {
+                openWindow(id: "preview") } else {
+                    dismissWindow(id: "preview") } })
         
         
             .onAppear {
                 print("ContentView .onAppear")
                 prax.undoManager = undoManager!
+   
+            }
+        
+            .onDisappear {
+                print("ContentView .onDisappear")
             }
         
         
-        
+            .toolbar(content: {
+                MainToolbar()
+            })
         
         //  .background(PraxGradient())
         
             .navigationTitle("PraxPress PDF Processor")
     }
+    
+    struct ContentBody: View {
+        @Environment(PraxModel.self) private var prax
+        var body: some View {
+            @Bindable var prax = prax
+            
+            HSplitView {
+                @Bindable var prax = prax
+                MergedPagesView()
+                    .frame(minWidth: 80, idealWidth: 140, maxWidth: 300).layoutPriority(3)
+                //                                                .frame(minWidth: prax.showExportedFiles ? 80 : 100, idealWidth: prax.showExportedFiles ? 200 : 300, maxWidth: prax.showExportedFiles ? 500 : 600).layoutPriority(1)
+                
+                EditingDocumentView()
+                    .frame(minWidth: 200, idealWidth: 500, maxWidth: 1200).layoutPriority(4)
+                //                                              .frame(minWidth: prax.showExportedFiles ? 200 : 300, idealWidth: prax.showExportedFiles ? 400 : 500, maxWidth: prax.showExportedFiles ? 1000 : 1200).layoutPriority(1)
+                    .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
+                    
+                
+                MergedPDFDocumentView()
+                    .frame(minWidth: 200, idealWidth: 500, maxWidth: 1200).layoutPriority(4)
+                    .overlay(Rectangle().fill(Color.blue).frame(width: 2),alignment: .leading)
+            }
+            .overlay(content: {
+                if prax.document.mergedPages.isEmpty { //} && true == false {
+                    ZStack {
+                        Image("PraxPress").resizable().aspectRatio(contentMode: .fit).frame(width: prax.dropTargeted ? 500 : 200)
+                            .rotationEffect(Angle(degrees: prax.dropTargeted ? 800 : 0))
+                            .padding(.leading, 30)
+                        Text(prax.dropTargeted ? "Drop Files Here" : "Drag files into PraxPress")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .font(Font.custom("BrushScriptMT", size: prax.dropTargeted ? 100 : 30))
+                            .onDrop(of: [.sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax))
+                    }
+                    .animation(.easeIn(duration: 0.25), value: prax.dropTargeted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(PraxGradient().opacity(0.85))
+//                    .onDrop(of: [.fileURL, .sourceFileType, .mergedPageType, .pageItemType], delegate: PraxDropDelegate(prax))
+                } })
+        }
+    }
 }
-

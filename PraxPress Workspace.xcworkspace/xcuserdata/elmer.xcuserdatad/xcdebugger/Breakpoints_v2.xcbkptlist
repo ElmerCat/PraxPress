@@ -57,22 +57,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C139E935-9726-4E2F-8648-882A99757557"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PraxPress/Models/PraxModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "85"
-            endingLineNumber = "85"
-            landmarkName = "editorViewScaleFactor"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "13FC1806-976B-4D84-A0D3-C55FE1566BA3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -137,17 +121,17 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4D31BE77-3931-43C1-8978-A73B9718D6C7"
+            uuid = "C8364EB7-3B9C-4833-9E47-6AAA05ECAD2A"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "PraxPress/Models/PraxModel.swift"
+            filePath = "PraxPress/Models/SettingsModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
-            landmarkName = "undoManager"
-            landmarkType = "24">
+            startingLineNumber = "157"
+            endingLineNumber = "157"
+            landmarkName = "loadPatternTypes()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

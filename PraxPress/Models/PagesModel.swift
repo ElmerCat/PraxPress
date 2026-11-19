@@ -266,6 +266,10 @@ final class MergedPage: Identifiable, Equatable, Hashable {
 
 extension MergedPage {
     
+    var bounds: CGRect {
+        return pdfPage?.bounds(for: .cropBox) ?? .zero
+    }
+    
     func mergeModePages() -> Int { var count = 0; for pageItem in pageItems { if !pageItem.skipped { count += 1 } }; return count }
 
     var skippedPages: Int { get { var count = 0; for pageItem in pageItems { if pageItem.skipped {count += 1} }; return count } }
@@ -285,7 +289,7 @@ extension MergedPage {
             var totalVisibleHeight: CGFloat = 0
             
             for pageItem in pageItems where !pageItem.skipped {
-                let vis = PDFGeometry.visibleRect(media: pageItem.bounds, trims: pageItem.trims, seamTop: 0, seamBottom: 0)
+                let vis = pageItem.bounds.trimmed(pageItem.trims, seamTop: 0, seamBottom: 0)
                 maxVisibleWidth = max(maxVisibleWidth, vis.width)
                 minVisibleWidth = min(minVisibleWidth, vis.width)
                 totalVisibleHeight += vis.height

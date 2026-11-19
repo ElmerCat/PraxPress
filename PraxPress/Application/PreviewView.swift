@@ -10,86 +10,75 @@ import SwiftUI
 import SwiftData
 import PDFKit
 
-
 struct PreviewView: View {
     
     @Environment(PraxModel.self) private var prax
-    @Environment(\.dismiss) private var dismiss
-     
+    @Environment(\.dismissWindow) private var dismissWindow
     
-//   @State private var fileSize: Int64 = 0
-//    @State private var creationDate: Date = .distantPast
-//    @State private var modificationDate: Date = .distantPast
+    @FocusState private var isViewFocused: Bool
+    
+    //   @Query() private var sourceFiles: [SourceFile]
     
     var body: some View {
+        
         let _ = Self._printChanges()
         @Bindable var prax = prax
-        if let sourceFile = prax.selectedSourceFile {
+        
+        if prax.selectedSourceFile != nil {
             VStack(spacing: 0) {
-                
-                
                 
                 GroupBox {
                     HStack {
                         Image(systemName: "x.circle")
                             .padding(.horizontal, 15).padding(.vertical, 5)
                             .font(.system(size: 20, weight: .medium))
-                            .onTapGesture {dismiss()}
-                        
-                        Text("\(sourceFile.fileAttributes.count)")
-                   
-                        SourceFilesListRow(sourceFile).padding(10)
-                        
-                        
-                    }.frame(height: 40)
-                }.background(PraxGradient(3))
-             //   SourceFilesListRow(sourceFile)
-             //       .frame(maxHeight: 30)
+                            .onTapGesture {prax.showFileViewer = false}
+                        Text("\(prax.selectedSourceFile!.fileName)")
+                        Spacer()
+                    }.frame(maxWidth: .infinity, maxHeight: 40)
+                }
+                .focusable()
+                .focused($isViewFocused)
+                
                 GroupBox {
                     HStack {
-                         
-                        PraxButton(action: { prax.deleteSouurceFileFromDatabase(sourceFile); dismiss() }, symbol: "document.on.trash", help: "Remove from PraxPress Library")
+                        PraxButton(action: {
+                            
+                            /*prax.deleteSouurceFileFromDatabase(sourceFile);*/
+                            
+                            prax.showFileViewer = false }, symbol: "document.on.trash", help: "Remove from PraxPress Library")
                             .frame(maxWidth: 40)
                             .padding(.horizontal, 20).padding(.vertical, 5)
-                        Text("\(sourceFile.fileSize / 1000) KB")
-                        if sourceFile.pageCount > 1 {
-                            Text("\(sourceFile.pageCount) Pages") }
+                        Text("\(prax.selectedSourceFile!.fileSize / 1000) KB")
+                        if prax.selectedSourceFile!.pageCount > 1 {
+                            Text("\(prax.selectedSourceFile!.pageCount) Pages") }
                         else { Text("One Page") }
-                        
                         Spacer()
-                        
                         HStack {
-                            PraxButton(action: { prax.document.addPagesFromSourceFile(sourceFile); dismiss() }, symbol: "inset.filled.trailinghalf.arrow.trailing.rectangle", label: "Trim / Merge", help: "Trim and Merge File Pages")
+                            PraxButton(action: { prax.document.addPagesFromSourceFile(prax.selectedSourceFile!); prax.showFileViewer = false }, symbol: "inset.filled.trailinghalf.arrow.trailing.rectangle", label: "Trim / Merge", help: "Trim and Merge File Pages")
                                 .frame(maxWidth: 150)
                                 .padding(.horizontal, 20)
                         }.help("Trim and Merge File Pages")
-                        
-                        
-
                     }.padding(0)
-                }//.background(PraxGradient(2))
+                }
                 
                 PreviewPDFViewRepresentable(prax).padding(20).border(Color.blue.opacity(0.8), width: 2)
                 
                 GroupBox {
                     HStack {
-                        Image(systemName: sourceFile.fileGroup.name == FileGroup.locked.rawValue ? "lock" : "lock.open").font(.system(size: 20, weight: .medium))
+                        Image(systemName: prax.selectedSourceFile!.fileGroup.name == FileGroup.locked.rawValue ? "lock" : "lock.open").font(.system(size: 20, weight: .medium))
                             .contentTransition(.symbolEffect(.replace))
                             .onTapGesture  {
                                 let fileGroup: FileGroup
-                                let _ = print(sourceFile.fileGroup.name)
-                                if sourceFile.fileGroup.name == FileGroup.locked.rawValue {fileGroup = .imported
-                                }
+                                if prax.selectedSourceFile!.fileGroup.name == FileGroup.locked.rawValue {fileGroup = .imported}
                                 else { fileGroup = .locked }
                                 Task { do {
-                                    print ("Moving \(sourceFile.url.lastPathComponent) to \(fileGroup.rawValue)")
-                                    try await prax.persistence?.move(sourceFile, to: fileGroup)  }
-                                catch {
-                                    let message = "Error moving SourceFile to \(fileGroup.rawValue) -  \(error.localizedDescription)"
-                                    PraxLogger.shared.logError(message, category: .import)
-                                    let error = PraxError.generic(title: "Move Error", message: message)
-                                    prax.presentError(error)
-                                    }
+                                    print ("Moving \(prax.selectedSourceFile!.url.lastPathComponent) to \(fileGroup.rawValue)")
+                                    
+                                    try await prax.move(prax.selectedSourceFileID!, to: fileGroup)
+                                    
+                                } catch {}
+                                    
                                 }
                             }
                         
@@ -98,26 +87,36 @@ struct PreviewView: View {
                         
                         Image(systemName: "folder").font(.system(size: 20, weight: .medium))
                             .onTapGesture {
-                                NSWorkspace.shared.selectFile(sourceFile.url.path, inFileViewerRootedAtPath: "")
+                                NSWorkspace.shared.selectFile(prax.selectedSourceFile!.url.path, inFileViewerRootedAtPath: "")
                             }
                         VStack {
                             HStack {
-                                Text("size: \(String(sourceFile.fileSize))  ")
-                                Text("creationDate: \(sourceFile.creationDate.formatted())  ")
-                                Text("modificationDate: \(sourceFile.modificationDate.formatted())  ")
+                                Text("size: \(String(prax.selectedSourceFile!.fileSize))  ")
+                                Text("creationDate: \(prax.selectedSourceFile!.creationDate.formatted())  ")
+                                Text("modificationDate: \(prax.selectedSourceFile!.modificationDate.formatted())  ")
                             }
-                            Text(sourceFile.fileGroup.name)
-                            Text("\(sourceFile.url.formatted(Prax.filenameStyle).split(separator: ".").first ?? "")")
-
+                            
+                            let _ = print("prax.selectedSourceFile.fileGroup.name: ",prax.selectedSourceFile!.fileGroup.name,  " - ", prax.selectedSourceFile!.url.formatted(Prax.filenameStyle) )
+                            Text(prax.selectedSourceFile!.fileGroup.name)
+                            Text("\(prax.selectedSourceFile!.url.formatted(Prax.filenameStyle).split(separator: ".").first ?? "")")
+                            
                         }
                         Spacer()
-                       
+                        
                     }.padding(0)
                 }
             }
-            .frame(idealWidth: (prax.windowSize.height - 100) * 0.63, idealHeight: prax.windowSize.height - 100)
+            
+            
+            
+            
+            .navigationTitle("Source File:  \(prax.selectedSourceFile!.fileName)")
+            
+            .gesture(WindowDragGesture())
+            
+            //    .frame(idealWidth: (prax.windowSize.height - 100) * 0.63, idealHeight: prax.windowSize.height - 100)
             .presentationSizing(.fitted)
-            .interactiveDismissDisabled(true)
+            //     .interactiveDismissDisabled(true)
             .background(PraxGradient(4))
             .overlay(
                 RoundedRectangle(cornerRadius: 15)
@@ -127,61 +126,121 @@ struct PreviewView: View {
             //     .border(Color.blue.opacity(0.8), width: 2)
             
             .onKeyPress(phases: .down) { keyPress in  switch keyPress.key {
-            case .space: dismiss(); return .handled
+            case .space: prax.showFileViewer = false; return .handled
+            case .escape: prax.showFileViewer = false; return .handled
+                
                 default: print("PreviewView - keyPress.key: ", keyPress.key); return .ignored } }
-
-   //         .onAppear() {  sourceFile.refreshTransientProperties() }
-   //         .onChange(of: prax.selectedSourceFile) { sourceFile.refreshTransientProperties()  }
             
-        }
-        
-        
-    }
-    
-    
-    struct PreviewPDFViewRepresentable: NSViewRepresentable {
-        init(_ prax: PraxModel) { self.prax = prax }
-        let prax: PraxModel
-        func makeCoordinator() -> PreviewPDFDocumentViewCoordinator { PreviewPDFDocumentViewCoordinator(prax) }
-        
-        func makeNSView(context: Context) -> PDFView {
+            //         .onAppear() {  sourceFile.refreshTransientProperties() }
+            //         .onChange(of: prax.selectedSourceFile) { sourceFile.refreshTransientProperties()  }
             
-            prax.previewPDFView.document = prax.previewPDFDocument
-            prax.previewPDFView.autoScales = true
-            prax.previewPDFView.displaysPageBreaks = true
-            prax.previewPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
-            prax.previewPDFView.displayDirection = .vertical
-            prax.previewPDFView.backgroundColor = NSColor(Color.buttonDestructiveBackground)
-            prax.previewPDFView.delegate = context.coordinator
-            return prax.previewPDFView
-        }
-        
-        func updateNSView(_ pdfView: PDFView, context: Context) {
-   //         print("PreviewPDFDocumentViewCoordinator - updateNSView", prax.previewPDFDocument)
+            .toolbar(content: {
+                
+                ToolbarItemGroup(placement: .status) {
+                    
+                    Button("🧪 Open Log") {
+                        PraxLogger.shared.openLogFile()
+                    }
+                    
+                    Button("🧪 Test Error") {
+                        prax.praxTest()
+                    }
+                    
+                    //       ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
+                    
+                    
+                    
+                }
+            })
+            .toolbarBackground(PraxGradient(), for: .windowToolbar)
             
-            if context.coordinator.documentVersion != prax.previewDocumentVersion {
-                context.coordinator.documentVersion = prax.previewDocumentVersion
-                prax.previewPDFView.document = prax.previewPDFDocument
+     //       .onChange(of: prax.sourceFiles) {  }
+            
+            .onAppear() {
+                print("Gloria")
+                isViewFocused = true
+                
             }
+            
+            .onChange(of: prax.selectedSourceFile?.fileGroup) {
+                print("Lucille")
+            }
+            .onChange(of: prax.selectedSourceFile) {
+                print("Carmen")
+            }
+            
+            
         }
         
         
     }
-    final class PreviewPDFDocumentViewCoordinator: NSObject, PDFViewDelegate {
-        let prax: PraxModel
-        init(_ prax: PraxModel) { self.prax = prax }
-        var documentVersion = UUID()
+    
+    
+}
+struct PreviewPDFViewRepresentable: NSViewRepresentable {
+    init(_ prax: PraxModel) { self.prax = prax }
+    let prax: PraxModel
+    func makeCoordinator() -> PreviewPDFDocumentViewCoordinator { PreviewPDFDocumentViewCoordinator(prax) }
+    
+    func makeNSView(context: Context) -> PDFView {
         
-        func pdfViewWillClick(onLink sender: PDFView, with url: URL) {print("PreviewPDFDocumentViewCoordinator - pdfViewWillClick: ", url) }
+        prax.previewPDFView.document = prax.previewPDFDocument
+        prax.previewPDFView.autoScales = true
+        prax.previewPDFView.displaysPageBreaks = true
+        prax.previewPDFView.pageBreakMargins = NSEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+        prax.previewPDFView.displayDirection = .vertical
+        prax.previewPDFView.backgroundColor = NSColor(Color.buttonDestructiveBackground)
+        prax.previewPDFView.delegate = context.coordinator
+        return prax.previewPDFView
+    }
+    
+    func updateNSView(_ pdfView: PDFView, context: Context) {
         
-        @objc func pageChanged(_ note: Notification) {
-            guard let pdfView = note.object as? PDFView,
-                  let doc = pdfView.document,
-                  let page = pdfView.currentPage else { return }
-            let idx = doc.index(for: page)
-            print("PreviewPDFDocumentViewCoordinator - changed to page:", idx)
-            //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
+        print("PreviewPDFDocumentViewCoordinator - updateNSView - \(String(describing: prax.selectedSourceFile?.url.absoluteString))")
+        
+        guard context.coordinator.sourceFile != prax.selectedSourceFile  else { print("PreviewPDFDocumentViewCoordinator - updateNSView - no change"); return }
+        context.coordinator.sourceFile = prax.selectedSourceFile
+        
+        var pdfDocument: PDFDocument
+        
+        if context.coordinator.sourceFile == nil {
+            pdfDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
         }
+        else {
+            var isStale = false
+            guard let url = try? URL(resolvingBookmarkData: context.coordinator.sourceFile!.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+                    else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); prax.presentError(praxError); return }
+            
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            
+            if let document = PDFDocument(url: url) { pdfDocument = document }
+            else { pdfDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)!
+                let praxError = PraxError.fileAccessDenied(filePath: url.absoluteString)
+                prax.presentError(praxError) }
+        }
+        pdfView.document = pdfDocument
+        
+    }
+    
+}
+
+final class PreviewPDFDocumentViewCoordinator: NSObject, PDFViewDelegate {
+    let prax: PraxModel;  init(_ prax: PraxModel) { self.prax = prax }
+    
+    var documentVersion = UUID()
+    
+    var sourceFile: SourceFile? = nil
+    
+    func pdfViewWillClick(onLink sender: PDFView, with url: URL) {print("PreviewPDFDocumentViewCoordinator - pdfViewWillClick: ", url) }
+    
+    @objc func pageChanged(_ note: Notification) {
+        guard let pdfView = note.object as? PDFView,
+              let doc = pdfView.document,
+              let page = pdfView.currentPage else { return }
+        let idx = doc.index(for: page)
+        print("PreviewPDFDocumentViewCoordinator - changed to page:", idx)
+        //         if idx != NSNotFound, idx != prax.currentIndex { prax.currentIndex = idx }
     }
 }
 

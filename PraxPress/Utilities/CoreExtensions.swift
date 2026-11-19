@@ -29,6 +29,21 @@ extension FocusedValues {
 
 
 
+struct BoolComparator: SortComparator {
+    typealias Compared = Bool
+    
+    func compare(_ lhs: Bool, _ rhs: Bool) -> ComparisonResult {
+        switch (lhs, rhs) {
+        case (true, false):
+            return order == .forward ? .orderedDescending : .orderedAscending
+        case (false, true):
+            return order == .forward ? .orderedAscending : .orderedDescending
+        default: return .orderedSame
+        }
+    }
+    
+    var order: SortOrder = .forward
+}
 
 
 extension NSImage {
@@ -90,6 +105,17 @@ extension Notification.Name {
     static let praxFileSelectionChanged = Notification.Name("PraxFileSelectionChanged")
 }
 
+extension CGRect {
+    func trimmed(_ trim: EdgeTrims, seamTop: CGFloat = 0, seamBottom: CGFloat = 0) -> CGRect {
+        let minX = self.minX + trim.left
+        let maxX = self.maxX - trim.right
+        let minY = self.minY + trim.bottom + seamBottom
+        let maxY = self.maxY - trim.top - seamTop
+        let w = max(0, maxX - minX)
+        let h = max(0, maxY - minY)
+        return CGRect(x: minX, y: minY, width: w, height: h)
+    }
+}
 
 
 
@@ -98,6 +124,7 @@ extension CGSize {
     static func - (lhs: CGSize, rhs: CGSize) -> CGSize { return CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height) }
     static func += (lhs: inout CGSize, rhs: CGSize) { lhs = lhs + rhs }
     static func -= (lhs: inout CGSize, rhs: CGSize) { lhs = lhs - rhs }
+    var inches: CGSize { CGSize(width: self.width / 72.0, height: self.height / 72.0) }
 }
 
 

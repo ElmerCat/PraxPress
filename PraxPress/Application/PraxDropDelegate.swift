@@ -19,15 +19,15 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     func dropEntered(info: DropInfo) {
-        //   print("DropTargetControl - dropEntered")
+           print("PraxDropDelegate - dropEntered")
     }
 
     
     func validateDrop(info: DropInfo) -> Bool {
-    //    print("DropTargetControl - validateDrop")
+        print("PraxDropDelegate - validateDrop")
         
         if info.hasItemsConforming(to: [.pageItemType, .mergedPageType]) {
-            print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pageItemType, .mergedPageType])")
+            print("PraxDropDelegate - dropUpdated - hasItemsConforming(to: [.pageItemType, .mergedPageType])")
             return false
         }
         else {
@@ -37,7 +37,7 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     
-    func performDrop(info: DropInfo) -> Bool { //  print("DropTargetControl - performDrop")
+    func performDrop(info: DropInfo) -> Bool { //  print("PraxDropDelegate - performDrop")
         prax.dropTargeted = false
 
         if info.hasItemsConforming(to: [.sourceFileType]) {
@@ -61,7 +61,7 @@ final class PraxDropDelegate: DropDelegate {
                        let url = URL(string: path) {
                         print("Julie Belanger path = ", path, "  URL: ", url)
                         Task {
-                            do { try await prax.document.persistence?.importURLs([url]) }
+                            do { try await prax.importURLs([url]) }
                             catch { print("Failed to importURLs: \(error)") }
                         }
                         
@@ -72,35 +72,35 @@ final class PraxDropDelegate: DropDelegate {
     }
     
     func dropUpdated(info: DropInfo) -> DropProposal? {
-  //      print("DropTargetControl - dropUpdated - phase: ")
+        print("PraxDropDelegate - dropUpdated - phase: ")
         
         if info.hasItemsConforming(to: [.pageItemType]) {
-  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.pageItemType])")
+            print("PraxDropDelegate - dropUpdated - hasItemsConforming(to: [.pageItemType])")
             return DropProposal(operation: .forbidden)
             
         }
         else if info.hasItemsConforming(to: [.mergedPageType]) {
-  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.mergedPageType])")
+          print("PraxDropDelegate - dropUpdated - hasItemsConforming(to: [.mergedPageType])")
             return DropProposal(operation: .forbidden)
             
         }
         else if info.hasItemsConforming(to: [.sourceFileType]) {
-  //          print("DropTargetControl - dropUpdated - hasItemsConforming(to: [.sourceFileType])")
+          print("PraxDropDelegate - dropUpdated - hasItemsConforming(to: [.sourceFileType])")
             return DropProposal(operation: .copy)
             
         }
         else if info.hasItemsConforming(to: [UTType.fileURL]) {
-    //        print("DropTargetControl - dropUpdated - hasItemsConforming(to: [UTType.fileURL])")
+            print("PraxDropDelegate - dropUpdated - hasItemsConforming(to: [UTType.fileURL])")
             return DropProposal(operation: .copy)
         }
         else {
-            print("DropTargetControl - dropUpdated - else ")
+            print("PraxDropDelegate - dropUpdated - else ")
             return DropProposal(operation: .forbidden)
         }
     }
     
     func dropExited(info: DropInfo) {
-      //  print("DropTargetControl - dropExited")
+        print("PraxDropDelegate - dropExited")
         prax.dropTargeted = false
     }
 }

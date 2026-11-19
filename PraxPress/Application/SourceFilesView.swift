@@ -15,132 +15,147 @@ private let DEBUG_LOGS = true
 struct SourceFilesView: View {
     
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismissWindow) private var dismissWindow
+    //@Environment(\.modelContext) private var modelContext
     @Environment(PraxModel.self) private var prax
     
-    @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
-    @Query() private var sourceFiles: [SourceFile]
-    
-    func praxTest() {
-        print("Prax Test -- Julie d'Prax")
-        for sourceFileGroup in sourceFileGroups {
-            print("------ ", sourceFileGroup.name)
-            for sourceFile in sourceFileGroup.sourceFiles { print(sourceFile.fileName, "  status: ", sourceFile.status) }
-        }
-        
-        print("\nJuliette M. Belanger")
-        for sourceFileGroup in sourceFileGroups { print(sourceFileGroup.name) }
-        PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
-        let error = NSError(domain: "TestDomain", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File not found or corrupted" ])
-        let praxError = PraxError.fileImportFailed( fileName: "test-document.pdf", underlyingError: error )
-        prax.presentError(praxError)
-        
-    }
+    /*   @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
+     /   @Query() private var sourceFiles: [SourceFile]
+     //   @State var selectedFiles = Set<SourceFile.ID>(){
+     didSet {
+     print("selectedFiles didSet: \(selectedFiles)")
+     if let id = prax.selectedSourceFiles.first {
+     if let sourceFile = sourceFiles.first(where: { $0.id == id }) {
+     if sourceFile != prax.selectedSourceFile {
+     prax.selectedSourceFile = sourceFile }
+     }
+     }
+     }
+     */
     
     
     var body: some View {
         @Bindable var prax = prax
         
-        VStack(alignment: .leading, spacing: 16) {
+        VStack {
+            Text("Library").padding(.top, 5)
+            Divider()
             GroupBox {
-                if !sourceFiles.isEmpty {
-                    HStack { Button("PraxTest", action: praxTest)
-                        Button { prax.showFileImporter = true} label: { Label("Add Files", systemImage: "folder.badge.plus") }
-                        Button { deleteSelectedFilesFromDatabase() } label: { Label("Remove Files", systemImage: "folder.badge.minus") } .disabled(prax.selectedFiles.isEmpty) }
+            //    if !prax.sourceFiles.isEmpty {
                     
                     VSplitView {
                         GroupBox {
-                            SourceFilesTable("Exported File Group")
-                            Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
+                            SourceFilesList("Main File Group")
+                            Text("\(prax.selectedSourceFiles.count) Files Selected") // of \(prax.sourceFiles.count) Files Selected")
                                 .font(.subheadline)
                         }.frame(minHeight: 200)
                         
                         GroupBox {
                             SourceFilesList("Locked File Group")
-                            Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
+                            Text("\(prax.selectedSourceFiles.count) Files Selected") //of \(prax.sourceFiles.count) Files Selected")
                                 .font(.subheadline)
                         }.frame(minHeight: 200)
-                    } }
+                    }
+                //}
                 
-                else {
-                    Button("PraxTest", action: praxTest)
-                    
-                    Button (action: { prax.showFileImporter = true  }, label: {
-                        HStack{ Image(systemName: "plus.rectangle.on.folder")
-                            Text("Click to Select Files") }.fontWeight(.bold).fontWidth(.expanded) })
-                    .buttonStyle(.borderedProminent)
-                    .buttonSizing(.flexible)
-                  //  .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
-                }
+//                else {
+//                    
+//                    Button (action: { prax.showFileImporter = true  }, label: {
+//                        HStack{ Image(systemName: "plus.rectangle.on.folder")
+//                            Text("Click to Select Files") }.fontWeight(.bold).fontWidth(.expanded) })
+//                    .buttonStyle(.borderedProminent)
+//                    .buttonSizing(.flexible)
+//                    //  .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
+//                }
                 
             }
-            .toolbar(removing: .sidebarToggle)
-            .toolbarBackground(PraxGradient(4))
-            .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
+
         }
+        
+        
+        .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
+
+        .navigationTitle("Source Files")
+        .toolbar(removing: .sidebarToggle)
+        .toolbarBackground(PraxGradient(4))
+        .toolbar(content: {
+            if prax.columnVisibility != .detailOnly {
+            ToolbarItemGroup(placement: .automatic) {
+                    Button { prax.showFileImporter = true} label: { Label("Add Files", systemImage: "folder.badge.plus") }
+                    .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 638, width: nil, height: nil))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 638: nil }
+                        .padding(.leading, 10)
+                    
+                    Button(role: .destructive) { prax.deleteSelectedFilesFromDatabase() } label: { Label("Remove Files", systemImage: "folder.badge.minus") }
+                        .buttonStyle(PraxButtonStyle( isHovering: prax.hoveredButton == 637))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 637: nil }
+                    
+                        .disabled(prax.selectedSourceFiles.isEmpty)
+                Divider()
+                    
+                Button {prax.showFileViewer.toggle()}  label: { Image(systemName: "eye")}.disabled(prax.selectedSourceFile == nil)
+                    .buttonStyle(PraxButtonStyle( isHovering: prax.hoveredButton == 636, isOn: prax.showFileViewer))
+                    .onHover { hovering in prax.hoveredButton = hovering ? 636: nil }
+                    .padding(.horizontal, 10)
+                    .disabled(prax.selectedSourceFiles.isEmpty)
+                }
+            }
+        })
         
         .onKeyPress(phases: .down) { keyPress in  switch keyPress.key {
-        case .space: prax.showPreview.toggle(); return .handled
+        
+        case .space: prax.showFileViewer.toggle()
+            return .handled
             default: print(keyPress.key); return .ignored } }
         //        .sheet(isPresented: $prax.showPreview, onDismiss: {print("Preview dismissed")}) { PreviewView() }
-        .popover(isPresented: $prax.showPreview, arrowEdge: .leading, content: { PreviewView() })
-        .interactiveDismissDisabled(true)
+        //     .popover(isPresented: $prax.showPreview, arrowEdge: .leading, content: { PreviewView() })
+        //     .interactiveDismissDisabled(true)
         //        .presentationSizing(.fitted)
         //        .presentationDetents([.medium, .large])
-        .presentationBackgroundInteraction(.enabled)
-        .presentationDragIndicator(.visible)
+        //     .presentationBackgroundInteraction(.enabled)
+        //     .presentationDragIndicator(.visible)
         
-        .task { DispatchQueue.main.async { print ("Fortunareed - SourceFilesView .task") } }
+        .task { DispatchQueue.main.async {
+            prax.loadModelItems()
+            print ("Fortunareed - prax.sourceFilesView .task") } }
         
-        .onAppear() {  print ("Sharon Eldon - SourceFilesView .onAppear")
-            prax.sourceFiles = sourceFiles
+        .onAppear() {  print ("Sharon Eldon - prax.sourceFilesView .onAppear")
+        //    prax.persistence?.loadModelItems()
         }
         
-        .onChange(of: sourceFiles) {
-            prax.sourceFiles = sourceFiles
-        }
+        //    .onChange(of: prax.sourceFiles) { prax.praxprax.sourceFiles = prax.sourceFiles }
+        //    .onChange(of: sourceFileGroups) { prax.sourceFileGroups = sourceFileGroups }
         
-        .onDisappear() { print ("Marsha Nolan - SourceFilesView .onDisappear") }
-    }
-    
-    func deleteSelectedFilesFromDatabase() {
-        print("deleteSelectedFilesFromDatabase()")
-        let filesToDelete = prax.selectedFiles
-        Task {
-            do {
-                try await prax.persistence?.deleteSourceFiles(filesToDelete)
-            } catch {
-                // Handle or present the error appropriately
-                print("Failed to delete files: \(error)")
-            }
-        }
-        prax.selectedFiles.removeAll()
+        .onDisappear() { print ("Marsha Nolan - prax.sourceFilesView .onDisappear") }
     }
 }
 
 
 
 
+
+
+
 struct SourceFilesList: View {
-    @Environment(PraxModel.self) private var praxModel
+    @Environment(PraxModel.self) private var prax
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
-    
+    @Query(sort: \SourceFile.addedDate) private var sourceFiles: [SourceFile]
+
     let fileGroupName: String
     init(_ fileGroupName: String) { self.fileGroupName = fileGroupName }
     
     var body: some View {
-        let sourceFileGroup = sourceFileGroups.filter({$0.name == fileGroupName}).first
-        if let sourceFiles = sourceFileGroup?.sourceFiles {
+        if sourceFileGroups.filter({$0.name == fileGroupName}).first != nil {
+            let sourceFiles = sourceFiles.filter({$0.fileGroup.name == fileGroupName})
             
-            @Bindable var prax = praxModel
+            @Bindable var prax = prax
             let fixedCategoryOrder: [SourceFileType] = [ .pdf, .image, .text, .other ]
             GroupBox {
                 if prax.praxPressMode != .data {
                     ZStack {
                         Color.contentViewBackground.ignoresSafeArea()
-                        List(selection: $prax.selectedFiles) {
+                        List(selection: $prax.selectedSourceFiles) {
                             let categories = Dictionary(grouping: sourceFiles, by: { $0.fileType})
                             ForEach(fixedCategoryOrder, id: \.self) { category in
                                 if !(categories[category]?.isEmpty ?? true) {
@@ -196,12 +211,12 @@ struct SourceFilesList: View {
                                     
                                     // Pages
                                     Text(String(sourceFile.pageCount))
-                                       // .frame(maxWidth: .infinity, alignment: .trailing)
+                                    // .frame(maxWidth: .infinity, alignment: .trailing)
                                     
                                     // Dynamic fields — ensure unique IDs per cell
                                     ForEach(fieldNames, id: \.self) { fieldName in
                                         Text(sourceFile.displayValue(for: fieldName))
-                                          //  .frame(maxWidth: .infinity, alignment: .leading)
+                                        //  .frame(maxWidth: .infinity, alignment: .leading)
                                             .id("\(sourceFile.id.hashValue)|\(fieldName)")
                                             .lineLimit(1)
                                             .truncationMode(.tail)
@@ -228,9 +243,10 @@ struct SourceFilesList: View {
 
 struct SourceFileContextMenu: View {
     @Environment(PraxModel.self) private var prax
+    @Environment(\.openWindow) private var openWindow
     let sourceFile: SourceFile
     var body: some View {
-        
+        @Bindable var prax = prax
         let sourceFileString = ("\(sourceFile.url.deletingLastPathComponent().formatted(Prax.filenameStyle).split(separator: ".").first ?? "")").suffix(40)
         
         let labelString = (sourceFile.pageCount < 2 ? "One Page" : "\(sourceFile.pageCount) Pages") // + "  -  \(sourceFile.fileSize / 1000) KB"
@@ -241,8 +257,9 @@ struct SourceFileContextMenu: View {
             
             Section("Source File") {
                 Button(action: {
-                    if prax.selectedSourceFile != sourceFile { prax.selectedSourceFile = sourceFile;  prax.showPreview = true }
-                    else { prax.showPreview.toggle() } }) {
+                    if prax.selectedSourceFileID != sourceFile.id { prax.selectedSourceFileID = sourceFile.id }
+                    prax.showFileViewer = true
+                    }) {
                         Label(sourceFile.fileName, image: .pdfMenuIcon)
                         Text(labelString)
                     }
@@ -251,9 +268,10 @@ struct SourceFileContextMenu: View {
                 Spacer()
                 
                 Button(action: {
-                    if prax.selectedSourceFile == sourceFile { prax.showPreview.toggle() }
-                    else { prax.selectedSourceFile = sourceFile; prax.showPreview = true }}){
-                        Label(prax.showPreview && sourceFile == prax.selectedSourceFile ? "Close Preview" : "Show Preview", systemImage: "eye")}
+                    prax.selectedSourceFileID = sourceFile.id
+                    prax.showFileViewer = true}){
+                        Label("Show Preview", //prax.showPreview && sourceFile == prax.selectedSourceFile ? "Close Preview" : "Show Preview",
+                              systemImage: "eye")}
                     .labelStyle(.titleAndIcon)
                     .disabled(sourceFile.status == .bad)
             }
@@ -276,18 +294,18 @@ struct SourceFileContextMenu: View {
             
             Section("File") {
                 
-                Button(action: {prax.deleteSouurceFileFromDatabase(sourceFile)}) {
+                Button(action: { /* prax.deleteSouurceFileFromDatabase(sourceFile) */ }) {
                     Label("Delete from PraxPress Library", systemImage: "trash")}
                 .labelStyle(.titleAndIcon)
                 .disabled(sourceFile.isLibraryFile)
                 
                 Divider()
-/*
-                Button(action: { withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {  sourceFile.isLibraryFile.toggle() }}) {
-                    Label(sourceFile.isLibraryFile ? "Unlock File" : "Lock File", systemImage: sourceFile.isLibraryFile ? "lock" : "lock.open")}
-                .labelStyle(.titleAndIcon)
-                .disabled(sourceFile.status == .bad)
-*/
+                /*
+                 Button(action: { withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {  sourceFile.isLibraryFile.toggle() }}) {
+                 Label(sourceFile.isLibraryFile ? "Unlock File" : "Lock File", systemImage: sourceFile.isLibraryFile ? "lock" : "lock.open")}
+                 .labelStyle(.titleAndIcon)
+                 .disabled(sourceFile.status == .bad)
+                 */
                 
                 
                 Button(action: {  NSWorkspace.shared.selectFile(sourceFile.url.path, inFileViewerRootedAtPath: "") }) {
@@ -305,24 +323,10 @@ struct SourceFileContextMenu: View {
             
         }
         
+        
+        
     }
+    
 }
 
 
-
-
-
-
-
-/*
- struct eSourceFilesList: View {
- let sourceFileStatus = SourceFileStatus.okay
- @Environment(\.modelContext) private var modelContext
- //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
- 
- @Environment(PraxModel.self) private var praxModel
- @Query(sort: \SourceFileGroup.name) private var sourceFileGroups: [SourceFileGroup]
- @Query(filter: #Predicate<SourceFile> { $0.status == sourceFileStatus }, sort: \SourceFile.fileName) private var sourceFiles: [SourceFile]
- 
- 
- }*/

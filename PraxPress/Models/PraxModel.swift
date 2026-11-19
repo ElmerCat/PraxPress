@@ -7,33 +7,26 @@
 import Foundation
 import CoreGraphics
 import CoreImage
-import PDFKit
+@preconcurrency import PDFKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 import OSLog
 
+
 @Observable
 final class PraxModel {
-    let persistence: PersistenceController?
-    var undoManager: UndoManager? = nil { didSet {
-        print("Julie")
-    }}
+    let modelContainer: ModelContainer
+    init (_ modelContainer: ModelContainer) { self.modelContainer = modelContainer }
+        
+    var undoManager: UndoManager? = nil { didSet { print("Julie") }}
+    var modelContext:ModelContext {modelContainer.mainContext}
     
-    
-    
-    
-    
-    init (_ persistence: PersistenceController?) {
-        self.persistence = persistence
-        Task { await self.persistence?.attach(prax: self) }
-    }
-   
     @ObservationIgnored
-    lazy var document: MergedPDFDocument = { return MergedPDFDocument(prax: self, persistence: self.persistence) }()
-
+    lazy var document: MergedPDFDocument = { return MergedPDFDocument(prax: self) }()
+    
     var praxPressMode: PraxPressMode = .merge
-    var editMode: EditMode = .merge
+    //   var editMode: EditMode = .merge
     
     let theme = PraxTheme()
     
@@ -41,8 +34,8 @@ final class PraxModel {
     var optionKeyPressed = false
     var hoveredButton: Int? = nil
     
-   // @FocusState.Binding var focused: FieldName?
-
+    // @FocusState.Binding var focused: FieldName?
+    
     var isOn = false
     var isLarge: Bool = false
     
@@ -58,6 +51,12 @@ final class PraxModel {
     var showExportFolderSelector: Bool = false
     var showExportedFiles: Bool = true
     
+    var showTrimsEditor = false
+    var showFileViewer = false
+    
+    
+    var showOptionsPopover: Bool = false
+    
     var showInspector: Bool = false
     var showMergedDocumentInspector = false
     
@@ -66,23 +65,26 @@ final class PraxModel {
     
     var burnInAnnotations: Bool = false
     
- /*   var annotationSaveMode: AnnotationSaveMode = .editable {
-        didSet { print("Prax - AnnotationSaveMode = ", annotationSaveMode)
-            selectedPageItem?.mergedPage?.refreshMergedPage(refreshEditingDocument: true)} }
- */
+    /*   var annotationSaveMode: AnnotationSaveMode = .editable {
+     didSet { print("Prax - AnnotationSaveMode = ", annotationSaveMode)
+     selectedPageItem?.mergedPage?.refreshMergedPage(refreshEditingDocument: true)} }
+     */
     
     // MARK: - View Sizes
     
-    var windowSize: CGSize = .zero
+    var windowFrame: CGRect = .zero { didSet { print("windowFrame: ", windowFrame) } }
+    var windowSize: CGSize {windowFrame.size}
+    var utilityWindowFrame: CGRect = .zero { didSet { print("utilityWindowFrame: ", utilityWindowFrame) } }
+    var utilityWindowSize: CGSize {utilityWindowFrame.size}
+    var editorViewFrame: CGRect = .zero { didSet { print("editorViewFrame: ", editorViewFrame) } }
+    var editorViewSize: CGSize {editorViewFrame.size}
+    var mergedViewFrame: CGRect = .zero
+    var mergedViewSize: CGSize {mergedViewFrame.size}
+    
     var editingToolbarSize: CGSize = .zero
+    var editorHovering = false
     
-    var editorViewSize: CGSize = .zero
-    
-    
-    var mergedViewSize: CGSize = .zero
-    
-    var editorViewScaleFactor = 1.0 { didSet {
-        editingDocumentPDFView.scaleFactor = editorViewScaleFactor }}
+    var editorViewScaleFactor = 1.0 { didSet { editingDocumentPDFView.scaleFactor = editorViewScaleFactor }}
     var mergedViewScaleFactor = 1.0
     
     var editorViewScaleMode: ViewScaleMode = .fit
@@ -90,12 +92,19 @@ final class PraxModel {
     var mergedViewScaleMode: ViewScaleMode = .fit
     var mergedViewFitMode: ViewScaleMode = .fit
     var editorPDFDocumentSize: CGSize = .zero
-  
+    
+    
+    var guideTop: CGFloat?
+    var guideBottom: CGFloat?
+    var guideLeft: CGFloat?
+    var guideRight: CGFloat?
+    
+    
     
     
     let editingDocumentPDFView = PDFView()
     let previewPDFView = PDFView()
-  
+    
     
     var useAmountForFilename = false
     var importSourceAttributes: [FileAttributeKey: Any] = [:]
@@ -110,66 +119,135 @@ final class PraxModel {
     
     
     
-    var showPreview = false
+    //  var showPreview = false
     var previewPDFDocument: PDFDocument = PDFDocument(url: Bundle.main.url(forResource: "PraxPress", withExtension: "pdf")!)! {
         didSet { previewDocumentVersion = UUID() } }
     var previewDocumentVersion = UUID()
     
     var selectionModel = SelectionModel<UUID>()
     
-    var sourceFiles: [SourceFile] = []
-    
-    func refreshPreviewPDFDocument() {
-        
-        if let sourceFile = selectedSourceFile {
-            Task {
-                var isStale = false
-                guard let url = try? URL(resolvingBookmarkData: sourceFile.bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-                        else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); presentError(praxError); return }
-                
-                let needsStop = url.startAccessingSecurityScopedResource()
-                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                
-                if let document =  PDFDocument(url: url) {
-                    DispatchQueue.main.async { self.previewPDFDocument = document }
-                }
-                else {
-                    let praxError = PraxError
-                    .fileAccessDenied(filePath: url.absoluteString); presentError(praxError); return }
-            }
-        }
-        else { self.previewPDFDocument = PDFDocument() }
-        
-
-
-    }
-    
-    
-    var selectedSourceFile: SourceFile? { didSet {
-        refreshPreviewPDFDocument()
-    }}
-    
-  
      
-    var selectedFiles = Set<SourceFile.ID>() {
+    private var sourceFileGroups: [SourceFileGroup] = []
+    private var sourceFiles: [SourceFile] = []
+
+    var selectedSourceFiles = Set<SourceFile.ID>() {
         didSet {
-            print("selectedFiles didSet: \(selectedFiles)")
-            if let id = selectedFiles.first {
-                if let sourceFile = sourceFiles.first(where: { $0.id == id }) {
-                    if sourceFile != selectedSourceFile {
-                        selectedSourceFile = sourceFile }
-                }
-            }
+            print("selectedSourceFiles didSet")
+            selectedSourceFileID = selectedSourceFiles.first
         }
     }
+        
+    private var _selectedSourceFileID: PersistentIdentifier?
+    var selectedSourceFileID: PersistentIdentifier? { get{ _selectedSourceFileID }
+        set{ guard newValue != _selectedSourceFileID else { return }
+            _selectedSourceFileID = newValue
+        }
+    }
+
+    var selectedSourceFile: SourceFile? {
+        if sourceFiles.isEmpty {return nil}
+        let sourceFile = sourceFiles.first(where: { $0.id == selectedSourceFileID })
+//        DispatchQueue.main.async {
+//            print("PraxModel selectedSourceFile: \(sourceFile?.fileName ?? "none")")
+//            self.refreshPreviewPDFDocument()
+//        }
+        return sourceFile
+    }
+    
+    
+    func loadSourceFileGroups() { Task { do {
+        sourceFileGroups = try modelContext.fetch(FetchDescriptor<SourceFileGroup>()) }
+        catch { print("Failed to load sourceFileGroups: \(error)")} } }
+    
+    func loadSourceFiles() { Task { do {
+        sourceFiles = try modelContext.fetch(FetchDescriptor<SourceFile>()) }
+        catch { print("Failed to load sourceFiles: \(error)")} } }
+    
+    
+    func addExportedSourceFile(_ url: URL) async  {
+        
+        
+        let predicate = #Predicate<SourceFile> { $0.url == url }
+        var descriptor = FetchDescriptor<SourceFile>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        
+        
+        
+        do {
+            if (try sourceFiles.filter(#Predicate<SourceFile> { $0.url == url }).first) != nil {
+                print("Duplicate URL: ", url)
+                return
+            }}catch {}
+        
+        
+        
+        do { PraxLogger.shared.logInfo("Adding new Exported SourceFile at: \(url.path)", category: .import)
+            
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            let fileType = fileAttributes[.type] as! FileAttributeType
+            guard fileType != .typeDirectory else {
+                PraxLogger.shared.logError("Import Source Alert", category: .import)
+                let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File type is not supported" ])
+                let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                presentError(praxError); return }
+            
+            guard let data = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) else {
+                PraxLogger.shared.logError("Import Source Error", category: .import)
+                let error = NSError(domain: "FileImporting", code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error reading file bookmark data" ])
+                let praxError = PraxError.fileImportFailed(fileName: url.absoluteString, underlyingError: error)
+                presentError(praxError); return }
+            
+            var sourceFile: SourceFile?
+            
+            guard let pdfDocument = PDFDocument(url: url) else {
+                PraxLogger.shared.logError("Failed to open PDF: \(url.path)", category: .pdf)
+                throw PraxError.fileImportFailed( fileName: url.lastPathComponent, underlyingError: NSError(domain: "PDFDocument", code: -2, userInfo: [NSLocalizedDescriptionKey: "Could not load PDF file. File may be corrupted or an unsupported PDF format." ]))}
+            
+            print("Opened PDF. Page count: \(pdfDocument.pageCount)")
+            
+            let dataFields = pdfDocument.dataFields()
+            
+            let mainFileGroup = try await sourceFileGroup("Merged File Group")
+            
+            sourceFile = SourceFile(fileGroup: mainFileGroup, bookmarkData: data, pageCount: pdfDocument.pageCount, fileType: .pdf)
+            
+            sourceFile?.exported = true
+            sourceFile?.dataFields = dataFields
+            
+            
+            guard let sourceFile else {
+                let message = "Could not create Source File for \(url.path)"
+                PraxLogger.shared.logError(message, category: .import)
+                let error = PraxError.generic(title: "Import Error", message: message)
+                presentError(error)
+                return
+            }
+            modelContext.insert(sourceFile)
+            try modelContext.save()
+            
+        }
+        catch {
+            let message = "Error Importing URL: \(url)"
+            PraxLogger.shared.logError(message, category: .import)
+            let error = PraxError.generic(title: "Import Error", message: message)
+            presentError(error)
+        }
+        
+    }
+    
+    
+    
+    
     var selectedMergedPages = Set<MergedPage.ID>()
     var selectedPages = Set<PageItem.ID>()
     
-        
+    
     var currentEditingPDFPage: PDFPage? { didSet {
-            if let pdfPage = currentEditingPDFPage, let pageItem = document.pageItem(for: pdfPage) {
-                if selectedPageItem != pageItem {
-                    selectedPageItem = pageItem } } } }
+        if let pdfPage = currentEditingPDFPage, let pageItem = document.pageItem(for: pdfPage) {
+            if selectedPageItem != pageItem {
+                selectedPageItem = pageItem } } } }
     
     var editingPageItems: [PageItem] = []
     private var _selectedPageItem: PageItem?
@@ -193,8 +271,8 @@ final class PraxModel {
         return allIDs
     }
     
- 
-
+    
+    
 }
 
 

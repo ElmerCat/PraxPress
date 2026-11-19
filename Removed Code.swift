@@ -28,7 +28,7 @@ struct FooterView: View {
             
             Button { scaleView(.vertical) }
             label: {  Image(systemName: "arrow.up.and.down.square") }
-                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 31))
                 .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
                 .help("Fit Horizontally")
             
@@ -42,7 +42,7 @@ struct FooterView: View {
             
             Button { scaleView(.horizontal) }
             label: {  Image(systemName: "arrow.left.and.right.square") }
-                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
+                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 32))
                 .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
                 .help("Fit Horizontally")
         }

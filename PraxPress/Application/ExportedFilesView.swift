@@ -19,10 +19,10 @@ import PDFKit
 import UniformTypeIdentifiers
 
 
-struct ExportedFilesView: View {
+struct MergedFilesView: View {
     @Environment(PraxModel.self) private var prax
-    @Query(filter: #Predicate{ $0.name == "Main File Group"}, sort: \SourceFileGroup.name, ) private var sourceFileGroups: [SourceFileGroup]
-    @Query() private var sourceFiles: [SourceFile]
+ //   @Query(filter: #Predicate{ $0.name == "Main File Group"}, sort: \SourceFileGroup.name, ) private var sourceFileGroups: [SourceFileGroup]
+ //   @Query() private var sourceFiles: [SourceFile]
     
     @AppStorage("exportFolderBookmark") private var exportFolderBookmark: Data?
     @State private var hovering: Bool = false
@@ -30,26 +30,16 @@ struct ExportedFilesView: View {
     var body: some View {
         @Bindable var prax = prax
         
-        VStack(alignment: .leading, spacing: 16) {
-            ExportedFilesToolbarView()
-            GroupBox {
-                SourceFilesTable("Exported File Group")
-                Text("\(prax.selectedFiles.count)  of \(sourceFiles.count) Files Selected")
-                    .font(.subheadline)
-            }.frame(minHeight: 200)
-            
-            
-            Button (action: { prax.showFileImporter = true  }, label: {
-                HStack{ Image(systemName: "plus.rectangle.on.folder")
-                    Text("Click to Select Files") }.fontWeight(.bold).fontWidth(.expanded) })
-            .buttonStyle(.borderedProminent)
-            .buttonSizing(.flexible)
-            //          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .init(horizontal: .center, vertical: .top))
+        VStack { //}(alignment: .leading, spacing: 16) {
+            Text("Merged Files").padding(.top, 5)
+            Divider()
+            MergedFilesToolbarView()
+            SourceFilesTable("Merged File Group")
         }
-        .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
         
         .onAppear {
             if let bookmark = exportFolderBookmark {
+                prax.exportFolderBookmark = bookmark
                 var isStale = false
                 guard let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
                 else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); prax.presentError(praxError); return }
@@ -144,15 +134,15 @@ struct DocumentView: View {
             }
         }
         
-        .onGeometryChange(for: CGSize.self) { viewGeometry in return viewGeometry.size }
-        action: { oldValue, newValue in prax.mergedViewSize = newValue }
+        .onGeometryChange(for: CGRect.self) {  viewGeometry in return viewGeometry.frame(in: .named("MainWindow")) }
+        action: { oldValue, newValue in prax.mergedViewFrame = newValue }
     }
 }
 
 
 
 
-struct ExportedFilesToolbarView: View {
+struct MergedFilesToolbarView: View {
     @Environment(PraxModel.self) private var prax
     @FocusState private var focusedField: FieldName?
     
@@ -160,12 +150,7 @@ struct ExportedFilesToolbarView: View {
         @Bindable var prax = prax
         //      let _ = Self._printChanges()
         VStack {
-            Text("Exported Files")
-            
-            Divider()
-            Text(String("Export Folder: \(prax.exportFolderURL?.path ?? "<none>")"))
-            
-            Spacer()
+             Text(String("Export Folder: \(prax.exportFolderURL?.path ?? "<none>")"))
             
             HStack {
                 
@@ -201,7 +186,7 @@ struct ExportedFilesToolbarView: View {
             
             if !prax.document.mergedPDFDocument.write(to: url) {
                 let praxError = PraxError.saveFailed(reason: "Failed to save:  \(url.deletingPathExtension())", underlyingError: nil); prax.presentError(praxError) }
-            Task { await prax.persistence?.addExportedSourceFile(url) }
+          //  Task { await prax.persistence?.addExportedSourceFile(url) }
             
         }
         

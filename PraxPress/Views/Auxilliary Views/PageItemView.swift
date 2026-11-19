@@ -25,7 +25,7 @@ struct PageItemView: View {
     @State private var hovering: Bool = false
 
    var body: some View {
-        
+       @Bindable var prax = prax
        let thumbnailSize = CGSize(width: 170, height: 220)
        
         let backgroundColor: Color = {
@@ -60,44 +60,59 @@ struct PageItemView: View {
                         .opacity(pageItem.skipped ? 0.25 : 1.0)
                     
              //       Spacer()
-                    GroupBox {
-                        VStack {
-                            HStack {
-                                Spacer()
+                    
+                    Text("\(pageItem.editPageIndex + 1)")
+                        .opacity(hovering ? 0.0 : 1.0)
+                    // 1. Propose a large font size that acts as the maximum cap
+                    
+                        .font(Font.custom("SF Mono", size: 500))
+                    // 2. Prevent the text from wrapping onto multiple lines
+                        .lineLimit(1)
+                    // 3. Allow SwiftUI to shrink the text down to 1% of its cap if needed
+                        .minimumScaleFactor(0.01)
+                    
+                    Grid {
+                        GridRow {
                             
-                                Button { prax.document.clickedGuidePageButton(pageItem) }
-                                label: { if pageItem.skipped { Image(systemName: "ruler.fill") } else { Image(systemName: "ruler") }}
+                            
+                            Text(" ")
                                 
-                                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 235, isOn: prax.document.widthGuidePageID == pageItem.id))
+                            Spacer()
+                            
+                            Button { prax.document.clickedGuidePageButton(pageItem) }
+                            label: { if pageItem.skipped { Image(systemName: "ruler.fill") } else { Image(systemName: "ruler") }}
+                            
+                                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 235, isOn: prax.document.widthGuidePageID == pageItem.id))
                                 .onHover { hovering in prax.hoveredButton = hovering ? 235 : nil }
                                 .help("Set Width Guide")
-                          
-                            }
-                            Spacer()
-                            HStack {
                                 
-                                Button { prax.document.clickedSkipPageButton(pageItem) }
-                                label: { Image(systemName: pageItem.skipped ? "eye.slash.fill" : "eye.slash") }
-                                .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
-                                .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 126, isOn: pageItem.skipped))
-                                .onHover { hovering in prax.hoveredButton = hovering ? 126 : nil }
-                                
-
-                                Spacer()
-                                
-                                Button(role: .destructive) { prax.document.clickedDeletePageButton(pageItem) }
-                                label: { Image(systemName: "trash") }
-                                    .help("Discard This Page")
-                                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 150))
-                                    .onHover { hovering in prax.hoveredButton = hovering ? 150 : nil }
-                                
-                            }
                             
-
+                            
                         }
+                        GridRow {
+                            Button(role: .destructive) { prax.document.clickedDeletePageButton(pageItem) }
+                            label: { Image(systemName: "trash") }
+                                .help("Discard This Page")
+                                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 150))
+                                .onHover { hovering in prax.hoveredButton = hovering ? 150 : nil }
+                            
+                            Spacer()
+                            
+                            Button { prax.document.clickedSkipPageButton(pageItem) }
+                            label: { Image(systemName: pageItem.skipped ? "eye.slash.fill" : "eye.slash") }
+                                .help(pageItem.skipped ? "Include This Page" : "Skip This Page")
+                                .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 126, isOn: pageItem.skipped))
+                                .onHover { hovering in prax.hoveredButton = hovering ? 126 : nil }
+                            
+                        }
+
                     }
+
+
                     .zIndex(1)
-//                    .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
+                    
+                    
+                    .onDrop(of: [.fileURL], delegate: PraxDropDelegate(prax))
                     
                     .environment(\.groupHovering, hovering)
                     .opacity(hovering ? 1 : 0.3)
@@ -109,6 +124,8 @@ struct PageItemView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .zIndex(11)
+            
+            
             
             .dropDestination(
                 for: PageItem.self,

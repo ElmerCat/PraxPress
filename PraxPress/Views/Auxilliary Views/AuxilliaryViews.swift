@@ -11,99 +11,68 @@ import UniformTypeIdentifiers
 import PDFKit
 
 
-struct InspectorView: View {
-    @Environment(PraxModel.self) private var prax
-    @State private var hovering: Bool = false
-    var body: some View {
-        @Bindable var prax = prax
-        VStack {
-            
-            
-            Text("Julie d'Prax")
-                .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .top))
-            
-            
-        }
-        .padding(20)
-        
-        
-    }
-}
-
-
-
 struct DocumentEditingLeadingEdge: View {
     //  @Environment(MergedPDFDocument.self) var document: MergedPDFDocument
     @Environment(PraxModel.self) private var praxModel
     
-    @State private var viewWidth: CGFloat = 20
-    @State private var auxilliaryOpacity: CGFloat = 0.0
+ //   @State private var viewWidth: CGFloat = 20
+//    @State private var auxilliaryOpacity: CGFloat = 0.0
     
     @State private var hoverLocation: CGPoint = .zero
-    @State private var isHovering = false
-    @State private var paddingTop = 20.0
-    @State private var imageAngle = 0.0
+    @State private var hovering = false
+ //   @State private var paddingTop = 20.0
+//    @State private var imageAngle = 0.0
     
     var body: some View {
         @Bindable var prax = praxModel
         
         GeometryReader { geometry in
-            
-            
             ZStack {
-                
-                
                 VStack {
-                    
-                    
                     GroupBox {
-                        
-                        
                         Image(systemName: prax.columnVisibility == .detailOnly ?  "building.columns" : "building.columns.fill")
                         
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .padding(0)
                             .padding(.top, 5)
-                            .padding(.leading, 5)
-                            .frame(width: viewWidth, height: viewWidth)
-                            .symbolEffect(.bounce.up.byLayer, options: .nonRepeating)
+                        //    .padding(.leading, 5)
+                            .frame(width: 25, height: 25)
+                   //         .symbolEffect(.bounce.up.byLayer, options: .nonRepeating)
                             .foregroundColor(prax.columnVisibility == .detailOnly ? .blue : .white)
                         Spacer()
                         
                         Image("PraxPress").resizable().aspectRatio(contentMode: .fit)
-                            .rotationEffect(Angle(degrees: imageAngle))
-                            .padding(.leading, 5)
-                        //   .padding(.top, hoverOffset)
-                        //.zIndex(997)
-                            .frame(width: viewWidth, height: viewWidth)
+                            .rotationEffect(Angle(degrees: hovering ? -3000 : 0))
+                        //    .padding(.leading, 5)
+                            .frame(width: 30, height: 30)
                     }
-                    
-                    
                     Spacer()
                     
                 }
-                Rectangle().background(Color.blue).opacity(auxilliaryOpacity)
+                Rectangle().background(Color.blue).opacity(hovering ? 0.01 : 0.0)
                     .onTapGesture {
                         withAnimation {
                             prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
                         }
                     }.zIndex(998)
             }
-            .frame(minWidth: viewWidth, maxWidth: viewWidth, maxHeight: .infinity)
+            .frame(minWidth: 30, maxWidth: 30, maxHeight: .infinity)
             
             
-            .onHover { hovering in
+            .onHover { isHovering in
                 withAnimation {
-                    viewWidth = hovering ? 30 : 20
+                    hovering = isHovering
+              //      viewWidth = hovering ? 30 : 50
                     
-                    imageAngle = hovering ? -3000 : 0
-                    paddingTop = hovering ? geometry.size.width / 2 : 20
+              //      imageAngle = hovering ? -3000 : 0
+             //       paddingTop = hovering ? geometry.size.width / 2 : 20
                     
-                    auxilliaryOpacity = hovering ? 0.01 : 0.0
+            //        auxilliaryOpacity = hovering ? 0.01 : 0.0
                     
                 }
             }
+            .background(hovering ? PraxGradient(1) : PraxGradient(4))
             
             /*           .onContinuousHover { phase in
              switch phase {

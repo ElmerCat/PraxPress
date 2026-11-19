@@ -12,6 +12,40 @@ import PDFKit
 extension PraxModel {
     
     
+    // In PraxModel or PraxModel+Utility.swift
+    
+    func moveSelectedSourceFileID(_ sourceFileID: PersistentIdentifier, to fileGroup: FileGroup) async {
+        guard let sourceFileID = selectedSourceFileID else { return }
+        do {
+            try await move(sourceFileID, to: fileGroup)
+            // Fetch the updated SourceFile from persistence and set it as selected
+            
+       //         if let updated = try await persistence?.sourceFile(id: sourceFile.id) {
+     //               selectedSourceFile = updated
+       //         }
+            
+        } catch {
+            // Handle or present error appropriately
+            presentError(PraxError.generic(title: "Move Error", message: error.localizedDescription))
+        }
+    }
+ 
+    func deleteSelectedFilesFromDatabase() {
+        print("deleteSelectedFilesFromDatabase()")
+        let filesToDelete = selectedSourceFiles
+        Task {
+            do {
+                try deleteSourceFiles(filesToDelete)
+            } catch {
+                // Handle or present the error appropriately
+                print("Failed to delete files: \(error)")
+            }
+        }
+        selectedSourceFiles.removeAll()
+    }
+
+ 
+    
     func scrollViewParameters() -> (axes: Axis.Set, margin: CGFloat) {
         let viewWidth = mergedViewSize.width
         let documentWidth = document.maxWidth
@@ -93,20 +127,20 @@ extension PraxModel {
     
         mergedViewScaleFactor = scaleFactor
     }
-    
+  
     func deleteSouurceFileFromDatabase(_ sourceFile: SourceFile) {
         print("deleteSouurceFileFromDatabase()")
         Task {
             do {
-                try await document.persistence?.deleteSourceFiles([sourceFile.id])
+                try deleteSourceFiles([sourceFile.id])
             } catch {
                 // Handle or present the error appropriately
                 print("Failed to delete files: \(error)")
             }
         }
-        selectedFiles.remove(sourceFile.id)
+        selectedSourceFiles.remove(sourceFile.id)
     }
-    
+  
  func addPageFromImageURL(
         _ url: URL,
         at indexPath: IndexPath? = nil,
@@ -447,22 +481,24 @@ extension PraxModel {
         presentError(praxError)
     }
 
-    
-    func praxTest() {
-        print("\nJulie d'Prax")
+    func dpraxTest() {
+        print("Prax Test -- Julie d'Prax")
+      //  persistence?.praxTest()
+/*
         
-        // MARK: - Test Error Alert (Add this section)
-        
-        // Test 1: PDF Import Error
+        for sourceFileGroup in sourceFileGroups {
+            print("------ ", sourceFileGroup.name)
+            for sourceFile in sourceFileGroup.sourceFiles { print(sourceFile.fileName, "  status: ", sourceFile.status) }
+        }
+  
+        print("\nJuliette M. Belanger")
+        for sourceFileGroup in sourceFileGroups { print(sourceFileGroup.name) }
         PraxLogger.shared.logWarning("Testing PDF import error alert", category: .general)
-        let testError1 = NSError(domain: "TestDomain", code: -1, userInfo: [
-            NSLocalizedDescriptionKey: "File not found or corrupted"
-        ])
-        let praxError1 = PraxError.fileImportFailed(
-            fileName: "test-document.pdf",
-            underlyingError: testError1
-        )
-        presentError(praxError1)
+        let error = NSError(domain: "TestDomain", code: -1, userInfo: [ NSLocalizedDescriptionKey: "File not found or corrupted" ])
+        let praxError = PraxError.fileImportFailed( fileName: "test-document.pdf", underlyingError: error )
+        presentError(praxError)
+        
+  */
         
         // Uncomment below to test other error types:
         

@@ -14,12 +14,40 @@ import PDFKit
 struct MergedPDFDocumentView: View {
     @Environment(PraxModel.self) private var prax
     @State private var hovering: Bool = false
+    @State private var presentAlert = false
 
     var body: some View {
         @Bindable var prax = prax
         VStack {
             
-            Text("Merged PDF Document")
+            Text("Merged PDF Document").padding(.top, 5)
+            Divider()
+            HStack {
+                
+                
+                ExportFilenameView()
+                    .frame(minWidth: 200, maxWidth: 600, maxHeight: 40)
+                    .padding(.horizontal, 20)
+                
+                if prax.document.dataFieldPage != nil {
+                    PraxButton(action: {prax.burnInAnnotations.toggle()}, symbol: "burn", help: "Burn in annotations", isOn: prax.burnInAnnotations, theme: .burn)}
+                
+                if prax.document.readyToExport {
+                    
+                    Button { prax.showFileExporter = true }
+                    label: { Image(systemName: "square.and.arrow.down.fill") }
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 486))
+                        .onHover { hovering in prax.hoveredButton = hovering ? 486 : nil }
+                        .help("Save As...")
+                        .padding(.leading, 20)
+                }
+                
+         //       PraxButton(action: {self.clickedSaveButton()}, symbol: "square.and.arrow.down.fill", help: "Save").padding(.horizontal, 10)
+                Spacer()
+            }
+            
+            
+            
             MergedDocumentToolbarView()
               //  .zIndex(2)
                 .frame(maxWidth: .infinity)
@@ -27,17 +55,55 @@ struct MergedPDFDocumentView: View {
             ZStack(alignment: .topLeading) {
                 
                 DocumentView().zIndex(1)
+                    .padding(.top, 10)
                     .background(PraxGradient(4))
 
-                MergedDocumentOverlayView().zIndex(2)
+                MergedDocumentOverlayView().zIndex(2).background(.clear)
+
                 
             }
         }
         .onHover { isHovering in hovering = isHovering }
         .environment(\.groupHovering, hovering)
+        
+        .alert(isPresented: $presentAlert) {
+            Alert(
+                title: Text("Replace Library File?"),
+                message: Text("This is a Library file. Are you sure you wish to change it?"),
+                primaryButton: .destructive(Text("Replace")) {
+                    save()
+                },
+                secondaryButton: .cancel() {
+             //       dismiss()
+                }
+            )
+        }
     }
     
 
+    private func clickedSaveButton() {
+        if let pageItem = prax.selectedPageItem {
+            if pageItem.isLibraryFile { presentAlert = true }
+            else {
+                print("Saving Library File")
+                save()} }
+    }
+    
+    
+    private func save() {
+        if let pageItem = prax.selectedPageItem {
+            
+            var isStale = false
+            guard let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
+                    else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); prax.presentError(praxError); return }
+            
+            
+            if url == prax.document.exportFileURL {
+                let needsStop = url.startAccessingSecurityScopedResource(); defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+                if !prax.document.mergedPDFDocument.write(to: url) {
+                    let praxError = PraxError.saveFailed(reason: "Failed to save:  \(url.deletingPathExtension())", underlyingError: nil); prax.presentError(praxError) } }
+            else {prax.showFileExporter = true} }
+    }
     
     struct DocumentView: View {
         @Environment(PraxModel.self) private var prax
@@ -73,8 +139,8 @@ struct MergedPDFDocumentView: View {
                 }
             }
             
-            .onGeometryChange(for: CGSize.self) { viewGeometry in return viewGeometry.size }
-            action: { oldValue, newValue in prax.mergedViewSize = newValue }
+            .onGeometryChange(for: CGRect.self) {  viewGeometry in return viewGeometry.frame(in: .named("MainWindow")) }
+            action: { oldValue, newValue in prax.mergedViewFrame = newValue }
         }
     }
     
@@ -99,13 +165,13 @@ struct MergedDocumentOverlayView: View {
                             prax.mergedViewScaleMode = .user
                             prax.mergedViewScaleFactor -= 0.05 }
                         label: {  Image(systemName: "minus.circle") }
-                            .buttonStyle(PageItemButtonStyle())
+                            .buttonStyle(PraxButtonStyle())
                             .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
                             .help("Zoom Out")
                         
                         Button { prax.scaleMergedView()}
                         label: {  Image(systemName: "arrow.up.and.down.and.arrow.left.and.right") }
-                            .buttonStyle(PageItemButtonStyle())
+                            .buttonStyle(PraxButtonStyle())
                             .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
                             .help("Scale to Fit")
                             .disabled(prax.mergedViewScaleMode == .fit)
@@ -114,53 +180,55 @@ struct MergedDocumentOverlayView: View {
                             prax.mergedViewScaleMode = .user
                             prax.mergedViewScaleFactor += 0.05 }
                         label: {  Image(systemName: "plus.circle") }
-                            .buttonStyle(PageItemButtonStyle())
+                            .buttonStyle(PraxButtonStyle())
                             .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
                             .help("Zoom In")
-                    }
+                    }.opacity(hovering ? 1.0 : 0.0)
                     
                     
  
                     GridRow {
                         Button(action: { prax.scaleMergedView(.vertical)}, label: {
                             Image(systemName: "arrow.up.and.down") })
-                        .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 731))
+                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 731))
                         .onHover { hovering in prax.hoveredButton = hovering ? 731 : nil }
                         .help("Fit Vertically")
                         .disabled(!(prax.mergedViewScaleMode != .vertical && prax.mergedViewFitMode != .vertical))
+                        .opacity(hovering ? 1.0 : 0.0)
                         
                         
-                        VStack {
-                            
-                            Text("Zoom").font(.caption2).foregroundStyle(Color.black)
-                            Text("\(Int(prax.mergedViewScaleFactor * 100))").font(.caption2).foregroundStyle(Color.black)
-                        }
+                        Button(action: { prax.scaleMergedView()}, label: {
+                            Image(systemName: "eye") })
+                        .buttonStyle(PraxButtonStyle())
+                        .opacity(hovering ? 1.0 : 0.75)
                         
                         Button(action: { prax.scaleMergedView(.horizontal)}, label: {
                             Image(systemName: "arrow.left.and.right") })
-                        .buttonStyle(PageItemButtonStyle())
+                        .buttonStyle(PraxButtonStyle())
                         .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
                         .help("Fit Horizontally")
                         .disabled(!(prax.mergedViewScaleMode != .horizontal))
+                        .opacity(hovering ? 1.0 : 0.0)
                     }
                    
                         Slider(value: $prax.mergedViewScaleFactor, in: 0.1...max(0.2, prax.editingDocumentPDFView.scaleFactorForSizeToFit))
                             .gridCellColumns(2)
                             .frame(width: 100)
                             .gridCellUnsizedAxes(.horizontal)
-
+                            .opacity(hovering ? 1.0 : 0.0)
                 }
+
                 .padding(0)
-                .opacity(hovering ? 1.0 : 0.5)
+         //       .opacity(hovering ? 1.0 : 0.5)
                 
             }
             .animation(.easeIn(duration: 0.2), value: groupHovering)
             .animation(.easeIn(duration: 0.2), value: hovering)
             .onHover { isHovering in hovering = isHovering }
             .environment(\.groupHovering, hovering)
-            .background(PraxGradient(4), in: RoundedRectangle(cornerRadius: 5))
+ //            .background(PraxGradient(4), in: RoundedRectangle(cornerRadius: 5))
             .opacity(groupHovering ? 1.0 : 0.0)
-            .offset(x: 50, y: 100)
+            .offset(x: 20, y: 10)
         }
         else {
             EmptyView()
@@ -172,115 +240,24 @@ struct MergedDocumentOverlayView: View {
 
 struct MergedDocumentToolbarView: View {
     @Environment(PraxModel.self) private var prax
-    @FocusState private var focusedField: FieldName?
+    
     
     var body: some View {
         @Bindable var prax = prax
         //      let _ = Self._printChanges()
-        VStack {
+    //    VStack {
+
+            DataFieldsView()
+            .opacity(prax.showDataFields && prax.document.dataFieldPage != nil ? 100 : 0)
+                .frame(maxWidth: .infinity, maxHeight: prax.showDataFields && prax.document.dataFieldPage != nil ? nil : 5)
             
-            HStack {
-                GroupBox {
-                    VStack {
-                        Text("Prefix")
-                        TextField("Filename", text: Binding<String>(
-                            get: { prax.document.exportFilenamePrefix },
-                            set: { newValue in
-                                prax.document.exportFilenamePrefix = newValue.filter{!Prax.filechars.contains($0)}}))
-                        .focused($focusedField, equals: .exportFilenamePrefix)
-                    }
-                    .padding(EdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10))
-                }
-                .frame(maxWidth: 100)
-                .groupBoxStyle(PraxGroupBoxStyle(isHovering: prax.hoveredButton == 427 ))
-                .onHover { hovering in prax.hoveredButton = hovering ? 427 : nil }
+         //       if prax.editMode == .data && prax.document.dataFieldPage != nil {
+         //           DataFieldsView()
+         //           }
                 
-                GroupBox {
-                    VStack {
-                        Text("Filename")
-                        TextField("Filename", text: Binding<String>(
-                            get: { prax.document.exportFilenameBody },
-                            set: { newValue in
-                                prax.document.exportFilenameBody = newValue.filter{!Prax.filechars.contains($0)}}))
-                        .frame(maxWidth: .infinity)
-                        .focused($focusedField, equals: .exportFilenameBody)
-                    }
-                    .padding(EdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10))
-                }
-                .groupBoxStyle(PraxGroupBoxStyle(isHovering: prax.hoveredButton == 437 ))
-                .onHover { hovering in prax.hoveredButton = hovering ? 437 : nil }
-                
-                GroupBox {
-                    VStack {
-                        Text("Suffix")
-                        TextField("Filename", text: Binding<String>(
-                            get: { prax.document.exportFilenameSuffix },
-                            set: { newValue in
-                                prax.document.exportFilenameSuffix = newValue.filter{!Prax.filechars.contains($0)}}))
-                        .focused($focusedField, equals: .exportFilenameSuffix)
-                    }
-                    .padding(EdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10))
-                }
-                .frame(maxWidth: 100)
-                .groupBoxStyle(PraxGroupBoxStyle(isHovering: prax.hoveredButton == 447 ))
-                .onHover { hovering in prax.hoveredButton = hovering ? 447 : nil }
-                
-            }
-/*
-// MARK: - Zoom Controls
-            
-            HStack {
-                
-                Button {
-                    focusedField = .exportFilenamePrefix
-                    prax.scaleMergedView() }
-                label: {  Image(systemName: "arrow.up.and.down.and.arrow.left.and.right") }
-                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
-                    .help("Scale to Fit")
-                
-                Button { prax.scaleMergedView(.vertical) }
-                label: {  Image(systemName: "arrow.up.and.down") }
-                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 31))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 31 : nil }
-                    .help("Fit Horizontally")
-                
-                Button { prax.mergedViewScaleFactor -= 0.05}
-                label: {  Image(systemName: "minus.circle") }
-                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 32 : nil }
-                    .help("Zoom Out")
-                
-                
-                
-                
-                Text("\(Int(prax.mergedViewScaleFactor * 100))%")
-                    .font(.callout).foregroundStyle(Color.black)
-                    .padding(.leading, 20)
-                
-                Slider(value: $prax.mergedViewScaleFactor, in: 0.1...2.0)
-                    .frame(width: 100)
-                    .padding(.leading, 20)
-                
-                Button { prax.mergedViewScaleFactor += 0.05}
-                label: {  Image(systemName: "plus.circle") }
-                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 33 : nil }
-                    .help("Zoom In")
-                
-                
-                
-                Button { prax.scaleMergedView(.horizontal) }
-                label: {  Image(systemName: "arrow.left.and.right") }
-                    .buttonStyle(PageItemButtonStyle(isHovering: prax.hoveredButton == 32))
-                    .onHover { hovering in prax.hoveredButton = hovering ? 34 : nil }
-                    .help("Fit Horizontally")
-            }
-*/
-        }
-        .focusedSceneValue(\.setExportFilenameBody, {
-            focusedField = .exportFilenameBody
-        })
+           
+
+//        }
     }
        
 }

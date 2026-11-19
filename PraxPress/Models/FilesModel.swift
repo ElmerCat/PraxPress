@@ -84,9 +84,8 @@ extension SourceFile {
             else { status = .okay }
             Task { do {
                 fileAttributes = try await fileAttributesForBookmark(self.bookmarkData)
-             //   print("fileAttributes:  ", fileAttributes)
                 self.transientPropertiesLoaded = true
-                await PraxLogger.shared.logInfo("Transient properties loaded for SourceFile: \(self.url.lastPathComponent)", category: .general)
+         //       await PraxLogger.shared.logInfo("Transient properties loaded for SourceFile: \(self.url.lastPathComponent)", category: .general)
             } catch { await PraxLogger.shared.logError("Unable to load file attributes", category: .import) } }
             
             
@@ -101,25 +100,7 @@ extension SourceFile {
     var modificationDate: Date { fileAttributes[.modificationDate] as? Date ?? .distantPast }
     
     var fileSize: Int { fileAttributes[.size] as? Int ?? 0 }
-    
-    
-/*    func testBookmark() {
-        var isStale = false
-        if let testURL = try? URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale) {
-            if testURL.absoluteString.contains("/.Trash/") || testURL.absoluteString.contains("/.Trashes/") {
-                PraxLogger.shared.logWarning("File is in the trash: \(url.lastPathComponent)", category: .bookmarks)
-                status = .trashed }
-            else if (testURL != url) || isStale  {
-                PraxLogger.shared.logInfo("File: \(url.lastPathComponent) - was moved to: \(testURL.absoluteString)", category: .bookmarks)
-                status = .okay }
-            else {
-                PraxLogger.shared.logInfo("File bookmark tested okay for: \(url.lastPathComponent)",category: .bookmarks)
-                status = .okay } }
-        else {
-            PraxLogger.shared.logError("File cannot be found: \(url.lastPathComponent)", category: .bookmarks)
-            status = .bad }
-    }  */
-    
+       
     var imageOptions: ImageImportOptions? {
         get { guard let data = imageOptionsData else { return nil }; do {
             let options = try JSONDecoder().decode(ImageImportOptions.self, from: data)

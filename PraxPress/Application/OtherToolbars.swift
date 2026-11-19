@@ -18,33 +18,11 @@ struct ExportFilenameView: View {
     
     @State private var imageAngle = 0.0
     
-    private func clickedSaveButton() {
-        if let pageItem = prax.selectedPageItem {
-            if pageItem.isLibraryFile { presentAlert = true }
-            else {
-                print("Saving Library File")
-                save()} }
-   }
-    
-
-    private func save() {
-        if let pageItem = prax.selectedPageItem {
-            
-            var isStale = false
-            guard let url = try? URL(resolvingBookmarkData: pageItem.sourceBookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &isStale)
-            else { let praxError = PraxError.bookmarkResolutionFailed(underlyingError: nil); prax.presentError(praxError); return }
-            
-            
-            if url == prax.document.exportFileURL {
-                let needsStop = url.startAccessingSecurityScopedResource(); defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                if !prax.document.mergedPDFDocument.write(to: url) {
-                    let praxError = PraxError.saveFailed(reason: "Failed to save:  \(url.deletingPathExtension())", underlyingError: nil); prax.presentError(praxError) } }
-            else {prax.showFileExporter = true} }
-    }
     
 
     var body: some View {
         @Bindable var prax = prax
+        
         HStack{
             
             Image("PraxPress").resizable().aspectRatio(contentMode: .fit).frame(width: 30)
@@ -53,7 +31,7 @@ struct ExportFilenameView: View {
            //     .opacity(hovering ? 0.85 : 0.1)
             
             
-            Text("Drag").font(.system(size: 20, weight: .ultraLight).italic()).opacity(hovering ? 0.85 : 0.1)
+     //       Text("Drag").font(.system(size: 20, weight: .ultraLight).italic()).opacity(hovering ? 0.85 : 0.1)
             
             Spacer()
             
@@ -62,16 +40,18 @@ struct ExportFilenameView: View {
             
             Spacer()
     
-            if prax.document.dataFieldPage != nil {
-                PraxButton(action: {prax.burnInAnnotations.toggle()}, symbol: "burn", help: "Burn in annotations", isOn: prax.burnInAnnotations, theme: .burn)}
             
-            
-
-            PraxButton(action: {self.clickedSaveButton()}, symbol: "square.and.arrow.down.fill", help: "Save")
-                .padding(.horizontal, 10)
-            Spacer()
 
         }
+        .overlay(content: {
+            GroupBox {
+                Text("D r a g").font(.system(size: 20, weight: .semibold).italic()).foregroundStyle(.buttonDefaultBackground)
+            }
+            .backgroundStyle(.buttonDefaultForeground)
+            .frame(maxWidth:.infinity)
+            .opacity(hovering ? 1.0 : 0)
+            
+        })
         .disabled(!prax.document.readyToExport)
         .font(.system(size: 20, weight: .medium))
         .foregroundStyle(prax.document.readyToExport ? .white : .green)
@@ -86,18 +66,7 @@ struct ExportFilenameView: View {
             guard let data = prax.document.mergedPDFDocument.dataRepresentation(options: [PDFDocumentWriteOption.burnInAnnotationsOption: prax.burnInAnnotations]) else { return nil }
             return MergedPDFTransfer(data: data, filename: prax.document.exportFilename) }()!, preview: { PraxDragPreview()})
         
-        .alert(isPresented: $presentAlert) {
-            Alert(
-                title: Text("Replace Library File?"),
-                message: Text("This is a Library file. Are you sure you wish to change it?"),
-                primaryButton: .destructive(Text("Replace")) {
-                save()
-                },
-                secondaryButton: .cancel() {
-                    dismiss()
-                }
-            )
-        }
+        
         
         
 
@@ -108,109 +77,17 @@ struct ExportFilenameView: View {
 struct ContentHeader: View {
     @Environment(PraxModel.self) private var prax
 
-    @State private var showingOptions: Bool = false
     var body: some View {
         @Bindable var prax = prax
         VStack {
             HStack {
-                GroupBox {
-                    
-                    HStack {
-                        
-                        Button(role: .destructive, action: { prax.document.mergedPages.removeAll() }, label: {
-                            HStack {
-                                if !prax.document.mergedPages.isEmpty && prax.hoveredButton == 1040 { Text("Clear Merged Document") }
-                                Image(systemName: prax.document.mergedPages.isEmpty ? "rectangle.dashed" : "rectangle.stack.slash") }
-                            .padding(.horizontal, 5)})
-                        .disabled(prax.document.mergedPages.isEmpty)
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1040, hoverWidth: 200))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 1040 : nil }
-                        
-                        Spacer()
-                        ExportFilenameView()
-                            .frame(minWidth: 200, maxWidth: 600)
-                        
-                        Spacer()
-                        Button(role: .confirm, action: { withAnimation() { prax.showExportedFiles.toggle() }}, label: {
-                            Image(systemName: "folder") })
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1041))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 1041 : nil }
-                        
-                  
-                        Button(role: .confirm, action: { PraxLogger.shared.openLogFile() }, label: {
-                            Image(systemName: "exclamationmark.triangle.text.page") })
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1048))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 1048 : nil }
-                        
-                        Button(role: .confirm, action: { showingOptions.toggle() }, label: {
-                            Image(systemName: "gear") })
-                        .buttonStyle(PraxButtonStyle(isHovering: prax.hoveredButton == 1042))
-                        .onHover { hovering in prax.hoveredButton = hovering ? 1042 : nil }
-                        
-                        .padding(.trailing, 20)
-                        
-                       
-                    }
-                    
-                }
+                ExportFilenameView()
+                    .frame(minWidth: 200, maxWidth: 600)
                 
                 
 
                 
-                .popover(isPresented: $showingOptions, content: {
-                    VStack {
-                        Text("Julie d'Prax")
-                        
-                        Button {
-                            withAnimation {
-                                prax.columnVisibility = prax.columnVisibility == .detailOnly ? .all : .detailOnly
-                            }
-                            //   NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
-                            
-                        } label: {
-                            Label("Sidebar", systemImage: "sidebar.left")
-                        }
-                        
-                        
-                        Button("🧪 Open Log") {
-                            PraxLogger.shared.openLogFile()
-                        }
-                        
-                        Button("🧪 Test Error") {
-                            prax.praxTest()
-                        }
-                        
-                        ReusableSegmentedControl(selection: $prax.praxPressMode, colorProvider: { $0.color })
-                        
-                        
-                        Button {
-                            prax.showMergedDocumentInspector.toggle()
-                        } label: {
-                            Label((prax.showMergedDocumentInspector ? "Hide Merged" : "Show Merged"), systemImage: (prax.showMergedDocumentInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                        }
-                        Button {
-                            prax.showPDFPageItemInspector.toggle()
-                        } label: {
-                            Label((prax.showPDFPageItemInspector ? "Hide PDFPageItemInspector" : "Show PDFPageItemInspector"), systemImage: (prax.showPDFPageItemInspector ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                        }
-                        Button {
-                            prax.isLarge.toggle()
-                            Task {
-                                do {
-                                    await prax.persistence?.praxTest()
-                                }
-                            }
-                            
-                            
-                        } label: {
-                            Label((prax.isLarge ? "Status Small" : "Status Large"), systemImage: (prax.isLarge ? "minus.magnifyingglass" : "plus.magnifyingglass"))
-                        }
-                        
-                    }
-                    
-                    
-                    
-                })
+              
                 
             }
             .frame(maxHeight: 40)
@@ -238,7 +115,7 @@ struct ContentFooter: View {
         @Bindable var prax = prax
         HStack {
             Text(String(format: "Merged size:  %u KB", prax.document.mergedDocumentSizeKB))
-            GroupBox {
+     /*       GroupBox {
                 switch (prax.selectedFiles.count) {
                 case 0:
                     Text("No files selected")
@@ -247,7 +124,7 @@ struct ContentFooter: View {
                 default:
                     Text("\(prax.selectedFiles.count) Source files selected")
                 }}
-            
+    */
             Text("\(prax.editingDocumentPDFView.document?.pageCount ?? 0) Pages").font(.system(size: 8))
             
             Button { prax.editingDocumentPDFView.goToPreviousPage(self) }
@@ -358,48 +235,18 @@ struct MergedPagesFooter: View {
             
         }
         .dropDestination(
-            for: SourceFileTransfer.self,
+            for: URL.self,
             action: {
                 items, location in
                 for item in items {
-                    prax.document.addPagesFromSourceFilePayload(item.payload, at: IndexPath(item: -1, section: 0), toMergedPage: nil)
+                    
+                    print(item)
+                    
+                    //                    prax.document.addPagesFromSourceFilePayload(item.payload, at: IndexPath(item: -1, section: 0), toMergedPage: nil)
                     
                 }
                 return true},
             isTargeted: { targeted in prax.dropTargeted = targeted })
     }
-}
-
-
-
-
-#Preview {
-    @Previewable @State var prax = PraxModel(nil)
-    VStack {
-        ContentHeader()
-        ExportFilenameView()
-        MergedDocumentToolbarView()
-        EditingToolbarView()
-        
-    }
-    .environment(prax)
-    .frame(width: 1500)
-
-}
-
-#Preview {
-    @Previewable @State var prax = PraxModel(nil)
-    
-    ContentHeader()
-        .environment(prax)
-        .frame(width: 1500)
-}
-
-#Preview {
-    @Previewable @State var prax = PraxModel(nil)
-    
-    ContentView()
-        .environment(prax)
-        .frame(width: 1500, height: 800)
 }
 

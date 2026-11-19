@@ -12,7 +12,7 @@ import PDFKit
 struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
-    @Environment(PersistenceController.self) private var persistence
+    @Environment(PraxModel.self) private var persistence
   //  @Environment(SettingsModel.self) private var settingsModel
     
     @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.general
@@ -67,7 +67,7 @@ struct SettingsView: View {
                            }
                            .frame(height: 200)
                            .listStyle(.plain)
-                           .navigationTitle("Oceans")
+                           .navigationTitle("Julie d'Prax")
         //                   .toolbar { EditButton() }
                        }
                        Text("\(selectedFileType.count) selections")

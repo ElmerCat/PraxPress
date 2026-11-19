@@ -16,13 +16,13 @@
 			membershipExceptions = (
 				Info.plist,
 				"Views/Auxilliary Views/Popovers.swift",
-				"Views/Old Views/CollectionSupplementaryViews.swift",
-				"Views/Old Views/CollectionViewItems.swift",
-				"Views/Old Views/DataFieldsEditor.swift",
-				"Views/Old Views/DocumentEditingView.swift",
-				"Views/Old Views/InspectorPanel.swift",
-				"Views/Old Views/MainToolbar.swift",
-				"Views/Old Views/Removed Code.swift",
+				Views/RemovedCode/CollectionSupplementaryViews.swift,
+				Views/RemovedCode/CollectionViewItems.swift,
+				Views/RemovedCode/DataFieldsEditor.swift,
+				Views/RemovedCode/DocumentEditingView.swift,
+				Views/RemovedCode/InspectorPanel.swift,
+				"Views/RemovedCode/Removed Code 2.swift",
+				"Views/RemovedCode/Removed Code.swift",
 			);
 			target = DACA214C2EF8DB9400E38A38 /* PraxPress */;
 		};
